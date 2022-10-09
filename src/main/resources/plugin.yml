@@ -1,0 +1,4 @@
+name: NewSmashPlugin
+version: '${project.version}'
+main: io.github.zilosz.newsmashplugin.NewSmashPlugin
+authors: [ Aura ]
