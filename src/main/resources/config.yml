@@ -1,0 +1,43 @@
+Database:
+  Uri: "mongodb+srv://Aura6:CUrlito11@cluster0.spwav.mongodb.net/?retryWrites=true&w=majority"
+  Database: "SuperSmashLegendsRevamped"
+  Collection: "UserData"
+  Enabled: false
+Rules:
+  - "&7Welcome to &5&lSuper Smash Legends!"
+  - "&cAttack &7others to achieve victory."
+  - "&7But die &c{LIVES} &7times, and you're out!"
+  - "&7Use &dabilities &7through your hotbar."
+  - "&7The game is starting soon. &a&lGood Luck!"
+Economy:
+  StartingJewels: 100000
+  OfflineJewels: 50000
+Game:
+  Lives: 4
+  Team:
+    Size: 1
+    Count: 4
+  Tutorial:
+    Enabled: true
+    DurationTicks: 200
+    DelayTicks: 35
+  StartWaitSeconds: 5
+  DeathWaitSeconds: 5
+  EndWaitSeconds: 5
+Power:
+  Frequency: 1800
+  Height: 60
+  DropSpeed: 1
+  DetectionRadius: 2
+  Rarities:
+    Droid: 10
+Attack:
+  Melee:
+    Kb: 1.15
+    KbY: 0.55
+  DamageIndicator:
+    MaxDuration: 240
+    ComboDuration: 70
+  KbHealthMultiplier:
+    Min: 1
+    Max: 2

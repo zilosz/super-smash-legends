@@ -1,0 +1,15 @@
+KitSelector:
+  Material: "EYE_OF_ENDER"
+  Name: "&5&lKit Selector"
+  Lore:
+    - "&7Click to open the kit selector."
+ArenaVoter:
+  Material: "GRASS"
+  Name: "&2&lArena Voter"
+  Lore:
+    - "&7Click to open the arena voter."
+TeamSelector:
+  Material: "EMERALD"
+  Name: "&a&lTeam Selector"
+  Lore:
+    - "&7Click to open the team selector."

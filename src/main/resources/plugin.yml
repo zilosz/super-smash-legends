@@ -1,4 +1,15 @@
-name: NewSmashPlugin
-version: '${project.version}'
-main: io.github.zilosz.newsmashplugin.NewSmashPlugin
-authors: [ Aura ]
+name: SuperSmashLegends
+version: 1.0-SNAPSHOT
+main: io.github.aura6.supersmashlegends.SuperSmashLegends
+authors: [ Aura6 ]
+api-version: 1.8.8
+depend: [ ProtocolLib ]
+
+commands:
+  kit:
+    description: Opens the kit GUI or sets a player's kit.
+  reloadconfig:
+    description: Dynamically reloads the plugin configuration files.
+    aliases: [ rc, reloadconfigs ]
+  start:
+    description: Forces the game to start.

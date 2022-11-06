@@ -1,0 +1,45 @@
+Barbarian:
+  ConfigName: "Barbarian"
+  Name: "Barbarian"
+  Color: "&6"
+  Skin: "Santi_MST"
+  Price: 0
+  Damage: 7
+  Kb: 1.25
+  Armor: 0.55
+  Regen: 0.25
+  Jump:
+    Power: 1
+    Height: 1
+  Item:
+    Material: "IRON_AXE"
+  Abilities:
+    0: "AxeThrow"
+  Description:
+    - "&7This fearless warrior relies on his"
+    - "&7bulging muscles and striking mustache "
+    - "&7to wreak havoc on enemies. Become a "
+    - "&7Barbarian and enjoy the mayhem."
+Globby:
+  ConfigName: "Globby"
+  Name: "Globby"
+  Color: "&a"
+  Skin: "Skullhead68"
+  Price: 3000
+  Damage: 5
+  Kb: 2
+  Armor: 0.8
+  Regen: 0.35
+  Jump:
+    Power: 1.2
+    Height: 1.25
+  Item:
+    Material: "SLIME_BALL"
+  Abilities:
+    0: "GooeyBullet"
+  Description:
+    - "&7Globby is the master of everything sticky."
+    - "&7His gooey skin is quite fragile, but Globby"
+    - "&7makes up for this through his agile and"
+    - "&7unpredictable nature. The King of Slimes is"
+    - "&7a great choice for destroying opponents."
