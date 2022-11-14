@@ -13,3 +13,9 @@ commands:
     aliases: [ rc, reloadconfigs ]
   start:
     description: Forces the game to start.
+  end:
+    description: Forces the game to end.
+  skip:
+    description: Skips to the provided Game State.
+  dummy:
+    description: Spawns a dummy above the player.

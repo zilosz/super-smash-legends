@@ -44,15 +44,13 @@ public class KitSelector extends HorizontalInventory<Kit> {
                 String useDescription;
 
                 if (ability instanceof ClickableAbility) {
-                    ClickableAbility clickable = (ClickableAbility) ability;
-                    useDescription = String.format("&6%s &7to use %s&7.", clickable.getUseType(), ability.getDisplayName());
+                    useDescription = String.format("&6%s &7to use %s&7", ability.getUseType(), ability.getDisplayName());
 
                 } else if (ability instanceof PassiveAbility) {
-                    PassiveAbility passive = (PassiveAbility) ability;
-                    useDescription = String.format("%s&7: %s&7.", ability.getDisplayName(), passive.getUseDescription());
+                    useDescription = String.format("%s: &6%s&7", ability.getDisplayName(), ability.getUseType());
 
                 } else {
-                    useDescription = "&cThis ability does not extend PassiveAbility or ClickableAbility.";
+                    useDescription = "&cNOT PROVIDED";
                 }
 
                 abilityUses.add(useDescription);
@@ -61,39 +59,50 @@ public class KitSelector extends HorizontalInventory<Kit> {
 
         KitAccessType accessType = plugin.getKitManager().getKitAccess(player, kit);
 
+        Replacers replacers = new Replacers()
+                .add("STATUS", accessType.getLore(kit))
+                .add("REGEN", String.valueOf(kit.getRegen()))
+                .add("ARMOR", String.valueOf(kit.getArmor()))
+                .add("DAMAGE", String.valueOf(kit.getDamage()))
+                .add("KB", String.valueOf(kit.getKb()))
+                .add("JUMP_POWER", String.valueOf(kit.getJumpPower()))
+                .add("JUMP_HEIGHT", String.valueOf(kit.getJumpHeight()))
+                .add("JUMP_COUNT", String.valueOf(kit.getJumpCount()))
+                .add("ABILITIES", abilityUses)
+                .add("DESCRIPTION", kit.getDescription())
+                .add("COLOR", kit.getColor());
+
+        List<String> lore = new ArrayList<>(Arrays.asList(
+                "{STATUS}",
+                "",
+                "&3&lStats",
+                "&7Regen: {COLOR}{REGEN}",
+                "&7Armor: {COLOR}{ARMOR}",
+                "&7Damage: {COLOR}{DAMAGE}",
+                "&7Kb: {COLOR}{KB}",
+                "&7Jump Power: {COLOR}{JUMP_POWER}",
+                "&7Jump Height: {COLOR}{JUMP_HEIGHT}",
+                "&7Jump Count: {COLOR}{JUMP_COUNT}",
+                "",
+                "&3&lAbilities",
+                "{ABILITIES}",
+                "",
+                "&3&lDescription",
+                "{DESCRIPTION}",
+                ""
+        ));
+
+        if (kit.getEnergy() > 0) {
+            lore.add(10, "&7Energy: {COLOR}{ENERGY}");
+            replacers.add("ENERGY", String.valueOf(kit.getEnergy()));
+        }
+
+
         return new ItemBuilder<>(kit.getItemStack())
                 .setEnchanted(accessType == KitAccessType.ALREADY_SELECTED)
-                .setName("&l" + kit.getDisplayName())
-                .setLore(new Replacers()
-                        .add("STATUS", accessType.getLore(kit))
-                        .add("REGEN", String.valueOf(kit.getRegen()))
-                        .add("ARMOR", String.valueOf(kit.getArmor()))
-                        .add("DAMAGE", String.valueOf(kit.getDamage()))
-                        .add("KB", String.valueOf(kit.getKb()))
-                        .add("JUMP_POWER", String.valueOf(kit.getJumpPower()))
-                        .add("JUMP_HEIGHT", String.valueOf(kit.getJumpHeight()))
-                        .add("ABILITIES", abilityUses)
-                        .add("DESCRIPTION", kit.getDescription())
-                        .add("COLOR", kit.getColor())
-                        .replaceLines(Arrays.asList(
-                                "{STATUS}",
-                                "",
-                                "&3&lStats",
-                                "&7Regen: {COLOR}{REGEN}",
-                                "&7Armor: {COLOR}{ARMOR}",
-                                "&7Damage: {COLOR}{DAMAGE}",
-                                "&7Kb: {COLOR}{KB}",
-                                "&7Jump Power: {COLOR}{JUMP_POWER}",
-                                "&7Jump Height: {COLOR}{JUMP_HEIGHT}",
-                                "",
-                                "&3&lAbilities",
-                                "{ABILITIES}",
-                                "",
-                                "&3&lDescription",
-                                "{DESCRIPTION}",
-                                ""
-                        ))
-                ).get();
+                .setName("&l" + kit.getBoldedDisplayName())
+                .setLore(replacers.replaceLines(lore))
+                .get();
     }
 
     @Override

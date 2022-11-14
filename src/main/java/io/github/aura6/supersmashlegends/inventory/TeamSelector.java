@@ -32,34 +32,30 @@ public class TeamSelector extends HorizontalInventory<Team> {
 
     @Override
     public ItemStack getItemStack(Team team, Player player) {
-        String players;
+        String players = team.getPlayers().stream().map(Player::getName).collect(Collectors.joining(", "));
 
-        if (team.getSize() > 0) {
-            players = team.getPlayers().stream().map(Player::getName).collect(Collectors.joining(", "));
+        Replacers replacers = new Replacers()
+                .add("SIZE", String.valueOf(team.getSize()))
+                .add("CAP", String.valueOf(plugin.getTeamManager().getTeamSize()))
+                .add("PLAYERS", team.getSize() > 0 ? players : "&7&oNone");
 
-        } else {
-            players = "&7&oNone.";
-        }
+        List<String> lore = replacers.replaceLines(Arrays.asList(
+                "&3&lCapacity: &5{SIZE}&7/&f{CAP}",
+                "&3&lPlayers: &7{PLAYERS}"
+        ));
 
         return new ItemBuilder<>(team.getItemStack())
                 .setName(team.getName())
                 .setEnchanted(team.hasPlayer(player))
-                .setLore(new Replacers()
-                        .add("SIZE", String.valueOf(team.getSize()))
-                        .add("CAP", String.valueOf(plugin.getTeamManager().getTeamSize()))
-                        .add("PLAYERS", players)
-                        .replaceLines(Arrays.asList(
-                                "&3&lCapacity: &5{SIZE}&7/&f{CAP}",
-                                "&3&lPlayers: &7{PLAYERS}"
-                        ))
-                ).get();
+                .setLore(lore)
+                .get();
     }
 
     @Override
     public void onItemClick(Team team, Player player, InventoryClickEvent event) {
         AtomicReference<Team> chosenAtomic = new AtomicReference<>();
 
-        plugin.getTeamManager().getChosenTeam(player).ifPresent(chosen -> {
+        plugin.getTeamManager().findEntityTeam(player).ifPresent(chosen -> {
             chosen.removePlayer(player);
             chosenAtomic.set(chosen);
         });

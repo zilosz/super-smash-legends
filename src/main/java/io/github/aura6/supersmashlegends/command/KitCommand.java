@@ -26,7 +26,7 @@ public class KitCommand implements CommandExecutor {
 
             } else {
                 KitManager kitManager = plugin.getKitManager();
-                String name = StringUtils.capitalize(strings[0]);
+                String name = StringUtils.capitalize(strings[0].toLowerCase());
                 kitManager.getKitByName(name).ifPresent(kit -> kitManager.handleKitSelection(player, kit));
             }
         }

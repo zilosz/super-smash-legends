@@ -30,7 +30,7 @@ public class Skin {
     }
 
     public void apply(Plugin plugin, Player player) {
-        EntityPlayer nmsPlayer = NmsUtils.getPlayerHandle(player);
+        EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
         GameProfile profile = nmsPlayer.getProfile();
         profile.getProperties().removeAll("textures");
         updateProfile(profile);

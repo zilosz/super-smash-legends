@@ -39,9 +39,8 @@ public class Database {
 
         Document document = new Document("uuid", uuid.toString());
 
-        Optional.ofNullable(mongoCollection.find(document).first()).ifPresentOrElse(found -> {
-            mongoCollection.updateOne(found, Updates.set(key, value));
-        }, () -> {
+        Optional.ofNullable(mongoCollection.find(document).first())
+                .ifPresentOrElse(found -> mongoCollection.updateOne(found, Updates.set(key, value)), () -> {
             document.put(key, value);
             mongoCollection.insertOne(document);
         });

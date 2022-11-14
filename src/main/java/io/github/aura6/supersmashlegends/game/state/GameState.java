@@ -1,12 +1,13 @@
 package io.github.aura6.supersmashlegends.game.state;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
+import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
-import io.github.aura6.supersmashlegends.utils.message.Replacers;
+import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
@@ -19,8 +20,13 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+
+import java.util.List;
 
 public abstract class GameState implements Listener {
     protected final SuperSmashLegends plugin;
@@ -31,27 +37,71 @@ public abstract class GameState implements Listener {
 
     public abstract String getConfigName();
 
-    public abstract Replacers getScoreboardReplacers(Player player);
+    public abstract List<String> getScoreboard(Player player);
 
-    public void start() {
-        Bukkit.getPluginManager().registerEvents(this, plugin);
+    public abstract boolean isNotInGame();
+
+    public abstract void start();
+
+    public abstract void end();
+
+    public boolean isSame(GameState other) {
+        return getConfigName().equals(other.getConfigName());
     }
 
-    public void end() {
-        HandlerList.unregisterAll(this);
+    @EventHandler
+    public void handleJoinCapacity(AsyncPlayerPreLoginEvent event) {
+        if (Bukkit.getOnlinePlayers().size() >= plugin.getTeamManager().getPlayerCap()) {
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_FULL, "The game is full!");
+        }
+    }
+
+    @EventHandler
+    public void handleInGameJoin(PlayerJoinEvent event) {
+        if (isNotInGame()) return;
+
+        Player player = event.getPlayer();
+
+        Chat.GAME.send(player, "&7The game you joined is in progress.");
+        plugin.getGameManager().addSpectator(player);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        Chat.QUIT.send(player, String.format("&5%s &7has quit the game.", player.getName()));
+
         plugin.getEconomyManager().uploadUser(player);
         plugin.getKitManager().uploadUser(player);
+
+        if (isNotInGame()) {
+            Chat.QUIT.broadcast(String.format("&5%s &7has quit the game.", player.getName()));
+            return;
+        }
+
+        Chat.QUIT.broadcast(String.format("&5%s &7has quit mid-game.", player.getName()));
+
+        plugin.getKitManager().getSelectedKit(player).deactivate();
+
+        GameManager gameManager = plugin.getGameManager();
+        gameManager.removeSpectator(player);
+
+        plugin.getTeamManager().wipePlayer(player);
+        gameManager.wipePlayer(player);
+
+        if (gameManager.getAlivePlayers().size() == 0) {
+            Chat.GAME.broadcast("&7No players left. Returned to the lobby.");
+            gameManager.skipToState(new LobbyState(plugin));
+        }
     }
 
     @EventHandler
-    public void onEntityDamage(EntityDamageEvent event) {
-        if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
+    public void onChat(AsyncPlayerChatEvent event) {
+        event.setFormat(MessageUtils.color("&9" + event.getPlayer().getDisplayName() + ">> &7" + event.getMessage()));
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void handleDamage(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Player && event.getCause() == EntityDamageEvent.DamageCause.FALL || !(this instanceof InGameState)) {
             event.setCancelled(true);
         }
     }
@@ -63,8 +113,9 @@ public abstract class GameState implements Listener {
 
     @EventHandler
     public void onEntitySpawn(CreatureSpawnEvent event) {
-        if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.NATURAL) {
-            event.setCancelled(true);
+        switch (event.getSpawnReason()) {
+            case NATURAL: case EGG:
+                event.setCancelled(true);
         }
     }
 

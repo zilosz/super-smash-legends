@@ -1,45 +1,438 @@
 Barbarian:
-  ConfigName: "Barbarian"
+  ConfigName: Barbarian
   Name: "Barbarian"
   Color: "&6"
-  Skin: "Santi_MST"
-  Price: 0
-  Damage: 7
-  Kb: 1.25
-  Armor: 0.55
-  Regen: 0.25
-  Jump:
-    Power: 1
-    Height: 1
-  Item:
-    Material: "IRON_AXE"
-  Abilities:
-    0: "AxeThrow"
   Description:
     - "&7This fearless warrior relies on his"
     - "&7bulging muscles and striking mustache "
     - "&7to wreak havoc on enemies. Become a "
     - "&7Barbarian and enjoy the mayhem."
+  Skin: "Santi_MST"
+  Price: 0
+  Item:
+    Material: IRON_AXE
+  Damage: 6
+  Kb: 1.25
+  Armor: 0.6
+  Regen: 0.25
+  Jump:
+    Power: 1
+    Height: 1
+    Sound:
+      Type: HORSE_JUMP
+      Volume: 1
+      Pitch: 1
+  Abilities:
+    0:
+      ConfigName: AxeThrow
+      Name: "Axe Throw"
+      Item:
+        Material: IRON_AXE
+      Description:
+        - "&7Swiftly throw an axe to slice through"
+        - "&7foes. The Barbarian possesses pinpoint"
+        - "&7accuracy, so don't underestimate his"
+        - "&7weapon-wielding powers."
+      Cooldown: 60
+      Projectile:
+        Speed: 1.85
+        Damage: 5
+        Kb: 1.8
+        Item:
+          Material: IRON_AXE
+        LaunchSound:
+          Type: IRONGOLEM_THROW
+          Volume: 2
+          Pitch: 1
+        TargetHitSound:
+          Type: ZOMBIE_WOODBREAK
+          Volume: 1
+          Pitch: 1
+    1:
+      ConfigName: Berserk
+      Name: "Berserk"
+      Item:
+        Material: DIAMOND_PICKAXE
+      Description:
+        - "&7Substantially increase your speed and power"
+        - "&7in a fit of uncontrollable rage."
+      Cooldown: 180
+      AutoStartCooldown: false
+      Duration: 160
+      DamageMultiplier: 1.25
+      Speed: 2
+      ExtraJumps: 1
+    2:
+      ConfigName: SpringTrap
+      Name: "Spring Trap"
+      Item:
+        Material: GOLD_HOE
+      Description:
+        - "&7The Barbarian is traumatized from"
+        - "&7countless encounters with spring traps"
+        - "&7from his clashing days. Now, he has"
+        - "&7bested his mortal enemy, and uses his"
+        - "&7own traps as weapons. Right click to"
+        - "&7jump upwards, releasing a menacing"
+        - "&7spring that falls downwards."
+      Cooldown: 175
+      Uses: 2
+      AutoStartCooldown: false
+      Recoil: 1.4
+      Speed: 0.9
+      Damage: 7
+      Kb: 1.75
+      KbY: 0.7
+      Radius: 3.5
+      Aoe:
+        Damage: 4.5
+        Kb: 1.8
+        KbY: 0.7
+      Block:
+        Material: WOOD
+      LaunchSound:
+        Type: ZOMBIE_WOOD
+        Volume: 2
+        Pitch: 2
+      BlockHitSound:
+        Type: ZOMBIE_WOODBREAK
+        Volume: 2
+        Pitch: 1
+      TargetHitSound:
+        Type: ZOMBIE_WOODBREAK
+        Volume: 2
+        Pitch: 1
 Globby:
-  ConfigName: "Globby"
+  ConfigName: Globby
   Name: "Globby"
   Color: "&a"
-  Skin: "Skullhead68"
-  Price: 3000
-  Damage: 5
-  Kb: 2
-  Armor: 0.8
-  Regen: 0.35
-  Jump:
-    Power: 1.2
-    Height: 1.25
-  Item:
-    Material: "SLIME_BALL"
-  Abilities:
-    0: "GooeyBullet"
   Description:
     - "&7Globby is the master of everything sticky."
     - "&7His gooey skin is quite fragile, but Globby"
     - "&7makes up for this through his agile and"
     - "&7unpredictable nature. The King of Slimes is"
     - "&7a great choice for destroying opponents."
+  Skin: "Skullhead68"
+  Price: 3000
+  Item:
+    Material: SLIME_BALL
+  Damage: 5
+  Kb: 2
+  Armor: 0.8
+  Regen: 0.35
+  Energy: 0.14
+  Jump:
+    Power: 1.35
+    Height: 1.3
+    Sound:
+      Type: SLIME_WALK2
+      Volume: 1
+      Pitch: 2
+  Abilities:
+    0:
+      ConfigName: GooeyBullet
+      Name: "Gooey Bullet"
+      Item:
+        Material: IRON_BARDING
+      Description:
+        - "&7Launches a small yet powerful hunk of"
+        - "&7goo. The sheer speed of the goo, along"
+        - "&7with its slimy nature, allows it to"
+        - "&7bounce off obstacles."
+      EnergyCost: 0.32
+      Speed: 1.2
+      Damage: 3
+      Kb: 1.5
+      KbY: 0.45
+      HasGravity: false
+      MaxBounces: 5
+      HitBox: 1
+      Size: 1
+      BlockHitSound:
+        Type: SLIME_WALK
+        Volume: 2
+        Pitch: 1
+      TargetHitSound:
+        Type: SLIME_ATTACK
+        Volume: 2
+        Pitch: 1
+      LaunchSound:
+        Type: SLIME_WALK2
+        Volume: 2
+        Pitch: 2
+    1:
+      ConfigName: IncarnationSlam
+      Name: "Incarnation Slam"
+      Item:
+        Material: GOLD_AXE
+      Description:
+        - "&7As King of the Slimes, Globby possesses"
+        - "&7inherent divine ability. He is able to"
+        - "&7reincarnate himself as a grand, ferocious"
+        - "&7slime, bloated to no avail. In a brief"
+        - "&7display of strength, Globby flings his new"
+        - "&7body forward, striking enemies."
+      Cooldown: 170
+      AutoStartCooldown: false
+      Velocity: 1.2
+      VelocityY: 1.35
+      SlimeSize: 3
+      HitBox: 2.5
+      Damage: 6
+      Kb: 2.1
+      KbY: 0.65
+    2:
+      ConfigName: SlimyRetreat
+      Name: "Slimy Retreat"
+      Item:
+        Material: DIAMOND_SPADE
+      Description:
+        - "&7Globby may be powerful, but he likes"
+        - "&7attacking from a distance. He releases"
+        - "&7pent-up frustration in a mini slime explosion"
+        - "&7that damages nearby enemies. He is flung"
+        - "&7backwards, away from any potential threats."
+      Cooldown: 125
+      Velocity: 2.2
+      MinDamage: 2.5
+      MaxDamage: 7.5
+      MinKb: 0.9
+      MaxKb: 1.9
+      KbY: 0.85
+      Radius: 7
+    3:
+      ConfigName: StickySituation
+      Name: "Sticky Situation"
+      Item:
+        Material: SLIME_BALL
+      Description:
+        - "&7Globby doesn't like being threatened. When"
+        - "&7at low health, he immensely increases his"
+        - "&7energy efficiency in an act of pure survival"
+        - "&7instincts."
+      UseDescription: "Receive energy boost when at low health"
+      EnergyMultiplier: 1.65
+      Speed: 1
+      HealthThreshold: 7.5
+Mechon:
+  ConfigName: Mechon
+  Name: "Mechon"
+  Color: "&c"
+  Description:
+    - "&7Mechon is an entity of unbridled"
+    - "&7intelligence matched with a powerful"
+    - "&7cyborg body. These traits enable him"
+    - "&7to make use of various mechanized gadgets"
+    - "&7to destroy his opponents."
+  Skin: "MrGabeeee"
+  Price: 6000
+  Item:
+    Material: IRON_CHESTPLATE
+  Damage: 6.5
+  Kb: 1.3
+  Armor: 0.55
+  Regen: 0.25
+  Energy: 0.3
+  Jump:
+    Power: 1.15
+    Height: 1
+    Sound:
+      Type: ZOMBIE_METAL
+      Volume: 1
+      Pitch: 0.5
+  Abilities:
+    0:
+      ConfigName: RocketLauncher
+      Name: "Rocket Launcher"
+      Item:
+        Material: DIAMOND_SWORD
+      Description:
+        - "&7Mechon's mechanized frame contains a"
+        - "&7vital, hidden weapon: a deadly rocket"
+        - "&7launcher. It's sheer power generates"
+        - "&7slight recoil and allows for Mechon to"
+        - "&7fire a thick bullet that breaks into"
+        - "&7shrapnel upon hitting entities or blocks."
+      Cooldown: 100
+      MaxChargeTicks: 25
+      ShowExp: false
+      Rocket:
+        Lifespan: 85
+        KbY: 0.8
+        HitBox: 1.5
+        MinDamage: 0.75
+        MaxDamage: 6
+        MinKb: 1.1
+        MaxKb: 2.1
+        Invisible: true
+        HasGravity: false
+        MinSpeed: 0.5
+        MaxSpeed: 2.79
+        Item:
+          Material: GHAST_TEAR
+        LaunchSound:
+          Type: FIREWORK_LAUNCH
+          Volume: 2
+          Pitch: 1
+        Shrapnel:
+          Count: 8
+          Pitch: 18
+          YawSpread: 28
+          Multiplier: 0.85
+          Item:
+            Material: FIREWORK
+    1:
+      ConfigName: AerialAssault
+      Name: "Aerial Assault"
+      Item:
+        Material: IRON_SWORD
+      Description:
+        - "&7Rapidly glide downwards until the time"
+        - "&7limit passes or you touch the ground."
+        - "&7Colliding with enemies harms them."
+      Cooldown: 105
+      MaxChargeTicks: 30
+      ShowExp: false
+      Speed: 1.3
+      VelocityY: -0.625
+      HitBox: 2
+      Damage: 6.5
+      Kb: 1.75
+      KbY: 0.7
+    2:
+      ConfigName: Jetpack
+      Name: "Jetpack"
+      Item:
+        Material: IRON_BOOTS
+      Description:
+        - "&7Yes, you read that right. Another of"
+        - "&7Mechon's gadget is an actual JETPACK."
+        - "&7Phew. Sneak to generate forward momentum,"
+        - "&7taking enemies by surprise."
+      Velocity: 0.8
+      VelocityY: 0.45
+      StreamLength: 5
+      StreamFeetDistance: 0.5
+      MaxStreamSpread: 0.5
+      StreamSpreadStep: 0.015f
+      StreamStep: 0.1
+      ParticlesPerStep: 10
+      EnergyPerTick: 0.05
+Squawk:
+  ConfigName: Squawk
+  Name: "Squawk"
+  Description:
+    - "&7Squawk"
+  Color: "&f"
+  Skin: "Nugleet"
+  Price: 4500
+  Item:
+    Material: FEATHER
+  Damage: 4.5
+  Kb: 1.85
+  Energy: 0.2
+  Regen: 0.3
+  Armor: 0.8
+  Jump:
+    Power: 1.03
+    Height: 0.85
+    Count: 4
+    Sound:
+      Type: CHICKEN_IDLE
+      Volume: 1
+      Pitch: 1
+  Abilities:
+    0:
+      ConfigName: Eggstacy
+      Name: "Eggstacy"
+      Item:
+        Material: IRON_SWORD
+      Description:
+        - "&7As a chicken, Squawk will periodically"
+        - "&7lay eggs. However, she often gets"
+        - "&7carried away. Rather than hatching surplus"
+        - "&7eggs, Squawk prefers to throw them at"
+        - "&7enemies in cruel, barbaric fashion!"
+      EnergyCost: 0.065
+      ExtraEggsPerTick: 0
+      Speed: 1.6
+      Spread: 4
+      Damage: 2.4
+      Kb: 0.85
+      KbY: 0.45
+      MaxBounces: 5
+      LaunchSound:
+        Type: CHICKEN_EGG_POP
+        Volume: 1
+        Pitch: 1
+    1:
+      ConfigName: AngryHatchling
+      Name: "Angry Hatchling"
+      Item:
+        Material: DIAMOND_SPADE
+      Description:
+        - "&7Squawk detests motherhood. So much"
+        - "&7so, in fact, that her fury sometimes"
+        - "&7manifests in her children. Angry and"
+        - "&7volatile, they spiral towards the"
+        - "&7ground at a violent pace, exploding"
+        - "&7upon contact."
+      Cooldown: 105
+      HasGravity: false
+      Radius: 5
+      Recoil: 1.35
+      Damage: 7.5
+      Kb: 2
+      KbY: 0.8
+      Speed: 1.15
+      LaunchSound:
+        Type: CHICKEN_EGG_POP
+        Volume: 3
+        Pitch: 1
+Drakula:
+  ConfigName: Drakula
+  Name: "Drakula"
+  Color: "&5"
+  Item:
+    Material: REDSTONE
+  Description:
+    - "&7This vile creature sustains itself by"
+    - "&7feeding on the essence of the living."
+    - "&7Unlike most vampires, it does not rely"
+    - "&7on the element of surprise. It would"
+    - "&7rather engage in life-or-death combat"
+    - "&7to satisfy its bloody appetite."
+  Skin: "UFC321"
+  Price: 3500
+  Damage: 5
+  Armor: 0.7
+  Kb: 1.75
+  Regen: 0.33
+  Jump:
+    Power: 1.15
+    Height: 1
+    Sound:
+      Type: ZOMBIE_UNFECT
+      Volume: 1
+      Pitch: 1
+  Abilities:
+    0:
+      ConfigName: Bloodshot
+      Name: "Bloodshot"
+      Item:
+        Material: IRON_AXE
+      Description:
+        - "&7Shoot multiple pellets of venom-tainted"
+        - "&7blood at enemies, inflicting damage and"
+        - "&7debilitating poison."
+      Cooldown: 110
+      Interval: 2
+      Count: 10
+      Projectile:
+        PoisonDuration: 40
+        PoisonLevel: 1
+        Speed: 1.3
+        Damage: 4
+        Kb: 0.9
+        Item:
+          Material: REDSTONE

@@ -1,7 +1,6 @@
 package io.github.aura6.supersmashlegends.game;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import io.github.aura6.supersmashlegends.game.state.GameState;
 import io.github.thatkawaiisam.assemble.AssembleAdapter;
 import org.bukkit.entity.Player;
 
@@ -21,8 +20,6 @@ public class GameScoreboard implements AssembleAdapter {
 
     @Override
     public List<String> getLines(Player player) {
-        GameState state = plugin.getStateManager().getState();
-        List<String> lines = plugin.getResources().getScoreboard().getStringList("Contents." + state.getConfigName());
-        return state.getScoreboardReplacers(player).replaceLines(lines);
+        return plugin.getGameManager().getState().getScoreboard(player);
     }
 }

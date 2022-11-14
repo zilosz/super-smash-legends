@@ -9,35 +9,69 @@ Rules:
   - "&7But die &c{LIVES} &7times, and you're out!"
   - "&7Use &dabilities &7through your hotbar."
   - "&7The game is starting soon. &a&lGood Luck!"
+Description:
+  - "&5&l------------------------------"
+  - "&7Welcome to &5&o&lSuper Smash Legends!"
+  - ""
+  - "&7&cFight &7and &ckill &7other players."
+  - "&7Toggle flight to &bdouble jump&7."
+  - "&7Click in your hotbar to use &dabilities&7."
+  - ""
+  - "&2&lArena - {ARENA} &7by &f&l{AUTHORS}"
+  - "&5&l------------------------------"
 Economy:
   StartingJewels: 100000
   OfflineJewels: 50000
+  JewelsEarnedWeights:
+    PerKill: 50
+    WinBonus: 100
+Collision:
+  CheckRange: 2
+  CheckStep: 0.2
+  FaceAccuracy: 0.05
+  MaxStuckDuration: 10
 Game:
   Lives: 4
   Team:
     Size: 1
     Count: 4
   Tutorial:
-    Enabled: true
     DurationTicks: 200
-    DelayTicks: 35
-  StartWaitSeconds: 5
+    DelayTicks: 45
   DeathWaitSeconds: 5
+  StartWaitSeconds: 5
   EndWaitSeconds: 5
-Power:
-  Frequency: 1800
-  Height: 60
-  DropSpeed: 1
-  DetectionRadius: 2
-  Rarities:
-    Droid: 10
-Attack:
+Damage:
+  DefaultImmunityTicks: 10
+  Lifetime: 240
+  Indicator:
+    ComboDuration: 70
+    Height:
+      Entity: 0.4
+      Player: 1.2
   Melee:
     Kb: 1.15
     KbY: 0.55
-  DamageIndicator:
-    MaxDuration: 240
-    ComboDuration: 70
   KbHealthMultiplier:
     Min: 1
     Max: 2
+Power:
+  Frequency: 600
+  Height: 100
+  DropSpeed: 0.5
+  DetectionRadiusSquared: 4
+  Powers:
+    Droid:
+      Name: "&8Droid"
+      Item:
+        Material: IRON_BLOCK
+      Description:
+        - "&7Command a legion of fast, hungry droids."
+        - "&7With an advanced, built-in homing system,"
+        - "&7they're able to hunt down prey at an "
+        - "&7unparalleled success rate."
+      Rarity: 10
+      Uses: 3
+      NormalSpeed: 0.7
+      HomingSpeed: 1.5
+      Vision: 30

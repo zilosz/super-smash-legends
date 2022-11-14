@@ -2,20 +2,22 @@ package io.github.aura6.supersmashlegends.team;
 
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import org.bukkit.Bukkit;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class TeamManager {
-    private final SuperSmashLegends plugin;
-    private final List<Team> teams = new ArrayList<>();
 
-    private final List<TeamData> teamColors = Arrays.asList(
+    private static final List<TeamData> TEAM_COLORS = Arrays.asList(
             new TeamData("Yellow", "&e", 4),
             new TeamData("Blue", "&b", 3),
             new TeamData("Red", "&c", 14),
@@ -29,9 +31,17 @@ public class TeamManager {
             new TeamData("White", "&f", 0)
     );
 
+    private final SuperSmashLegends plugin;
+    private final List<Team> teams = new ArrayList<>();
+    private final Map<UUID, Team> entityTeams = new HashMap<>();
+
     public TeamManager(SuperSmashLegends plugin) {
         this.plugin = plugin;
-        teamColors.subList(0, getTeamCount()).forEach(colors -> teams.add(new Team(colors)));
+        grabTeams();
+    }
+
+    private void grabTeams() {
+        TEAM_COLORS.subList(0, getTeamCount()).forEach(colors -> teams.add(new Team(plugin, colors)));
     }
 
     private Section getTeamConfig() {
@@ -43,7 +53,7 @@ public class TeamManager {
     }
 
     public int getTeamCount() {
-        return Math.min(getTeamConfig().getInt("Count"), teamColors.size());
+        return Math.min(getTeamConfig().getInt("Count"), TEAM_COLORS.size());
     }
 
     public int getPlayerCap() {
@@ -54,17 +64,50 @@ public class TeamManager {
         return Collections.unmodifiableList(teams);
     }
 
-    public Optional<Team> getChosenTeam(Player player) {
-        return teams.stream().filter(team -> team.hasPlayer(player)).findAny();
+    public Team getPlayerTeam(Player player) {
+        return entityTeams.get(player.getUniqueId());
     }
 
-    public boolean canPlayerJoinTeam(Player player, Team team) {
-        return !team.hasPlayer(player) && team.getSize() < getTeamSize();
+    private void assignPlayer(Player player, Team team) {
+        team.addPlayer(player);
+        entityTeams.put(player.getUniqueId(), team);
     }
 
-    public void assignPlayers() {
-        Bukkit.getOnlinePlayers().forEach(player -> teams.stream()
-                .filter(team -> canPlayerJoinTeam(player, team))
-                .findFirst().ifPresent(team -> team.addPlayer(player)));
+    public void assignPlayer(Player player) {
+        findEntityTeam(player).ifPresentOrElse(chosen -> assignPlayer(player, chosen), () ->
+                teams.stream()
+                        .filter(team -> team.canJoin(player))
+                        .findFirst().ifPresent(team -> assignPlayer(player, team)));
+    }
+
+    public void removeEmptyTeams() {
+        teams.removeIf(Team::isEmpty);
+    }
+
+    public List<Team> getAliveTeams() {
+        return teams.stream().filter(Team::isAlive).collect(Collectors.toList());
+    }
+
+    public boolean isGameTieOrWin() {
+        return teams.stream().filter(Team::isAlive).count() <= 1;
+    }
+
+    public void wipePlayer(Player player) {
+        Team team = entityTeams.remove(player.getUniqueId());
+        team.removePlayer(player);
+
+        if (team.isEmpty()) {
+            teams.remove(team);
+        }
+    }
+
+    public Optional<Team> findEntityTeam(LivingEntity entity) {
+        return Optional.ofNullable(entityTeams.getOrDefault(entity.getUniqueId(), null));
+    }
+
+    public void reset() {
+        teams.clear();
+        entityTeams.clear();
+        grabTeams();
     }
 }

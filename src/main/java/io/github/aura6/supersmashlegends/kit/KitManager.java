@@ -1,6 +1,7 @@
 package io.github.aura6.supersmashlegends.kit;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
+import io.github.aura6.supersmashlegends.game.state.InGameState;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import net.citizensnpcs.api.CitizensAPI;
@@ -44,7 +45,7 @@ public class KitManager implements Listener {
         kitsByName.put(kit.getConfigName(), kit);
 
         String locString = plugin.getResources().getLobby().getString("KitNpcLocations." + kit.getConfigName());
-        Location location = YamlReader.readLocation("lobby", locString);
+        Location location = YamlReader.location("lobby", locString);
 
         NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, kit.getSkinName());
         npc.setName(kit.getDisplayName());
@@ -86,6 +87,10 @@ public class KitManager implements Listener {
         selectedKits.put(player.getUniqueId(), newKit);
         newKit.equip(player);
 
+        if (plugin.getGameManager().getState() instanceof InGameState) {
+            newKit.activate();
+        }
+
         ownedKits.get(player.getUniqueId()).add(newKit.getConfigName());
 
         Chat.KIT.send(player, String.format("&7You have selected the %s &7kit.", newKit.getDisplayName()));
@@ -108,7 +113,12 @@ public class KitManager implements Listener {
     }
 
     public void wipePlayerKit(Player player) {
-        Optional.ofNullable(selectedKits.remove(player.getUniqueId())).ifPresent(Kit::destroy);
+        Optional.ofNullable(selectedKits.remove(player.getUniqueId())).ifPresent(kit -> {
+            kit.unequip();
+            if (plugin.getGameManager().getState() instanceof InGameState) {
+                kit.deactivate();
+            }
+        });
     }
 
     public Optional<Kit> getKitByName(String name) {

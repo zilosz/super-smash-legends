@@ -10,8 +10,12 @@ public enum Chat {
     QUIT("&cQuit>> "),
     ARENA("&2Arena>> "),
     TEAM("&6Team>> "),
-    COMMAND("&4Command>> "),
-    GAME("&5Game>> ");
+    COMMAND("&1Command>> "),
+    GAME("&5Game>> "),
+    DEATH("&4Death>> "),
+    COOLDOWN("&7Cooldown>> "),
+    ABILITY("&dAbility>> "),
+    POWER("&8Power>> ");
 
     private final String prefix;
 

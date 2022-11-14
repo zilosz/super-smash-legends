@@ -24,20 +24,38 @@ public class HotbarItem implements Listener {
         this.slot = slot;
     }
 
+    public void show() {
+        player.getInventory().setItem(slot, itemStack);
+    }
+
     public void register(Plugin plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
-        player.getInventory().setItem(slot, itemStack);
+        show();
+    }
+
+    public void hide() {
+        player.getInventory().setItem(slot, null);
     }
 
     public void destroy() {
         HandlerList.unregisterAll(this);
-        player.getInventory().setItem(slot, null);
+        hide();
     }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getPlayer() == player && event.getPlayer().getInventory().getHeldItemSlot() == slot && action != null) {
+        if (event.getPlayer() != player) return;
+        if (event.getPlayer().getInventory().getHeldItemSlot() != slot) return;
+
+        if (action != null) {
             action.accept(event);
+        }
+
+        String name = event.getItem().getType().name();
+
+        if (name.contains("BOOTS") || name.contains("CHESTPLATE") || name.contains("LEGGINGS") || name.contains("HELMET")) {
+            event.setCancelled(true);
+            event.getPlayer().updateInventory();
         }
     }
 }

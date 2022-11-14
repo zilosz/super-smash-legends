@@ -9,21 +9,21 @@ import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class Ability extends Attribute {
+public abstract class Ability extends Attribute implements Nameable {
     protected final Section config;
-    @Getter protected final int slot;
-    protected HotbarItem hotbarItem;
+    @Getter @Setter protected int slot;
+    @Getter protected HotbarItem hotbarItem;
 
-    public Ability(SuperSmashLegends plugin, Section config, Kit kit, int slot) {
+    public Ability(SuperSmashLegends plugin, Section config, Kit kit) {
         super(plugin, kit);
         this.config = config;
-        this.slot = slot;
     }
 
     public abstract String getUseType();
@@ -32,36 +32,50 @@ public abstract class Ability extends Attribute {
         return config.getStringList("Description");
     }
 
+    public String getColor() {
+        return kit.getColor();
+    }
+
+    @Override
     public String getDisplayName() {
-        return MessageUtils.color(kit.getColor() + config.getString("Name"));
+        return MessageUtils.color(getColor() + config.getString("Name"));
+    }
+
+    public String getBoldedDisplayName() {
+        return MessageUtils.color(getColor() + "&l" + config.getString("Name"));
     }
 
     public ItemStack buildItem() {
-        return new ItemBuilder<>(YamlReader.readItemStack(config.getSection("Item")))
-                .setName(getDisplayName())
-                .setLore(new Replacers()
-                    .add("DESCRIPTION", getDescription())
-                    .replaceLines(Arrays.asList(
-                            "&3&lDescription",
-                            "{DESCRIPTION}"
-                    ))
-        ).get();
+
+        Replacers replacers = new Replacers()
+                .add("DESCRIPTION", getDescription());
+
+        List<String> lore = replacers.replaceLines(Arrays.asList(
+                "&3&lDescription",
+                "{DESCRIPTION}"
+        ));
+
+        return new ItemBuilder<>(YamlReader.stack(config.getSection("Item")))
+                .setName(getBoldedDisplayName())
+                .setLore(lore)
+                .get();
     }
 
     public void sendDescription() {
         player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 1);
 
-        new Replacers()
-                .add("COLOR", kit.getColor())
+        Replacers replacers = new Replacers()
+                .add("COLOR", getColor())
                 .add("DISPLAY_NAME", getDisplayName())
                 .add("USE_TYPE", getUseType())
-                .add("DESCRIPTION", getDescription())
-                .replaceLines(Arrays.asList(
-                        "{COLOR}---------------------------------",
-                        "&l{DISPLAY_NAME} &7- &6{USE_TYPE}",
-                        "{DESCRIPTION}",
-                        "{COLOR}---------------------------------"
-                )).forEach(player::sendMessage);
+                .add("DESCRIPTION", getDescription());
+
+        replacers.replaceLines(Arrays.asList(
+                "{COLOR}---------------------------------",
+                "&l{DISPLAY_NAME} &7- &6{USE_TYPE}",
+                "{DESCRIPTION}",
+                "{COLOR}---------------------------------"
+        )).forEach(player::sendMessage);
     }
 
     @Override
@@ -73,8 +87,13 @@ public abstract class Ability extends Attribute {
     }
 
     @Override
-    public void destroy() {
-        super.destroy();
+    public void unequip() {
         hotbarItem.destroy();
+    }
+
+    @Override
+    public void deactivate() {
+        super.deactivate();
+        hotbarItem.setAction(null);
     }
 }
