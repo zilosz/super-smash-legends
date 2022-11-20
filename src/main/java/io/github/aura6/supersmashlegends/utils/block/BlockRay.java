@@ -1,4 +1,4 @@
-package io.github.aura6.supersmashlegends.utils.ray;
+package io.github.aura6.supersmashlegends.utils.block;
 
 import lombok.Getter;
 import org.bukkit.Location;

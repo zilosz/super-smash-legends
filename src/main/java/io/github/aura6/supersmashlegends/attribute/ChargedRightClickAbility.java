@@ -100,4 +100,12 @@ public abstract class ChargedRightClickAbility extends RightClickAbility {
 
         ticksCharging++;
     }
+
+    @Override
+    public void deactivate() {
+        if (ticksCharging > 0) {
+            onChargeEnd();
+        }
+        super.deactivate();
+    }
 }

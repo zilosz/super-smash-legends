@@ -25,6 +25,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.Set;
 
 public class PowerManager implements Listener {
@@ -152,6 +153,11 @@ public class PowerManager implements Listener {
 
         if (player.getGameMode() == GameMode.SPECTATOR) return;
 
+        Kit kit = plugin.getKitManager().getSelectedKit(player);
+        OptionalInt openSlot = kit.findOpenSlot();
+
+        if (openSlot.isEmpty()) return;
+
         List<PowerCrystal> toRemove = new ArrayList<>();
 
         for (PowerCrystal crystal : activeCrystals) {
@@ -162,8 +168,8 @@ public class PowerManager implements Listener {
 
                 PowerInfo info = crystal.getPowerInfo();
 
-                Kit kit = plugin.getKitManager().getSelectedKit(player);
-                kit.addAttribute(Reflector.newInstance(crystal.getPower(), plugin, info.getConfig(), kit));
+                Ability power = Reflector.newInstance(crystal.getPower(), plugin, info.getConfig(), kit);
+                kit.addAbility(power, openSlot.getAsInt());
 
                 String playerName = kit.getColor() + player.getName();
                 Chat.POWER.broadcast(String.format("%s &7collected the %s&7!", playerName, info.getName()));

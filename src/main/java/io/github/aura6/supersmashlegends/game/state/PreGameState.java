@@ -12,6 +12,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -32,21 +33,26 @@ public class PreGameState extends GameState {
     public List<String> getScoreboard(Player player) {
         Arena arena = plugin.getArenaManager().getArena();
 
-        Replacers replacers =  new Replacers()
+        Replacers replacers = new Replacers()
                 .add("ARENA", arena.getName())
-                .add("AUTHORS", arena.getAuthors())
-                .add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+                .add("AUTHORS", arena.getAuthors());
 
-        return replacers.replaceLines(Arrays.asList(
+        List<String> lore = new ArrayList<>(Arrays.asList(
                 "&5&l---------------------",
                 "&7The game is starting...",
                 "",
                 "&fArena: {ARENA}",
                 "&fAuthors: &7{AUTHORS}",
                 "",
-                "&fKit: &5{KIT}",
                 "&5&l---------------------"
         ));
+
+        if (!plugin.getGameManager().isSpectator(player)) {
+            lore.add(6, "&fKit: &5{KIT}");
+            replacers.add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+        }
+
+        return replacers.replaceLines(lore);
     }
 
     @Override

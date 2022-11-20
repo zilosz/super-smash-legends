@@ -98,7 +98,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
 
-        Location location = overrideLocation == null ? ability.getPlayer().getEyeLocation() : overrideLocation;
+        Location location = overrideLocation == null ? ability.getPlayer().getEyeLocation() : overrideLocation.clone();
         location.setYaw((float) MathUtils.randSpread(location.getYaw(), spread));
         location.setPitch((float) MathUtils.randSpread(location.getPitch(), spread));
 

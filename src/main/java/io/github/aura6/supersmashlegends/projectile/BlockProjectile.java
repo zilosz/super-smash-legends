@@ -3,6 +3,7 @@ package io.github.aura6.supersmashlegends.projectile;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
+import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.FallingBlock;
@@ -10,9 +11,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 
 public class BlockProjectile extends EmulatedProjectile<FallingBlock> {
+    @Setter private Material material;
+    @Setter private byte data;
 
     public BlockProjectile(SuperSmashLegends plugin, Ability ability, Section config) {
         super(plugin, ability, config);
+
+        material = Material.valueOf(config.getOptionalString("Block.Material").orElse("OBSIDIAN"));
+        data = config.getOptionalByte("Block.Data").orElse((byte) 0);
     }
 
     @Override
@@ -22,13 +28,9 @@ public class BlockProjectile extends EmulatedProjectile<FallingBlock> {
 
     @Override
     public FallingBlock createEntity(Location location) {
-        Material type = Material.valueOf(config.getString("Block.Material"));
-        byte data = config.getOptionalByte("Block.Data").orElse((byte) 0);
-
-        FallingBlock block = location.getWorld().spawnFallingBlock(location, type, data);
+        FallingBlock block = location.getWorld().spawnFallingBlock(location, material, data);
         block.setDropItem(false);
         block.setHurtEntities(false);
-
         return block;
     }
 

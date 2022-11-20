@@ -1,7 +1,7 @@
-package io.github.aura6.supersmashlegends.inventory;
+package io.github.aura6.supersmashlegends.arena;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import io.github.aura6.supersmashlegends.arena.Arena;
+import io.github.aura6.supersmashlegends.utils.HorizontalInventory;
 import io.github.aura6.supersmashlegends.utils.ItemBuilder;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
@@ -31,18 +31,22 @@ public class ArenaVoter extends HorizontalInventory<Arena> {
 
     @Override
     public ItemStack getItemStack(Arena arena, Player player) {
+
+        Replacers replacers = new Replacers()
+                .add("AUTHORS", arena.getAuthors())
+                .add("VOTES", String.valueOf(arena.getTotalVotes()));
+
+        List<String> lore = replacers.replaceLines(Arrays.asList(
+                "&3&lAuthors: &7{AUTHORS}&7",
+                "&3&lVotes: &f{VOTES}",
+                ""
+        ));
+
         return new ItemBuilder<>(arena.getItemStack())
                 .setEnchanted(arena.isVotedFor(player))
                 .setName(arena.getName())
-                .setLore(new Replacers()
-                        .add("AUTHORS", arena.getAuthors())
-                        .add("VOTES", String.valueOf(arena.getTotalVotes()))
-                        .replaceLines(Arrays.asList(
-                                "&3&lAuthors: &7{AUTHORS}&7",
-                                "&3&lVotes: &f{VOTES}",
-                                ""
-                        ))
-                ).get();
+                .setLore(lore)
+                .get();
     }
 
     @Override

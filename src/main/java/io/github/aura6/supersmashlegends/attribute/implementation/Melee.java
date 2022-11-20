@@ -7,6 +7,7 @@ import io.github.aura6.supersmashlegends.attribute.Nameable;
 import io.github.aura6.supersmashlegends.damage.Damage;
 import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
+import io.github.aura6.supersmashlegends.team.TeamPreference;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -28,11 +29,16 @@ public class Melee extends Attribute implements Nameable {
         if (event.getDamager() != player) return;
         if (!(event.getEntity() instanceof LivingEntity)) return;
 
+        event.setCancelled(true);
+        LivingEntity entity = (LivingEntity) event.getEntity();
+
+        if (TeamPreference.FRIENDLY.validate(plugin.getTeamManager().getPlayerTeam(player), entity)) return;
+
         Section config = plugin.getResources().getConfig().getSection("Damage.Melee");
         Vector direction = player.getEyeLocation().getDirection();
         Damage damage = Damage.Builder.fromConfig(config, direction).setDamage(kit.getDamage()).build();
 
-        AttributeDamageEvent damageEvent = new AttributeDamageEvent((LivingEntity) event.getEntity(), damage, this);
+        AttributeDamageEvent damageEvent = new AttributeDamageEvent(entity, damage, this);
         plugin.getDamageManager().attemptAttributeDamage(damageEvent);
     }
 }

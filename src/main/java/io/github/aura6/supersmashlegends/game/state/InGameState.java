@@ -5,7 +5,7 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
 import io.github.aura6.supersmashlegends.attribute.Nameable;
 import io.github.aura6.supersmashlegends.damage.DamageManager;
-import io.github.aura6.supersmashlegends.game.PlayerProfile;
+import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.kit.KitManager;
 import io.github.aura6.supersmashlegends.team.Team;
@@ -95,19 +95,27 @@ public class InGameState extends GameState {
             scoreboard.add("&5&lTeams");
 
             for (Team team : teamManager.getAliveTeams()) {
+
                 for (Player member : team.getPlayers()) {
                     scoreboard.add(getPlayerLivesText(member, lifeCap, team.getColor()));
                 }
             }
+
+            scoreboard.add("");
         }
 
-        Replacers replacers = new Replacers()
-                .add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+        Replacers replacers = new Replacers();
 
-        scoreboard.addAll(replacers.replaceLines(Arrays.asList(
-                "&fKit: {KIT}",
+        List<String> lore = new ArrayList<>(List.of(
                 "&5&l---------------------"
-        )));
+        ));
+
+        if (!plugin.getGameManager().isSpectator(player)) {
+            lore.add(0, "&fKit: {KIT}");
+            replacers.add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+        }
+
+        scoreboard.addAll(replacers.replaceLines(lore));
 
         return scoreboard;
     }
@@ -156,17 +164,24 @@ public class InGameState extends GameState {
     }
 
     @EventHandler
-    public void onVoid(EntityDamageEvent event) {
+    public void onInGameDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
-        if (event.getCause() != EntityDamageEvent.DamageCause.VOID) return;
 
         Player player = (Player) event.getEntity();
 
-        if (player.getGameMode() == GameMode.SPECTATOR) {
-            player.teleport(plugin.getArenaManager().getArena().getWaitLocation());
+        if (event.getCause() != EntityDamageEvent.DamageCause.FALL) {
+            InGameProfile profile = plugin.getGameManager().getProfile(player);
+            profile.setDamageTaken(profile.getDamageTaken() + event.getFinalDamage());
+        }
 
-        } else {
-            onPlayerDeath(new PlayerDeathEvent(player, Collections.emptyList(), 0, ""));
+        if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
+
+            if (player.getGameMode() == GameMode.SPECTATOR) {
+                player.teleport(plugin.getArenaManager().getArena().getWaitLocation());
+
+            } else {
+                onPlayerDeath(new PlayerDeathEvent(player, Collections.emptyList(), 0, ""));
+            }
         }
     }
 
@@ -203,11 +218,6 @@ public class InGameState extends GameState {
         Location tpLocation;
 
         DamageManager damageManager = plugin.getDamageManager();
-
-        damageManager.destroyIndicator(died);
-        damageManager.removeDamageSource(died);
-        damageManager.clearImmunities(died);
-
         Attribute killingAttribute = damageManager.getLastDamagingAttribute(died);
 
         String diedName = diedKit.getColor() + died.getName();
@@ -223,7 +233,7 @@ public class InGameState extends GameState {
             killer.playSound(killer.getLocation(), Sound.LEVEL_UP, 2, 2);
             killer.playSound(killer.getLocation(), Sound.WOLF_HOWL, 3, 2);
 
-            PlayerProfile killerProfile = plugin.getGameManager().getProfile(killer);
+            InGameProfile killerProfile = plugin.getGameManager().getProfile(killer);
             killerProfile.setKills(killerProfile.getKills() + 1);
             killerProfile.setKillStreak(killerProfile.getKillStreak() + 1);
 
@@ -231,22 +241,26 @@ public class InGameState extends GameState {
 
             if (killingAttribute instanceof Nameable) {
                 String killName = ((Nameable) killingAttribute).getDisplayName();
-                deathMessage = String.format("%s &7killed by %s &with %s&7.", diedName, killerName, killName);
+                deathMessage = String.format("%s &7killed by %s &7with %s.", diedName, killerName, killName);
 
             } else {
-                deathMessage = String.format("%s &7was killed by %s&7.", diedName, killerName);
+                deathMessage = String.format("%s &7was killed by %s.", diedName, killerName);
             }
 
             tpLocation = killer.getLocation();
         }
 
-        event.setDeathMessage(Chat.DEATH.get(deathMessage));
+        damageManager.destroyIndicator(died);
+        damageManager.removeDamageSource(died);
+        damageManager.clearImmunities(died);
+
+        Chat.DEATH.broadcast(deathMessage);
         died.teleport(tpLocation);
 
         died.setHealth(20);
         died.setVelocity(new Vector(0, 0, 0));
 
-        PlayerProfile profile = plugin.getGameManager().getProfile(died);
+        InGameProfile profile = plugin.getGameManager().getProfile(died);
         profile.setLives(profile.getLives() - 1);
         profile.setDeaths(profile.getDeaths() + 1);
 

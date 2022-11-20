@@ -1,6 +1,5 @@
-package io.github.aura6.supersmashlegends.utils.finder;
+package io.github.aura6.supersmashlegends.team;
 
-import io.github.aura6.supersmashlegends.team.Team;
 import org.bukkit.entity.LivingEntity;
 
 public interface TeamPreference {

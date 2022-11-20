@@ -4,18 +4,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public enum Chat {
-    ECONOMY("&eEconomy>> "),
-    KIT("&bKit>> "),
-    JOIN("&aJoin>> "),
-    QUIT("&cQuit>> "),
-    ARENA("&2Arena>> "),
-    TEAM("&6Team>> "),
-    COMMAND("&1Command>> "),
-    GAME("&5Game>> "),
-    DEATH("&4Death>> "),
-    COOLDOWN("&7Cooldown>> "),
-    ABILITY("&dAbility>> "),
-    POWER("&8Power>> ");
+    ECONOMY("&e&lEconomy>> "),
+    KIT("&b&lKit>> "),
+    JOIN("&a&lJoin>> "),
+    QUIT("&c&lQuit>> "),
+    ARENA("&2&lArena>> "),
+    TEAM("&6&lTeam>> "),
+    COMMAND("&1&lCommand>> "),
+    GAME("&5&lGame>> "),
+    DEATH("&4&lDeath>> "),
+    ABILITY("&d&lAbility>> "),
+    POWER("&8&lPower>> ");
 
     private final String prefix;
 

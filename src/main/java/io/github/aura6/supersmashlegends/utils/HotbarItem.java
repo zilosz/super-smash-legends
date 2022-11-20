@@ -51,6 +51,8 @@ public class HotbarItem implements Listener {
             action.accept(event);
         }
 
+        if (event.getItem() == null) return;
+
         String name = event.getItem().getType().name();
 
         if (name.contains("BOOTS") || name.contains("CHESTPLATE") || name.contains("LEGGINGS") || name.contains("HELMET")) {

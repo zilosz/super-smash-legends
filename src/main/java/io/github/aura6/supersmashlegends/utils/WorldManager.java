@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class WorldManager {
     private final Map<String, EditSession> worlds = new HashMap<>();
@@ -32,6 +33,6 @@ public class WorldManager {
     }
 
     public void resetWorld(String name) {
-        worlds.get(name).undo(worlds.remove(name));
+        Optional.ofNullable(worlds.remove(name)).ifPresent(session -> session.undo(session));
     }
 }

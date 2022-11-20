@@ -3,7 +3,8 @@ package io.github.aura6.supersmashlegends.game.state;
 import com.connorlinfoot.titleapi.TitleAPI;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import io.github.aura6.supersmashlegends.game.PlayerProfile;
+import io.github.aura6.supersmashlegends.database.Database;
+import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.team.Team;
 import io.github.aura6.supersmashlegends.team.TeamManager;
 import io.github.aura6.supersmashlegends.utils.math.MathUtils;
@@ -21,6 +22,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class EndState extends GameState {
@@ -46,12 +48,13 @@ public class EndState extends GameState {
             winners.add(color + winner.getName());
         }
 
-        PlayerProfile profile = plugin.getGameManager().getProfile(player);
-
         Replacers replacers = new Replacers()
                 .add("WINNERS", winners)
-                .add("KILLS", String.valueOf(profile.getKills()))
                 .add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+
+        if (!plugin.getGameManager().isSpectator(player)) {
+            replacers.add("KILLS", String.valueOf(plugin.getGameManager().getProfile(player).getKills()));
+        }
 
         return replacers.replaceLines(Arrays.asList(
                 "&5&l---------------------",
@@ -80,6 +83,10 @@ public class EndState extends GameState {
 
         for (Team team: winningTeams) {
             winningPlayers.addAll(team.getPlayers());
+
+            for (Player player : team.getPlayers()) {
+                plugin.getGameManager().getProfile(player).setWinner(true);
+            }
         }
 
         StringBuilder winners = new StringBuilder("&7");
@@ -118,7 +125,7 @@ public class EndState extends GameState {
 
             Chat.GAME.send(player, winMessage);
 
-            PlayerProfile profile = plugin.getGameManager().getProfile(player);
+            InGameProfile profile = plugin.getGameManager().getProfile(player);
             int jewelsEarned = profile.getKills() * perKill;
 
             if (winningPlayers.contains(player)) {
@@ -163,17 +170,34 @@ public class EndState extends GameState {
     @Override
     public void end() {
         endCountdown.cancel();
-        winningPlayers.clear();
 
-        plugin.getGameManager().reset();
         plugin.getTeamManager().reset();
-
         plugin.getWorldManager().resetWorld("arena");
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setAllowFlight(false);
             TitleAPI.clearTitle(player);
         }
+
+        for (Player player : plugin.getGameManager().getParticipators()) {
+            InGameProfile profile = plugin.getGameManager().getProfile(player);
+            UUID uuid = player.getUniqueId();
+            Database db = plugin.getDb();
+
+            db.setIfEnabled(uuid, "kills", db.getOrDefault(uuid, "kills", 0, 0) + profile.getKills());
+            db.setIfEnabled(uuid, "deaths", db.getOrDefault(uuid, "deaths", 0, 0) + profile.getDeaths());
+            db.setIfEnabled(uuid, "damageTaken", db.getOrDefault(uuid, "damageTaken", 0.0, 0.0) + profile.getDamageTaken());
+            db.setIfEnabled(uuid, "damageDealt", db.getOrDefault(uuid, "damageDealt", 0.0, 0.0) + profile.getDamageDealt());
+
+            if (winningPlayers.contains(player)) {
+                db.setIfEnabled(uuid, "wins", db.getOrDefault(uuid, "wins", 0, 0) + 1);
+
+            } else {
+                db.setIfEnabled(uuid, "losses", db.getOrDefault(uuid, "losses", 0, 0) + 1);
+            }
+        }
+
+        winningPlayers.clear();
     }
 
     @EventHandler

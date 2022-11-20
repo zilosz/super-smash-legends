@@ -10,9 +10,9 @@ import io.github.aura6.supersmashlegends.attribute.implementation.Regeneration;
 import io.github.aura6.supersmashlegends.attribute.implementation.Jump;
 import io.github.aura6.supersmashlegends.utils.Noise;
 import io.github.aura6.supersmashlegends.utils.Reflector;
+import io.github.aura6.supersmashlegends.utils.Skin;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
-import io.github.aura6.supersmashlegends.utils.Skin;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -20,6 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
 public class Kit {
@@ -131,10 +132,13 @@ public class Kit {
         return Collections.unmodifiableList(attributes);
     }
 
+    public void applySkin() {
+        Skin.fromMojang(getSkinName()).ifPresent(skin -> skin.apply(player));
+    }
+
     public void equip(Player player) {
         this.player = player;
         giveItems();
-        Skin.fromMojang(getSkinName()).ifPresent(skin -> skin.apply(plugin, player));
     }
 
     public void giveItems() {
@@ -157,25 +161,29 @@ public class Kit {
         attributes.forEach(Attribute::destroy);
     }
 
-    public void addAttribute(Attribute attribute) {
+    public OptionalInt findOpenSlot() {
+        List<Integer> slots = new ArrayList<>();
 
-        if (attribute instanceof Ability) {
-            List<Integer> slots = new ArrayList<>();
-
-            for (int i = 0; i < 9; i++) {
-                slots.add(i);
-            }
-
-            for (Attribute attr : attributes) {
-
-                if (attr instanceof Ability) {
-                    slots.remove(Integer.valueOf(((Ability) attr).getSlot()));
-                }
-            }
-
-            ((Ability) attribute).setSlot(slots.get(0));
+        for (int i = 0; i < 9; i++) {
+            slots.add(i);
         }
 
+        for (Attribute attr : attributes) {
+
+            if (attr instanceof Ability) {
+                slots.remove(Integer.valueOf(((Ability) attr).getSlot()));
+            }
+        }
+
+        return slots.isEmpty() ? OptionalInt.empty() : OptionalInt.of(slots.get(0));
+    }
+
+    public void addAbility(Ability ability, int slot) {
+        ability.setSlot(slot);
+        addAttribute(ability);
+    }
+
+    public void addAttribute(Attribute attribute) {
         attribute.equip();
         attribute.activate();
         attributes.add(attribute);

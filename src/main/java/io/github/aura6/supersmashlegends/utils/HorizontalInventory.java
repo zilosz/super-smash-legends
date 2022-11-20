@@ -1,4 +1,4 @@
-package io.github.aura6.supersmashlegends.inventory;
+package io.github.aura6.supersmashlegends.utils;
 
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.SmartInventory;

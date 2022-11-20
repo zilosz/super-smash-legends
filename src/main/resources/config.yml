@@ -1,8 +1,8 @@
 Database:
   Uri: "mongodb+srv://Aura6:CUrlito11@cluster0.spwav.mongodb.net/?retryWrites=true&w=majority"
-  Database: "SuperSmashLegendsRevamped"
-  Collection: "UserData"
-  Enabled: false
+  Database: SuperSmashLegendsRevamped
+  Collection: Players
+  Enabled: true
 Rules:
   - "&7Welcome to &5&lSuper Smash Legends!"
   - "&cAttack &7others to achieve victory."
@@ -19,12 +19,16 @@ Description:
   - ""
   - "&2&lArena - {ARENA} &7by &f&l{AUTHORS}"
   - "&5&l------------------------------"
+KitHologramHeight: 2.7
+LeaderboardSizes:
+  Wins: 10
+  Kills: 10
 Economy:
   StartingJewels: 100000
   OfflineJewels: 50000
   JewelsEarnedWeights:
     PerKill: 50
-    WinBonus: 100
+    WinBonus: 250
 Collision:
   CheckRange: 2
   CheckStep: 0.2
@@ -47,11 +51,13 @@ Damage:
   Indicator:
     ComboDuration: 70
     Height:
-      Entity: 0.4
-      Player: 1.2
+      Entity: 0.7
+      Player: 1.5
   Melee:
-    Kb: 1.15
-    KbY: 0.55
+    Kb: 0.9
+    KbY: 0.45
+    FactorsKb: false
+    FactorsHealth: false
   KbHealthMultiplier:
     Min: 1
     Max: 2

@@ -1,7 +1,7 @@
-package io.github.aura6.supersmashlegends.inventory;
+package io.github.aura6.supersmashlegends.team;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import io.github.aura6.supersmashlegends.team.Team;
+import io.github.aura6.supersmashlegends.utils.HorizontalInventory;
 import io.github.aura6.supersmashlegends.utils.ItemBuilder;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
@@ -53,12 +53,21 @@ public class TeamSelector extends HorizontalInventory<Team> {
 
     @Override
     public void onItemClick(Team team, Player player, InventoryClickEvent event) {
+        TeamManager teamManager = plugin.getTeamManager();
+
+        if (team.getSize() == teamManager.getTeamSize()) {
+            Chat.TEAM.send(player, "&7This team is full!");
+            return;
+        }
+
         AtomicReference<Team> chosenAtomic = new AtomicReference<>();
 
-        plugin.getTeamManager().findEntityTeam(player).ifPresent(chosen -> {
+        teamManager.findChosenTeam(player).ifPresent(chosen -> {
             chosen.removePlayer(player);
             chosenAtomic.set(chosen);
         });
+
+        player.closeInventory();
 
         if (chosenAtomic.get() == team) {
             Chat.TEAM.send(player, "&7You are no longer on a team.");
@@ -67,8 +76,5 @@ public class TeamSelector extends HorizontalInventory<Team> {
             team.addPlayer(player);
             Chat.TEAM.send(player, String.format("&7You are now on the %s &7team.", team.getName()));
         }
-
-        player.closeInventory();
-        build().open(player);
     }
 }

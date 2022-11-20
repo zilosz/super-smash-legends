@@ -71,10 +71,10 @@ public abstract class Ability extends Attribute implements Nameable {
                 .add("DESCRIPTION", getDescription());
 
         replacers.replaceLines(Arrays.asList(
-                "{COLOR}---------------------------------",
+                "{COLOR}-------------------------------------",
                 "&l{DISPLAY_NAME} &7- &6{USE_TYPE}",
                 "{DESCRIPTION}",
-                "{COLOR}---------------------------------"
+                "{COLOR}-------------------------------------"
         )).forEach(player::sendMessage);
     }
 

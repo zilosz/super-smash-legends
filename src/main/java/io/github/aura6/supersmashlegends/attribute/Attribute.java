@@ -14,6 +14,7 @@ public class Attribute implements Listener {
     protected final Kit kit;
     @Getter protected Player player;
     private BukkitTask task;
+    protected int period;
     @Getter private boolean enabled;
 
     public Attribute(SuperSmashLegends plugin, Kit kit) {
@@ -24,7 +25,7 @@ public class Attribute implements Listener {
     public void activate() {
         enabled = true;
         Bukkit.getPluginManager().registerEvents(this, plugin);
-        task = Bukkit.getScheduler().runTaskTimer(plugin, this::run, 0, 0);
+        task = Bukkit.getScheduler().runTaskTimer(plugin, this::run, 0, period);
     }
 
     public void deactivate() {

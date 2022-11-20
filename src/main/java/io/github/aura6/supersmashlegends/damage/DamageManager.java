@@ -1,14 +1,13 @@
 package io.github.aura6.supersmashlegends.damage;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
+import io.github.aura6.supersmashlegends.attribute.implementation.Melee;
 import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
+import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.kit.Kit;
-import io.github.aura6.supersmashlegends.utils.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.math.MathUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
@@ -26,8 +25,10 @@ public class DamageManager {
 
     private final Map<UUID, DamageIndicator> indicators = new HashMap<>();
     private final Map<UUID, BukkitTask> indicatorRemovers = new HashMap<>();
+
     private final Map<UUID, Attribute> lastDamagingAttributes = new HashMap<>();
     private final Map<UUID, BukkitTask> damageSourceRemovers = new HashMap<>();
+
     private final Map<UUID, Set<Attribute>> immunities = new HashMap<>();
     private final Map<Attribute, BukkitTask> immunityRemovers = new HashMap<>();
 
@@ -53,23 +54,8 @@ public class DamageManager {
             indicatorRemovers.remove(uuid).cancel();
 
         } else {
-            Section heightConfig = plugin.getResources().getConfig().getSection("Damage.Indicator.Height");
-            String heightPath = entity instanceof Player ? "Player" : "Entity";
-
-            indicator = new DamageIndicator(plugin, entity) {
-
-                @Override
-                public Location updateLocation() {
-                    return EntityUtils.top(entity).add(0, heightConfig.getDouble(heightPath), 0);
-                }
-            };
-
-            indicator.spawn();
+            indicator = DamageIndicator.create(plugin, entity);
             indicators.put(uuid, indicator);
-
-            if (entity instanceof Player) {
-                indicator.hideFrom((Player) entity);
-            }
         }
 
         indicator.stackDamage(damage);
@@ -85,50 +71,62 @@ public class DamageManager {
 
     public boolean attemptAttributeDamage(AttributeDamageEvent event) {
         Attribute attribute = event.getAttribute();
+
         LivingEntity victim = event.getVictim();
-        UUID uuid = victim.getUniqueId();
+        UUID victimUuid = victim.getUniqueId();
 
-        if (immunities.containsKey(uuid) && immunities.get(uuid).contains(attribute)) return false;
+        if (immunities.containsKey(victimUuid) && immunities.get(victimUuid).contains(attribute)) return false;
 
-        Damage damage = event.getDamage();
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return false;
+
+        lastDamagingAttributes.put(victimUuid, attribute);
+        int damageLifetime = plugin.getResources().getConfig().getInt("Damage.Lifetime");
+        damageSourceRemovers.put(victimUuid, Bukkit.getScheduler().runTaskLater(plugin, () -> removeDamageSource(victim), damageLifetime));
+
+        immunities.putIfAbsent(victimUuid, new HashSet<>());
+        immunities.get(victimUuid).add(attribute);
+
+        Damage newDamage = event.getDamage();
 
         if (victim instanceof Player) {
             Player player = (Player) victim;
             Kit kit = plugin.getKitManager().getSelectedKit(player);
-            damage.setDamage(damage.getDamage() * kit.getArmor());
-            damage.setKb(damage.getKb() * kit.getKb());
+
+            if (newDamage.isFactorsArmor()) {
+                newDamage.setDamage(newDamage.getDamage() * kit.getArmor());
+            }
+
+            if (newDamage.isFactorsKb()) {
+                newDamage.setKb(newDamage.getKb() * kit.getKb());
+            }
         }
 
-        if (damage.isFactorsHealth()) {
+        if (newDamage.isFactorsHealth()) {
             double min = plugin.getResources().getConfig().getDouble("Damage.KbHealthMultiplier.Min");
             double max = plugin.getResources().getConfig().getDouble("Damage.KbHealthMultiplier.Max");
             double multiplier = MathUtils.decreasingLinear(min, max, victim.getMaxHealth(), victim.getHealth());
-            damage.setKb(damage.getKb() * multiplier);
+            newDamage.setKb(newDamage.getKb() * multiplier);
         }
 
-        Bukkit.getPluginManager().callEvent(event);
-
-        if (event.isCancelled()) return false;
-
-        Damage newDamage = event.getDamage();
         victim.damage(newDamage.getDamage());
+        if (attribute instanceof Melee) {
+            Bukkit.broadcastMessage(String.valueOf(newDamage.getDamage()));
+        }
+        attribute.getPlayer().setLevel((int) newDamage.getDamage());
 
-        Optional.ofNullable(damage.getDirection()).ifPresent(direction -> {
+        Optional.ofNullable(newDamage.getDirection()).ifPresent(direction -> {
             Vector kb = new Vector(newDamage.getKb(), 1, newDamage.getKb());
             victim.setVelocity(direction.clone().normalize().multiply(kb).setY(newDamage.getKbY()));
         });
 
-        updateIndicator(victim, damage.getDamage());
+        updateIndicator(victim, newDamage.getDamage());
 
-        lastDamagingAttributes.put(uuid, attribute);
-        int damageLifetime = plugin.getResources().getConfig().getInt("Damage.Lifetime");
-        damageSourceRemovers.put(uuid, Bukkit.getScheduler().runTaskLater(plugin, () -> removeDamageSource(victim), damageLifetime));
-
-        immunities.putIfAbsent(uuid, new HashSet<>());
-        immunities.get(uuid).add(attribute);
+        InGameProfile damagerProfile = plugin.getGameManager().getProfile(attribute.getPlayer());
+        damagerProfile.setDamageDealt(damagerProfile.getDamageDealt() + newDamage.getDamage());
 
         immunityRemovers.put(attribute, Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            immunities.get(uuid).remove(attribute);
+            immunities.get(victimUuid).remove(attribute);
             immunityRemovers.remove(attribute).cancel();
         }, newDamage.getImmunityTicks()));
 
@@ -136,17 +134,16 @@ public class DamageManager {
     }
 
     public void clearImmunities(LivingEntity entity) {
+        if (!immunities.containsKey(entity.getUniqueId())) return;
 
-        if (immunities.containsKey(entity.getUniqueId())) {
+        for (Attribute attribute : immunities.get(entity.getUniqueId())) {
 
-            for (Attribute attribute : immunities.get(entity.getUniqueId())) {
-                if (immunityRemovers.containsKey(attribute)) {
-                    immunityRemovers.get(attribute).cancel();
-                    immunityRemovers.remove(attribute);
-                }
+            if (immunityRemovers.containsKey(attribute)) {
+                immunityRemovers.get(attribute).cancel();
+                immunityRemovers.remove(attribute);
             }
-
-            immunities.get(entity.getUniqueId()).clear();
         }
+
+        immunities.get(entity.getUniqueId()).clear();
     }
 }

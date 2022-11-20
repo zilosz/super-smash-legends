@@ -1,6 +1,7 @@
 package io.github.aura6.supersmashlegends.utils.finder;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
+import io.github.aura6.supersmashlegends.team.TeamPreference;
 import io.github.aura6.supersmashlegends.utils.finder.range.RangeSelector;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -66,6 +67,10 @@ public class EntityFinder {
 
     public Optional<LivingEntity> findClosest(LivingEntity user, Location location) {
         return getFilteredStream(user, location).min(Comparator.comparingDouble(entity -> location.distanceSquared(entity.getLocation())));
+    }
+
+    public Optional<LivingEntity> findClosest(LivingEntity user) {
+        return findClosest(user, user.getLocation());
     }
 
     public Set<LivingEntity> findAll(LivingEntity user, Location location) {

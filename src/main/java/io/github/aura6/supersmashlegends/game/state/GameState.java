@@ -7,7 +7,6 @@ import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
@@ -74,11 +73,11 @@ public abstract class GameState implements Listener {
         plugin.getKitManager().uploadUser(player);
 
         if (isNotInGame()) {
-            Chat.QUIT.broadcast(String.format("&5%s &7has quit the game.", player.getName()));
+            event.setQuitMessage(Chat.QUIT.get(String.format("&5%s &7has quit the game.", player.getName())));
             return;
         }
 
-        Chat.QUIT.broadcast(String.format("&5%s &7has quit mid-game.", player.getName()));
+        event.setQuitMessage(Chat.QUIT.get(String.format("&5%s &7has quit mid-game.", player.getName())));
 
         plugin.getKitManager().getSelectedKit(player).deactivate();
 
@@ -99,9 +98,9 @@ public abstract class GameState implements Listener {
         event.setFormat(MessageUtils.color("&9" + event.getPlayer().getDisplayName() + ">> &7" + event.getMessage()));
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void handleDamage(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Player && event.getCause() == EntityDamageEvent.DamageCause.FALL || !(this instanceof InGameState)) {
+    @EventHandler
+    public void onDamage(EntityDamageEvent event) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.FALL || !(this instanceof InGameState)) {
             event.setCancelled(true);
         }
     }

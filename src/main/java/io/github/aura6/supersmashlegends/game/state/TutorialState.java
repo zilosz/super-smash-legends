@@ -4,6 +4,7 @@ import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.arena.Arena;
 import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
+import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -42,19 +43,24 @@ public class TutorialState extends GameState {
 
         Replacers replacers = new Replacers()
                 .add("ARENA", arena.getName())
-                .add("AUTHORS", arena.getAuthors())
-                .add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+                .add("AUTHORS", arena.getAuthors());
 
-        return replacers.replaceLines(Arrays.asList(
+        List<String> lore = new ArrayList<>(Arrays.asList(
                 "&5&l---------------------",
                 "&7Enjoy the tutorial!",
                 "",
                 "&fArena: {ARENA}",
                 "&fAuthors: &7{AUTHORS}",
                 "",
-                "&fKit: &5{KIT}",
                 "&5&l---------------------"
         ));
+
+        if (!plugin.getGameManager().isSpectator(player)) {
+            lore.add(6, "&fKit: &5{KIT}");
+            replacers.add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+        }
+
+        return replacers.replaceLines(lore);
     }
 
     @Override

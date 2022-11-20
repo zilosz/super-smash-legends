@@ -1,12 +1,11 @@
-package io.github.aura6.supersmashlegends.inventory;
+package io.github.aura6.supersmashlegends.kit;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
 import io.github.aura6.supersmashlegends.attribute.ClickableAbility;
 import io.github.aura6.supersmashlegends.attribute.PassiveAbility;
-import io.github.aura6.supersmashlegends.kit.Kit;
-import io.github.aura6.supersmashlegends.kit.KitAccessType;
+import io.github.aura6.supersmashlegends.utils.HorizontalInventory;
 import io.github.aura6.supersmashlegends.utils.ItemBuilder;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
 import org.bukkit.entity.Player;
@@ -57,7 +56,7 @@ public class KitSelector extends HorizontalInventory<Kit> {
             }
         }
 
-        KitAccessType accessType = plugin.getKitManager().getKitAccess(player, kit);
+        KitAccessType accessType = plugin.getKitManager().getKitAccess(player, kit.getConfigName());
 
         Replacers replacers = new Replacers()
                 .add("STATUS", accessType.getLore(kit))

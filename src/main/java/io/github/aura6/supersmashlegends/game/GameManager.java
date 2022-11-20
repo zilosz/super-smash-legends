@@ -31,7 +31,7 @@ public class GameManager {
     private final List<GameState> states = new ArrayList<>();
     private int stateIdx = 0;
 
-    private final Map<UUID, PlayerProfile> profiles = new HashMap<>();
+    private final Map<UUID, InGameProfile> profiles = new HashMap<>();
 
     private BukkitTask tickTask;
     @Getter private int ticksActive = 0;
@@ -96,11 +96,15 @@ public class GameManager {
     }
 
     public void setupProfile(Player player) {
-        profiles.put(player.getUniqueId(), new PlayerProfile(plugin.getResources().getConfig().getInt("Game.Lives")));
+        profiles.put(player.getUniqueId(), new InGameProfile(plugin.getResources().getConfig().getInt("Game.Lives")));
     }
 
-    public PlayerProfile getProfile(Player player) {
+    public InGameProfile getProfile(Player player) {
         return profiles.get(player.getUniqueId());
+    }
+
+    public boolean hasProfile(Player player) {
+        return profiles.containsKey(player.getUniqueId());
     }
 
     public void wipePlayer(Player player) {
@@ -140,7 +144,10 @@ public class GameManager {
     public void reset() {
         profiles.clear();
         spectators.clear();
-        tickTask.cancel();
         ticksActive = 0;
+
+        if (tickTask != null) {
+            tickTask.cancel();
+        }
     }
 }

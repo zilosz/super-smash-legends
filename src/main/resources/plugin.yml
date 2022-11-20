@@ -19,3 +19,5 @@ commands:
     description: Skips to the provided Game State.
   dummy:
     description: Spawns a dummy above the player.
+  loc:
+    description: Sends the player's location.

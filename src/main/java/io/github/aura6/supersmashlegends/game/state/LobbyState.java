@@ -5,11 +5,18 @@ import com.connorlinfoot.titleapi.TitleAPI;
 import io.github.aura6.supersmashlegends.Resources;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.arena.Arena;
+import io.github.aura6.supersmashlegends.game.GameManager;
+import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.utils.HotbarItem;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
+import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
+import me.filoghost.holographicdisplays.api.hologram.Hologram;
+import me.filoghost.holographicdisplays.api.hologram.HologramLines;
+import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
+import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -20,12 +27,16 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class LobbyState extends GameState {
-    private final List<HotbarItem> hotbarItems = new ArrayList<>();
+    private final Set<HotbarItem> hotbarItems = new HashSet<>();
+    private final Set<Hologram> holograms = new HashSet<>();
 
     public LobbyState(SuperSmashLegends plugin) {
         super(plugin);
@@ -62,9 +73,71 @@ public class LobbyState extends GameState {
         return true;
     }
 
+    private void createLeaderboard(String titleName, String statName, String configName) {
+        Location location = YamlReader.location("lobby", plugin.getResources().getLobby().getString(configName));
+        Hologram hologram = HolographicDisplaysAPI.get(plugin).createHologram(location);
+        holograms.add(hologram);
+        HologramLines lines = hologram.getLines();
+
+        lines.appendText(MessageUtils.color(String.format("&5&l%s Leaderboard", titleName)));
+        lines.appendText(MessageUtils.color("&7------------------"));
+
+        int size = plugin.getResources().getConfig().getInt("LeaderboardSizes." + configName);
+
+        List<String> players = new ArrayList<>();
+        List<Integer> stats = new ArrayList<>();
+
+        for (Document doc : plugin.getDb().getDocuments()) {
+            String name = doc.getString("name");
+            int stat = (int) doc.getOrDefault(statName, 0);
+
+            if (stat == 0) {
+                continue;
+            }
+
+            boolean added = false;
+            int i;
+
+            for (i = 0; i < players.size(); i++) {
+
+                if (stat > stats.get(i)) {
+                    players.add(i, name);
+                    stats.add(i, stat);
+
+                    if (players.size() > size) {
+                        players.remove(players.size() - 1);
+                        stats.remove(stats.size() - 1);
+                    }
+
+                    added = true;
+                    break;
+                }
+            }
+
+            if (!added && i < size) {
+                players.add(name);
+                stats.add(stat);
+            }
+        }
+
+        if (players.isEmpty()) {
+            lines.appendText(MessageUtils.color("&fNo data to display..."));
+
+        } else {
+            for (int i = 0; i < players.size(); i++) {
+                lines.appendText(MessageUtils.color(String.format("&f%s: &e%d", players.get(i), stats.get(i))));
+            }
+        }
+
+        lines.appendText(MessageUtils.color("&7------------------"));
+    }
+
     @Override
     public void start() {
         plugin.getArenaManager().setupArenas();
+
+        createLeaderboard("Win", "wins", "Wins");
+        createLeaderboard("Kill", "kills", "Kills");
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Returned to the lobby."));
@@ -77,7 +150,48 @@ public class LobbyState extends GameState {
             } else {
                 plugin.getKitManager().setKit(player, plugin.getKitManager().getSelectedKit(player).copy());
             }
+
+            GameManager gameManager = plugin.getGameManager();
+
+            if (!gameManager.hasProfile(player)) {
+                continue;
+            }
+
+            InGameProfile profile = gameManager.getProfile(player);
+            Location lastGameLocation = YamlReader.location("lobby", plugin.getResources().getLobby().getString("LastGame"));
+            Hologram lastGame = HolographicDisplaysAPI.get(plugin).createHologram(lastGameLocation);
+            DecimalFormat format = new DecimalFormat("#.#");
+
+            Replacers replacers = new Replacers()
+                    .add("RESULT", profile.isWinner() ? "&a&lVictory!" : "&c&lLoss")
+                    .add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName())
+                    .add("KILLS", String.valueOf(profile.getKills()))
+                    .add("DEATHS", String.valueOf(profile.getDeaths()))
+                    .add("DAMAGE_TAKEN", format.format(profile.getDamageTaken()))
+                    .add("DAMAGE_DEALT", format.format(profile.getDamageDealt()));
+
+            replacers.replaceLines(Arrays.asList(
+                    "&5&lLast Game",
+                    "&7----------------",
+                    "&fResult: {RESULT}",
+                    "&fKit: {KIT}",
+                    "&fKills: &e{KILLS}",
+                    "&fDeaths: &e{DEATHS}",
+                    "&fDamage Taken: &e{DAMAGE_TAKEN}",
+                    "&fDamage Dealt: &e{DAMAGE_DEALT}",
+                    "&7----------------"
+            )).forEach(line -> lastGame.getLines().appendText(line));
+
+            holograms.add(lastGame);
+
+            for (Player other : Bukkit.getOnlinePlayers()) {
+                if (!other.getUniqueId().equals(player.getUniqueId())) {
+                    lastGame.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.HIDDEN);
+                }
+            }
         }
+
+        plugin.getGameManager().reset();
     }
 
     private Location getSpawn() {
@@ -91,8 +205,10 @@ public class LobbyState extends GameState {
         player.setFlySpeed(0.1f);
         player.setHealth(20);
         player.setExp(0);
-        player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 1);
+        player.setLevel(0);
+        player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
 
+        player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 1);
         player.teleport(getSpawn());
 
         Resources resources = plugin.getResources();
@@ -111,6 +227,9 @@ public class LobbyState extends GameState {
 
     @Override
     public void end() {
+        holograms.forEach(Hologram::delete);
+        holograms.clear();
+
         Chat.GAME.broadcast("&7The game is starting...");
         plugin.getGameManager().startTicks();
 
@@ -130,7 +249,7 @@ public class LobbyState extends GameState {
         for (Player player : Bukkit.getOnlinePlayers()) {
             plugin.getGameManager().setupProfile(player);
             plugin.getTeamManager().assignPlayer(player);
-
+            plugin.getKitManager().getSelectedKit(player).applySkin();
             description.forEach(player::sendMessage);
         }
 
@@ -141,6 +260,7 @@ public class LobbyState extends GameState {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         Chat.GAME.send(player, "&7Please use &d&l/start &7to start and &3&l/end &7to end.");
+
         initializePlayer(player);
 
         plugin.getDb().setIfEnabled(player.getUniqueId(), "name", player.getName());

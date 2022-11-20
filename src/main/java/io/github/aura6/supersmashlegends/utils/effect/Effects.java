@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.Plugin;
@@ -35,5 +36,9 @@ public class Effects {
 
     public static void itemBoom(Plugin plugin, Location center, ItemStack stack, double radius, double speed, int streaks) {
         itemBoom(plugin, center, stack, radius, speed, streaks, null);
+    }
+
+    public static void death(Plugin plugin, Player player) {
+
     }
 }

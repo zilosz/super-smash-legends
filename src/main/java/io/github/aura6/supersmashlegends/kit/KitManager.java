@@ -4,6 +4,10 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.game.state.InGameState;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
+import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
+import me.filoghost.holographicdisplays.api.hologram.Hologram;
+import me.filoghost.holographicdisplays.api.hologram.HologramLines;
+import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.NPCLeftClickEvent;
 import net.citizensnpcs.api.npc.NPC;
@@ -30,31 +34,36 @@ public class KitManager implements Listener {
     private final Map<UUID, Kit> selectedKits = new HashMap<>();
     private final Map<UUID, Set<String>> ownedKits = new HashMap<>();
     private final Map<String, Kit> kitsByName = new HashMap<>();
-    private final Map<UUID, Kit> kitNpcs = new HashMap<>();
+
+    private final Map<UUID, Kit> kitsByNpc = new HashMap<>();
+    private final Map<String, NPC> npcsByKit = new HashMap<>();
+
+    private final Map<UUID, Map<String, Hologram>> kitHolograms = new HashMap<>();
 
     public KitManager(SuperSmashLegends plugin) {
         this.plugin = plugin;
     }
 
-    public void setupKits() {
-        plugin.getResources().loadKits().forEach(this::setupKit);
-    }
-
     @SuppressWarnings("deprecation")
-    public void setupKit(Kit kit) {
+    private void setupKit(Kit kit) {
         kitsByName.put(kit.getConfigName(), kit);
 
-        String locString = plugin.getResources().getLobby().getString("KitNpcLocations." + kit.getConfigName());
+        String locString = plugin.getResources().getLobby().getString("KitNpcs." + kit.getConfigName());
         Location location = YamlReader.location("lobby", locString);
 
         NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, kit.getSkinName());
-        npc.setName(kit.getDisplayName());
+        npc.setName(kit.getBoldedDisplayName());
         SkinTrait skinTrait = npc.getTrait(SkinTrait.class);
         skinTrait.setSkinName(kit.getSkinName());
         npc.addTrait(skinTrait);
         npc.spawn(location);
 
-        kitNpcs.put(npc.getUniqueId(), kit);
+        kitsByNpc.put(npc.getUniqueId(), kit);
+        npcsByKit.put(kit.getConfigName(), npc);
+    }
+
+    public void setupKits() {
+        plugin.getResources().loadKits().forEach(this::setupKit);
     }
 
     public void setupUser(Player player) {
@@ -65,8 +74,37 @@ public class KitManager implements Listener {
         ownedKits.put(uuid, new HashSet<>(owned));
 
         String chosenKit = plugin.getDb().getOrDefault(uuid, "chosenKit", "Barbarian", "Barbarian");
-        setKit(player, kitsByName.get(chosenKit));
         giveOwnership(player, chosenKit);
+
+        kitHolograms.put(uuid, new HashMap<>());
+
+        for (String kitName : kitsByName.keySet()) {
+            Location location = npcsByKit.get(kitName).getStoredLocation();
+            location.add(0, plugin.getResources().getConfig().getDouble("KitHologramHeight"), 0);
+            Hologram hologram = HolographicDisplaysAPI.get(plugin).createHologram(location);
+            hologram.getLines().appendText("");
+            kitHolograms.get(uuid).put(kitName, hologram);
+
+            if (kitsByName.get(kitName).getPrice() == 0) {
+                giveOwnership(player, kitName);
+            }
+        }
+
+        Kit chosen = kitsByName.get(chosenKit);
+        setKit(player, chosen);
+
+        kitHolograms.get(uuid).forEach((kitName, holo) -> {
+            holo.getLines().remove(0);
+            holo.getLines().appendText(getKitAccess(player, kitName).getHologram(kitsByName.get(kitName)));
+        });
+
+        kitHolograms.forEach((playerUUID, holograms) -> {
+            if (!playerUUID.equals(uuid)) {
+                for (Hologram holo : holograms.values()) {
+                    holo.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.HIDDEN);
+                }
+            }
+        });
     }
 
     public void uploadUser(Player player) {
@@ -81,19 +119,32 @@ public class KitManager implements Listener {
     }
 
     public void setKit(Player player, Kit kit) {
+        UUID uuid = player.getUniqueId();
+
+        if (selectedKits.containsKey(uuid)) {
+            Kit oldKit = selectedKits.get(player.getUniqueId());
+            HologramLines oldLines = kitHolograms.get(uuid).get(oldKit.getConfigName()).getLines();
+            oldLines.remove(0);
+            oldLines.appendText(KitAccessType.ACCESS.getHologram(oldKit));
+        }
+
         wipePlayerKit(player);
 
         Kit newKit = kit.copy();
-        selectedKits.put(player.getUniqueId(), newKit);
+        selectedKits.put(uuid, newKit);
         newKit.equip(player);
 
         if (plugin.getGameManager().getState() instanceof InGameState) {
             newKit.activate();
         }
 
-        ownedKits.get(player.getUniqueId()).add(newKit.getConfigName());
+        ownedKits.get(uuid).add(kit.getConfigName());
 
-        Chat.KIT.send(player, String.format("&7You have selected the %s &7kit.", newKit.getDisplayName()));
+        HologramLines selectedLines = kitHolograms.get(uuid).get(kit.getConfigName()).getLines();
+        selectedLines.remove(0);
+        selectedLines.appendText(KitAccessType.ALREADY_SELECTED.getHologram(kit));
+
+        Chat.KIT.send(player, String.format("&7You have selected the %s &7kit.", kit.getDisplayName()));
     }
 
     public Kit getSelectedKit(Player player) {
@@ -102,10 +153,6 @@ public class KitManager implements Listener {
 
     public boolean ownsKit(Player player, String name) {
         return ownedKits.get(player.getUniqueId()).contains(name);
-    }
-
-    public boolean ownsKit(Player player, Kit kit) {
-        return ownsKit(player, kit.getConfigName());
     }
 
     public void giveOwnership(Player player, String name) {
@@ -126,7 +173,7 @@ public class KitManager implements Listener {
     }
 
     public KitAccessType handleKitSelection(Player player, Kit kit) {
-        KitAccessType accessType = getKitAccess(player, kit);
+        KitAccessType accessType = getKitAccess(player, kit.getConfigName());
 
         if (accessType == KitAccessType.ALREADY_SELECTED) {
             Chat.KIT.send(player, "&7You have already selected this kit.");
@@ -139,21 +186,21 @@ public class KitManager implements Listener {
         return accessType;
     }
 
-    public KitAccessType getKitAccess(Player player, Kit kit) {
-        if (getSelectedKit(player).getConfigName().equals(kit.getConfigName())) return KitAccessType.ALREADY_SELECTED;
+    public KitAccessType getKitAccess(Player player, String kit) {
+        if (getSelectedKit(player).getConfigName().equals(kit)) return KitAccessType.ALREADY_SELECTED;
         return ownsKit(player, kit) ? KitAccessType.ACCESS : KitAccessType.BUY;
     }
 
     public void destroyNpcs() {
-        kitNpcs.keySet().forEach(uuid -> CitizensAPI.getNPCRegistry().getByUniqueId(uuid).destroy());
+        kitsByNpc.keySet().forEach(uuid -> CitizensAPI.getNPCRegistry().getByUniqueId(uuid).destroy());
     }
 
     @EventHandler
     public void onNpcClick(NPCLeftClickEvent event) {
         UUID uuid = event.getNPC().getUniqueId();
 
-        if (kitNpcs.containsKey(uuid)) {
-            handleKitSelection(event.getClicker(), kitNpcs.get(uuid));
+        if (kitsByNpc.containsKey(uuid)) {
+            handleKitSelection(event.getClicker(), kitsByNpc.get(uuid));
         }
     }
 }

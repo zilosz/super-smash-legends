@@ -1,5 +1,7 @@
 package io.github.aura6.supersmashlegends.kit;
 
+import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
+
 public enum KitAccessType {
     ACCESS {
         @Override
@@ -7,7 +9,7 @@ public enum KitAccessType {
             return "&7You have access to this kit.";
         }
         @Override
-        public String getSuffix(Kit kit) {
+        public String getHologram(Kit kit) {
             return "";
         }
     },
@@ -18,8 +20,8 @@ public enum KitAccessType {
             return "&7This is your &dcurrent &7kit.";
         }
         @Override
-        public String getSuffix(Kit kit) {
-            return "&7- &d&lSelected";
+        public String getHologram(Kit kit) {
+            return MessageUtils.color("&dSelected");
         }
     },
 
@@ -29,12 +31,12 @@ public enum KitAccessType {
             return String.format("&7Click to buy for &f%d &7jewels.", kit.getPrice());
         }
         @Override
-        public String getSuffix(Kit kit) {
-            return String.format("&7- &5&l%d Jewels", kit.getPrice());
+        public String getHologram(Kit kit) {
+            return MessageUtils.color(String.format("&e%d &5Jewels", kit.getPrice()));
         }
     };
 
     public abstract String getLore(Kit kit);
 
-    public abstract String getSuffix(Kit kit);
+    public abstract String getHologram(Kit kit);
 }

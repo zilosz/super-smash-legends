@@ -9,12 +9,20 @@ import java.util.function.Function;
 
 public class MathUtils {
 
+    public static boolean probability(double chance) {
+        return chance > Math.random();
+    }
+
     public static double randRange(double min, double max) {
         return Math.random() * (max - min) + min;
     }
 
     public static double randSpread(double center, double spread) {
         return randRange(center - spread, center + spread);
+    }
+
+    public static double roundToHalf(double n) {
+        return ((int) (2 * n + 0.5)) / 2.0;
     }
 
     public static double increasingLinear(double min, double max, double rangeAtMax, double x) {
@@ -53,6 +61,10 @@ public class MathUtils {
         return findByHighestDouble(items, key.andThen(Integer::doubleValue));
     }
 
+    public static <T> List<T> findByLowestInt(List<T> items, Function<T, Integer> key) {
+        return findByHighestInt(items, key.andThen(number -> -number));
+    }
+
     public static Location ringPoint(Location center, float pitch, float yaw, double radius, double radians) {
         Vector displacement = new Vector();
         displacement.setX(Math.cos(radians) * radius);
@@ -60,5 +72,52 @@ public class MathUtils {
         VectorUtils.aroundX(displacement, (pitch + 90) * Math.PI / 180);
         VectorUtils.aroundY(displacement, -yaw * Math.PI / 180);
         return center.clone().add(displacement);
+    }
+
+    public static List<Location> getLocationCube(Location center, int size) {
+        List<Location> locations = new ArrayList<>();
+
+        int mid = size / 2;
+        boolean isOdd;
+        double startX, startY, startZ;
+
+        if (size % 2 == 0) {
+            isOdd = false;
+            locations.add(center);
+
+            startX = center.getX() - 0.5 * size + 0.5;
+            startY = center.getY() - 0.5 * size + 0.5;
+            startZ = center.getZ() - 0.5 * size + 0.5;
+
+        } else {
+            isOdd = true;
+
+            startX = center.getX() - size + 1;
+            startY = center.getY() - size + 1;
+            startZ = center.getZ() - size + 1;
+        }
+
+        double x = startX;
+
+        for (int i = 0; i < size; i++, x++) {
+            double y = startY;
+
+            for (int j = 0; j < size; j++, y++) {
+                double z = startZ;
+
+                for (int k = 0; k < size; k++, z++) {
+                    Location loc = new Location(center.getWorld(), x, y, z);
+
+                    if (isOdd && i == mid && j == mid && k == mid) {
+                        locations.add(0, loc);
+
+                    } else {
+                        locations.add(loc);
+                    }
+                }
+            }
+        }
+
+        return locations;
     }
 }

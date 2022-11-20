@@ -22,7 +22,7 @@ public class Team {
     private final TeamData data;
     private final List<UUID> players = new ArrayList<>();
     private final Set<LivingEntity> entities = new HashSet<>();
-    @Getter @Setter private int lifespan;
+    @Getter @Setter private int lifespan = Integer.MAX_VALUE;
 
     public Team(SuperSmashLegends plugin, TeamData data) {
         this.plugin = plugin;

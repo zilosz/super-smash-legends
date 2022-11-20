@@ -2,6 +2,7 @@ package io.github.aura6.supersmashlegends.event;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class RegenEvent extends CustomEvent {
@@ -11,5 +12,15 @@ public class RegenEvent extends CustomEvent {
     public RegenEvent(Player player, double regen) {
         this.player = player;
         this.regen = regen;
+    }
+
+    public static boolean attempt(Player player, double regen) {
+        if (player.getHealth() == 20) return false;
+
+        RegenEvent event = new RegenEvent(player, regen);
+        Bukkit.getPluginManager().callEvent(event);
+        player.setHealth(Math.min(20, player.getHealth() + event.getRegen()));
+
+        return true;
     }
 }

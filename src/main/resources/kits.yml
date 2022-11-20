@@ -37,7 +37,7 @@ Barbarian:
       Projectile:
         Speed: 1.85
         Damage: 5
-        Kb: 1.8
+        Kb: 1.4
         Item:
           Material: IRON_AXE
         LaunchSound:
@@ -142,7 +142,7 @@ Globby:
       EnergyCost: 0.32
       Speed: 1.2
       Damage: 3
-      Kb: 1.5
+      Kb: 1.1
       KbY: 0.45
       HasGravity: false
       MaxBounces: 5
@@ -222,13 +222,13 @@ Mechon:
     - "&7Mechon is an entity of unbridled"
     - "&7intelligence matched with a powerful"
     - "&7cyborg body. These traits enable him"
-    - "&7to make use of various mechanized gadgets"
-    - "&7to destroy his opponents."
+    - "&7to make use of various mechanized"
+    - "&7gadgets to destroy his opponents."
   Skin: "MrGabeeee"
   Price: 6000
   Item:
     Material: IRON_CHESTPLATE
-  Damage: 6.5
+  Damage: 5.5
   Kb: 1.3
   Armor: 0.55
   Regen: 0.25
@@ -307,8 +307,8 @@ Mechon:
       Description:
         - "&7Yes, you read that right. Another of"
         - "&7Mechon's gadget is an actual JETPACK."
-        - "&7Phew. Sneak to generate forward momentum,"
-        - "&7taking enemies by surprise."
+        - "&7Phew. Sneak to generate forward"
+        - "&7momentum, taking enemies by surprise."
       Velocity: 0.8
       VelocityY: 0.45
       StreamLength: 5
@@ -412,7 +412,7 @@ Drakula:
     Power: 1.15
     Height: 1
     Sound:
-      Type: ZOMBIE_UNFECT
+      Type: ZOMBIE_INFECT
       Volume: 1
       Pitch: 1
   Abilities:
@@ -436,3 +436,726 @@ Drakula:
         Kb: 0.9
         Item:
           Material: REDSTONE
+        LaunchSound:
+          Type: LAVA_POP
+          Volume: 1
+          Pitch: 2
+    1:
+      ConfigName: ShadowAmbush
+      Name: "Shadow Ambush"
+      Item:
+        Material: DIAMOND_HOE
+      Description:
+        - "&7Dissolve into darkness and teleport"
+        - "&7behind the nearest enemy, surprising"
+        - "&7and blinding them."
+      Cooldown: 130
+      Range: 15
+      BlindnessDuration: 45
+    2:
+      ConfigName: BatWave
+      Name: "Bat Wave"
+      Item:
+        Material: GOLD_SPADE
+      Description:
+        - "&7Harness the power of bats to damage"
+        - "&7enemies from a distance and pull"
+        - "&7yourself if needed. The bats are"
+        - "&7stronger than you think!"
+      Cooldown: 140
+      AutoStartCooldown: false
+      AutoSendUseMessage: false
+      RemoveOnLongCollision: false
+      RemoveOnBlockHit: false
+      RemoveOnEntityHit: false
+      BatCount: 20
+      Speed: 0.7
+      HitBox: 0.8
+      Kb: 1.2
+      Damage: 2.5
+      Spread: 10
+      Lifespan: 80
+      HitsMultiple: true
+      HasGravity: false
+      TargetHitSound:
+        Type: BAT_DEATH
+        Volume: 1
+        Pitch: 1
+Cryomancer:
+  ConfigName: Cryomancer
+  Name: "Cryomancer"
+  Color: "&b"
+  Item:
+    Material: ICE
+  Description:
+    - "&7Cryomancer utilizes his advanced"
+    - "&7cryogenerator to compress and"
+    - "&7freeze the air around him. He is"
+    - "&7capable of slowing down enemies"
+    - "&7by freezing them solid."
+  Skin: "Ernestitoninja"
+  Price: 4750
+  Damage: 6
+  Armor: 0.55
+  Kb: 1.35
+  Regen: 0.30
+  Jump:
+    Power: 1.15
+    Height: 1
+    Sound:
+      Type: GLASS
+      Volume: 1
+      Pitch: 2
+  Abilities:
+    0:
+      ConfigName: FrigidSpear
+      Name: "Frigid Spear"
+      Item:
+        Material: DIAMOND_AXE
+      Description:
+        - "&7Throws a sub-zero icicle. Through"
+        - "&7Cryomancer's wizardry powers, the"
+        - "&7icicle reels targets towards him."
+        - "&7Its damage ignores enemy armor."
+      Cooldown: 70
+      Projectile:
+        Speed: 1.65
+        FactorsArmor: false
+        Damage: 4
+        Kb: -1
+        LaunchSound:
+          Type: GLASS
+          Volume: 1
+          Pitch: 2
+        Item:
+          Material: ICE
+    1:
+      ConfigName: ArcticBreath
+      Name: "Arctic Breath"
+      Item:
+        Material: IRON_SPADE
+      Description:
+        - "&7Release a pent-up breath of frigid"
+        - "&7air. Enemies' bones are frozen."
+      Cooldown: 120
+      MinDamage: 1.5
+      MaxDamage: 6
+      MinRadius: 0.3
+      MaxRadius: 2.2
+      HitBox: 1.5
+      Range: 7.25
+      RingCount: 15
+      ParticleDensity: 20
+      Kb: 1.8
+      KbY: 0.45
+    2:
+      ConfigName: FrostedTwirl
+      Name: "Frosted Twirl"
+      Item:
+        Material: GOLD_SWORD
+      Description:
+        - "&7Despite his rather frosty and crude"
+        - "&7battle style, Cryomancer was once"
+        - "&7a renowned figure skater. He uses"
+        - "&7incredible balance and technique to"
+        - "&7twirl upwards into unsuspecting foes."
+      Cooldown: 175
+      MaxChargeTicks: 23
+      Velocity: 0.6
+      VelocityY: 0.8
+      Damage: 5
+      Kb: 2
+      KbY: 0.5
+      HitBox: 1.1
+    3:
+      ConfigName: IceSkates
+      Name: "Ice Skates"
+      Item:
+        Material: ICE
+      Description:
+        - "&7Cryomancer can skate on almost any"
+        - "&7surface. This gives him +1 speed."
+      Amplifier: 1
+Deadmortal:
+  ConfigName: Deadmortal
+  Name: "Deadmortal"
+  Color: "&4"
+  Item:
+    Material: ROTTEN_FLESH
+  Description:
+    - "&7Deadmortal is a disfigured mercenary with"
+    - "&7superhuman abilities, such as accelerated"
+    - "&7healing and immense physical strength."
+    - "&7Use him to clutch opponent's health!"
+  Skin: "MarMC"
+  Price: 5000
+  Damage: 6
+  Armor: 0.625
+  Kb: 1.66
+  Regen: 0.35
+  Jump:
+    Power: 1.15
+    Height: 1
+    Sound:
+      Type: ZOMBIE_PIG_ANGRY
+      Volume: 1.5
+      Pitch: 1.5
+  Abilities:
+    0:
+      ConfigName: CorrosiveGun
+      Name: "Corrosive Gun"
+      Item:
+        Material: IRON_BARDING
+      Description:
+        - "&7Abuse your gun-wielding skills to"
+        - "&7rapidly fire a series of poisoned"
+        - "&7bullets. The gun's sheer power"
+        - "&7creates recoil, however."
+      Cooldown: 100
+      Speed: 1.2
+      Interval: 3
+      Recoil: 0.65
+      Count: 5
+      Damage: 2
+      Kb: 1.25
+      HitBox: 1
+      LaunchSound:
+        Type: FIREWORK_LARGE_BLAST
+        Volume: 2
+        Pitch: 2
+      BlockHitSound:
+        Type: EXPLODE
+        Volume: 1
+        Pitch: 2
+    1:
+      ConfigName: Teleport
+      Name: "Teleport"
+      Item:
+        Material: GOLD_HOE
+      Description:
+        - "&7Use your superhuman powers to teleport"
+        - "&7in the direction you're facing. Can be"
+        - "&7used to cover space and escape the void."
+      Cooldown: 145
+      Range: 20
+    2:
+      ConfigName: DiseasedFlesh
+      Name: "Diseased Flesh"
+      Item:
+        Material: DIAMOND_AXE
+      Description:
+        - "&7Shoot consecutive pieces of rotted"
+        - "&7items that can grant healing benefits"
+        - "&7and/or inflict an array of status effects,"
+        - "&7some much more deadly than others."
+      Cooldown: 140
+      Speed: 1.24
+      Spread: 8.5
+      Count: 8
+      ImmunityTicks: 0
+      Damage: 1.35
+      Kb: 1.05
+    3:
+      ConfigName: Bloodlust
+      Name: "Bloodlust"
+      Item:
+        Material: APPLE
+      Description:
+        - "&7Health when you melee."
+      Regen: 0.5
+Tank:
+  ConfigName: Tank
+  Name: "Tank"
+  Color: "&2"
+  Item:
+    Material: IRON_BLOCK
+  Description:
+    - "&7Slow but deadly, Tank uses every inch"
+    - "&7of his body to slam into opponents,"
+    - "&7showing no mercy. He is the strongest of"
+    - "&7all, and is even capable of manipulating"
+    - "&7the terrain around him to his advantage."
+  Skin: "zzz0www"
+  Price: 5000
+  Damage: 7
+  Armor: 0.4
+  Kb: 1
+  Regen: 0.22
+  Jump:
+    Power: 0.85
+    Height: 0.9
+    Sound:
+      Type: IRONGOLEM_THROW
+      Volume: 2
+      Pitch: 1
+  Abilities:
+    0:
+      ConfigName: Earthquake
+      Name: "Earthquake"
+      Item:
+        Material: IRON_PICKAXE
+      Description:
+        - "&7Stomp on the ground to generate a powerful"
+        - "&7earthquake. Enemies a radius will be hit"
+        - "&7with small fissures."
+      Cooldown: 160
+      AutoStartCooldown: false
+      HorizontalRange: 8
+      VerticalRange: 4
+      Kb: 1.55
+      KbY: 1.35
+      Damage: 5
+      Duration: 85
+      UprootInterval: 2
+      UprootDuration: 2
+    2:
+      ConfigName: HerculeanSmash
+      Name: "Herculean Smash"
+      Item:
+        Material: IRON_AXE
+      Description:
+        - "&7Defy physics to launch your heavy self"
+        - "&7upwards on the first click. Any enemies"
+        - "&7caught within this first propulsion are"
+        - "&7grabbed, then thrusted downward. Clicking"
+        - "&7second time enables you to dive and collide."
+      Cooldown: 180
+      AutoStartCooldown: false
+      AutoSendUseMessage: false
+      RiseVelocity: 1.25
+      HitBox: 1.25
+      VelocityImpactReduction: 0.5
+      Dive:
+        DistanceAtMax: 20
+        Velocity: 1.75
+        WeakDamage: 2
+        MinDamage: 3.5
+        MaxDamage: 11
+        MinKb: 0.7
+        MaxKb: 2.5
+        KbY: 0.8
+      Grab:
+        Damage: 3
+      Collide:
+        Damage: 7.5
+        Kb: 2
+        KbY: 0.85
+      Recoil:
+        Kb: -1.1
+        Damage: 3
+        KbY: 0.85
+      Smash:
+        KbY: 0.9
+    1:
+      ConfigName: BlockToss
+      Name: "Block Toss"
+      Item:
+        Material: DIAMOND_SWORD
+      Description:
+        - "&7Use your immense strength to pick up"
+        - "&7chunks of the Earth, throwing them"
+        - "&7at enemies. These chunks grow in size,"
+        - "&7and consequently power, over time."
+      Cooldown: 160
+      MinChargeTicks: 10
+      MaxChargeTicks: 85
+      KbY: 1.2
+      MinDamage: 5
+      MaxDamage: 14
+      MinSpeed: 0.45
+      MaxSpeed: 1.42
+      MinKb: 1.7
+      MaxKb: 3.5
+      JumpMultiplier: 0.7
+      MinSize: 1
+      Increments: 2
+      SizeIncrement: 1
+      GapAbovePlayer: 1
+    3:
+      ConfigName: Slowness
+      Name: "Slowness"
+      Item:
+        Material: IRON_BOOTS
+      Description:
+        - "&7Your immense power comes at a cost!"
+        - "&7Experience a decrease in jump and"
+        - "&7movement speed."
+Tool:
+  ConfigName: Tool
+  Name: "Tool"
+  Color: "&1"
+  Item:
+    Material: COAL
+  Description:
+    - "&7Much like Banos, Tool is a jack"
+    - "&7of all trades. He employs the use"
+    - "&7of various household items and"
+    - "&7machinery to overwhelm enemies."
+  Skin: "Lifio13"
+  Price: 0
+  Damage: 5.5
+  Armor: 0.5
+  Kb: 1.15
+  Regen: 0.25
+  Jump:
+    Power: 1.15
+    Height: 1
+    Sound:
+      Type: FIRE_IGNITE
+      Volume: 1
+      Pitch: 1
+  Abilities:
+    0:
+      ConfigName: CoalCluster
+      Name: "Coal Cluster"
+      Item:
+        Material: DIAMOND_SPADE
+      Description:
+        - "&7Throw an explosive coal grenade that"
+        - "&7breaks into deadly fragments upon contact."
+        - "&7But watch out! The coals are scorching"
+        - "&7hot and may even burn the enemy."
+      Cooldown: 110
+      Cluster:
+        Speed: 1
+        BurnChance: 0.15
+        BurnDuration: 50
+        FragmentCount: 14
+        MinPitch: -10
+        MaxPitch: -35
+        Damage: 4.75
+        Kb: 2.6
+        Block:
+          Material: COAL_BLOCK
+        LaunchSound:
+          Type: ANVIL_LAND
+          Volume: 1
+          Pitch: 2
+        Fragment:
+          BurnChance: 0.1
+          BurnDuration: 25
+          Speed: 0.8
+          Damage: 2.6
+          Kb: 1.9
+          Item:
+            Material: COAL
+    1:
+      ConfigName: DrillTornado
+      Name: "Drill Tornado"
+      Item:
+        Material: IRON_SWORD
+      Description:
+        - "&7Tool can turn himself into a human-tornado"
+        - "&7at will. Know that you don't want to cross"
+        - "&7paths with him when he's using this ability!"
+      Cooldown: 180
+      MaxChargeTicks: 40
+      Velocity: 1.1
+      HitBox: 1.5
+      Damage: 5.5
+      Kb: 2.4
+      KbY: 0.5
+      ParticleGap: 0.18
+    2:
+      ConfigName: HealStation
+      Name: "Heal Station"
+      Item:
+        Material: GOLD_PICKAXE
+      Description:
+        - "&7Place a brewing stand on the ground that"
+        - "&7heals you and your teammates upon being"
+        - "&7stood upon."
+      Cooldown: 190
+      AutoStartCooldown: false
+      Duration: 200
+      RegenMultiplier: 2.5
+      Health: 12
+      Radius: 2
+      ParticlesPerLine: 10
+Moreo:
+  ConfigName: Moreo
+  Name: "Moreo"
+  Color: "&c"
+  Item:
+    Material: RED_MUSHROOM
+  Description:
+    - "&7His courage and jumping abilities have seen"
+    - "&7him through countless adventures. Moreo is"
+    - "&7a multi-talented plumber with the knowledge"
+    - "&7of a seasoned physician. Is his jumping"
+    - "&7prowess a boon from his grider-climbing days?"
+  Skin: "PapaLegend"
+  Price: 7000
+  Damage: 5
+  Armor: 0.625
+  Kb: 1.55
+  Regen: 0.275
+  Jump:
+    Power: 1.25
+    Height: 1.5
+    Sound:
+      Type: VILLAGER_YES
+      Volume: 1
+      Pitch: 1
+  Abilities:
+    0:
+      ConfigName: GroundPound
+      Name: "Ground Pound"
+      Item:
+        Material: IRON_SPADE
+      Description:
+        - "&7Harness your coin-collecting skills from"
+        - "&7the old days to jump downward. Colliding"
+        - "&7with an enemy gives upward recoil and an"
+        - "&7extra double jump. Can be chained."
+      Cooldown: 140
+      AutoStartCooldown: false
+      MaxFall: 30
+      DownwardVelocity: 1.8
+      MinBounce: 0.35
+      MaxBounce: 3.5
+      HitBox: 1.5
+      MaxDamage: 18
+      MinDamage: 4
+      MaxKb: 3.5
+      MinKb: 1.5
+      KbY: 1
+      ImmunityTicks: 0
+    1:
+      ConfigName: HatThrow
+      Name: "Hat Throw"
+      Item:
+        Material: GOLD_HOE
+      Description:
+        - "&7Dramatically take off your hat in a"
+        - "&7display of masculine dominance. Throw"
+        - "&7it at your enemies in boomerang-fashion."
+        - "&7Click again to mount and dismount."
+      Cooldown: 160
+      AutoStartCooldown: false
+      AutoSendUseMessage: false
+      Speed: 1.2
+      TicksToReturn: 100
+      RotationPerTick: 0.45
+      RemoveOnEntityHit: false
+      HasGravity: false
+      Damage: 6
+      Kb: 1.4
+      ExtraLifespan: 5
+      HatItem:
+        Material: IRON_PICKAXE
+    2:
+      ConfigName: BombOmb
+      Name: "Bomb-omb"
+      Item:
+        Material: DIAMOND_AXE
+      Description:
+        - "&7Throw a bomb-omb that explodes upon a"
+        - "&7second click or after a few seconds."
+      Cooldown: 150
+      AutoStartCooldown: false
+      AutoSendUseMessage: false
+      Projectile:
+        Damage: 3
+        Kb: 1
+        Speed: 1
+        Item:
+          Material: COAL_BLOCK
+        Explode:
+          MinDamage: 2
+          MaxDamage: 11
+          MinKb: 0.8
+          MaxKb: 3
+          KbY: 1
+          Range: 8
+          Delay: 140
+MasterBlade:
+  ConfigName: MasterBlade
+  Name: "Master Blade"
+  Color: "&5"
+  Item:
+    Material: ENDER_PEARL
+  Description:
+    - "&7Master Blade is the legendary guardian of"
+    - "&7peace and order in the galaxy. He defends"
+    - "&7and protects all sapient life. Use Master"
+    - "&7Blade to restore the galaxy!"
+  Skin: "Goldbot"
+  Price: 6500
+  Damage: 6
+  Armor: 0.6
+  Kb: 1.65
+  Regen: 0.25
+  Jump:
+    Power: 1.15
+    Height: 1
+    Sound:
+      Type: ENDERMAN_TELEPORT
+      Volume: 1
+      Pitch: 1
+  Abilities:
+    0:
+      ConfigName: TerraShot
+      Name: "Terra Shot"
+      Item:
+        Material: GOLD_SWORD
+      Description:
+        - "&7Use the Force to pick up chunks of"
+        - "&7the Earth, throwing them at enemies."
+      Cooldown: 120
+      AutoStartCooldown: false
+      MinChargeTicks: 16
+      MinSpeed: 0.6
+      MaxSpeed: 2
+      MinKb: 1
+      MaxKb: 2.9
+      MinDamage: 2
+      MaxDamage: 6.5
+      Stages: 5
+      StageDuration: 11
+      Height: 3
+      Count: 3
+      RotationRadius: 1
+      LaunchInterval: 10
+    1:
+      ConfigName: SaberSpin
+      Name: "Saber Spin"
+      Item:
+        Material: DIAMOND_SWORD
+      Description:
+        - "&7Charge forward with all your might while"
+        - "&7wielding a cluster of sharp, deadly swords."
+        - "&7Any unfortunate victims are badly hurt and"
+        - "&7receive great knock-back."
+      Cooldown: 120
+      MaxChargeTicks: 20
+      ChargeSpeed: 1
+      Radius: 2
+      HitBox: 1.75
+      Damage: 6.5
+      Kb: 2.2
+      KbY: 0.4
+      ImmunityTicks: 13
+    2:
+      ConfigName: ViceGrip
+      Name: "Vice Grip"
+      Item:
+        Material: IRON_AXE
+      Description:
+        - "&7Left click to use your aura to fling"
+        - "&7enemies towards you. Within the right"
+        - "&7range, the grip is virtually inescapable."
+      Cooldown: 130
+      Range: 14
+      Damage: 6
+      Kb: -1.15
+      ExtraKbY: 0.4
+      HitBox: 1.5
+Pickachew:
+  ConfigName: Pikachew
+  Name: "Pickachew"
+  Color: "&e"
+  Item:
+    Material: GOLD_INGOT
+  Description:
+    - "&7Pickachew can generate electric attacks"
+    - "&7using the electric pouches located in both"
+    - "&7of his cheeks. He also has beautiful shoes"
+    - "&7that allow him to scamper at high speeds!"
+  Skin: "bink10"
+  Price: 7000
+  Damage: 5
+  Armor: 0.75
+  Kb: 1.85
+  Regen: 0.325
+  Jump:
+    Power: 1.5
+    Height: 0.95
+    Sound:
+      Type: FIREWORK_LAUNCH
+      Volume: 1
+      Pitch: 0.5
+  Abilities:
+    0:
+      ConfigName: ShockWave
+      Name: "Shock Wave"
+      Item:
+        Material: GOLD_SPADE
+      Description:
+        - "&7Fire a wide electric wave that shocks"
+        - "&7any enemies it comes into contact with."
+      Cooldown: 150
+      YawWidth: 17.5
+      Count: 8
+      Projectile:
+        Damage: 5
+        ImmunityTicks: 12
+        Kb: 1.8
+        Lifespan: 28
+        RemoveOnEntityHit: false
+        Speed: 1.05
+        HasGravity: false
+        Block:
+          Material: GOLD_BLOCK
+    1:
+      ConfigName: ElectrostaticLeap
+      Name: "Electrostatic Leap"
+      Item:
+        Material: IRON_AXE
+      Description:
+        - "&7Pikachew possesses strong hind legs that allow"
+        - "&7him to leap upwards. The liftoff power is"
+        - "&7strong and imbued with electricity, hurting"
+        - "&7enemies within a nearby radius."
+      Cooldown: 160
+      Radius: 4
+      Velocity: 1.7
+      HitBox: 1.3
+      Damage: 6
+      Kb: 2
+      KbY: 0.5
+    2:
+      ConfigName: Thunderbolt
+      Name: "Thunderbolt"
+      Item:
+        Material: DIAMOND_SWORD
+      Description:
+        - "&7Charge up an immensely powerful lightning"
+        - "&7strike. Hits foes in the direction you are"
+        - "&7facing once you stop charging."
+      Cooldown: 160
+      MinChargeTicks: 10
+      MaxChargeTicks: 35
+      KbY: 0.7
+      MinDamage: 3
+      MaxDamage: 9
+      MinKb: 1
+      MaxKb: 2.75
+      MinRange: 5
+      MaxRange: 45
+      HitBox: 1.5
+Skully:
+  ConfigName: Skully
+  Name: "Skully"
+  Color: "&7"
+  Item:
+    Material: SKULL_ITEM
+    Data: 4
+  Description:
+    - "&7Big boned from an early age, Skully has"
+    - "&7always been destined for success. He prefers"
+    - "&7to eliminate foes with a skeletal bow, a"
+    - "&7family hierloom from his mortal past."
+  Skin: "Berlt"
+  Price: 0
+  Damage: 5
+  Armor: 0.675
+  Regen: 0.25
+  Kb: 1.6
+  Jump:
+    Power: 1.15
+    Height: 1
+    Sound:
+      Type: SKELETON_WALK
+      Volume: 2
+      Pitch: 1

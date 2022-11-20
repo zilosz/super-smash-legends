@@ -9,7 +9,6 @@ import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
 import io.github.aura6.supersmashlegends.utils.RunnableUtils;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import net.minecraft.server.v1_8_R3.EnumParticle;
-import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.potion.PotionEffect;
@@ -23,10 +22,9 @@ public class Bloodshot extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        RunnableUtils.runTaskWithIntervals(plugin, config.getInt("Count"), config.getInt("Interval"), () -> {
-            new BloodProjectile(plugin, this, config.getSection("Projectile")).launch();
-            player.getWorld().playSound(player.getEyeLocation(), Sound.LAVA_POP, 1, 2);
-        });
+        RunnableUtils.runTaskWithIntervals(plugin,
+                config.getInt("Count"), config.getInt("Interval"),
+                () -> new BloodProjectile(plugin, this, config.getSection("Projectile")).launch());
     }
 
     public static class BloodProjectile extends ItemProjectile {

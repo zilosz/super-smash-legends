@@ -68,16 +68,18 @@ public class TeamManager {
         return entityTeams.get(player.getUniqueId());
     }
 
-    private void assignPlayer(Player player, Team team) {
-        team.addPlayer(player);
-        entityTeams.put(player.getUniqueId(), team);
+    public Optional<Team> findChosenTeam(Player player) {
+        return teams.stream().filter(team -> team.hasPlayer(player)).findAny();
     }
 
     public void assignPlayer(Player player) {
-        findEntityTeam(player).ifPresentOrElse(chosen -> assignPlayer(player, chosen), () ->
-                teams.stream()
-                        .filter(team -> team.canJoin(player))
-                        .findFirst().ifPresent(team -> assignPlayer(player, team)));
+        teams.stream().filter(team -> team.hasPlayer(player)).findAny().ifPresentOrElse(
+                chosen -> entityTeams.put(player.getUniqueId(), chosen), () -> {
+                    teams.stream().filter(team -> team.canJoin(player)).findFirst().ifPresent(team -> {
+                        team.addPlayer(player);
+                        entityTeams.put(player.getUniqueId(), team);
+                    });
+                });
     }
 
     public void removeEmptyTeams() {

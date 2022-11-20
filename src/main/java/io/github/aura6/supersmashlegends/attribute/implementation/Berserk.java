@@ -20,6 +20,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 public class Berserk extends RightClickAbility {
     private boolean active = false;
+    private BukkitTask resetTask;
     private Firework firework;
     private BukkitTask particleTask;
     private int ogJumps;
@@ -28,17 +29,22 @@ public class Berserk extends RightClickAbility {
         super(plugin, config, kit);
     }
 
+    @Override
+    public boolean invalidate(PlayerInteractEvent event) {
+        return super.invalidate(event) || active;
+    }
+
     public void reset() {
         if (!active) return;
 
         active = false;
-        startCooldown();
 
         kit.getJump().setCount(ogJumps);
         player.removePotionEffect(PotionEffectType.SPEED);
 
         firework.remove();
         particleTask.cancel();
+        resetTask.cancel();
 
         player.playSound(player.getLocation(), Sound.WOLF_WHINE, 1, 1);
     }
@@ -58,7 +64,10 @@ public class Berserk extends RightClickAbility {
 
         player.playSound(player.getLocation(), Sound.WOLF_GROWL, 1, 1);
 
-        Bukkit.getScheduler().runTaskLater(plugin, this::reset, config.getInt("Duration"));
+        resetTask = Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            reset();
+            startCooldown();
+        }, config.getInt("Duration"));
     }
 
     @Override

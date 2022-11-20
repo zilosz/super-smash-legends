@@ -7,9 +7,7 @@ import com.mojang.authlib.properties.Property;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
 import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,7 +27,7 @@ public class Skin {
         profile.getProperties().put("textures", new Property("textures", texture, signature));
     }
 
-    public void apply(Plugin plugin, Player player) {
+    public void apply(Player player) {
         EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
         GameProfile profile = nmsPlayer.getProfile();
         profile.getProperties().removeAll("textures");
@@ -40,14 +38,8 @@ public class Skin {
             other.showPlayer(player);
         }
 
-        Location original = player.getLocation();
-        player.teleport(new Location(Bukkit.getWorld("world"), 0, 255, 0));
-
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            player.teleport(original);
-            NmsUtils.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, nmsPlayer));
-            NmsUtils.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, nmsPlayer));
-        }, 3);
+        NmsUtils.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, nmsPlayer));
+        NmsUtils.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, nmsPlayer));
     }
 
     public static Optional<Skin> fromMojang(String playerName) {

@@ -6,6 +6,7 @@ import io.github.aura6.supersmashlegends.arena.ArenaManager;
 import io.github.aura6.supersmashlegends.command.DummyCommand;
 import io.github.aura6.supersmashlegends.command.EndCommand;
 import io.github.aura6.supersmashlegends.command.KitCommand;
+import io.github.aura6.supersmashlegends.command.LocCommand;
 import io.github.aura6.supersmashlegends.command.ReloadConfigCommand;
 import io.github.aura6.supersmashlegends.command.SkipCommand;
 import io.github.aura6.supersmashlegends.command.StartCommand;
@@ -14,9 +15,9 @@ import io.github.aura6.supersmashlegends.database.Database;
 import io.github.aura6.supersmashlegends.economy.EconomyManager;
 import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.game.GameScoreboard;
-import io.github.aura6.supersmashlegends.inventory.ArenaVoter;
-import io.github.aura6.supersmashlegends.inventory.KitSelector;
-import io.github.aura6.supersmashlegends.inventory.TeamSelector;
+import io.github.aura6.supersmashlegends.arena.ArenaVoter;
+import io.github.aura6.supersmashlegends.kit.KitSelector;
+import io.github.aura6.supersmashlegends.team.TeamSelector;
 import io.github.aura6.supersmashlegends.kit.KitManager;
 import io.github.aura6.supersmashlegends.power.PowerManager;
 import io.github.aura6.supersmashlegends.team.TeamManager;
@@ -73,6 +74,12 @@ public class SuperSmashLegends extends JavaPlugin {
         gameManager = new GameManager(this);
         powerManager = new PowerManager(this);
 
+        Section dbConfig = resources.getConfig().getSection("Database");
+
+        if (dbConfig.getBoolean("Enabled")) {
+            db.init(dbConfig.getString("Uri"), dbConfig.getString("Database"), dbConfig.getString("Collection"));
+        }
+
         PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.registerEvents(kitManager, this);
         pluginManager.registerEvents(powerManager, this);
@@ -85,12 +92,6 @@ public class SuperSmashLegends extends JavaPlugin {
         kitManager.setupKits();
         gameManager.activateState();
 
-        Section dbConfig = resources.getConfig().getSection("Database");
-
-        if (dbConfig.getBoolean("Enabled")) {
-            db.init(dbConfig.getString("Uri"), dbConfig.getString("Database"), dbConfig.getString("Collection"));
-        }
-
         Assemble scoreboard = new Assemble(this, new GameScoreboard(this));
         scoreboard.setTicks(20);
         scoreboard.setAssembleStyle(AssembleStyle.MODERN);
@@ -101,6 +102,7 @@ public class SuperSmashLegends extends JavaPlugin {
         getCommand("end").setExecutor(new EndCommand(this));
         getCommand("skip").setExecutor(new SkipCommand(this));
         getCommand("dummy").setExecutor(new DummyCommand());
+        getCommand("loc").setExecutor(new LocCommand());
     }
 
     @Override
