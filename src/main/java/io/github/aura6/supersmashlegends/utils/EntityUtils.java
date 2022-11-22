@@ -26,4 +26,11 @@ public class EntityUtils {
         AxisAlignedBB bb = ((CraftEntity) entity).getHandle().getBoundingBox();
         return new Location(entity.getWorld(), (bb.d + bb.a) / 2, (bb.e + bb.b) / 2, (bb.f + bb.c) / 2);
     }
+
+    public static Location underHand(Entity entity, double distance) {
+        Location loc = entity.getLocation();
+        loc.setYaw(loc.getYaw() + 90);
+        loc.setPitch(0);
+        return loc.add(loc.getDirection().multiply(0.42)).add(0, 0.7 - distance, 0);
+    }
 }

@@ -1,5 +1,6 @@
 package io.github.aura6.supersmashlegends.utils;
 
+import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -14,7 +15,7 @@ import java.util.function.Consumer;
 
 public class HotbarItem implements Listener {
     private final Player player;
-    private final ItemStack itemStack;
+    @Getter private final ItemStack itemStack;
     private final int slot;
     @Setter private Consumer<PlayerInteractEvent> action;
 

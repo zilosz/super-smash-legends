@@ -95,12 +95,12 @@ public class TeamManager {
     }
 
     public void wipePlayer(Player player) {
-        Team team = entityTeams.remove(player.getUniqueId());
-        team.removePlayer(player);
-
-        if (team.isEmpty()) {
-            teams.remove(team);
-        }
+        Optional.ofNullable(entityTeams.remove(player.getUniqueId())).ifPresent(team -> {
+            team.removePlayer(player);
+            if (team.isEmpty()) {
+                teams.remove(team);
+            }
+        });
     }
 
     public Optional<Team> findEntityTeam(LivingEntity entity) {

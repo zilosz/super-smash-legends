@@ -1,10 +1,12 @@
 package io.github.aura6.supersmashlegends.game.state;
 
+import com.connorlinfoot.titleapi.TitleAPI;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -38,7 +40,7 @@ public abstract class GameState implements Listener {
 
     public abstract List<String> getScoreboard(Player player);
 
-    public abstract boolean isNotInGame();
+    public abstract boolean isInGame();
 
     public abstract void start();
 
@@ -56,13 +58,18 @@ public abstract class GameState implements Listener {
     }
 
     @EventHandler
-    public void handleInGameJoin(PlayerJoinEvent event) {
-        if (isNotInGame()) return;
-
+    public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        Chat.GAME.send(player, "&7The game you joined is in progress.");
-        plugin.getGameManager().addSpectator(player);
+        event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined the game.", player.getName())));
+        TitleAPI.sendTitle(player, MessageUtils.color("&7Welcome to"), MessageUtils.color("&5&lSuper Smash Legends!"), 10, 40, 10);
+        player.playSound(player.getLocation(), Sound.LEVEL_UP, 2, 1);
+        Chat.GAME.send(player, "&7Please use &d&l/start &7to start and &3&l/end &7to end.");
+
+        if (isInGame()) {
+            Chat.GAME.send(player, "&7The game you joined is in progress.");
+            plugin.getGameManager().addSpectator(player);
+        }
     }
 
     @EventHandler
@@ -72,7 +79,7 @@ public abstract class GameState implements Listener {
         plugin.getEconomyManager().uploadUser(player);
         plugin.getKitManager().uploadUser(player);
 
-        if (isNotInGame()) {
+        if (!isInGame()) {
             event.setQuitMessage(Chat.QUIT.get(String.format("&5%s &7has quit the game.", player.getName())));
             return;
         }
@@ -87,9 +94,8 @@ public abstract class GameState implements Listener {
         plugin.getTeamManager().wipePlayer(player);
         gameManager.wipePlayer(player);
 
-        if (gameManager.getAlivePlayers().size() == 0) {
-            Chat.GAME.broadcast("&7No players left. Returned to the lobby.");
-            gameManager.skipToState(new LobbyState(plugin));
+        if (gameManager.getAlivePlayers().size() <= 1) {
+            gameManager.advanceState();
         }
     }
 

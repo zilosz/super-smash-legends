@@ -7,6 +7,7 @@ import io.github.aura6.supersmashlegends.damage.Damage;
 import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.event.ProjectileLaunchEvent;
 import io.github.aura6.supersmashlegends.utils.NmsUtils;
+import io.github.aura6.supersmashlegends.utils.Reflector;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.finder.EntityFinder;
@@ -35,7 +36,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     protected final Section config;
 
     @Setter protected Location overrideLocation;
-    @Setter protected Double overrideSpeed;
+    @Getter @Setter protected Double speed;
 
     @Getter @Setter protected float spread;
     @Getter @Setter protected int lifespan;
@@ -74,6 +75,11 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         invisible = config.getBoolean("Invisible");
     }
 
+    @SuppressWarnings("unchecked")
+    public CustomProjectile<T> copy(Ability ability) {
+        return (CustomProjectile<T>) Reflector.newInstance(getClass(), this.plugin, ability, this.config);
+    }
+
     public double defaultHitBox() {
         return 0.75;
     }
@@ -89,7 +95,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     public void onLaunch() {}
 
     public void launch() {
-        double speed = overrideSpeed == null ? config.getDouble("Speed") : overrideSpeed;
+        speed = this.speed == null ? config.getDouble("Speed") : this.speed;
 
         ProjectileLaunchEvent projectileLaunchEvent = new ProjectileLaunchEvent(this, speed);
         Bukkit.getPluginManager().callEvent(projectileLaunchEvent);

@@ -1,5 +1,6 @@
 package io.github.aura6.supersmashlegends.utils.block;
 
+import io.github.aura6.supersmashlegends.utils.math.MathUtils;
 import net.minecraft.server.v1_8_R3.AxisAlignedBB;
 import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.IBlockData;
@@ -99,5 +100,11 @@ public class BlockUtils {
 
     public static void setBlockFast(Location loc, Material material) {
         setBlockFast(loc, material.getId(), (byte) 2);
+    }
+
+    public static boolean isLocationInsideBox(Location location, AxisAlignedBB box) {
+        return MathUtils.isBetween(location.getX(), box.a, box.d)
+                && MathUtils.isBetween(location.getY(), box.b, box.e)
+                && MathUtils.isBetween(location.getZ(), box.c, box.f);
     }
 }

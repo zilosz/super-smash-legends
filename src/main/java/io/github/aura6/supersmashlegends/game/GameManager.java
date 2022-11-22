@@ -1,6 +1,7 @@
 package io.github.aura6.supersmashlegends.game;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
+import io.github.aura6.supersmashlegends.database.Database;
 import io.github.aura6.supersmashlegends.game.state.EndState;
 import io.github.aura6.supersmashlegends.game.state.GameState;
 import io.github.aura6.supersmashlegends.game.state.InGameState;
@@ -112,7 +113,7 @@ public class GameManager {
     }
 
     public boolean isPlayerParticipating(Player player) {
-        return profiles.containsKey(player.getUniqueId());
+        return player != null && profiles.containsKey(player.getUniqueId()) && !isSpectator(player);
     }
 
     public Set<Player> getParticipators() {
@@ -139,6 +140,38 @@ public class GameManager {
 
     public boolean isSpectator(Player player) {
         return spectators.contains(player);
+    }
+
+    public void uploadPlayerStats(Player player) {
+        UUID uuid = player.getUniqueId();
+        InGameProfile profile = profiles.get(uuid);
+        Database db = plugin.getDb();
+
+        db.setIfEnabled(uuid, "kills", db.getOrDefault(uuid, "kills", 0, 0) + profile.getKills());
+        db.setIfEnabled(uuid, "deaths", db.getOrDefault(uuid, "deaths", 0, 0) + profile.getDeaths());
+        db.setIfEnabled(uuid, "damageTaken", db.getOrDefault(uuid, "damageTaken", 0.0, 0.0) + profile.getDamageTaken());
+        db.setIfEnabled(uuid, "damageDealt", db.getOrDefault(uuid, "damageDealt", 0.0, 0.0) + profile.getDamageDealt());
+    }
+
+    public void uploadPlayerStatsMidGame(Player player) {
+        uploadPlayerStats(player);
+
+        int before = plugin.getDb().getOrDefault(player.getUniqueId(), "losses", 0, 0);
+        plugin.getDb().setIfEnabled(player.getUniqueId(), "losses", before + 1);
+    }
+
+    public void uploadPlayerStatsAtEnd(Player player, boolean winner) {
+        uploadPlayerStats(player);
+
+        Database db = plugin.getDb();
+        UUID uuid = player.getUniqueId();
+
+        if (winner) {
+            db.setIfEnabled(uuid, "wins", db.getOrDefault(uuid, "wins", 0, 0) + 1);
+
+        } else {
+            db.setIfEnabled(uuid, "losses", db.getOrDefault(uuid, "losses", 0, 0) + 1);
+        }
     }
 
     public void reset() {

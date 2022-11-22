@@ -4,7 +4,6 @@ import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.arena.Arena;
 import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
-import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -64,8 +63,8 @@ public class TutorialState extends GameState {
     }
 
     @Override
-    public boolean isNotInGame() {
-        return false;
+    public boolean isInGame() {
+        return true;
     }
 
     private void stopPlayer(Player player) {

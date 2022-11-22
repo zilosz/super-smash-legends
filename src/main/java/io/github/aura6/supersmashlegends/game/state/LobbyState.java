@@ -1,10 +1,11 @@
 package io.github.aura6.supersmashlegends.game.state;
 
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
-import com.connorlinfoot.titleapi.TitleAPI;
 import io.github.aura6.supersmashlegends.Resources;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.arena.Arena;
+import io.github.aura6.supersmashlegends.attribute.Ability;
+import io.github.aura6.supersmashlegends.attribute.Attribute;
 import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.utils.HotbarItem;
@@ -20,10 +21,12 @@ import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -69,8 +72,8 @@ public class LobbyState extends GameState {
     }
 
     @Override
-    public boolean isNotInGame() {
-        return true;
+    public boolean isInGame() {
+        return false;
     }
 
     private void createLeaderboard(String titleName, String statName, String configName) {
@@ -185,8 +188,8 @@ public class LobbyState extends GameState {
             holograms.add(lastGame);
 
             for (Player other : Bukkit.getOnlinePlayers()) {
-                if (!other.getUniqueId().equals(player.getUniqueId())) {
-                    lastGame.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.HIDDEN);
+                if (!other.equals(player)) {
+                    lastGame.getVisibilitySettings().setIndividualVisibility(other, VisibilitySettings.Visibility.HIDDEN);
                 }
             }
         }
@@ -259,17 +262,11 @@ public class LobbyState extends GameState {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        Chat.GAME.send(player, "&7Please use &d&l/start &7to start and &3&l/end &7to end.");
-
         initializePlayer(player);
 
         plugin.getDb().setIfEnabled(player.getUniqueId(), "name", player.getName());
         plugin.getEconomyManager().setupUser(player);
         plugin.getKitManager().setupUser(player);
-
-        event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined the game.", player.getName())));
-        TitleAPI.sendTitle(player, MessageUtils.color("&7Welcome to"), MessageUtils.color("&5&lSuper Smash Legends!"), 10, 40, 10);
-        player.playSound(player.getLocation(), Sound.LEVEL_UP, 2, 1);
     }
 
     @EventHandler
@@ -277,6 +274,23 @@ public class LobbyState extends GameState {
         if (event.getCause() == EntityDamageEvent.DamageCause.VOID && event.getEntity() instanceof Player) {
             event.setCancelled(true);
             event.getEntity().teleport(getSpawn());
+        }
+    }
+
+    @EventHandler
+    public void stopBows(EntityShootBowEvent event) {
+        if (!(event.getEntity() instanceof Player)) return;
+
+        for (Attribute attribute : plugin.getKitManager().getSelectedKit((Player) event.getEntity()).getAttributes()) {
+
+            if (attribute instanceof Ability) {
+                Ability ability = (Ability) attribute;
+
+                if (ability.getMaterial() == Material.ARROW) {
+                    event.setCancelled(true);
+                    ability.getHotbarItem().show();
+                }
+            }
         }
     }
 }

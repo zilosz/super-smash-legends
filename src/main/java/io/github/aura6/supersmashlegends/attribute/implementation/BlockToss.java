@@ -75,7 +75,7 @@ public class BlockToss extends ChargedRightClickBlockAbility {
         projectile.setMaterial(block.getMaterial());
         projectile.setData(block.getBlockData());
         projectile.setOverrideLocation(block.getLocation().setDirection(player.getEyeLocation().getDirection()));
-        projectile.setOverrideSpeed(speed);
+        projectile.setSpeed(speed);
         projectile.getDamage().setDamage(damage);
         projectile.getDamage().setKb(kb);
         projectile.launch();

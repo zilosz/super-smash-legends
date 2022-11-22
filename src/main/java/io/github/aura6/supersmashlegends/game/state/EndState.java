@@ -3,7 +3,6 @@ package io.github.aura6.supersmashlegends.game.state;
 import com.connorlinfoot.titleapi.TitleAPI;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import io.github.aura6.supersmashlegends.database.Database;
 import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.team.Team;
 import io.github.aura6.supersmashlegends.team.TeamManager;
@@ -22,7 +21,6 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class EndState extends GameState {
@@ -70,7 +68,7 @@ public class EndState extends GameState {
     }
 
     @Override
-    public boolean isNotInGame() {
+    public boolean isInGame() {
         return true;
     }
 
@@ -108,6 +106,8 @@ public class EndState extends GameState {
         String title = MessageUtils.color(winningTeams.size() == 1 ? "&aWinners!" : "&dTie!");
 
         for (Player player : plugin.getGameManager().getParticipators()) {
+            if (!player.isOnline()) return;
+
             String winMessage;
 
             if (winningPlayers.contains(player)) {
@@ -140,6 +140,10 @@ public class EndState extends GameState {
 
             TitleAPI.sendTitle(player, title, MessageUtils.color(winners.toString()), 10, 40, 10);
             player.playSound(player.getLocation(), Sound.FIREWORK_LARGE_BLAST, 3, 1);
+
+            if (plugin.getGameManager().isPlayerParticipating(player)) {
+                plugin.getGameManager().uploadPlayerStatsAtEnd(player, winningPlayers.contains(player));
+            }
         }
 
         endCountdown = new BukkitRunnable() {
@@ -170,6 +174,7 @@ public class EndState extends GameState {
     @Override
     public void end() {
         endCountdown.cancel();
+        winningPlayers.clear();
 
         plugin.getTeamManager().reset();
         plugin.getWorldManager().resetWorld("arena");
@@ -178,26 +183,6 @@ public class EndState extends GameState {
             player.setAllowFlight(false);
             TitleAPI.clearTitle(player);
         }
-
-        for (Player player : plugin.getGameManager().getParticipators()) {
-            InGameProfile profile = plugin.getGameManager().getProfile(player);
-            UUID uuid = player.getUniqueId();
-            Database db = plugin.getDb();
-
-            db.setIfEnabled(uuid, "kills", db.getOrDefault(uuid, "kills", 0, 0) + profile.getKills());
-            db.setIfEnabled(uuid, "deaths", db.getOrDefault(uuid, "deaths", 0, 0) + profile.getDeaths());
-            db.setIfEnabled(uuid, "damageTaken", db.getOrDefault(uuid, "damageTaken", 0.0, 0.0) + profile.getDamageTaken());
-            db.setIfEnabled(uuid, "damageDealt", db.getOrDefault(uuid, "damageDealt", 0.0, 0.0) + profile.getDamageDealt());
-
-            if (winningPlayers.contains(player)) {
-                db.setIfEnabled(uuid, "wins", db.getOrDefault(uuid, "wins", 0, 0) + 1);
-
-            } else {
-                db.setIfEnabled(uuid, "losses", db.getOrDefault(uuid, "losses", 0, 0) + 1);
-            }
-        }
-
-        winningPlayers.clear();
     }
 
     @EventHandler

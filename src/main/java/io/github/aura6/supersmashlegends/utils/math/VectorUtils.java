@@ -10,6 +10,10 @@ import org.bukkit.util.Vector;
 
 public class VectorUtils {
 
+    public static Vector perp(Vector vector) {
+        return vector.getCrossProduct(new Vector(0, 1, 0).normalize());
+    }
+
     public static Vector fromTo(Location from, Location to) {
         return to.toVector().subtract(from.toVector());
     }

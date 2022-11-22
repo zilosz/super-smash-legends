@@ -118,7 +118,10 @@ public class BatWave extends RightClickAbility {
         @Override
         public void onRemove() {
             this.state = BatWaveState.INACTIVE;
-            ((ClickableAbility) this.ability).startCooldown();
+
+            if (this.ability.isEnabled()) {
+                ((ClickableAbility) this.ability).startCooldown();
+            }
         }
     }
 }

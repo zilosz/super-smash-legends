@@ -11,7 +11,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 public class Attribute implements Listener {
     protected final SuperSmashLegends plugin;
-    protected final Kit kit;
+    @Getter protected final Kit kit;
     @Getter protected Player player;
     private BukkitTask task;
     protected int period;

@@ -50,7 +50,7 @@ public class StickySituation extends PassiveAbility {
 
     @EventHandler
     public void onRegen(RegenEvent event) {
-        if (event.getPlayer() == player && active && player.getHealth() > config.getDouble("HealthThreshold")) {
+        if (event.getPlayer() == player && active && player.getHealth() + event.getRegen() > config.getDouble("HealthThreshold")) {
             reset();
             player.getWorld().playSound(player.getLocation(), Sound.ZOMBIE_PIG_DEATH, 1, 1);
             Effects.launchFirework(player.getEyeLocation(), Color.fromRGB(0, 102, 0), 1);

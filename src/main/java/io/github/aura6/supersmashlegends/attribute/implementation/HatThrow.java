@@ -95,7 +95,7 @@ public class HatThrow extends RightClickAbility {
         public void onRemove() {
             this.state = HatThrowState.INACTIVE;
 
-            if (this.ability instanceof ClickableAbility) {
+            if (this.ability instanceof ClickableAbility && this.ability.isEnabled()) {
                 ((ClickableAbility) this.ability).startCooldown();
             }
         }

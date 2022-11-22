@@ -20,6 +20,10 @@ Description:
   - "&2&lArena - {ARENA} &7by &f&l{AUTHORS}"
   - "&5&l------------------------------"
 KitHologramHeight: 2.7
+Death:
+  Skin: "BroliaiJagm"
+  Velocity: 0.35
+  Duration: 80
 LeaderboardSizes:
   Wins: 10
   Kills: 10
@@ -62,10 +66,10 @@ Damage:
     Min: 1
     Max: 2
 Power:
-  Frequency: 600
+  Frequency: 1500
   Height: 100
   DropSpeed: 0.5
-  DetectionRadiusSquared: 4
+  DetectionRadiusSquared: 4.5
   Powers:
     Droid:
       Name: "&8Droid"
@@ -78,6 +82,19 @@ Power:
         - "&7unparalleled success rate."
       Rarity: 10
       Uses: 3
-      NormalSpeed: 0.7
-      HomingSpeed: 1.5
-      Vision: 30
+      Side:
+        HitBox: 0
+        Block:
+          Material: IRON_FENCE
+      Main:
+        Speed: 0.75
+        HomingSpeed: 1.75
+        Vision: 30
+        Damage: 8
+        ImmunityTicks: 0
+        Kb: 2.75
+        KbY: 1
+        HitBox: 2
+        HasGravity: false
+        Block:
+          Material: IRON_BLOCK

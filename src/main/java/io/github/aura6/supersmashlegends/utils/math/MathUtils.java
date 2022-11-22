@@ -25,6 +25,10 @@ public class MathUtils {
         return ((int) (2 * n + 0.5)) / 2.0;
     }
 
+    public static boolean isBetween(double value, double min, double max) {
+        return min <= value && value <= max;
+    }
+
     public static double increasingLinear(double min, double max, double rangeAtMax, double x) {
         return x * (max - min) / rangeAtMax + min;
     }

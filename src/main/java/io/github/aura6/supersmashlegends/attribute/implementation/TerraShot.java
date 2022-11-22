@@ -74,7 +74,7 @@ public class TerraShot extends ChargedRightClickBlockAbility {
             projectile.setData(data);
             projectile.getDamage().setDamage(damage);
             projectile.getDamage().setKb(kb);
-            projectile.setOverrideSpeed(speed);
+            projectile.setSpeed(speed);
             projectile.launch();
         }, this::stopRotation);
     }

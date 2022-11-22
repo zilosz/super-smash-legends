@@ -11,6 +11,7 @@ import io.github.aura6.supersmashlegends.kit.KitManager;
 import io.github.aura6.supersmashlegends.team.Team;
 import io.github.aura6.supersmashlegends.team.TeamManager;
 import io.github.aura6.supersmashlegends.utils.NmsUtils;
+import io.github.aura6.supersmashlegends.utils.effect.DeathNPC;
 import io.github.aura6.supersmashlegends.utils.math.MathUtils;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
@@ -24,13 +25,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,8 +122,8 @@ public class InGameState extends GameState {
     }
 
     @Override
-    public boolean isNotInGame() {
-        return false;
+    public boolean isInGame() {
+        return true;
     }
 
     @Override
@@ -148,43 +149,6 @@ public class InGameState extends GameState {
         }
     }
 
-    @Override
-    public void end() {
-        respawnTasks.forEach((uuid, respawnTask) -> {
-            respawnPlayer(Bukkit.getPlayer(uuid));
-            respawnTask.cancel();
-        });
-
-        respawnTasks.clear();
-
-        for (Player player : plugin.getGameManager().getAlivePlayers()) {
-            plugin.getKitManager().getSelectedKit(player).deactivate();
-            TitleAPI.clearTitle(player);
-        }
-    }
-
-    @EventHandler
-    public void onInGameDamage(EntityDamageEvent event) {
-        if (!(event.getEntity() instanceof Player)) return;
-
-        Player player = (Player) event.getEntity();
-
-        if (event.getCause() != EntityDamageEvent.DamageCause.FALL) {
-            InGameProfile profile = plugin.getGameManager().getProfile(player);
-            profile.setDamageTaken(profile.getDamageTaken() + event.getFinalDamage());
-        }
-
-        if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
-
-            if (player.getGameMode() == GameMode.SPECTATOR) {
-                player.teleport(plugin.getArenaManager().getArena().getWaitLocation());
-
-            } else {
-                onPlayerDeath(new PlayerDeathEvent(player, Collections.emptyList(), 0, ""));
-            }
-        }
-    }
-
     private void respawnPlayer(Player player) {
         player.teleport(plugin.getArenaManager().getArena().getFarthestSpawnFromPlayers());
 
@@ -200,19 +164,38 @@ public class InGameState extends GameState {
         kit.activate();
     }
 
-    @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        event.getDrops().clear();
+    @Override
+    public void end() {
+        respawnTasks.forEach((uuid, respawnTask) -> {
+            respawnPlayer(Bukkit.getPlayer(uuid));
+            respawnTask.cancel();
+        });
 
-        Player died = event.getEntity();
+        respawnTasks.clear();
+
+        for (Player player : plugin.getGameManager().getAlivePlayers()) {
+            plugin.getKitManager().getSelectedKit(player).deactivate();
+            TitleAPI.clearTitle(player);
+        }
+    }
+
+    private void handleDeath(Player died, boolean spawnNpc) {
+        died.setVelocity(new Vector(0, 0, 0));
+
+        KitManager kitManager = plugin.getKitManager();
+        Kit diedKit = kitManager.getSelectedKit(died);
+        diedKit.destroy();
+
+        if (spawnNpc) {
+            DeathNPC.spawn(plugin, died);
+        }
 
         died.setGameMode(GameMode.SPECTATOR);
         NmsUtils.getConnection(died).a(new PacketPlayInClientCommand(PacketPlayInClientCommand.EnumClientCommand.PERFORM_RESPAWN));
 
-        KitManager kitManager = plugin.getKitManager();
-
-        Kit diedKit = kitManager.getSelectedKit(died);
-        diedKit.destroy();
+        InGameProfile profile = plugin.getGameManager().getProfile(died);
+        profile.setLives(profile.getLives() - 1);
+        profile.setDeaths(profile.getDeaths() + 1);
 
         String deathMessage;
         Location tpLocation;
@@ -250,19 +233,12 @@ public class InGameState extends GameState {
             tpLocation = killer.getLocation();
         }
 
-        damageManager.destroyIndicator(died);
-        damageManager.removeDamageSource(died);
-        damageManager.clearImmunities(died);
-
         Chat.DEATH.broadcast(deathMessage);
         died.teleport(tpLocation);
 
-        died.setHealth(20);
-        died.setVelocity(new Vector(0, 0, 0));
-
-        InGameProfile profile = plugin.getGameManager().getProfile(died);
-        profile.setLives(profile.getLives() - 1);
-        profile.setDeaths(profile.getDeaths() + 1);
+        damageManager.destroyIndicator(died);
+        damageManager.removeDamageSource(died);
+        damageManager.clearImmunities(died);
 
         if (profile.getLives() == 0) {
             died.playSound(died.getLocation(), Sound.WITHER_DEATH, 2, 1);
@@ -308,5 +284,41 @@ public class InGameState extends GameState {
             }
 
         }.runTaskTimer(plugin, 60, 20));
+    }
+
+    @EventHandler
+    public void onRegularDamage(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player)) return;
+
+        Player player = (Player) event.getEntity();
+
+        if (event.getCause() != EntityDamageEvent.DamageCause.FALL && plugin.getGameManager().isPlayerAlive(player)) {
+            InGameProfile profile = plugin.getGameManager().getProfile(player);
+            profile.setDamageTaken(profile.getDamageTaken() + event.getFinalDamage());
+        }
+
+        if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
+
+            if (player.getGameMode() == GameMode.SPECTATOR) {
+                player.teleport(plugin.getArenaManager().getArena().getWaitLocation());
+
+            } else {
+                handleDeath(player, false);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        event.getDrops().clear();
+        event.setDeathMessage("");
+        handleDeath(event.getEntity(), true);
+    }
+
+    @EventHandler
+    public void onQuitMidGame(PlayerQuitEvent event) {
+        if (plugin.getGameManager().isPlayerAlive(event.getPlayer())) {
+            plugin.getGameManager().uploadPlayerStatsMidGame(event.getPlayer());
+        }
     }
 }

@@ -5,19 +5,19 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-public class ChargedRightClickBlockAbility extends ChargedRightClickAbility {
+public abstract class LeftClickAbility extends ClickableAbility {
 
-    public ChargedRightClickBlockAbility(SuperSmashLegends plugin, Section config, Kit kit) {
+    public LeftClickAbility(SuperSmashLegends plugin, Section config, Kit kit) {
         super(plugin, config, kit);
     }
 
     @Override
     public boolean invalidate(PlayerInteractEvent event) {
-        return super.invalidate(event) || event.getClickedBlock() == null;
+        return super.invalidate(event) || !event.getAction().name().contains("LEFT");
     }
 
     @Override
     public String getUseType() {
-        return "Hold Right Click Block";
+        return "Left Click";
     }
 }

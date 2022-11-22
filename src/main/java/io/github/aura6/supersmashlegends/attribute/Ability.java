@@ -10,6 +10,7 @@ import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 
@@ -43,6 +44,10 @@ public abstract class Ability extends Attribute implements Nameable {
 
     public String getBoldedDisplayName() {
         return MessageUtils.color(getColor() + "&l" + config.getString("Name"));
+    }
+
+    public Material getMaterial() {
+        return Material.valueOf(config.getString("Item.Material"));
     }
 
     public ItemStack buildItem() {

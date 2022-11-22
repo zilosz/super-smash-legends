@@ -27,7 +27,7 @@ public abstract class ChargedRightClickAbility extends RightClickAbility {
 
     @Override
     public String getUseType() {
-        return "Charged Right Click";
+        return "Hold Right Click";
     }
 
     public void onInitialClick(PlayerInteractEvent event) {}

@@ -6,7 +6,6 @@ import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
-import me.filoghost.holographicdisplays.api.hologram.HologramLines;
 import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.NPCLeftClickEvent;
@@ -66,6 +65,11 @@ public class KitManager implements Listener {
         plugin.getResources().loadKits().forEach(this::setupKit);
     }
 
+    private static void updateAccessHologram(Hologram hologram, KitAccessType accessType, Kit kit) {
+        hologram.getLines().remove(0);
+        hologram.getLines().appendText(accessType.getHologram(kit));
+    }
+
     public void setupUser(Player player) {
         UUID uuid = player.getUniqueId();
 
@@ -93,10 +97,8 @@ public class KitManager implements Listener {
         Kit chosen = kitsByName.get(chosenKit);
         setKit(player, chosen);
 
-        kitHolograms.get(uuid).forEach((kitName, holo) -> {
-            holo.getLines().remove(0);
-            holo.getLines().appendText(getKitAccess(player, kitName).getHologram(kitsByName.get(kitName)));
-        });
+        kitHolograms.get(uuid).forEach((kitName, holo) ->
+                updateAccessHologram(holo, getKitAccess(player, kitName), kitsByName.get(kitName)));
 
         kitHolograms.forEach((playerUUID, holograms) -> {
             if (!playerUUID.equals(uuid)) {
@@ -123,9 +125,7 @@ public class KitManager implements Listener {
 
         if (selectedKits.containsKey(uuid)) {
             Kit oldKit = selectedKits.get(player.getUniqueId());
-            HologramLines oldLines = kitHolograms.get(uuid).get(oldKit.getConfigName()).getLines();
-            oldLines.remove(0);
-            oldLines.appendText(KitAccessType.ACCESS.getHologram(oldKit));
+            updateAccessHologram(kitHolograms.get(uuid).get(oldKit.getConfigName()), KitAccessType.ACCESS, oldKit);
         }
 
         wipePlayerKit(player);
@@ -138,13 +138,10 @@ public class KitManager implements Listener {
             newKit.activate();
         }
 
-        ownedKits.get(uuid).add(kit.getConfigName());
+        ownedKits.get(uuid).add(newKit.getConfigName());
+        updateAccessHologram(kitHolograms.get(uuid).get(kit.getConfigName()), KitAccessType.ALREADY_SELECTED, newKit);
 
-        HologramLines selectedLines = kitHolograms.get(uuid).get(kit.getConfigName()).getLines();
-        selectedLines.remove(0);
-        selectedLines.appendText(KitAccessType.ALREADY_SELECTED.getHologram(kit));
-
-        Chat.KIT.send(player, String.format("&7You have selected the %s &7kit.", kit.getDisplayName()));
+        Chat.KIT.send(player, String.format("&7You have selected the %s &7kit.", newKit.getDisplayName()));
     }
 
     public Kit getSelectedKit(Player player) {

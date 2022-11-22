@@ -172,5 +172,12 @@
             <version>3.0.0</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.comphenix.protocol</groupId>
+            <artifactId>ProtocolLib</artifactId>
+            <version>3.6.5</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/ProtocolLib.jar</systemPath>
+        </dependency>
     </dependencies>
 </project>

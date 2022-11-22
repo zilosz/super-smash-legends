@@ -41,9 +41,13 @@ public abstract class ActualProjectile<T extends Projectile> extends CustomProje
         }
     }
 
+    public void onGeneralHit() {}
+
     @EventHandler
     public void handleBlockHit(ProjectileHitEvent event) {
         if (event.getEntity() != entity) return;
+
+        onGeneralHit();
 
         Section collisionConfig = plugin.getResources().getConfig().getSection("Collision");
         int range = collisionConfig.getInt("CheckRange");

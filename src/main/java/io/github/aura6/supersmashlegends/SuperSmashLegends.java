@@ -108,6 +108,7 @@ public class SuperSmashLegends extends JavaPlugin {
     @Override
     public void onDisable() {
         kitManager.destroyNpcs();
+        gameManager.getState().end();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             economyManager.uploadUser(player);

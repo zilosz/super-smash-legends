@@ -3,7 +3,6 @@ package io.github.aura6.supersmashlegends.utils.finder;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.team.TeamPreference;
 import io.github.aura6.supersmashlegends.utils.finder.range.RangeSelector;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -59,7 +58,7 @@ public class EntityFinder {
                 .filter(entity -> !(entity instanceof ArmorStand))
                 .filter(entity -> entity instanceof LivingEntity)
                 .map(LivingEntity.class::cast)
-                .filter(entity -> !(entity instanceof Player) || ((Player) entity).getGameMode() == GameMode.SURVIVAL)
+                .filter(entity -> !(entity instanceof Player) || plugin.getGameManager().isPlayerAlive((Player) entity))
                 .filter(entity -> !avoidsUser || entity != user)
                 .filter(entity -> !toAvoid.contains(entity.getUniqueId()))
                 .filter(entity -> plugin.getTeamManager().findEntityTeam(user).map(team -> teamPreference.validate(team, entity)).orElse(true));

@@ -56,7 +56,7 @@ public class RocketLauncher extends ChargedRightClickAbility {
         Rocket rocket = new Rocket(plugin, this, main);
         rocket.getDamage().setDamage(YamlReader.incLin(main, "Damage", ticksCharging, maxChargeTicks));
         rocket.getDamage().setKb(YamlReader.incLin(main, "Kb", ticksCharging, maxChargeTicks));
-        rocket.setOverrideSpeed(YamlReader.incLin(main, "Speed", ticksCharging, maxChargeTicks));
+        rocket.setSpeed(YamlReader.incLin(main, "Speed", ticksCharging, maxChargeTicks));
         rocket.launch();
     }
 
@@ -100,7 +100,7 @@ public class RocketLauncher extends ChargedRightClickAbility {
                 shrapnel.getDamage().setDamage(getDamage().getDamage() * multiplier);
                 shrapnel.getDamage().setKb(getDamage().getKb() * multiplier);
                 shrapnel.setOverrideLocation(launchLocation);
-                shrapnel.setOverrideSpeed(this.launchSpeed * multiplier);
+                shrapnel.setSpeed(this.launchSpeed * multiplier);
 
                 shrapnel.launch();
 

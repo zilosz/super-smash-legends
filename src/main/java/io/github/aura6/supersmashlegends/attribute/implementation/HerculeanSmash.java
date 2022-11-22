@@ -114,13 +114,13 @@ public class HerculeanSmash extends RightClickAbility {
     }
 
     private void collide(LivingEntity target) {
-        Bukkit.broadcastMessage(target.getName());
-
-        Damage recoil = Damage.Builder.fromConfig(config.getSection("Recoil"), player.getVelocity()).build();
-        plugin.getDamageManager().attemptAttributeDamage(new AttributeDamageEvent(player, recoil, this));
+        state = HerculeanSmashState.INACTIVE;
 
         Damage damage = Damage.Builder.fromConfig(config.getSection("Collide"), player.getVelocity()).build();
         plugin.getDamageManager().attemptAttributeDamage(new AttributeDamageEvent(target, damage, this));
+
+        Damage recoil = Damage.Builder.fromConfig(config.getSection("Recoil"), player.getVelocity()).build();
+        plugin.getDamageManager().attemptAttributeDamage(new AttributeDamageEvent(player, recoil, this));
 
         player.getWorld().playSound(player.getLocation(), Sound.IRONGOLEM_HIT, 2, 0.85f);
     }

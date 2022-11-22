@@ -56,8 +56,8 @@ public class PreGameState extends GameState {
     }
 
     @Override
-    public boolean isNotInGame() {
-        return false;
+    public boolean isInGame() {
+        return true;
     }
 
     @Override

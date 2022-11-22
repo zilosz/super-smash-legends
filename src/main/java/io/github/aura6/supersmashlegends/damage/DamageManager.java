@@ -2,7 +2,6 @@ package io.github.aura6.supersmashlegends.damage;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
-import io.github.aura6.supersmashlegends.attribute.implementation.Melee;
 import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.kit.Kit;
@@ -110,9 +109,6 @@ public class DamageManager {
         }
 
         victim.damage(newDamage.getDamage());
-        if (attribute instanceof Melee) {
-            Bukkit.broadcastMessage(String.valueOf(newDamage.getDamage()));
-        }
         attribute.getPlayer().setLevel((int) newDamage.getDamage());
 
         Optional.ofNullable(newDamage.getDirection()).ifPresent(direction -> {
