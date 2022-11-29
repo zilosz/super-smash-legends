@@ -76,6 +76,10 @@ public class Damage {
             return this;
         }
 
+        public Damage build() {
+            return new Damage(this);
+        }
+
         public static Builder fromConfig(Section defaults, Vector direction) {
             return new Builder()
                     .setDamage(defaults.getDouble("Damage"))
@@ -86,10 +90,6 @@ public class Damage {
                     .setFactorsHealth(defaults.getOptionalBoolean("FactorsHealth").orElse(true))
                     .setFactorsKb(defaults.getOptionalBoolean("FactorsKb").orElse(true))
                     .setDirection(direction);
-        }
-
-        public Damage build() {
-            return new Damage(this);
         }
     }
 }

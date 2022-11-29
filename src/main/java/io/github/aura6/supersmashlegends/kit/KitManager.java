@@ -11,7 +11,9 @@ import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.NPCLeftClickEvent;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.SkinTrait;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -32,6 +34,7 @@ public class KitManager implements Listener {
 
     private final Map<UUID, Kit> selectedKits = new HashMap<>();
     private final Map<UUID, Set<String>> ownedKits = new HashMap<>();
+
     private final Map<String, Kit> kitsByName = new HashMap<>();
 
     private final Map<UUID, Kit> kitsByNpc = new HashMap<>();
@@ -82,17 +85,18 @@ public class KitManager implements Listener {
 
         kitHolograms.put(uuid, new HashMap<>());
 
-        for (String kitName : kitsByName.keySet()) {
-            Location location = npcsByKit.get(kitName).getStoredLocation();
+        kitsByName.forEach((name, kit) -> {
+            Location location = npcsByKit.get(name).getStoredLocation();
             location.add(0, plugin.getResources().getConfig().getDouble("KitHologramHeight"), 0);
+
             Hologram hologram = HolographicDisplaysAPI.get(plugin).createHologram(location);
             hologram.getLines().appendText("");
-            kitHolograms.get(uuid).put(kitName, hologram);
+            kitHolograms.get(uuid).put(name, hologram);
 
-            if (kitsByName.get(kitName).getPrice() == 0) {
-                giveOwnership(player, kitName);
+            if (kit.getPrice() == 0) {
+                giveOwnership(player, name);
             }
-        }
+        });
 
         Kit chosen = kitsByName.get(chosenKit);
         setKit(player, chosen);
@@ -100,18 +104,29 @@ public class KitManager implements Listener {
         kitHolograms.get(uuid).forEach((kitName, holo) ->
                 updateAccessHologram(holo, getKitAccess(player, kitName), kitsByName.get(kitName)));
 
-        kitHolograms.forEach((playerUUID, holograms) -> {
-            if (!playerUUID.equals(uuid)) {
+        kitHolograms.forEach((otherUuid, holograms) -> {
+
+            if (!otherUuid.equals(uuid)) {
+
                 for (Hologram holo : holograms.values()) {
                     holo.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.HIDDEN);
+                }
+
+                OfflinePlayer other = Bukkit.getOfflinePlayer(otherUuid);
+
+                if (other.isOnline()) {
+
+                    for (Hologram holo : kitHolograms.get(uuid).values()) {
+                        holo.getVisibilitySettings().setIndividualVisibility((Player) other, VisibilitySettings.Visibility.HIDDEN);
+                    }
                 }
             }
         });
     }
 
-    public void uploadUser(Player player) {
+    public void endUser(Player player) {
         UUID uuid = player.getUniqueId();
-
+        kitHolograms.remove(uuid).values().forEach(Hologram::delete);
         plugin.getDb().setIfEnabled(uuid, "ownedKits", new ArrayList<>(ownedKits.get(uuid)));
         plugin.getDb().setIfEnabled(uuid, "chosenKit", selectedKits.get(uuid).getConfigName());
     }

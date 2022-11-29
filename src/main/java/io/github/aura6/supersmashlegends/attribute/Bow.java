@@ -59,11 +59,11 @@ public abstract class Bow extends PassiveAbility {
 
     @EventHandler
     public void onShoot(EntityShootBowEvent event) {
-        if (event.getEntity() == player) {
-            event.getProjectile().remove();
-            onShot(event.getForce());
-            finish();
-        }
+        if (event.getEntity() != player) return;
+
+        event.getProjectile().remove();
+        onShot(event.getForce());
+        finish();
     }
 
     @EventHandler

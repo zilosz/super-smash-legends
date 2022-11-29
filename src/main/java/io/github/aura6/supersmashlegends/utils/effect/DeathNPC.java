@@ -2,6 +2,7 @@ package io.github.aura6.supersmashlegends.utils.effect;
 
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
+import io.github.aura6.supersmashlegends.event.DamageEvent;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.SkinTrait;
@@ -9,10 +10,8 @@ import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
@@ -64,15 +63,18 @@ public class DeathNPC extends BukkitRunnable implements Listener {
         player.getWorld().playSound(npc.getStoredLocation(), Sound.FIREWORK_LAUNCH, 2, 2);
     }
 
-    private void tryCancel(Entity entity, Cancellable event) {
-        if (entity == npc.getEntity()) {
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onNormalDamage(EntityDamageEvent event) {
+        if (event.getEntity() == npc.getEntity()) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onNormalDamage(EntityDamageEvent event) {
-        tryCancel(event.getEntity(), event);
+    public void onCustomDamage(DamageEvent event) {
+        if (event.getVictim() == npc.getEntity()) {
+            event.setCancelled(true);
+        }
     }
 
     public static DeathNPC spawn(SuperSmashLegends plugin, Player player) {

@@ -82,23 +82,20 @@ public class MathUtils {
         List<Location> locations = new ArrayList<>();
 
         int mid = size / 2;
-        boolean isOdd;
+        boolean isOdd = size % 2 == 0;
         double startX, startY, startZ;
 
-        if (size % 2 == 0) {
-            isOdd = false;
+        if (isOdd) {
+            startX = center.getX() - size + 1;
+            startY = center.getY() - size + 1;
+            startZ = center.getZ() - size + 1;
+
+        } else {
             locations.add(center);
 
             startX = center.getX() - 0.5 * size + 0.5;
             startY = center.getY() - 0.5 * size + 0.5;
             startZ = center.getZ() - 0.5 * size + 0.5;
-
-        } else {
-            isOdd = true;
-
-            startX = center.getX() - size + 1;
-            startY = center.getY() - size + 1;
-            startZ = center.getZ() - size + 1;
         }
 
         double x = startX;

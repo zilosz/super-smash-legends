@@ -77,7 +77,7 @@ public abstract class GameState implements Listener {
         Player player = event.getPlayer();
 
         plugin.getEconomyManager().uploadUser(player);
-        plugin.getKitManager().uploadUser(player);
+        plugin.getKitManager().endUser(player);
 
         if (!isInGame()) {
             event.setQuitMessage(Chat.QUIT.get(String.format("&5%s &7has quit the game.", player.getName())));
@@ -93,6 +93,9 @@ public abstract class GameState implements Listener {
 
         plugin.getTeamManager().wipePlayer(player);
         gameManager.wipePlayer(player);
+
+        plugin.getArenaManager().wipePlayer(player);
+        plugin.getTeamManager().findChosenTeam(player).ifPresent(team -> team.removePlayer(player));
 
         if (gameManager.getAlivePlayers().size() <= 1) {
             gameManager.advanceState();

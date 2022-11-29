@@ -39,9 +39,12 @@ public class Thunderbolt extends ChargedRightClickAbility {
 
         EntityFinder finder = new EntityFinder(plugin, new HitBoxSelector(config.getDouble("HitBox")));
 
-        double damage = YamlReader.incLin(config, "Damage", ticksCharging, maxChargeTicks);
-        double kb = YamlReader.incLin(config, "Kb", ticksCharging, maxChargeTicks);
-        double range = YamlReader.incLin(config, "Range", ticksCharging, maxChargeTicks);
+        int ticks = ticksCharging - minChargeTicks;
+        int max = maxChargeTicks - minChargeTicks;
+
+        double damage = YamlReader.incLin(config, "Damage", ticks, max);
+        double kb = YamlReader.incLin(config, "Kb", ticks, max);
+        double range = YamlReader.incLin(config, "Range", ticks, max);
 
         Location location = player.getEyeLocation();
         Vector step = location.getDirection().multiply(0.25);

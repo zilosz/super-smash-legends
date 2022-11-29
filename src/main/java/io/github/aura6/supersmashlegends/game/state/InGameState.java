@@ -179,14 +179,14 @@ public class InGameState extends GameState {
         }
     }
 
-    private void handleDeath(Player died, boolean spawnNpc) {
+    private void handleDeath(Player died, boolean voidDamage) {
         died.setVelocity(new Vector(0, 0, 0));
 
         KitManager kitManager = plugin.getKitManager();
         Kit diedKit = kitManager.getSelectedKit(died);
         diedKit.destroy();
 
-        if (spawnNpc) {
+        if (voidDamage) {
             DeathNPC.spawn(plugin, died);
         }
 
@@ -286,16 +286,18 @@ public class InGameState extends GameState {
         }.runTaskTimer(plugin, 60, 20));
     }
 
+    private void registerDamageTaken(Player player, double damage) {
+        InGameProfile profile = plugin.getGameManager().getProfile(player);
+        profile.setDamageTaken(profile.getDamageTaken() + damage);
+    }
+
     @EventHandler
     public void onRegularDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
 
         Player player = (Player) event.getEntity();
 
-        if (event.getCause() != EntityDamageEvent.DamageCause.FALL && plugin.getGameManager().isPlayerAlive(player)) {
-            InGameProfile profile = plugin.getGameManager().getProfile(player);
-            profile.setDamageTaken(profile.getDamageTaken() + event.getFinalDamage());
-        }
+        if (!plugin.getGameManager().isPlayerAlive(player)) return;
 
         if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
 
@@ -304,7 +306,11 @@ public class InGameState extends GameState {
 
             } else {
                 handleDeath(player, false);
+                registerDamageTaken(player, player.getHealth());
             }
+
+        } else if (event.getCause() != EntityDamageEvent.DamageCause.FALL) {
+            registerDamageTaken(player, event.getFinalDamage());
         }
     }
 

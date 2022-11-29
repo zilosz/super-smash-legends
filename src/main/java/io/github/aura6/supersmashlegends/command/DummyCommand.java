@@ -14,9 +14,9 @@ public class DummyCommand implements CommandExecutor {
         if (!(commandSender instanceof Player)) return false;
 
         Player player = (Player) commandSender;
-        LivingEntity dummy = player.getWorld().spawn(player.getLocation().add(0, 50, 0), Zombie.class);
-        dummy.setMaxHealth(500);
-        dummy.setHealth(500);
+        LivingEntity dummy = player.getWorld().spawn(player.getLocation().add(0, 60, 0), Zombie.class);
+        dummy.setMaxHealth(200);
+        dummy.setHealth(200);
 
         return false;
     }

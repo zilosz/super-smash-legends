@@ -35,4 +35,8 @@ public class ArenaManager {
         arena = bestArenas.size() == 1 ? bestArenas.get(0) : MathUtils.selectRandom(bestArenas);
         arena.create();
     }
+
+    public void wipePlayer(Player player) {
+        arenas.forEach(arena -> arena.wipeVote(player));
+    }
 }

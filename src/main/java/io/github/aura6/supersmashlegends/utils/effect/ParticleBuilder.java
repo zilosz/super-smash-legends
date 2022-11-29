@@ -1,6 +1,5 @@
 package io.github.aura6.supersmashlegends.utils.effect;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.utils.NmsUtils;
 import io.github.aura6.supersmashlegends.utils.math.MathUtils;
 import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
@@ -79,10 +78,6 @@ public class ParticleBuilder {
 
     public void ring(Location center, double radius, double gap) {
         ring(center, center.getPitch(), center.getYaw(), radius, gap);
-    }
-
-    public void ring(Location center, Section config) {
-        ring(center, config.getDouble("Radius"), config.getDouble("Gap"));
     }
 
     public void verticalRing(Location center, double radius, double gap) {

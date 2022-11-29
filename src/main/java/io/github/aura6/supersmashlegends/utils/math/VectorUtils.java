@@ -49,7 +49,7 @@ public class VectorUtils {
                     minZ = 0;
                     break;
 
-                default:
+                case NORTH:
                     maxZ = 0;
             }
         }
@@ -102,7 +102,11 @@ public class VectorUtils {
                 Vector direction = fromTo(rotating.getLocation(), nextLoc).normalize();
                 rotating.setVelocity(direction.multiply(speed).add(new Vector(0, 0.1, 0)));
 
-                radians = radians >= 2 * Math.PI ? 0 : radians + radianStep;
+                radians += radianStep;
+
+                if (radians >= 2 * Math.PI) {
+                    radians = 0;
+                }
             }
 
         }.runTaskTimer(plugin, 0, 0);

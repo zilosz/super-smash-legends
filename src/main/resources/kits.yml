@@ -11,7 +11,7 @@ Barbarian:
   Price: 0
   Item:
     Material: IRON_AXE
-  Damage: 6
+  Damage: 5.5
   Kb: 1.25
   Armor: 0.6
   Regen: 0.25
@@ -116,7 +116,7 @@ Globby:
   Price: 3000
   Item:
     Material: SLIME_BALL
-  Damage: 5
+  Damage: 4.5
   Kb: 2
   Armor: 0.8
   Regen: 0.35
@@ -228,7 +228,7 @@ Mechon:
   Price: 6000
   Item:
     Material: IRON_CHESTPLATE
-  Damage: 5.5
+  Damage: 5
   Kb: 1.3
   Armor: 0.55
   Regen: 0.25
@@ -328,7 +328,7 @@ Squawk:
   Price: 4500
   Item:
     Material: FEATHER
-  Damage: 4.5
+  Damage: 4
   Kb: 1.85
   Energy: 0.2
   Regen: 0.3
@@ -404,7 +404,7 @@ Drakula:
     - "&7to satisfy its bloody appetite."
   Skin: "UFC321"
   Price: 3500
-  Damage: 5
+  Damage: 4.5
   Armor: 0.7
   Kb: 1.75
   Regen: 0.33
@@ -520,7 +520,7 @@ Cryomancer:
     - "&7by freezing them solid."
   Skin: "Ernestitoninja"
   Price: 4750
-  Damage: 6
+  Damage: 5.5
   Armor: 0.55
   Kb: 1.35
   Regen: 0.30
@@ -614,7 +614,7 @@ Deadmortal:
     - "&7Use him to clutch opponent's health!"
   Skin: "MarMC"
   Price: 5000
-  Damage: 6
+  Damage: 5.5
   Armor: 0.625
   Kb: 1.66
   Regen: 0.35
@@ -702,7 +702,7 @@ Tank:
     - "&7the terrain around him to his advantage."
   Skin: "zzz0www"
   Price: 5000
-  Damage: 7
+  Damage: 6
   Armor: 0.4
   Kb: 1
   Regen: 0.22
@@ -818,7 +818,7 @@ Tool:
     - "&7machinery to overwhelm enemies."
   Skin: "Lifio13"
   Price: 0
-  Damage: 5.5
+  Damage: 5
   Armor: 0.5
   Kb: 1.15
   Regen: 0.25
@@ -911,7 +911,7 @@ Moreo:
     - "&7prowess a boon from his grider-climbing days?"
   Skin: "PapaLegend"
   Price: 7000
-  Damage: 5
+  Damage: 4.5
   Armor: 0.625
   Kb: 1.55
   Regen: 0.275
@@ -1007,7 +1007,7 @@ MasterBlade:
     - "&7Blade to restore the galaxy!"
   Skin: "Goldbot"
   Price: 6500
-  Damage: 6
+  Damage: 5.5
   Armor: 0.6
   Kb: 1.65
   Regen: 0.25
@@ -1089,7 +1089,7 @@ Pickachew:
     - "&7that allow him to scamper at high speeds!"
   Skin: "bink10"
   Price: 7000
-  Damage: 5
+  Damage: 4.5
   Armor: 0.75
   Kb: 1.85
   Regen: 0.325
@@ -1115,10 +1115,10 @@ Pickachew:
       Projectile:
         Damage: 5
         ImmunityTicks: 12
-        Kb: 1.8
+        Kb: 1.6
         Lifespan: 28
         RemoveOnEntityHit: false
-        Speed: 1.05
+        Speed: 1.1
         HasGravity: false
         Block:
           Material: GOLD_BLOCK
@@ -1152,8 +1152,8 @@ Pickachew:
       MinChargeTicks: 10
       MaxChargeTicks: 35
       KbY: 0.7
-      MinDamage: 3
-      MaxDamage: 9
+      MinDamage: 2
+      MaxDamage: 7.5
       MinKb: 1
       MaxKb: 2.75
       MinRange: 5
@@ -1173,7 +1173,7 @@ Skully:
     - "&7family hierloom from his mortal past."
   Skin: "Berlt"
   Price: 0
-  Damage: 5
+  Damage: 4.5
   Armor: 0.675
   Regen: 0.25
   Kb: 1.6
@@ -1230,7 +1230,7 @@ Skully:
         - "&7powerful, ranged weapons."
       AmountAtOnce: 1
       MaxAmount: 3
-      TicksPerItem: 70
+      TicksPerItem: 80
     3:
       ConfigName: Barrage
       Name: "Barrage"
@@ -1240,8 +1240,8 @@ Skully:
         - "&7Any arrows fired by Skellington become"
         - "&7deadly onslaughts of barrage fire."
       MaxStage: 6
-      StageDuration: 6
-      ArrowsPerStage: 1
+      StageDuration: 7
+      ArrowsPerStage: 0.85
       ShotInterval: 1
       MaxSpeed: 2.5
       Projectile:
@@ -1261,7 +1261,7 @@ Shinoby:
     - "&7Shinoby"
   Skin: "SunSon19"
   Price: 10000
-  Damage: 5
+  Damage: 4.5
   Armor: 0.65
   Kb: 1.7
   Regen: 0.3

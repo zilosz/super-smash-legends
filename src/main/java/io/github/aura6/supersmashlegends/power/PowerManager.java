@@ -95,7 +95,8 @@ public class PowerManager implements Listener {
         Location powerLocation = MathUtils.selectRandom(possibleLocations);
         occupiedLocations.add(powerLocation);
 
-        Location moveLocation = powerLocation.clone().add(0, getConfig().getDouble("Height") + getConfig().getDouble("DropSpeed"), 0);
+        double height = getConfig().getDouble("Height") + getConfig().getDouble("DropSpeed");
+        Location moveLocation = powerLocation.clone().add(0, height, 0);
 
         Location beamLoc = moveLocation.clone();
         List<Location> beamLocations = new ArrayList<>();
@@ -105,7 +106,8 @@ public class PowerManager implements Listener {
             beamLoc.subtract(0, 0.5, 0);
         }
 
-        soundTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> moveLocation.getWorld().playSound(moveLocation, Sound.FIREWORK_TWINKLE, 10, 1), 0, 10);
+        soundTask = Bukkit.getScheduler().runTaskTimer(plugin, () ->
+                moveLocation.getWorld().playSound(moveLocation, Sound.FIREWORK_TWINKLE, 10, 1), 0, 10);
 
         effectTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             Location current = moveLocation.subtract(0, getConfig().getDouble("DropSpeed"), 0);
@@ -151,7 +153,7 @@ public class PowerManager implements Listener {
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
 
-        if (player.getGameMode() == GameMode.SPECTATOR) return;
+        if (!plugin.getGameManager().isPlayerAlive(player) || player.getGameMode() != GameMode.SURVIVAL) return;
 
         Kit kit = plugin.getKitManager().getSelectedKit(player);
         OptionalInt openSlot = kit.findOpenSlot();

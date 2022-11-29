@@ -112,7 +112,7 @@ public class SuperSmashLegends extends JavaPlugin {
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             economyManager.uploadUser(player);
-            kitManager.uploadUser(player);
+            kitManager.endUser(player);
             kitManager.getSelectedKit(player).deactivate();
         }
     }

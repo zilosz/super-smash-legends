@@ -40,21 +40,28 @@ public class StickySituation extends PassiveAbility {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onReceivingDamage(EntityDamageEvent event) {
-        if (event.getEntity() == player && !active && event.getCause() != EntityDamageEvent.DamageCause.FALL && player.getHealth() - event.getFinalDamage() <= config.getDouble("HealthThreshold")) {
-            active = true;
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, config.getInt("Speed")));
-            player.getWorld().playSound(player.getLocation(), Sound.ZOMBIE_PIG_ANGRY, 1, 1);
-            Effects.launchFirework(player.getEyeLocation(), Color.fromRGB(0, 255, 0), 1);
-        }
+        if (event.getEntity() != player) return;
+        if (active) return;
+        if (event.getCause() == EntityDamageEvent.DamageCause.FALL) return;
+        if (player.getHealth() - event.getFinalDamage() > config.getDouble("HealthThreshold")) return;
+
+        active = true;
+
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, config.getInt("Speed")));
+        player.getWorld().playSound(player.getLocation(), Sound.ZOMBIE_PIG_ANGRY, 1, 1);
+        Effects.launchFirework(player.getEyeLocation(), Color.fromRGB(0, 255, 0), 1);
     }
 
     @EventHandler
     public void onRegen(RegenEvent event) {
-        if (event.getPlayer() == player && active && player.getHealth() + event.getRegen() > config.getDouble("HealthThreshold")) {
-            reset();
-            player.getWorld().playSound(player.getLocation(), Sound.ZOMBIE_PIG_DEATH, 1, 1);
-            Effects.launchFirework(player.getEyeLocation(), Color.fromRGB(0, 102, 0), 1);
-        }
+        if (event.getPlayer() != player) return;
+        if (!active) return;
+        if (player.getHealth() + event.getRegen() <= config.getDouble("HealthThreshold")) return;
+
+        reset();
+
+        player.getWorld().playSound(player.getLocation(), Sound.ZOMBIE_PIG_DEATH, 1, 1);
+        Effects.launchFirework(player.getEyeLocation(), Color.fromRGB(0, 102, 0), 1);
     }
 
     @EventHandler

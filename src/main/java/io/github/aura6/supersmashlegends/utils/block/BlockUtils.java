@@ -3,7 +3,9 @@ package io.github.aura6.supersmashlegends.utils.block;
 import io.github.aura6.supersmashlegends.utils.math.MathUtils;
 import net.minecraft.server.v1_8_R3.AxisAlignedBB;
 import net.minecraft.server.v1_8_R3.BlockPosition;
+import net.minecraft.server.v1_8_R3.Chunk;
 import net.minecraft.server.v1_8_R3.IBlockData;
+import net.minecraft.server.v1_8_R3.World;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -87,8 +89,8 @@ public class BlockUtils {
     }
 
     public static void setBlockFast(Location loc, int blockId, byte data) {
-        net.minecraft.server.v1_8_R3.World nmsWorld = ((CraftWorld) loc.getWorld()).getHandle();
-        net.minecraft.server.v1_8_R3.Chunk nmsChunk = nmsWorld.getChunkAt(loc.getBlockX() >> 4, loc.getBlockZ() >> 4);
+        World nmsWorld = ((CraftWorld) loc.getWorld()).getHandle();
+        Chunk nmsChunk = nmsWorld.getChunkAt(loc.getBlockX() >> 4, loc.getBlockZ() >> 4);
         IBlockData ibd = net.minecraft.server.v1_8_R3.Block.getByCombinedId(blockId + (data << 12));
         nmsChunk.a(new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), ibd);
         loc.getWorld().refreshChunk(nmsChunk.bukkitChunk.getX(), nmsChunk.bukkitChunk.getZ());

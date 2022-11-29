@@ -127,8 +127,10 @@ public class LobbyState extends GameState {
             lines.appendText(MessageUtils.color("&fNo data to display..."));
 
         } else {
+
             for (int i = 0; i < players.size(); i++) {
-                lines.appendText(MessageUtils.color(String.format("&f%s: &e%d", players.get(i), stats.get(i))));
+                String line = String.format("&5&l%d. &f%s: &e%d", i + 1, players.get(i), stats.get(i));
+                lines.appendText(MessageUtils.color(line));
             }
         }
 
