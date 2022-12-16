@@ -1076,14 +1076,14 @@ MasterBlade:
       Kb: -1.15
       ExtraKbY: 0.4
       HitBox: 1.5
-Pickachew:
+Pikachew:
   ConfigName: Pikachew
-  Name: "Pickachew"
+  Name: "Pikachew"
   Color: "&e"
   Item:
     Material: GOLD_INGOT
   Description:
-    - "&7Pickachew can generate electric attacks"
+    - "&7Pikachew can generate electric attacks"
     - "&7using the electric pouches located in both"
     - "&7of his cheeks. He also has beautiful shoes"
     - "&7that allow him to scamper at high speeds!"
@@ -1280,7 +1280,10 @@ Shinoby:
       Item:
         Material: GOLD_AXE
       Description:
-        - ""
+        - "&7The Sphere Spiral is a spinning ball of"
+        - "&7chakra formed and held in the palm of"
+        - "&7the user's hand, which is only known"
+        - "&7to Shinoby himself."
       Cooldown: 120
       AutoStartCooldown: false
       Damage: 7.5
@@ -1294,7 +1297,9 @@ Shinoby:
       Item:
         Material: DIAMOND_SPADE
       Description:
-        - ""
+        - "&7The Shuriken Spiral creates countless"
+        - "&7microscopic wind-blades that severely"
+        - "&7damage the body on a cellular level."
       Cooldown: 140
       AutoStartCooldown: false
       Lifespan: 60

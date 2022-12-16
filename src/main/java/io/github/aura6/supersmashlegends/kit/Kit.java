@@ -133,11 +133,12 @@ public class Kit {
     }
 
     public void applySkin() {
-        Skin.fromMojang(getSkinName()).ifPresent(skin -> skin.apply(player));
+        Skin.fromMojang(getSkinName()).ifPresent(skin -> skin.apply(plugin, player));
     }
 
     public void equip(Player player) {
         this.player = player;
+        applySkin();
         giveItems();
     }
 

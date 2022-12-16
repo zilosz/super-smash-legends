@@ -254,7 +254,6 @@ public class LobbyState extends GameState {
         for (Player player : Bukkit.getOnlinePlayers()) {
             plugin.getGameManager().setupProfile(player);
             plugin.getTeamManager().assignPlayer(player);
-            plugin.getKitManager().getSelectedKit(player).applySkin();
             description.forEach(player::sendMessage);
         }
 
