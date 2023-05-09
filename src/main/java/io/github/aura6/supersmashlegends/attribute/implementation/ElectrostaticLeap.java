@@ -4,7 +4,6 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.finder.EntityFinder;
@@ -49,7 +48,7 @@ public class ElectrostaticLeap extends RightClickAbility {
                 new EntityFinder(plugin, new HitBoxSelector(config.getDouble("HitBox"))).findAll(player).forEach(target -> {
                     Damage damage = Damage.Builder.fromConfig(config, player.getLocation().getDirection()).build();
 
-                    if (plugin.getDamageManager().attemptAttributeDamage(new AttributeDamageEvent(target, damage, instance))) {
+                    if (plugin.getDamageManager().attemptAttributeDamage(target, damage, instance)) {
                         player.playSound(player.getLocation(), Sound.ORB_PICKUP, 2, 1);
                     }
                 });

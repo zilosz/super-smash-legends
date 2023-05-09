@@ -5,7 +5,6 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.event.CustomEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
@@ -171,7 +170,7 @@ public class Rasenshuriken extends RightClickAbility {
                 dmg.setDamage(damage);
                 dmg.setKb(kb);
 
-                plugin.getDamageManager().attemptAttributeDamage(new AttributeDamageEvent(target, dmg, this.ability));
+                plugin.getDamageManager().attemptAttributeDamage(target, dmg, this.ability);
             });
         }
     }

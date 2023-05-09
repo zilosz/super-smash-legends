@@ -5,7 +5,6 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
 import io.github.aura6.supersmashlegends.attribute.Nameable;
 import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.team.TeamPreference;
 import org.bukkit.entity.LivingEntity;
@@ -38,7 +37,6 @@ public class Melee extends Attribute implements Nameable {
         Vector direction = player.getEyeLocation().getDirection();
         Damage damage = Damage.Builder.fromConfig(config, direction).setDamage(kit.getDamage()).build();
 
-        AttributeDamageEvent damageEvent = new AttributeDamageEvent(entity, damage, this);
-        plugin.getDamageManager().attemptAttributeDamage(damageEvent);
+        plugin.getDamageManager().attemptAttributeDamage(entity, damage, this);
     }
 }

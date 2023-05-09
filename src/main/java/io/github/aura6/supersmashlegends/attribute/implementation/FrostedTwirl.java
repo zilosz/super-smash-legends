@@ -4,7 +4,6 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.ChargedRightClickAbility;
 import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
@@ -31,7 +30,7 @@ public class FrostedTwirl extends ChargedRightClickAbility {
         new EntityFinder(plugin, new HitBoxSelector(config.getDouble("HitBox"))).findAll(player).forEach(target -> {
             Damage damage = Damage.Builder.fromConfig(config, player.getLocation().getDirection()).build();
 
-            if (plugin.getDamageManager().attemptAttributeDamage(new AttributeDamageEvent(target, damage, this))) {
+            if (plugin.getDamageManager().attemptAttributeDamage(target, damage, this)) {
                 player.getWorld().playSound(player.getLocation(), Sound.GLASS, 2, 1);
             }
         });

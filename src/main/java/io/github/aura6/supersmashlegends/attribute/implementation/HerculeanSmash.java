@@ -4,7 +4,6 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
@@ -94,7 +93,7 @@ public class HerculeanSmash extends RightClickAbility {
         player.setVelocity(player.getVelocity().normalize().multiply(config.getDouble("VelocityImpactReduction")));
 
         Damage damage = Damage.Builder.fromConfig(config.getSection("Grab"), null).build();
-        plugin.getDamageManager().attemptAttributeDamage(new AttributeDamageEvent(target, damage, this));
+        plugin.getDamageManager().attemptAttributeDamage(target, damage, this);
 
         new BukkitRunnable() {
 
@@ -117,10 +116,10 @@ public class HerculeanSmash extends RightClickAbility {
         state = HerculeanSmashState.INACTIVE;
 
         Damage damage = Damage.Builder.fromConfig(config.getSection("Collide"), player.getVelocity()).build();
-        plugin.getDamageManager().attemptAttributeDamage(new AttributeDamageEvent(target, damage, this));
+        plugin.getDamageManager().attemptAttributeDamage(target, damage, this);
 
         Damage recoil = Damage.Builder.fromConfig(config.getSection("Recoil"), player.getVelocity()).build();
-        plugin.getDamageManager().attemptAttributeDamage(new AttributeDamageEvent(player, recoil, this));
+        plugin.getDamageManager().attemptAttributeDamage(player, recoil, this);
 
         player.getWorld().playSound(player.getLocation(), Sound.IRONGOLEM_HIT, 2, 0.85f);
     }
@@ -146,7 +145,7 @@ public class HerculeanSmash extends RightClickAbility {
         Damage smash = Damage.Builder.fromConfig(config.getSection("Smash"), player.getVelocity())
                 .setDamage(damage).setKb(kb).build();
 
-        plugin.getDamageManager().attemptAttributeDamage(new AttributeDamageEvent(entityBeingGrasped, smash, this));
+        plugin.getDamageManager().attemptAttributeDamage(entityBeingGrasped, smash, this);
     }
 
     @Override

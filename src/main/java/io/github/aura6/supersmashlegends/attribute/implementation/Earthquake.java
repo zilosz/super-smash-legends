@@ -4,7 +4,6 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.block.BlockUtils;
@@ -48,7 +47,7 @@ public class Earthquake extends RightClickAbility {
 
                 Damage damage = Damage.Builder.fromConfig(config, VectorUtils.fromTo(player, target)).build();
 
-                if (plugin.getDamageManager().attemptAttributeDamage(new AttributeDamageEvent(target, damage, this))) {
+                if (plugin.getDamageManager().attemptAttributeDamage(target, damage, this)) {
                     player.getWorld().playSound(target.getLocation(), Sound.ANVIL_LAND, 1, 1);
                     uproot(target.getLocation());
                 }

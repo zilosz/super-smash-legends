@@ -4,7 +4,6 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.finder.EntityFinder;
@@ -40,7 +39,7 @@ public class ArcticBreath extends RightClickAbility {
 
         new EntityFinder(plugin, new HitBoxSelector(config.getDouble("HitBox"))).findAll(player, center).forEach(target -> {
             Damage dmg = Damage.Builder.fromConfig(config, step).setDamage(damage).build();
-            plugin.getDamageManager().attemptAttributeDamage(new AttributeDamageEvent(target, dmg, this));
+            plugin.getDamageManager().attemptAttributeDamage(target, dmg, this);
         });
 
         createRing(center.add(step), step, damage - damageStep, damageStep, radius + radiusStep, radiusStep, ringCount + 1);

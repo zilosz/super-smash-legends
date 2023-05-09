@@ -4,7 +4,6 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.DisguiseUtils;
 import io.github.aura6.supersmashlegends.utils.EntityUtils;
@@ -61,7 +60,7 @@ public class IncarnationSlam extends RightClickAbility {
 
             new EntityFinder(plugin, new HitBoxSelector(config.getDouble("HitBox"))).findAll(player).forEach(target -> {
                 Damage damage = Damage.Builder.fromConfig(config, player.getLocation().getDirection()).build();
-                plugin.getDamageManager().attemptAttributeDamage(new AttributeDamageEvent(target, damage, this));
+                plugin.getDamageManager().attemptAttributeDamage(target, damage, this);
 
                 target.getWorld().playSound(target.getLocation(), Sound.SLIME_ATTACK, 2, 2);
                 Effects.itemBoom(plugin, target.getLocation(), new ItemStack(Material.SLIME_BALL), 4, 0.3, 5);
