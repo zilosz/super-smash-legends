@@ -4,7 +4,6 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.event.ProjectileLaunchEvent;
 import io.github.aura6.supersmashlegends.utils.NmsUtils;
 import io.github.aura6.supersmashlegends.utils.Reflector;
@@ -184,7 +183,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     protected void handleTargetHit(LivingEntity target) {
         damage.setDirection(this.entity.getVelocity());
 
-        if (!plugin.getDamageManager().attemptAttributeDamage(new AttributeDamageEvent(target, damage, ability))) return;
+        if (!plugin.getDamageManager().attemptAttributeDamage(target, damage, ability)) return;
 
         launcher.playSound(launcher.getLocation(), Sound.SUCCESSFUL_HIT, 2, 1);
         config.getOptionalSection("TargetHitSound").ifPresent(sound -> YamlReader.noise(sound).playForAll(entity.getLocation()));

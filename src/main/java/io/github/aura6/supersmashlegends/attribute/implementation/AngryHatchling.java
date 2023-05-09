@@ -5,7 +5,6 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.LivingProjectile;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
@@ -76,9 +75,8 @@ public class AngryHatchling extends RightClickAbility {
             finder.findAll(this.launcher, this.entity.getLocation()).forEach(target -> {
                 Damage damage = getDamage();
                 damage.setDirection(VectorUtils.fromTo(this.entity.getLocation(), target.getLocation()));
-                AttributeDamageEvent event = new AttributeDamageEvent(target, damage, this.ability);
 
-                if (this.plugin.getDamageManager().attemptAttributeDamage(event)) {
+                if (this.plugin.getDamageManager().attemptAttributeDamage(target, damage, this.ability)) {
                     this.launcher.playSound(this.launcher.getLocation(), Sound.ORB_PICKUP, 2, 0.5f);
                 };
             });

@@ -4,7 +4,6 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.finder.EntityFinder;
@@ -40,7 +39,7 @@ public class ViceGrip extends RightClickAbility {
                 Damage dmg = Damage.Builder.fromConfig(config, step).build();
                 dmg.setKbY(step.clone().getY() + config.getDouble("ExtraKbY"));
 
-                if (plugin.getDamageManager().attemptAttributeDamage(new AttributeDamageEvent(target, dmg, this))) {
+                if (plugin.getDamageManager().attemptAttributeDamage(target, dmg, this)) {
                     player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 1);
                     found = true;
                     break;

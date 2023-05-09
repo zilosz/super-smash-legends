@@ -260,9 +260,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
                             endRasengan();
                         }
 
-                        AttributeDamageEvent e = new AttributeDamageEvent(target, damage, this.ability);
-
-                        if (plugin.getDamageManager().attemptAttributeDamage(e)) {
+                        if (plugin.getDamageManager().attemptAttributeDamage(target, damage, this.ability)) {
                             Location loc = this.ability.getPlayer().getLocation();
                             this.ability.getPlayer().playSound(loc, Sound.ORB_PICKUP, 1, 1);
                         }

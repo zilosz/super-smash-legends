@@ -68,15 +68,14 @@ public class DamageManager {
         Optional.ofNullable(damageSourceRemovers.get(entity.getUniqueId())).ifPresent(BukkitTask::cancel);
     }
 
-    public boolean attemptAttributeDamage(AttributeDamageEvent event) {
-        Attribute attribute = event.getAttribute();
-
-        LivingEntity victim = event.getVictim();
+    public boolean attemptAttributeDamage(LivingEntity victim, Damage damage, Attribute attribute) {
         UUID victimUuid = victim.getUniqueId();
 
         if (immunities.containsKey(victimUuid) && immunities.get(victimUuid).contains(attribute)) return false;
 
+        AttributeDamageEvent event = new AttributeDamageEvent(victim, damage, attribute);
         Bukkit.getPluginManager().callEvent(event);
+
         if (event.isCancelled()) return false;
 
         lastDamagingAttributes.put(victimUuid, attribute);
@@ -86,45 +85,43 @@ public class DamageManager {
         immunities.putIfAbsent(victimUuid, new HashSet<>());
         immunities.get(victimUuid).add(attribute);
 
-        Damage newDamage = event.getDamage();
-
         if (victim instanceof Player) {
             Player player = (Player) victim;
             Kit kit = plugin.getKitManager().getSelectedKit(player);
 
-            if (newDamage.isFactorsArmor()) {
-                newDamage.setDamage(newDamage.getDamage() * kit.getArmor());
+            if (damage.isFactorsArmor()) {
+                damage.setDamage(damage.getDamage() * kit.getArmor());
             }
 
-            if (newDamage.isFactorsKb()) {
-                newDamage.setKb(newDamage.getKb() * kit.getKb());
+            if (damage.isFactorsKb()) {
+                damage.setKb(damage.getKb() * kit.getKb());
             }
         }
 
-        if (newDamage.isFactorsHealth()) {
+        if (damage.isFactorsHealth()) {
             double min = plugin.getResources().getConfig().getDouble("Damage.KbHealthMultiplier.Min");
             double max = plugin.getResources().getConfig().getDouble("Damage.KbHealthMultiplier.Max");
             double multiplier = MathUtils.decreasingLinear(min, max, victim.getMaxHealth(), victim.getHealth());
-            newDamage.setKb(newDamage.getKb() * multiplier);
+            damage.setKb(damage.getKb() * multiplier);
         }
 
-        victim.damage(newDamage.getDamage());
-        attribute.getPlayer().setLevel((int) newDamage.getDamage());
+        victim.damage(damage.getDamage());
+        attribute.getPlayer().setLevel((int) damage.getDamage());
 
-        Optional.ofNullable(newDamage.getDirection()).ifPresent(direction -> {
-            Vector kb = new Vector(newDamage.getKb(), 1, newDamage.getKb());
-            victim.setVelocity(direction.clone().normalize().multiply(kb).setY(newDamage.getKbY()));
+        Optional.ofNullable(damage.getDirection()).ifPresent(direction -> {
+            Vector kb = new Vector(damage.getKb(), 1, damage.getKb());
+            victim.setVelocity(direction.clone().normalize().multiply(kb).setY(damage.getKbY()));
         });
 
-        updateIndicator(victim, newDamage.getDamage());
+        updateIndicator(victim, damage.getDamage());
 
         InGameProfile damagerProfile = plugin.getGameManager().getProfile(attribute.getPlayer());
-        damagerProfile.setDamageDealt(damagerProfile.getDamageDealt() + newDamage.getDamage());
+        damagerProfile.setDamageDealt(damagerProfile.getDamageDealt() + damage.getDamage());
 
         immunityRemovers.put(attribute, Bukkit.getScheduler().runTaskLater(plugin, () -> {
             immunities.get(victimUuid).remove(attribute);
             immunityRemovers.remove(attribute).cancel();
-        }, newDamage.getImmunityTicks()));
+        }, damage.getImmunityTicks()));
 
         return true;
     }

@@ -4,7 +4,6 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.effect.Effects;
@@ -41,7 +40,7 @@ public class SlimyRetreat extends RightClickAbility {
             Vector direction = VectorUtils.fromTo(player, target);
             Damage damage = Damage.Builder.fromConfig(config, direction).setDamage(dmg).setKb(kb).build();
 
-            plugin.getDamageManager().attemptAttributeDamage(new AttributeDamageEvent(target, damage, this));
+            plugin.getDamageManager().attemptAttributeDamage(target, damage, this);
 
             player.getWorld().playSound(target.getLocation(), Sound.SUCCESSFUL_HIT, 2, 1);
         });
