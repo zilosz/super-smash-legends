@@ -21,8 +21,9 @@ public class KitCommand implements CommandExecutor {
         if (!(commandSender instanceof Player)) return false;
 
         Player player = (Player) commandSender;
+        boolean canChangeInGame = this.plugin.getResources().getConfig().getBoolean("AllowKitSelectionInGame");
 
-        if (this.plugin.getGameManager().getState() instanceof InGameState) {
+        if (this.plugin.getGameManager().getState() instanceof InGameState && canChangeInGame) {
             player.sendMessage("&7You cannot change your kit in-game.");
             return false;
         }
