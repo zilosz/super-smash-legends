@@ -91,6 +91,8 @@ public class BombOmb extends RightClickAbility {
             this.state = BombState.MAKING_BOMB;
 
             Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+                if (this.state != BombState.MAKING_BOMB) return;
+
                 this.state = BombState.WAITING;
 
                 this.bombBlock = this.entity.getLocation().getBlock();
