@@ -27,12 +27,6 @@ Death:
 LeaderboardSizes:
   Wins: 10
   Kills: 10
-Economy:
-  StartingJewels: 100000
-  OfflineJewels: 50000
-  JewelsEarnedWeights:
-    PerKill: 50
-    WinBonus: 250
 Collision:
   CheckRange: 2
   CheckStep: 0.2

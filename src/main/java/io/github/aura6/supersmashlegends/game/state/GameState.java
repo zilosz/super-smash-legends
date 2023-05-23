@@ -75,8 +75,6 @@ public abstract class GameState implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-
-        plugin.getEconomyManager().uploadUser(player);
         plugin.getKitManager().endUser(player);
 
         if (!isInGame()) {

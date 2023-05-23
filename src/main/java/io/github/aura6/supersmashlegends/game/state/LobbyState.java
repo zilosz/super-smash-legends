@@ -56,8 +56,7 @@ public class LobbyState extends GameState {
         Replacers replacers = new Replacers()
                 .add("CURRENT", String.valueOf(Bukkit.getOnlinePlayers().size()))
                 .add("CAP", String.valueOf(plugin.getTeamManager().getPlayerCap()))
-                .add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName())
-                .add("JEWELS", String.valueOf(plugin.getEconomyManager().getJewels(player)));
+                .add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
 
         return replacers.replaceLines(Arrays.asList(
                 "&5&l---------------------",
@@ -66,7 +65,6 @@ public class LobbyState extends GameState {
                 "&fPlayers: &5{CURRENT}&7/&f{CAP}",
                 "",
                 "&fKit: &5{KIT}",
-                "&fJewels: &5{JEWELS}",
                 "&5&l---------------------"
         ));
     }
@@ -150,7 +148,6 @@ public class LobbyState extends GameState {
 
             if (plugin.getGameManager().isSpectator(player)) {
                 plugin.getKitManager().setupUser(player);
-                plugin.getEconomyManager().setupUser(player);
 
             } else {
                 plugin.getKitManager().setKit(player, plugin.getKitManager().getSelectedKit(player).copy());
@@ -266,7 +263,6 @@ public class LobbyState extends GameState {
         initializePlayer(player);
 
         plugin.getDb().setIfEnabled(player.getUniqueId(), "name", player.getName());
-        plugin.getEconomyManager().setupUser(player);
         plugin.getKitManager().setupUser(player);
     }
 

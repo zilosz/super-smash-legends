@@ -23,17 +23,6 @@ public enum KitAccessType {
         public String getHologram(Kit kit) {
             return MessageUtils.color("&dSelected");
         }
-    },
-
-    BUY {
-        @Override
-        public String getLore(Kit kit) {
-            return String.format("&7Click to buy for &f%d &7jewels.", kit.getPrice());
-        }
-        @Override
-        public String getHologram(Kit kit) {
-            return MessageUtils.color(String.format("&e%d &5Jewels", kit.getPrice()));
-        }
     };
 
     public abstract String getLore(Kit kit);
