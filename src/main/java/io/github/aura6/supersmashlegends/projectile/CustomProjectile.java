@@ -213,7 +213,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     @Override
     public void run() {
 
-        if (!entity.isValid() || ticksAlive++ >= lifespan) {
+        if (!entity.isValid() || !this.ability.getPlayer().isValid() || ticksAlive++ >= lifespan) {
             remove();
             return;
         }
