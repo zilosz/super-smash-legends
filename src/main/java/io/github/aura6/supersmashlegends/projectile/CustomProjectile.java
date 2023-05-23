@@ -5,6 +5,7 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.damage.Damage;
 import io.github.aura6.supersmashlegends.event.ProjectileLaunchEvent;
+import io.github.aura6.supersmashlegends.game.state.InGameState;
 import io.github.aura6.supersmashlegends.utils.NmsUtils;
 import io.github.aura6.supersmashlegends.utils.Reflector;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
@@ -213,7 +214,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     @Override
     public void run() {
 
-        if (!entity.isValid() || ticksAlive++ >= lifespan) {
+        if (!entity.isValid() || !this.ability.getPlayer().isValid() || !(this.plugin.getGameManager().getState() instanceof InGameState) || ticksAlive++ >= lifespan) {
             remove();
             return;
         }
