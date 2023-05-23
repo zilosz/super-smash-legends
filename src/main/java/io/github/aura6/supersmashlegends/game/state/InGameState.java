@@ -304,7 +304,7 @@ public class InGameState extends GameState {
             if (player.getGameMode() == GameMode.SPECTATOR) {
                 player.teleport(plugin.getArenaManager().getArena().getWaitLocation());
 
-            } else {
+            } else if (player.getHealth() - event.getFinalDamage() > 0) {
                 handleDeath(player, false);
                 registerDamageTaken(player, player.getHealth());
             }
