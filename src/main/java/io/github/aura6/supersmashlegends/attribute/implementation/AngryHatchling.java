@@ -32,7 +32,6 @@ public class AngryHatchling extends RightClickAbility {
         HatchlingProjectile projectile = new HatchlingProjectile(plugin, this, config);
         projectile.setOverrideLocation(player.getLocation().setDirection(new Vector(0, -1, 0)));
         projectile.launch();
-
         player.setVelocity(new Vector(0, config.getDouble("Recoil"), 0));
     }
 
