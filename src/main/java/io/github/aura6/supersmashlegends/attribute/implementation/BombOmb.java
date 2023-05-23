@@ -35,24 +35,25 @@ public class BombOmb extends RightClickAbility {
     @Override
     public void onClick(PlayerInteractEvent event) {
 
-        if (bombProjectile == null || bombProjectile.state == BombState.INACTIVE) {
+        if (this.bombProjectile == null || this.bombProjectile.state == BombState.INACTIVE) {
             sendUseMessage();
 
-            bombProjectile = new BombProjectile(plugin, this, config.getSection("Projectile"));
-            bombProjectile.launch();
+            this.bombProjectile = new BombProjectile(this.plugin, this, this.config.getSection("Projectile"));
+            this.bombProjectile.launch();
 
-        } else if (bombProjectile.state == BombState.THROWN) {
-            bombProjectile.solidify();
+        } else if (this.bombProjectile.state == BombState.THROWN) {
+            this.bombProjectile.solidify();
 
         } else {
-            bombProjectile.explode();
+            this.bombProjectile.explode();
         }
     }
 
     public enum BombState {
         INACTIVE,
         THROWN,
-        WAITING
+        WAITING,
+        MAKING_BOMB
     }
 
     public static class BombProjectile extends ItemProjectile {
@@ -86,28 +87,31 @@ public class BombOmb extends RightClickAbility {
         }
 
         private void solidify() {
-            this.state = BombState.WAITING;
-
-            this.bombBlock = this.entity.getLocation().getBlock();
-            this.bombBlock.setType(Material.COAL_BLOCK);
-
             remove();
+            this.state = BombState.MAKING_BOMB;
 
-            soundTask = Bukkit.getScheduler().runTaskTimer(plugin,
-                    () -> this.entity.getWorld().playSound(this.bombBlock.getLocation(), Sound.FUSE, 1, 1), 0, 0);
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+                this.state = BombState.WAITING;
 
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if (this.state == BombState.WAITING) {
-                    explode();
-                }
-            }, config.getInt("Explode.Delay"));
+                this.bombBlock = this.entity.getLocation().getBlock();
+                this.bombBlock.setType(Material.COAL_BLOCK);
+
+                this.soundTask = Bukkit.getScheduler().runTaskTimer(this.plugin,
+                        () -> this.entity.getWorld().playSound(this.bombBlock.getLocation(), Sound.FUSE, 1, 1), 0, 0);
+
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    if (this.state == BombState.WAITING) {
+                        explode();
+                    }
+                }, this.config.getInt("Explode.Delay"));
+            }, 1);
         }
 
         private void explode() {
             this.state = BombState.INACTIVE;
             this.bombBlock.setType(Material.AIR);
 
-            soundTask.cancel();
+            this.soundTask.cancel();
             this.bombBlock.getWorld().playSound(this.bombBlock.getLocation(), Sound.EXPLODE, 2, 1);
 
             if (this.ability instanceof ClickableAbility) {
@@ -118,7 +122,7 @@ public class BombOmb extends RightClickAbility {
                 new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).show(this.bombBlock.getLocation());
             }
 
-            new EntityFinder(this.plugin, new DistanceSelector(config.getDouble("Explode.Range")))
+            new EntityFinder(this.plugin, new DistanceSelector(this.config.getDouble("Explode.Range")))
                     .setTeamPreference(TeamPreference.ANY)
                     .setAvoidsUser(false)
                     .findAll(this.launcher, this.bombBlock.getLocation())
@@ -126,7 +130,7 @@ public class BombOmb extends RightClickAbility {
         }
 
         private void attemptExplodeHit(LivingEntity target) {
-            Section explode = config.getSection("Explode");
+            Section explode = this.config.getSection("Explode");
 
             double max = explode.getDouble("Range") * explode.getDouble("Range");
             double distanceSq = this.bombBlock.getLocation().distanceSquared(target.getLocation());

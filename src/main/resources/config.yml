@@ -1,6 +1,6 @@
 Database:
-  Uri: "mongodb+srv://Aura6:CUrlito11@cluster0.spwav.mongodb.net/?retryWrites=true&w=majority"
-  Database: SuperSmashLegendsRevamped
+  Uri: "mongodb+srv://Me:CUrlito11@supersmashcluster.bwts5hj.mongodb.net/?retryWrites=true&w=majority"
+  Database: SuperSmash
   Collection: Players
   Enabled: true
 Rules:

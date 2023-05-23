@@ -125,8 +125,8 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     public void onRemove() {}
 
     public void remove() {
-        cancel();
         entity.remove();
+        cancel();
         HandlerList.unregisterAll(this);
         onRemove();
     }
