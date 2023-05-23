@@ -179,14 +179,14 @@ public class InGameState extends GameState {
         }
     }
 
-    private void handleDeath(Player died, boolean voidDamage) {
+    private void handleDeath(Player died, boolean makeNpc) {
         died.setVelocity(new Vector(0, 0, 0));
 
         KitManager kitManager = plugin.getKitManager();
         Kit diedKit = kitManager.getSelectedKit(died);
         diedKit.destroy();
 
-        if (voidDamage) {
+        if (makeNpc) {
             DeathNPC.spawn(plugin, died);
         }
 
