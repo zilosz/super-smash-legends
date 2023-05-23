@@ -38,6 +38,7 @@ public class TerraShot extends ChargedRightClickBlockAbility {
         Block clickedBlock = event.getClickedBlock();
         ItemStack stack = new ItemStack(clickedBlock.getType(), 1, (short) 0, clickedBlock.getData());
         blockItem = player.getWorld().dropItem(player.getLocation().add(0, config.getDouble("Height"), 0), stack);
+        blockItem.setPickupDelay(Integer.MAX_VALUE);
 
         rotateTask = VectorUtils.rotateAroundEntity(
                 plugin, blockItem, player, 90, 0, config.getDouble("Height"), config.getDouble("RotationRadius"), 25);
