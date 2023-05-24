@@ -25,9 +25,10 @@ import net.minecraft.server.v1_8_R3.PacketPlayOutAnimation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftCreature;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Zombie;
+import org.bukkit.entity.Skeleton;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -61,7 +62,8 @@ public class ShadowCloneJutsu extends RightClickAbility {
         player.setVelocity(direction.clone().multiply(-config.getDouble("Recoil")));
         kit.getJump().giveExtraJumps(1);
 
-        Creature creature = player.getWorld().spawn(player.getLocation(), Zombie.class);
+        Skeleton creature = player.getWorld().spawn(player.getLocation(), Skeleton.class);
+        creature.setSkeletonType(Skeleton.SkeletonType.WITHER);
         creature.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, config.getInt("Clone.Speed")));
         creature.setMaxHealth(config.getInt("Clone.Health"));
         creature.getEquipment().setItemInHand(null);
@@ -117,11 +119,14 @@ public class ShadowCloneJutsu extends RightClickAbility {
         private void destroy() {
             this.clones.remove(this);
             this.creature.remove();
+
             HandlerList.unregisterAll(this);
             Optional.ofNullable(rasenganTask).ifPresent(BukkitTask::cancel);
+
             this.creature.getWorld().playSound(this.creature.getLocation(), Sound.WITHER_HURT, 2, 1);
             new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(this.creature.getLocation(), 1.5, 10, 0.1);
             this.ability.getPlayer().playSound(this.ability.getPlayer().getLocation(), Sound.WITHER_IDLE, 2, 1);
+
             this.plugin.getTeamManager().getPlayerTeam(this.ability.getPlayer()).removeEntity(this.creature);
         }
 
@@ -221,6 +226,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
             finder.findClosest(this.ability.getPlayer(), this.creature.getLocation()).ifPresent(target -> {
                 this.target = target;
                 this.creature.setTarget(target);
+                ((CraftCreature) this.creature).getHandle().setGoalTarget((EntityLiving) target);
             });
         }
 
@@ -234,40 +240,41 @@ public class ShadowCloneJutsu extends RightClickAbility {
 
             double stepped = 0;
             boolean found = false;
-            Location curr = this.creature.getEyeLocation().subtract(0, 0.5, 0);
-            Vector step = this.creature.getEyeLocation().getDirection().multiply(0.1);
+
+            Location eye = this.creature.getEyeLocation();
+            Location curr = eye.subtract(0, 0.5, 0);
+            Vector step = eye.getDirection().multiply(0.1);
 
             Team team = plugin.getTeamManager().getPlayerTeam(this.ability.getPlayer());
 
-            while (!found && stepped < 3) {
+            while (!found && stepped <= 3) {
                 curr.add(step);
                 stepped += 0.1;
 
                 for (LivingEntity target : this.creature.getWorld().getLivingEntities()) {
-                    if (TeamPreference.FRIENDLY.validate(team, target)) return;
+                    if (TeamPreference.FRIENDLY.validate(team, target)) continue;
+                    if (!BlockUtils.isLocationInsideBox(curr, NmsUtils.getLiving(target).getBoundingBox())) continue;
 
-                    if (BlockUtils.isLocationInsideBox(curr, NmsUtils.getLiving(target).getBoundingBox())) {
-                        Damage damage;
+                    Damage damage;
 
-                        if (rasenganTask == null) {
-                            damage = Damage.Builder.fromConfig(config.getSection("Clone.Melee"), step)
-                                    .setDamage(this.ability.getKit().getDamage()).build();
+                    if (rasenganTask == null) {
+                        damage = Damage.Builder.fromConfig(config.getSection("Clone.Melee"), step)
+                                .setDamage(this.ability.getKit().getDamage()).build();
 
-                        } else {
-                            damage = Damage.Builder.fromConfig(config.getSection("Rasengan"), step).build();
+                    } else {
+                        damage = Damage.Builder.fromConfig(config.getSection("Rasengan"), step).build();
 
-                            Rasengan.displayAttackEffect(this.creature);
-                            endRasengan();
-                        }
-
-                        if (plugin.getDamageManager().attemptAttributeDamage(target, damage, this.ability)) {
-                            Location loc = this.ability.getPlayer().getLocation();
-                            this.ability.getPlayer().playSound(loc, Sound.ORB_PICKUP, 1, 1);
-                        }
-
-                        found = true;
-                        break;
+                        Rasengan.displayAttackEffect(this.creature);
+                        endRasengan();
                     }
+
+                    if (plugin.getDamageManager().attemptAttributeDamage(target, damage, this.ability)) {
+                        Location loc = this.ability.getPlayer().getLocation();
+                        this.ability.getPlayer().playSound(loc, Sound.ORB_PICKUP, 1, 1);
+                    }
+
+                    found = true;
+                    break;
                 }
             }
         }
