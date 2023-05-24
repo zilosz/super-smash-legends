@@ -7,7 +7,7 @@ A Minecraft combat mini-game inspired by Nintendo's Super Smash Bros.
 ### Features ###
 
 - Player data management through MongoDB.
-- Moderate amount of YML configuration.
+- Moderate amount of YAML configuration.
 - Custom kits, abilities, and maps.
 
 ### Dependencies ###
