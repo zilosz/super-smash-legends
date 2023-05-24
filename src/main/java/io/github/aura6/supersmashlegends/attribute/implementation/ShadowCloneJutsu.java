@@ -243,7 +243,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
             Location curr = eye.subtract(0, 0.5, 0);
             Vector step = eye.getDirection().multiply(0.1);
 
-            Team team = plugin.getTeamManager().getPlayerTeam(this.ability.getPlayer());
+            Team team = this.plugin.getTeamManager().getPlayerTeam(this.ability.getPlayer());
 
             while (!found && stepped < 3) {
                 curr.add(step);
@@ -255,18 +255,18 @@ public class ShadowCloneJutsu extends RightClickAbility {
 
                     Damage damage;
 
-                    if (rasenganTask == null) {
-                        damage = Damage.Builder.fromConfig(config.getSection("Clone.Melee"), step)
+                    if (this.rasenganTask == null) {
+                        damage = Damage.Builder.fromConfig(this.config.getSection("Clone.Melee"), step)
                                 .setDamage(this.ability.getKit().getDamage()).build();
 
                     } else {
-                        damage = Damage.Builder.fromConfig(config.getSection("Rasengan"), step).build();
+                        damage = Damage.Builder.fromConfig(this.config.getSection("Clone.Rasengan"), step).build();
 
                         Rasengan.displayAttackEffect(this.creature);
                         endRasengan();
                     }
 
-                    if (plugin.getDamageManager().attemptAttributeDamage(target, damage, this.ability)) {
+                    if (this.plugin.getDamageManager().attemptAttributeDamage(target, damage, this.ability)) {
                         Location loc = this.ability.getPlayer().getLocation();
                         this.ability.getPlayer().playSound(loc, Sound.ORB_PICKUP, 1, 1);
                     }
