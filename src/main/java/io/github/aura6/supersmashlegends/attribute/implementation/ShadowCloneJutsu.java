@@ -25,7 +25,6 @@ import net.minecraft.server.v1_8_R3.PacketPlayOutAnimation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftCreature;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Skeleton;
@@ -226,7 +225,6 @@ public class ShadowCloneJutsu extends RightClickAbility {
             finder.findClosest(this.ability.getPlayer(), this.creature.getLocation()).ifPresent(target -> {
                 this.target = target;
                 this.creature.setTarget(target);
-                ((CraftCreature) this.creature).getHandle().setGoalTarget((EntityLiving) target);
             });
         }
 
@@ -247,7 +245,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
 
             Team team = plugin.getTeamManager().getPlayerTeam(this.ability.getPlayer());
 
-            while (!found && stepped <= 3) {
+            while (!found && stepped < 3) {
                 curr.add(step);
                 stepped += 0.1;
 
