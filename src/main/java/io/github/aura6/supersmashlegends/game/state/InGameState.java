@@ -240,7 +240,7 @@ public class InGameState extends GameState {
         damageManager.removeDamageSource(died);
         damageManager.clearImmunities(died);
 
-        if (profile.getLives() == 0) {
+        if (profile.getLives() <= 0) {
             died.playSound(died.getLocation(), Sound.WITHER_DEATH, 2, 1);
             TitleAPI.sendTitle(died, MessageUtils.color("&7You have been"), MessageUtils.color("&celiminated!"), 7, 25, 7);
             Chat.DEATH.broadcast(MessageUtils.color(String.format("%s%s &7has been &celiminated!", diedKit.getColor(), died.getName())));
