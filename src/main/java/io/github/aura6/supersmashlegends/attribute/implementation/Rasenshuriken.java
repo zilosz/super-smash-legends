@@ -39,7 +39,7 @@ public class Rasenshuriken extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        player.getWorld().playSound(player.getLocation(), Sound.WITHER_IDLE, 3, 1);
+        player.getWorld().playSound(player.getLocation(), Sound.FIREWORK_LAUNCH, 1, 1);
         hotbarItem.hide();
 
         Rasenshuriken instance = this;
@@ -63,7 +63,10 @@ public class Rasenshuriken extends RightClickAbility {
                 }
 
                 Bukkit.getPluginManager().callEvent(new RasenshurikenDisplayEvent(instance));
-                player.getWorld().playSound(player.getLocation(), Sound.FUSE, 1, 1);
+
+                if (ticksCharged % 7 == 0) {
+                    player.getWorld().playSound(player.getLocation(), Sound.FUSE, 1, 1);
+                }
             }
 
         }.runTaskTimer(plugin, 0, 0);
@@ -89,7 +92,7 @@ public class Rasenshuriken extends RightClickAbility {
         task = null;
         hotbarItem.show();
 
-        player.getWorld().playSound(player.getLocation(), Sound.WITHER_DEATH, 3, 1);
+        player.getWorld().playSound(player.getLocation(), Sound.FIRE_IGNITE, 3, 2);
     }
 
     @Override
@@ -131,13 +134,16 @@ public class Rasenshuriken extends RightClickAbility {
 
         @Override
         public void onLaunch() {
-            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.WITHER_IDLE, 3, 1);
+            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.WITHER_IDLE, 0.5f, 1);
         }
 
         @Override
         public void onTick() {
             display(this.entity.getLocation(), true, this.config);
-            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.WITHER_SHOOT, 0.5f, 1);
+
+            if (this.ticksAlive % 11 == 0) {
+                this.entity.getWorld().playSound(this.entity.getLocation(), Sound.WITHER_SHOOT, 0.5f, 1);
+            }
         }
 
         @Override
@@ -152,8 +158,8 @@ public class Rasenshuriken extends RightClickAbility {
 
         private void onHit(LivingEntity avoid) {
             Location loc = this.entity.getLocation();
-            this.entity.getWorld().playSound(loc, Sound.WITHER_DEATH, 3, 1);
-            entity.getWorld().playSound(loc, Sound.EXPLODE, 3, 1);
+
+            entity.getWorld().playSound(loc, Sound.EXPLODE, 1.5f, 1);
             new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).solidSphere(loc, config.getDouble("Radius"), 40, 0.1);
 
             double radius = config.getDouble("Radius");

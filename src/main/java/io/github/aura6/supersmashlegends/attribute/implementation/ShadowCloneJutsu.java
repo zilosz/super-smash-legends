@@ -55,7 +55,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        player.getWorld().playSound(player.getLocation(), Sound.WITHER_IDLE, 1, 1);
+        player.getWorld().playSound(player.getLocation(), Sound.BLAZE_HIT, 0.5f, 1);
 
         Vector direction = player.getEyeLocation().getDirection();
         player.setVelocity(direction.clone().multiply(-config.getDouble("Recoil")));
@@ -122,9 +122,9 @@ public class ShadowCloneJutsu extends RightClickAbility {
             HandlerList.unregisterAll(this);
             Optional.ofNullable(rasenganTask).ifPresent(BukkitTask::cancel);
 
-            this.creature.getWorld().playSound(this.creature.getLocation(), Sound.WITHER_HURT, 2, 1);
+            this.creature.getWorld().playSound(this.creature.getLocation(), Sound.FIRE, 1, 1);
             new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(this.creature.getLocation(), 1.5, 10, 0.1);
-            this.ability.getPlayer().playSound(this.ability.getPlayer().getLocation(), Sound.WITHER_IDLE, 2, 1);
+            this.ability.getPlayer().playSound(this.ability.getPlayer().getLocation(), Sound.BLAZE_HIT, 2, 1);
 
             this.plugin.getTeamManager().getPlayerTeam(this.ability.getPlayer()).removeEntity(this.creature);
         }
@@ -166,7 +166,6 @@ public class ShadowCloneJutsu extends RightClickAbility {
             double height = config.getDouble("Clone.Rasenshuriken.Height");
             this.lastShurikenLocation = EntityUtils.top(this.creature).add(0, height, 0);
             Rasenshuriken.display(this.lastShurikenLocation, false, config);
-            this.creature.getWorld().playSound(this.lastShurikenLocation, Sound.FUSE, 0.5f, 1);
         }
 
         @EventHandler
