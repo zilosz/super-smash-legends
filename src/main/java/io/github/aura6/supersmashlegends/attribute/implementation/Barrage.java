@@ -43,14 +43,18 @@ public class Barrage extends Bow {
     private void launch(double force, boolean first) {
         BarrageArrow arrow = new BarrageArrow(plugin, this, config.getSection("Projectile"));
         arrow.setSpeed(force * config.getDouble("MaxSpeed"));
-        if (first) arrow.setSpread(0);
+
+        if (first) {
+            arrow.setSpread(0);
+        }
+
         arrow.launch();
     }
 
     @Override
     public void onShot(double force) {
         launch(force, true);
-        int amount = stage * config.getInt("ArrowsPerStage") - 1;
+        int amount = (int) (stage * config.getDouble("ArrowsPerStage")) - 1;
         RunnableUtils.runTaskWithIntervals(plugin, amount, config.getInt("ShotInterval"), () -> launch(force, false));
     }
 
