@@ -98,7 +98,14 @@ public class EndState extends GameState {
                     .collect(Collectors.joining("&7, ")));
         }
 
-        String title = MessageUtils.color(winningTeams.size() == 1 ? "&aWinners!" : "&dTie!");
+        String title;
+
+        if (winningTeams.size() == 1) {
+            title = winningTeams.get(0).getSize() == 1 ? "&aWinner!" : "&aWinners!";
+
+        } else {
+            title = "&dTie!";
+        }
 
         for (Player player : plugin.getGameManager().getParticipators()) {
             if (!player.isOnline()) return;
