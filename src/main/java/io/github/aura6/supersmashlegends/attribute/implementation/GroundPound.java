@@ -101,8 +101,8 @@ public class GroundPound extends RightClickAbility {
     }
 
     @Override
-    public void destroy() {
-        super.destroy();
+    public void deactivate() {
+        super.deactivate();
         resetFall(true);
     }
 
