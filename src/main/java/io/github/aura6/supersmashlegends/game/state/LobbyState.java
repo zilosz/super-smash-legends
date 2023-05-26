@@ -7,6 +7,7 @@ import io.github.aura6.supersmashlegends.arena.Arena;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
 import io.github.aura6.supersmashlegends.game.InGameProfile;
+import io.github.aura6.supersmashlegends.kit.KitManager;
 import io.github.aura6.supersmashlegends.utils.HotbarItem;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class LobbyState extends GameState {
@@ -146,9 +148,11 @@ public class LobbyState extends GameState {
             ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Returned to the lobby."));
             initializePlayer(player);
 
-            if (this.plugin.getKitManager().getSelectedKit(player) == null) {
-                this.plugin.getKitManager().setupUser(player);
-            }
+            KitManager kitManager = this.plugin.getKitManager();
+
+            Optional.ofNullable(kitManager.getSelectedKit(player)).ifPresentOrElse(
+                    kit -> kit.equip(player), () -> kitManager.setupUser(player)
+            );
 
             if (!this.plugin.getGameManager().hasProfile(player)) {
                 continue;
@@ -161,7 +165,7 @@ public class LobbyState extends GameState {
 
             Replacers replacers = new Replacers()
                     .add("RESULT", profile.isWinner() ? "&a&lVictory!" : "&c&lLoss")
-                    .add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName())
+                    .add("KIT", kitManager.getSelectedKit(player).getBoldedDisplayName())
                     .add("KILLS", String.valueOf(profile.getKills()))
                     .add("DEATHS", String.valueOf(profile.getDeaths()))
                     .add("DAMAGE_TAKEN", format.format(profile.getDamageTaken()))
