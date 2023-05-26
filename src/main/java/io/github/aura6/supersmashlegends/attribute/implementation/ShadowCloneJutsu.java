@@ -92,8 +92,8 @@ public class ShadowCloneJutsu extends RightClickAbility {
     }
 
     @Override
-    public void deactivate() {
-        super.deactivate();
+    public void destroy() {
+        super.destroy();
         new ArrayList<>(clones).forEach(ShadowClone::destroy);
     }
 

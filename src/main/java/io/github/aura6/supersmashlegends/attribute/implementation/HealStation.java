@@ -170,8 +170,8 @@ public class HealStation extends RightClickBlockAbility {
     }
 
     @Override
-    public void deactivate() {
-        super.deactivate();
+    public void destroy() {
+        super.destroy();
 
         if (isActive()) {
             destroyStation();
