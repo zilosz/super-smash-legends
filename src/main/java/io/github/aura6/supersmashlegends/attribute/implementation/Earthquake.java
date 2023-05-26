@@ -23,6 +23,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitTask;
 
 public class Earthquake extends RightClickAbility {
+    private BukkitTask quakeTask;
+    private BukkitTask uprootTask;
+    private BukkitTask stopTask;
 
     public Earthquake(SuperSmashLegends plugin, Section config, Kit kit) {
         super(plugin, config, kit);
@@ -32,7 +35,7 @@ public class Earthquake extends RightClickAbility {
     public void onClick(PlayerInteractEvent event) {
         player.getWorld().playSound(player.getLocation(), Sound.IRONGOLEM_THROW, 1, 0.5f);
 
-        BukkitTask quakeTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+        this.quakeTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if (!EntityUtils.isPlayerGrounded(player)) return;
 
             Location location = player.getLocation().add(0, 0.3, 0);
@@ -54,7 +57,7 @@ public class Earthquake extends RightClickAbility {
             });
         }, 0, config.getInt("UprootInterval"));
 
-        BukkitTask uprootTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+        this.uprootTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if (!EntityUtils.isPlayerGrounded(player)) return;
 
             Location center = player.getLocation();
@@ -77,10 +80,10 @@ public class Earthquake extends RightClickAbility {
             }
         }, 0, config.getInt("UprootInterval"));
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        this.stopTask = Bukkit.getScheduler().runTaskLater(plugin, () -> {
             startCooldown();
-            quakeTask.cancel();
-            uprootTask.cancel();
+            this.quakeTask.cancel();
+            this.uprootTask.cancel();
             player.getWorld().playSound(player.getLocation(), Sound.IRONGOLEM_DEATH, 1, 1);
         }, config.getInt("Duration"));
     }
@@ -93,5 +96,17 @@ public class Earthquake extends RightClickAbility {
 
         Bukkit.getScheduler().runTaskLater(plugin, () ->
                 BlockUtils.setBlockFast(loc, Material.AIR.getId(), (byte) 2), config.getInt("UprootDuration"));
+    }
+
+    @Override
+    public void deactivate() {
+        super.deactivate();
+
+        if (this.stopTask != null) {
+            this.stopTask.cancel();
+            this.stopTask = null;
+            this.quakeTask.cancel();
+            this.uprootTask.cancel();
+        }
     }
 }
