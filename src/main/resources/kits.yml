@@ -1161,7 +1161,7 @@ Pikachew:
       HitBox: 1.5
 Skellington:
   ConfigName: Skellington
-  Name: "Skully"
+  Name: "Skellington"
   Color: "&7"
   Item:
     Material: SKULL_ITEM
