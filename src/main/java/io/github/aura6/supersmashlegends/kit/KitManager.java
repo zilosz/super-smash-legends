@@ -109,7 +109,7 @@ public class KitManager implements Listener {
 
     public void endUser(Player player) {
         UUID uuid = player.getUniqueId();
-        Optional.ofNullable(this.kitHolograms.remove(uuid)).ifPresent(holograms -> holograms.values().forEach(Hologram::delete));
+        kitHolograms.remove(uuid).values().forEach(Hologram::delete);
         plugin.getDb().setIfEnabled(uuid, "chosenKit", selectedKits.get(uuid).getConfigName());
     }
 
