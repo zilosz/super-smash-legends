@@ -99,17 +99,20 @@ public class TerraShot extends ChargedRightClickBlockAbility {
 
         @Override
         public void onTargetHit(LivingEntity victim) {
-            new ParticleBuilder(EnumParticle.EXPLOSION_NORMAL).boom(this.plugin, this.entity.getLocation(), 4, 0.5, 13);
+            new ParticleBuilder(EnumParticle.REDSTONE).boom(this.plugin, this.entity.getLocation(), 4, 0.5, 15);
         }
 
         @Override
         public void onBlockHit(BlockHitResult result) {
-            new ParticleBuilder(EnumParticle.EXPLOSION_NORMAL).setFace(result.getFace()).boom(this.plugin, this.entity.getLocation(), 4, 0.5, 13);
+            new ParticleBuilder(EnumParticle.REDSTONE)
+                    .setFace(result.getFace())
+                    .setRgb(255, 0, 255)
+                    .boom(this.plugin, this.entity.getLocation(), 4, 0.5, 15);
         }
 
         @Override
         public void onTick() {
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 5; i++) {
                 new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 0, 255).show(this.entity.getLocation());
             }
         }
