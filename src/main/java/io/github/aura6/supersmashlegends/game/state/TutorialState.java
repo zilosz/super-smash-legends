@@ -60,11 +60,11 @@ public class TutorialState extends GameState {
                 "&7Enjoy the tutorial!",
                 "",
                 "&fArena: {ARENA}",
-                "&fAuthors: &7{AUTHORS}",
-                ""
+                "&fAuthors: &7{AUTHORS}"
         ));
 
         if (!plugin.getGameManager().isSpectator(player)) {
+            lines.add("");
             lines.add(6, "&fKit: &5{KIT}");
             replacers.add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
         }
