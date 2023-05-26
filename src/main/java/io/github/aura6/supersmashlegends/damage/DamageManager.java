@@ -120,7 +120,7 @@ public class DamageManager {
 
         immunityRemovers.put(attribute, Bukkit.getScheduler().runTaskLater(plugin, () -> {
             immunities.get(victimUuid).remove(attribute);
-            immunityRemovers.remove(attribute).cancel();
+            Optional.ofNullable(this.immunityRemovers.remove(attribute)).ifPresent(BukkitTask::cancel);
         }, damage.getImmunityTicks()));
 
         return true;

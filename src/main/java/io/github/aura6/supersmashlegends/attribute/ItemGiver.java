@@ -35,8 +35,9 @@ public abstract class ItemGiver extends PassiveAbility {
     }
 
     @Override
-    public void destroy() {
-        super.destroy();
+    public void deactivate() {
+        super.deactivate();
         giveTask.cancel();
+        player.getInventory().remove(hotbarItem.getItemStack());
     }
 }

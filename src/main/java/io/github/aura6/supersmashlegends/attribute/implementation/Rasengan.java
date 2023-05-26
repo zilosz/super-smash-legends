@@ -60,12 +60,11 @@ public class Rasengan extends RightClickAbility {
 
     public static void display(LivingEntity entity) {
         Location location = EntityUtils.underHand(entity, 0);
-        location.getWorld().playSound(location, Sound.FUSE, 1, 1);
         new ParticleBuilder(EnumParticle.REDSTONE).setRgb(173, 216, 230).solidSphere(location, 0, 50, 0.05);
     }
 
     public static void end(LivingEntity entity) {
-        entity.getWorld().playSound(entity.getLocation(), Sound.WITHER_DEATH, 3, 1);
+        entity.getWorld().playSound(entity.getLocation(), Sound.BLAZE_HIT, 2, 1);
     }
 
     public boolean isActive() {
@@ -131,7 +130,7 @@ public class Rasengan extends RightClickAbility {
         }
 
         public void apply(LivingEntity entity, int speed) {
-            entity.getWorld().playSound(entity.getLocation(), Sound.WITHER_IDLE, 3, 1);
+            entity.getWorld().playSound(entity.getLocation(), Sound.BLAZE_HIT, 0.5f, 1);
             entity.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, speed));
         }
     }

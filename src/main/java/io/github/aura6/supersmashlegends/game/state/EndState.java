@@ -1,9 +1,7 @@
 package io.github.aura6.supersmashlegends.game.state;
 
 import com.connorlinfoot.titleapi.TitleAPI;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.team.Team;
 import io.github.aura6.supersmashlegends.team.TeamManager;
 import io.github.aura6.supersmashlegends.utils.math.MathUtils;
@@ -100,9 +98,6 @@ public class EndState extends GameState {
                     .collect(Collectors.joining("&7, ")));
         }
 
-        Section jewelsEarnedWeights = plugin.getResources().getConfig().getSection("Economy.JewelsEarnedWeights");
-        int perKill = jewelsEarnedWeights.getInt("PerKill");
-
         String title = MessageUtils.color(winningTeams.size() == 1 ? "&aWinners!" : "&dTie!");
 
         for (Player player : plugin.getGameManager().getParticipators()) {
@@ -124,16 +119,6 @@ public class EndState extends GameState {
             }
 
             Chat.GAME.send(player, winMessage);
-
-            InGameProfile profile = plugin.getGameManager().getProfile(player);
-            int jewelsEarned = profile.getKills() * perKill;
-
-            if (winningPlayers.contains(player)) {
-                jewelsEarned += jewelsEarnedWeights.getInt("WinBonus");
-            }
-
-            profile.setJewelsEarned(jewelsEarned);
-            Chat.ECONOMY.send(player, String.format("&7You earned &f&l%d &7jewels.", jewelsEarned));
 
             plugin.getKitManager().getSelectedKit(player).destroy();
             player.setAllowFlight(true);

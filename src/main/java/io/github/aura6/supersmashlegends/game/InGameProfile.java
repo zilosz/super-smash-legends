@@ -10,7 +10,6 @@ public class InGameProfile {
     @Getter @Setter private int killStreak = 0;
     @Getter @Setter private double damageDealt = 0;
     @Getter @Setter private double damageTaken = 0;
-    @Getter @Setter private int jewelsEarned = 0;
     @Getter @Setter private boolean winner = false;
 
     public InGameProfile(int lives) {

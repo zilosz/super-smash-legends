@@ -116,10 +116,6 @@ public class Kit {
         return YamlReader.noise(config.getSection("Jump.Sound"));
     }
 
-    public int getPrice() {
-        return config.getInt("Price");
-    }
-
     public float getEnergy() {
         return config.getFloat("Energy");
     }

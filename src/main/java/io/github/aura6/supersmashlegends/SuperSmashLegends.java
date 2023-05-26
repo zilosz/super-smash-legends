@@ -12,7 +12,6 @@ import io.github.aura6.supersmashlegends.command.SkipCommand;
 import io.github.aura6.supersmashlegends.command.StartCommand;
 import io.github.aura6.supersmashlegends.damage.DamageManager;
 import io.github.aura6.supersmashlegends.database.Database;
-import io.github.aura6.supersmashlegends.economy.EconomyManager;
 import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.game.GameScoreboard;
 import io.github.aura6.supersmashlegends.arena.ArenaVoter;
@@ -38,7 +37,6 @@ import java.io.File;
 public class SuperSmashLegends extends JavaPlugin {
     @Getter private Resources resources;
     @Getter private Database db;
-    @Getter private EconomyManager economyManager;
     @Getter private KitManager kitManager;
     @Getter private InventoryManager inventoryManager;
     @Getter private KitSelector kitSelector;
@@ -69,7 +67,6 @@ public class SuperSmashLegends extends JavaPlugin {
         kitSelector = new KitSelector(this);
         arenaVoter = new ArenaVoter(this);
         db = new Database();
-        economyManager = new EconomyManager(this);
         kitManager = new KitManager(this);
         gameManager = new GameManager(this);
         powerManager = new PowerManager(this);
@@ -111,7 +108,6 @@ public class SuperSmashLegends extends JavaPlugin {
         gameManager.getState().end();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            economyManager.uploadUser(player);
             kitManager.endUser(player);
             kitManager.getSelectedKit(player).deactivate();
         }

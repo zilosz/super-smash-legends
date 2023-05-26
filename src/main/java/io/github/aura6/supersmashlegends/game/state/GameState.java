@@ -75,8 +75,6 @@ public abstract class GameState implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-
-        plugin.getEconomyManager().uploadUser(player);
         plugin.getKitManager().endUser(player);
 
         if (!isInGame()) {
@@ -116,7 +114,9 @@ public abstract class GameState implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        event.setCancelled(true);
+        if (!event.getPlayer().isOp()) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler
@@ -134,7 +134,9 @@ public abstract class GameState implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        event.setCancelled(true);
+        if (!event.getPlayer().isOp()) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler
