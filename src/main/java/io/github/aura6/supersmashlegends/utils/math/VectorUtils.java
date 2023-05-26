@@ -29,11 +29,11 @@ public class VectorUtils {
 
             switch (face) {
 
-                case DOWN:
+                case UP:
                     minY = 0;
                     break;
 
-                case UP:
+                case DOWN:
                     maxY = 0;
                     break;
 
