@@ -1159,15 +1159,15 @@ Pikachew:
       MinRange: 5
       MaxRange: 40
       HitBox: 1.5
-Skully:
-  ConfigName: Skully
+Skellington:
+  ConfigName: Skellington
   Name: "Skully"
   Color: "&7"
   Item:
     Material: SKULL_ITEM
-    Data: 4
+    Data: 0
   Description:
-    - "&7Big boned from an early age, Skully has"
+    - "&7Big boned from an early age, Skellington has"
     - "&7always been destined for success. He prefers"
     - "&7to eliminate foes with a skeletal bow, a"
     - "&7family hierloom from his mortal past."
