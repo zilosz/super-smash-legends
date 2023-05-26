@@ -6,7 +6,7 @@
 
     <groupId>io.github.aura6</groupId>
     <artifactId>SuperSmashLegends</artifactId>
-    <version>1.0-Arcade</version>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
     <name>SuperSmashLegends</name>

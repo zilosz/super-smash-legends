@@ -1,5 +1,5 @@
 name: SuperSmashLegends
-version: 1.0-Arcade
+version: 1.0
 main: io.github.aura6.supersmashlegends.SuperSmashLegends
 authors: [ Aura6 ]
 api-version: 1.8.8
