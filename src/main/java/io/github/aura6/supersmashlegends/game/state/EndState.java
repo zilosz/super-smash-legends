@@ -44,25 +44,25 @@ public class EndState extends GameState {
             winners.add(color + winner.getName());
         }
 
-        Replacers replacers = new Replacers()
-                .add("WINNERS", winners)
-                .add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+        Replacers replacers = new Replacers().add("WINNERS", winners);
 
-        if (!plugin.getGameManager().isSpectator(player)) {
-            replacers.add("KILLS", String.valueOf(plugin.getGameManager().getProfile(player).getKills()));
-        }
-
-        return replacers.replaceLines(Arrays.asList(
+        List<String> lines = new ArrayList<>(Arrays.asList(
                 "&5&l---------------------",
                 "&7Ending the game...",
                 "",
                 "&fWinners:",
                 "{WINNERS}",
-                "",
-                "&fKills: &5{KILLS}",
-                "&fKit: {KIT}",
-                "&5&l---------------------"
+                ""
         ));
+
+        if (this.plugin.getGameManager().isPlayerParticipating(player)) {
+            replacers.add("KILLS", String.valueOf(plugin.getGameManager().getProfile(player).getKills()));
+            replacers.add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+            lines.addAll(Arrays.asList("&fKills: &5{KILLS}", "&fKit: {KIT}"));
+        }
+
+        lines.add("&5&l---------------------");
+        return replacers.replaceLines(lines);
     }
 
     @Override

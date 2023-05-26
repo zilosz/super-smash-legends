@@ -106,18 +106,14 @@ public class InGameState extends GameState {
         }
 
         Replacers replacers = new Replacers();
+        List<String> lore = new ArrayList<>(List.of("&5&l---------------------"));
 
-        List<String> lore = new ArrayList<>(List.of(
-                "&5&l---------------------"
-        ));
-
-        if (!plugin.getGameManager().isSpectator(player)) {
+        if (this.plugin.getGameManager().isPlayerParticipating(player)) {
             lore.add(0, "&fKit: {KIT}");
             replacers.add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
         }
 
         scoreboard.addAll(replacers.replaceLines(lore));
-
         return scoreboard;
     }
 
