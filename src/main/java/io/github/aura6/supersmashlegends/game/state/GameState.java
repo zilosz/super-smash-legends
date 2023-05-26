@@ -6,6 +6,7 @@ import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -114,7 +115,7 @@ public abstract class GameState implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        if (!event.getPlayer().isOp()) {
+        if (!event.getPlayer().isOp() || event.getPlayer().getGameMode() != GameMode.CREATIVE) {
             event.setCancelled(true);
         }
     }
@@ -134,7 +135,7 @@ public abstract class GameState implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        if (!event.getPlayer().isOp()) {
+        if (!event.getPlayer().isOp() || event.getPlayer().getGameMode() != GameMode.CREATIVE) {
             event.setCancelled(true);
         }
     }
