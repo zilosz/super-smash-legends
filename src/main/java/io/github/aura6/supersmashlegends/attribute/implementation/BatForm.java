@@ -131,8 +131,8 @@ public class BatForm extends PassiveAbility {
     }
 
     @Override
-    public void destroy() {
-        super.destroy();
+    public void deactivate() {
+        super.deactivate();
 
         if (active) {
             reset();
