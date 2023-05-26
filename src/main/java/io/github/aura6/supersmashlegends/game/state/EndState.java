@@ -35,6 +35,11 @@ public class EndState extends GameState {
     }
 
     @Override
+    public boolean isInArena() {
+        return true;
+    }
+
+    @Override
     public List<String> getScoreboard(Player player) {
         List<String> winners = new ArrayList<>();
 
@@ -51,11 +56,11 @@ public class EndState extends GameState {
                 "&7Ending the game...",
                 "",
                 "&fWinners:",
-                "{WINNERS}",
-                ""
+                "{WINNERS}"
         ));
 
         if (this.plugin.getGameManager().isPlayerParticipating(player)) {
+            lines.add("");
             replacers.add("KILLS", String.valueOf(plugin.getGameManager().getProfile(player).getKills()));
             replacers.add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
             lines.addAll(Arrays.asList("&fKills: &5{KILLS}", "&fKit: {KIT}"));
@@ -66,16 +71,11 @@ public class EndState extends GameState {
     }
 
     @Override
-    public boolean isInGame() {
-        return true;
-    }
-
-    @Override
     public void start() {
         plugin.getPowerManager().reset();
 
         TeamManager teamManager = plugin.getTeamManager();
-        List<Team> winningTeams = MathUtils.findByHighestInt(teamManager.getTeams(), Team::getLifespan);
+        List<Team> winningTeams = MathUtils.findByHighestInt(teamManager.getTeamList(), Team::getLifespan);
 
         for (Team team: winningTeams) {
             winningPlayers.addAll(team.getPlayers());

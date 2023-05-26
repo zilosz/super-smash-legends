@@ -108,10 +108,6 @@ public class GameManager {
         return profiles.containsKey(player.getUniqueId());
     }
 
-    public void wipePlayer(Player player) {
-        profiles.remove(player.getUniqueId());
-    }
-
     public boolean isPlayerParticipating(Player player) {
         return player != null && profiles.containsKey(player.getUniqueId()) && !isSpectator(player);
     }

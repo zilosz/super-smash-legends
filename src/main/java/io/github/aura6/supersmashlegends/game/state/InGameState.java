@@ -49,6 +49,11 @@ public class InGameState extends GameState {
         return "InGame";
     }
 
+    @Override
+    public boolean isInArena() {
+        return true;
+    }
+
     private String getPlayerLivesText(Player player, int lifeCap, String nameColor) {
         int lives = plugin.getGameManager().getProfile(player).getLives();
         double lifePercentage = (double) lives / lifeCap;
@@ -90,8 +95,6 @@ public class InGameState extends GameState {
                 scoreboard.add(getPlayerLivesText(alive, lifeCap, "&7"));
             }
 
-            scoreboard.add("");
-
         } else {
             scoreboard.add("&5&lTeams");
 
@@ -101,25 +104,19 @@ public class InGameState extends GameState {
                     scoreboard.add(getPlayerLivesText(member, lifeCap, team.getColor()));
                 }
             }
-
-            scoreboard.add("");
         }
 
         Replacers replacers = new Replacers();
         List<String> lore = new ArrayList<>(List.of("&5&l---------------------"));
 
         if (this.plugin.getGameManager().isPlayerParticipating(player)) {
+            scoreboard.add("");
             lore.add(0, "&fKit: {KIT}");
             replacers.add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
         }
 
         scoreboard.addAll(replacers.replaceLines(lore));
         return scoreboard;
-    }
-
-    @Override
-    public boolean isInGame() {
-        return true;
     }
 
     @Override
@@ -130,15 +127,18 @@ public class InGameState extends GameState {
         List<Location> spawnsLeft = new ArrayList<>(spawnLocations);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            Location spawn = MathUtils.selectRandom(spawnsLeft);
-            spawnsLeft.remove(spawn);
-            player.teleport(spawn);
 
-            if (spawnsLeft.size() == 0) {
-                spawnsLeft = spawnLocations;
+            if (this.plugin.getGameManager().isPlayerAlive(player)) {
+                Location spawn = MathUtils.selectRandom(spawnsLeft);
+                spawnsLeft.remove(spawn);
+                player.teleport(spawn);
+
+                if (spawnsLeft.size() == 0) {
+                    spawnsLeft = spawnLocations;
+                }
+
+                plugin.getKitManager().getSelectedKit(player).activate();
             }
-
-            plugin.getKitManager().getSelectedKit(player).activate();
 
             player.playSound(player.getLocation(), Sound.WOLF_HOWL, 2, 0.8f);
             TitleAPI.sendTitle(player, MessageUtils.color("&7The &5game &7has started!"), "", 5, 30, 5);
@@ -169,9 +169,12 @@ public class InGameState extends GameState {
 
         respawnTasks.clear();
 
-        for (Player player : plugin.getGameManager().getAlivePlayers()) {
-            plugin.getKitManager().getSelectedKit(player).deactivate();
+        for (Player player : Bukkit.getOnlinePlayers()) {
             TitleAPI.clearTitle(player);
+
+            if (this.plugin.getGameManager().isPlayerAlive(player)) {
+                this.plugin.getKitManager().getSelectedKit(player).deactivate();
+            }
         }
     }
 
@@ -318,9 +321,9 @@ public class InGameState extends GameState {
     }
 
     @EventHandler
-    public void onQuitMidGame(PlayerQuitEvent event) {
-        if (plugin.getGameManager().isPlayerAlive(event.getPlayer())) {
-            plugin.getGameManager().uploadPlayerStatsMidGame(event.getPlayer());
+    public void onQuitInGame(PlayerQuitEvent event) {
+        if (this.plugin.getGameManager().isPlayerAlive(event.getPlayer())) {
+            this.plugin.getGameManager().uploadPlayerStatsMidGame(event.getPlayer());
         }
     }
 }

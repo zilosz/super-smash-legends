@@ -2,7 +2,6 @@ package io.github.aura6.supersmashlegends.game.state;
 
 import com.connorlinfoot.titleapi.TitleAPI;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import org.bukkit.Bukkit;
@@ -39,9 +38,9 @@ public abstract class GameState implements Listener {
 
     public abstract String getConfigName();
 
-    public abstract List<String> getScoreboard(Player player);
+    public abstract boolean isInArena();
 
-    public abstract boolean isInGame();
+    public abstract List<String> getScoreboard(Player player);
 
     public abstract void start();
 
@@ -59,45 +58,45 @@ public abstract class GameState implements Listener {
     }
 
     @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
+    public void onGeneralJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined the game.", player.getName())));
-        TitleAPI.sendTitle(player, MessageUtils.color("&7Welcome to"), MessageUtils.color("&5&lSuper Smash Legends!"), 10, 40, 10);
-        player.playSound(player.getLocation(), Sound.LEVEL_UP, 2, 1);
-        Chat.GAME.send(player, "&7Please use &d&l/start &7to start and &3&l/end &7to end.");
+        if (isInArena()) {
+            event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined mid-game.", player.getName())));
+            Chat.GAME.send(event.getPlayer(), "&7The game you joined is in progress.");
+            this.plugin.getGameManager().addSpectator(event.getPlayer());
+            player.teleport(this.plugin.getArenaManager().getArena().getWaitLocation());
 
-        if (isInGame()) {
-            Chat.GAME.send(player, "&7The game you joined is in progress.");
-            plugin.getGameManager().addSpectator(player);
+        } else {
+            Chat.GAME.send(player, "&7Please use &d&l/start &7 and &3&l/end &7to control the game.");
+            event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined the game.", player.getName())));
+        }
+
+        if (!player.hasPlayedBefore()) {
+            TitleAPI.sendTitle(player, MessageUtils.color("&7Welcome to"), MessageUtils.color("&5&lSuper Smash Legends!"), 10, 40, 10);
+            player.playSound(player.getLocation(), Sound.LEVEL_UP, 2, 1);
         }
     }
 
     @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
+    public void onGeneralQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        plugin.getKitManager().endUser(player);
 
-        if (!isInGame()) {
+        this.plugin.getKitManager().endUser(player);
+        this.plugin.getGameManager().removeSpectator(player);
+
+        if (isInArena() && this.plugin.getGameManager().isPlayerAlive(player)) {
+            event.setQuitMessage(Chat.QUIT.get(String.format("&5%s &7has quit mid-game.", player.getName())));
+
+            int lifespan = this.plugin.getGameManager().getTicksActive();
+            this.plugin.getTeamManager().getPlayerTeam(player).setLifespan(lifespan);
+
+            if (this.plugin.getGameManager().getAlivePlayers().size() <= 2) {
+                this.plugin.getGameManager().skipToState(new EndState(this.plugin));
+            }
+
+        } else {
             event.setQuitMessage(Chat.QUIT.get(String.format("&5%s &7has quit the game.", player.getName())));
-            return;
-        }
-
-        event.setQuitMessage(Chat.QUIT.get(String.format("&5%s &7has quit mid-game.", player.getName())));
-
-        plugin.getKitManager().getSelectedKit(player).deactivate();
-
-        GameManager gameManager = plugin.getGameManager();
-        gameManager.removeSpectator(player);
-
-        plugin.getTeamManager().wipePlayer(player);
-        gameManager.wipePlayer(player);
-
-        plugin.getArenaManager().wipePlayer(player);
-        plugin.getTeamManager().findChosenTeam(player).ifPresent(team -> team.removePlayer(player));
-
-        if (gameManager.getAlivePlayers().size() <= 1) {
-            gameManager.advanceState();
         }
     }
 

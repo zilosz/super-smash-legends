@@ -6,7 +6,6 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.arena.Arena;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
-import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.utils.HotbarItem;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
@@ -28,6 +27,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.text.DecimalFormat;
@@ -51,6 +51,11 @@ public class LobbyState extends GameState {
     }
 
     @Override
+    public boolean isInArena() {
+        return false;
+    }
+
+    @Override
     public List<String> getScoreboard(Player player) {
 
         Replacers replacers = new Replacers()
@@ -67,11 +72,6 @@ public class LobbyState extends GameState {
                 "&fKit: &5{KIT}",
                 "&5&l---------------------"
         ));
-    }
-
-    @Override
-    public boolean isInGame() {
-        return false;
     }
 
     private void createLeaderboard(String titleName, String statName, String configName) {
@@ -146,20 +146,15 @@ public class LobbyState extends GameState {
             ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Returned to the lobby."));
             initializePlayer(player);
 
-            if (plugin.getGameManager().isSpectator(player)) {
-                plugin.getKitManager().setupUser(player);
-
-            } else {
-                plugin.getKitManager().setKit(player, plugin.getKitManager().getSelectedKit(player).copy());
+            if (this.plugin.getKitManager().getSelectedKit(player) == null) {
+                this.plugin.getKitManager().setupUser(player);
             }
 
-            GameManager gameManager = plugin.getGameManager();
-
-            if (!gameManager.hasProfile(player)) {
+            if (!this.plugin.getGameManager().hasProfile(player)) {
                 continue;
             }
 
-            InGameProfile profile = gameManager.getProfile(player);
+            InGameProfile profile = this.plugin.getGameManager().getProfile(player);
             Location lastGameLocation = YamlReader.location("lobby", plugin.getResources().getLobby().getString("LastGame"));
             Hologram lastGame = HolographicDisplaysAPI.get(plugin).createHologram(lastGameLocation);
             DecimalFormat format = new DecimalFormat("#.#");
@@ -187,6 +182,7 @@ public class LobbyState extends GameState {
             holograms.add(lastGame);
 
             for (Player other : Bukkit.getOnlinePlayers()) {
+
                 if (!other.equals(player)) {
                     lastGame.getVisibilitySettings().setIndividualVisibility(other, VisibilitySettings.Visibility.HIDDEN);
                 }
@@ -258,12 +254,18 @@ public class LobbyState extends GameState {
     }
 
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
+    public void onLobbyJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         initializePlayer(player);
 
         plugin.getDb().setIfEnabled(player.getUniqueId(), "name", player.getName());
         plugin.getKitManager().setupUser(player);
+    }
+
+    @EventHandler
+    public void onLobbyQuit(PlayerQuitEvent event) {
+        this.plugin.getArenaManager().wipePlayer(event.getPlayer());
+        this.plugin.getTeamManager().wipePlayer(event.getPlayer());
     }
 
     @EventHandler

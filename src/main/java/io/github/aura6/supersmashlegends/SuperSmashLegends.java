@@ -28,6 +28,7 @@ import io.github.thatkawaiisam.assemble.AssembleStyle;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
@@ -105,7 +106,10 @@ public class SuperSmashLegends extends JavaPlugin {
     @Override
     public void onDisable() {
         kitManager.destroyNpcs();
-        gameManager.getState().end();
+
+        try {
+            gameManager.getState().end();
+        } catch (IllegalPluginAccessException ignored) {}
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             kitManager.endUser(player);

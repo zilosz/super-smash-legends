@@ -32,8 +32,8 @@ public class TeamManager {
     );
 
     private final SuperSmashLegends plugin;
-    private final List<Team> teams = new ArrayList<>();
-    private final Map<UUID, Team> entityTeams = new HashMap<>();
+    private final List<Team> teamList = new ArrayList<>();
+    private final Map<UUID, Team> teamsByEntity = new HashMap<>();
 
     public TeamManager(SuperSmashLegends plugin) {
         this.plugin = plugin;
@@ -41,7 +41,7 @@ public class TeamManager {
     }
 
     private void grabTeams() {
-        TEAM_COLORS.subList(0, getTeamCount()).forEach(colors -> teams.add(new Team(plugin, colors)));
+        TEAM_COLORS.subList(0, getTeamCount()).forEach(colors -> teamList.add(new Team(plugin, colors)));
     }
 
     private Section getTeamConfig() {
@@ -60,56 +60,56 @@ public class TeamManager {
         return getTeamCount() * getTeamSize();
     }
 
-    public List<Team> getTeams() {
-        return Collections.unmodifiableList(teams);
+    public List<Team> getTeamList() {
+        return Collections.unmodifiableList(teamList);
     }
 
     public Team getPlayerTeam(Player player) {
-        return entityTeams.get(player.getUniqueId());
+        return teamsByEntity.get(player.getUniqueId());
     }
 
     public Optional<Team> findChosenTeam(Player player) {
-        return teams.stream().filter(team -> team.hasPlayer(player)).findAny();
+        return teamList.stream().filter(team -> team.hasPlayer(player)).findAny();
     }
 
     public void assignPlayer(Player player) {
-        teams.stream().filter(team -> team.hasPlayer(player)).findAny().ifPresentOrElse(
-                chosen -> entityTeams.put(player.getUniqueId(), chosen), () -> {
-                    teams.stream().filter(team -> team.canJoin(player)).findFirst().ifPresent(team -> {
-                        team.addPlayer(player);
-                        entityTeams.put(player.getUniqueId(), team);
-                    });
-                });
+        teamList.stream()
+                .filter(team -> team.hasPlayer(player))
+                .findAny()
+                .ifPresentOrElse(
+                        chosen -> teamsByEntity.put(player.getUniqueId(), chosen),
+                        () -> teamList.stream()
+                                .filter(team -> team.canJoin(player))
+                                .findFirst()
+                                .ifPresent(team -> {
+                team.addPlayer(player);
+                teamsByEntity.put(player.getUniqueId(), team);
+        }));
     }
 
     public void removeEmptyTeams() {
-        teams.removeIf(Team::isEmpty);
+        teamList.removeIf(Team::isEmpty);
     }
 
     public List<Team> getAliveTeams() {
-        return teams.stream().filter(Team::isAlive).collect(Collectors.toList());
+        return teamList.stream().filter(Team::isAlive).collect(Collectors.toList());
     }
 
     public boolean isGameTieOrWin() {
-        return teams.stream().filter(Team::isAlive).count() <= 1;
+        return teamList.stream().filter(Team::isAlive).count() <= 1;
     }
 
     public void wipePlayer(Player player) {
-        Optional.ofNullable(entityTeams.remove(player.getUniqueId())).ifPresent(team -> {
-            team.removePlayer(player);
-            if (team.isEmpty()) {
-                teams.remove(team);
-            }
-        });
+        Optional.ofNullable(teamsByEntity.remove(player.getUniqueId())).ifPresent(team -> team.removePlayer(player));
     }
 
     public Optional<Team> findEntityTeam(LivingEntity entity) {
-        return Optional.ofNullable(entityTeams.getOrDefault(entity.getUniqueId(), null));
+        return Optional.ofNullable(teamsByEntity.getOrDefault(entity.getUniqueId(), null));
     }
 
     public void reset() {
-        teams.clear();
-        entityTeams.clear();
+        teamList.clear();
+        teamsByEntity.clear();
         grabTeams();
     }
 }

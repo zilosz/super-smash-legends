@@ -27,7 +27,7 @@ public class TeamSelector extends HorizontalInventory<Team> {
 
     @Override
     public List<Team> getElements() {
-        return plugin.getTeamManager().getTeams();
+        return plugin.getTeamManager().getTeamList();
     }
 
     @Override
