@@ -26,8 +26,8 @@ public abstract class PermanentPotion extends PassiveAbility {
     }
 
     @Override
-    public void destroy() {
-        super.destroy();
+    public void deactivate() {
+        super.deactivate();
         player.removePotionEffect(getEffectType());
     }
 }

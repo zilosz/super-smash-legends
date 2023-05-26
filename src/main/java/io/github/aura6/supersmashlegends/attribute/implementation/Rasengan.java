@@ -85,8 +85,8 @@ public class Rasengan extends RightClickAbility {
     }
 
     @Override
-    public void destroy() {
-        super.destroy();
+    public void deactivate() {
+        super.deactivate();
         reset();
     }
 

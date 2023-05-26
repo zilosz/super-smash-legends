@@ -96,9 +96,9 @@ public class Rasenshuriken extends RightClickAbility {
     }
 
     @Override
-    public void destroy() {
+    public void deactivate() {
+        super.deactivate();
         reset();
-        super.destroy();
     }
 
     @EventHandler
