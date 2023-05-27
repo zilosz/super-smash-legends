@@ -63,9 +63,13 @@ public class DamageManager {
         this.indicatorRemovers.put(uuid, Bukkit.getScheduler().runTaskLater(this.plugin, () -> destroyIndicator(entity), comboDuration));
     }
 
+    private void cancelDamageSourceRemover(LivingEntity entity) {
+        Optional.ofNullable(this.damageSourceRemovers.get(entity.getUniqueId())).ifPresent(BukkitTask::cancel);
+    }
+
     public void removeDamageSource(LivingEntity entity) {
         this.lastDamagingAttributes.remove(entity.getUniqueId());
-        Optional.ofNullable(this.damageSourceRemovers.get(entity.getUniqueId())).ifPresent(BukkitTask::cancel);
+        cancelDamageSourceRemover(entity);
     }
 
     public boolean attemptAttributeDamage(LivingEntity victim, Damage damage, Attribute attribute) {
@@ -79,6 +83,8 @@ public class DamageManager {
         if (event.isCancelled()) return false;
 
         this.lastDamagingAttributes.put(victimUuid, attribute);
+
+        cancelDamageSourceRemover(victim);
         int damageLifetime = this.plugin.getResources().getConfig().getInt("Damage.Lifetime");
         this.damageSourceRemovers.put(victimUuid, Bukkit.getScheduler().runTaskLater(this.plugin, () -> removeDamageSource(victim), damageLifetime));
 

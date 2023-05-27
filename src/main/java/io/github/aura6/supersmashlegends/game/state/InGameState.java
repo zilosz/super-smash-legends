@@ -2,7 +2,6 @@ package io.github.aura6.supersmashlegends.game.state;
 
 import com.connorlinfoot.titleapi.TitleAPI;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import io.github.aura6.supersmashlegends.attribute.Attribute;
 import io.github.aura6.supersmashlegends.attribute.Nameable;
 import io.github.aura6.supersmashlegends.damage.DamageManager;
 import io.github.aura6.supersmashlegends.game.InGameProfile;
@@ -36,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class InGameState extends GameState {
     private static final int MAX_SCOREBOARD_SIZE = 15;
@@ -210,20 +210,15 @@ public class InGameState extends GameState {
         profile.setLives(profile.getLives() - 1);
         profile.setDeaths(profile.getDeaths() + 1);
 
-        String deathMessage;
-        Location tpLocation;
-
         DamageManager damageManager = plugin.getDamageManager();
-        Attribute killingAttribute = damageManager.getLastDamagingAttribute(died);
+
+        final AtomicReference<String> deathMessage = new AtomicReference<>();
+        final AtomicReference<Location> tpLocation = new AtomicReference<>();
 
         String diedName = this.plugin.getTeamManager().getPlayerColor(died) + died.getName();
 
-        if (killingAttribute == null) {
-            tpLocation = plugin.getArenaManager().getArena().getWaitLocation();
-            deathMessage = String.format("%s &7died.", diedName);
-
-        } else {
-            Player killer = killingAttribute.getPlayer();
+        damageManager.getLastDamagingAttribute(died).ifPresentOrElse(attribute -> {
+            Player killer = attribute.getPlayer();
 
             killer.playSound(killer.getLocation(), Sound.LEVEL_UP, 2, 2);
             killer.playSound(killer.getLocation(), Sound.WOLF_HOWL, 3, 2);
@@ -234,19 +229,22 @@ public class InGameState extends GameState {
 
             String killerName = this.plugin.getTeamManager().getPlayerColor(killer) + killer.getName();
 
-            if (killingAttribute instanceof Nameable) {
-                String killName = ((Nameable) killingAttribute).getDisplayName();
-                deathMessage = String.format("%s &7killed by %s &7with %s.", diedName, killerName, killName);
+            if (attribute instanceof Nameable) {
+                String killName = ((Nameable) attribute).getDisplayName();
+                deathMessage.set(String.format("%s &7killed by %s &7with %s.", diedName, killerName, killName));
 
             } else {
-                deathMessage = String.format("%s &7was killed by %s.", diedName, killerName);
+                deathMessage.set(String.format("%s &7was killed by %s.", diedName, killerName));
             }
 
-            tpLocation = killer.getLocation();
-        }
+            tpLocation.set(killer.getLocation());
+        }, () -> {
+            tpLocation.set(plugin.getArenaManager().getArena().getWaitLocation());
+            deathMessage.set(String.format("%s &7died.", diedName));
+        });
 
-        Chat.DEATH.broadcast(deathMessage);
-        died.teleport(tpLocation);
+        Chat.DEATH.broadcast(deathMessage.get());
+        died.teleport(tpLocation.get());
 
         damageManager.destroyIndicator(died);
         damageManager.removeDamageSource(died);
