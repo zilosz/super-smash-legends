@@ -35,59 +35,59 @@ public class DamageManager {
         this.plugin = plugin;
     }
 
-    public Attribute getLastDamagingAttribute(LivingEntity entity) {
-        return lastDamagingAttributes.getOrDefault(entity.getUniqueId(), null);
+    public Optional<Attribute> getLastDamagingAttribute(LivingEntity entity) {
+        return Optional.ofNullable(this.lastDamagingAttributes.get(entity.getUniqueId()));
     }
 
     public void destroyIndicator(LivingEntity entity) {
-        Optional.ofNullable(indicators.remove(entity.getUniqueId())).ifPresent(DamageIndicator::destroy);
-        Optional.ofNullable(indicatorRemovers.remove(entity.getUniqueId())).ifPresent(BukkitTask::cancel);
+        Optional.ofNullable(this.indicators.remove(entity.getUniqueId())).ifPresent(DamageIndicator::destroy);
+        Optional.ofNullable(this.indicatorRemovers.remove(entity.getUniqueId())).ifPresent(BukkitTask::cancel);
     }
 
     public void updateIndicator(LivingEntity entity, double damage) {
         UUID uuid = entity.getUniqueId();
         DamageIndicator indicator;
 
-        if (indicators.containsKey(uuid)) {
-            indicator = indicators.get(uuid);
-            indicatorRemovers.remove(uuid).cancel();
+        if (this.indicators.containsKey(uuid)) {
+            indicator = this.indicators.get(uuid);
+            this.indicatorRemovers.remove(uuid).cancel();
 
         } else {
-            indicator = DamageIndicator.create(plugin, entity);
-            indicators.put(uuid, indicator);
+            indicator = DamageIndicator.create(this.plugin, entity);
+            this.indicators.put(uuid, indicator);
         }
 
         indicator.stackDamage(damage);
 
-        int comboDuration = plugin.getResources().getConfig().getInt("Damage.Indicator.ComboDuration");
-        indicatorRemovers.put(uuid, Bukkit.getScheduler().runTaskLater(plugin, () -> destroyIndicator(entity), comboDuration));
+        int comboDuration = this.plugin.getResources().getConfig().getInt("Damage.Indicator.ComboDuration");
+        this.indicatorRemovers.put(uuid, Bukkit.getScheduler().runTaskLater(this.plugin, () -> destroyIndicator(entity), comboDuration));
     }
 
     public void removeDamageSource(LivingEntity entity) {
-        lastDamagingAttributes.remove(entity.getUniqueId());
-        Optional.ofNullable(damageSourceRemovers.get(entity.getUniqueId())).ifPresent(BukkitTask::cancel);
+        this.lastDamagingAttributes.remove(entity.getUniqueId());
+        Optional.ofNullable(this.damageSourceRemovers.get(entity.getUniqueId())).ifPresent(BukkitTask::cancel);
     }
 
     public boolean attemptAttributeDamage(LivingEntity victim, Damage damage, Attribute attribute) {
         UUID victimUuid = victim.getUniqueId();
 
-        if (immunities.containsKey(victimUuid) && immunities.get(victimUuid).contains(attribute)) return false;
+        if (this.immunities.containsKey(victimUuid) && this.immunities.get(victimUuid).contains(attribute)) return false;
 
         AttributeDamageEvent event = new AttributeDamageEvent(victim, damage, attribute);
         Bukkit.getPluginManager().callEvent(event);
 
         if (event.isCancelled()) return false;
 
-        lastDamagingAttributes.put(victimUuid, attribute);
-        int damageLifetime = plugin.getResources().getConfig().getInt("Damage.Lifetime");
-        damageSourceRemovers.put(victimUuid, Bukkit.getScheduler().runTaskLater(plugin, () -> removeDamageSource(victim), damageLifetime));
+        this.lastDamagingAttributes.put(victimUuid, attribute);
+        int damageLifetime = this.plugin.getResources().getConfig().getInt("Damage.Lifetime");
+        this.damageSourceRemovers.put(victimUuid, Bukkit.getScheduler().runTaskLater(this.plugin, () -> removeDamageSource(victim), damageLifetime));
 
-        immunities.putIfAbsent(victimUuid, new HashSet<>());
-        immunities.get(victimUuid).add(attribute);
+        this.immunities.putIfAbsent(victimUuid, new HashSet<>());
+        this.immunities.get(victimUuid).add(attribute);
 
         if (victim instanceof Player) {
             Player player = (Player) victim;
-            Kit kit = plugin.getKitManager().getSelectedKit(player);
+            Kit kit = this.plugin.getKitManager().getSelectedKit(player);
 
             if (damage.isFactorsArmor()) {
                 damage.setDamage(damage.getDamage() * kit.getArmor());
@@ -99,8 +99,8 @@ public class DamageManager {
         }
 
         if (damage.isFactorsHealth()) {
-            double min = plugin.getResources().getConfig().getDouble("Damage.KbHealthMultiplier.Min");
-            double max = plugin.getResources().getConfig().getDouble("Damage.KbHealthMultiplier.Max");
+            double min = this.plugin.getResources().getConfig().getDouble("Damage.KbHealthMultiplier.Min");
+            double max = this.plugin.getResources().getConfig().getDouble("Damage.KbHealthMultiplier.Max");
             double multiplier = MathUtils.decreasingLinear(min, max, victim.getMaxHealth(), victim.getHealth());
             damage.setKb(damage.getKb() * multiplier);
         }
@@ -115,11 +115,11 @@ public class DamageManager {
 
         updateIndicator(victim, damage.getDamage());
 
-        InGameProfile damagerProfile = plugin.getGameManager().getProfile(attribute.getPlayer());
+        InGameProfile damagerProfile = this.plugin.getGameManager().getProfile(attribute.getPlayer());
         damagerProfile.setDamageDealt(damagerProfile.getDamageDealt() + damage.getDamage());
 
-        immunityRemovers.put(attribute, Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            immunities.get(victimUuid).remove(attribute);
+        this.immunityRemovers.put(attribute, Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+            this.immunities.get(victimUuid).remove(attribute);
             Optional.ofNullable(this.immunityRemovers.remove(attribute)).ifPresent(BukkitTask::cancel);
         }, damage.getImmunityTicks()));
 
@@ -127,16 +127,16 @@ public class DamageManager {
     }
 
     public void clearImmunities(LivingEntity entity) {
-        if (!immunities.containsKey(entity.getUniqueId())) return;
+        if (!this.immunities.containsKey(entity.getUniqueId())) return;
 
-        for (Attribute attribute : immunities.get(entity.getUniqueId())) {
+        for (Attribute attribute : this.immunities.get(entity.getUniqueId())) {
 
-            if (immunityRemovers.containsKey(attribute)) {
-                immunityRemovers.get(attribute).cancel();
-                immunityRemovers.remove(attribute);
+            if (this.immunityRemovers.containsKey(attribute)) {
+                this.immunityRemovers.get(attribute).cancel();
+                this.immunityRemovers.remove(attribute);
             }
         }
 
-        immunities.get(entity.getUniqueId()).clear();
+        this.immunities.get(entity.getUniqueId()).clear();
     }
 }
