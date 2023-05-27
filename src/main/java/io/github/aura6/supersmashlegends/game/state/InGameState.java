@@ -35,9 +35,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class InGameState extends GameState {
+    private static final int MAX_SCOREBOARD_SIZE = 15;
     private final Map<UUID, BukkitTask> respawnTasks = new HashMap<>();
 
     public InGameState(SuperSmashLegends plugin) {
@@ -85,26 +87,7 @@ public class InGameState extends GameState {
                 ""
         ));
 
-        TeamManager teamManager = plugin.getTeamManager();
-        int lifeCap = plugin.getResources().getConfig().getInt("Game.Lives");
-
-        if (teamManager.getTeamSize() == 1) {
-            scoreboard.add("&5&lPlayers");
-
-            for (Player alive : plugin.getGameManager().getAlivePlayers()) {
-                scoreboard.add(getPlayerLivesText(alive, lifeCap, "&7"));
-            }
-
-        } else {
-            scoreboard.add("&5&lTeams");
-
-            for (Team team : teamManager.getAliveTeams()) {
-
-                for (Player member : team.getPlayers()) {
-                    scoreboard.add(getPlayerLivesText(member, lifeCap, team.getColor()));
-                }
-            }
-        }
+        int playerIndex = scoreboard.size();
 
         Replacers replacers = new Replacers();
         List<String> lore = new ArrayList<>(List.of("&5&l---------------------"));
@@ -113,6 +96,41 @@ public class InGameState extends GameState {
             scoreboard.add("");
             lore.add(0, "&fKit: {KIT}");
             replacers.add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+        }
+
+        TeamManager teamManager = plugin.getTeamManager();
+        int lifeCap = plugin.getResources().getConfig().getInt("Game.Lives");
+        Set<Player> alivePlayers = this.plugin.getGameManager().getAlivePlayers();
+
+        if (teamManager.getTeamSize() == 1) {
+            scoreboard.add(playerIndex, "&5&lPlayers");
+
+            if (scoreboard.size() + alivePlayers.size() <= MAX_SCOREBOARD_SIZE) {
+
+                for (Player alivePlayer : alivePlayers) {
+                    scoreboard.add(playerIndex + 1, getPlayerLivesText(alivePlayer, lifeCap, "&7"));
+                }
+
+            } else {
+                scoreboard.add(playerIndex + 1, "&e&l" + alivePlayers.size() + " &7players alive.");
+            }
+
+        } else {
+            scoreboard.add(playerIndex, "&5&lTeams");
+            List<Team> aliveTeams = teamManager.getAliveTeams();
+
+            if (scoreboard.size() + alivePlayers.size() <= MAX_SCOREBOARD_SIZE) {
+
+                for (Team team : aliveTeams) {
+
+                    for (Player alivePlayer : team.getPlayers()) {
+                        scoreboard.add(playerIndex + 1, getPlayerLivesText(alivePlayer, lifeCap, team.getColor()));
+                    }
+                }
+
+            } else {
+                scoreboard.add(playerIndex + 1, "&e&l" + aliveTeams.size() + " &7teams alive.");
+            }
         }
 
         scoreboard.addAll(replacers.replaceLines(lore));
