@@ -84,6 +84,7 @@ public class Earthquake extends RightClickAbility {
             startCooldown();
             this.quakeTask.cancel();
             this.uprootTask.cancel();
+            stopTask = null;
             player.getWorld().playSound(player.getLocation(), Sound.IRONGOLEM_DEATH, 1, 1);
         }, config.getInt("Duration"));
     }
