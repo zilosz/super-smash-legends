@@ -81,8 +81,8 @@ public class KitManager implements Listener {
             kitHolograms.get(uuid).put(name, hologram);
         });
 
-        Kit chosen = kitsByName.get(chosenKit);
-        setKit(player, chosen);
+        Kit chosen = this.kitsByName.get(chosenKit);
+        setKit(player, chosen == null ? this.kitsByName.get("Barbarian") : chosen);
 
         kitHolograms.get(uuid).forEach((kitName, holo) ->
                 updateAccessHologram(holo, getKitAccess(player, kitName), kitsByName.get(kitName)));
