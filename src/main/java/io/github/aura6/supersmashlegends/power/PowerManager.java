@@ -136,7 +136,7 @@ public class PowerManager implements Listener {
         powerCrystal.destroy();
     }
 
-    public void reset(){
+    public void stop(){
         powerTimer.cancel();
 
         activeCrystals.forEach(this::removeCrystal);

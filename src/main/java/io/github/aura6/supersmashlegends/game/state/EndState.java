@@ -72,28 +72,26 @@ public class EndState extends GameState {
 
     @Override
     public void start() {
-        plugin.getPowerManager().reset();
+        this.plugin.getPowerManager().stop();
 
-        TeamManager teamManager = plugin.getTeamManager();
+        TeamManager teamManager = this.plugin.getTeamManager();
         List<Team> winningTeams = MathUtils.findByHighestInt(teamManager.getTeamList(), Team::getLifespan);
 
         for (Team team: winningTeams) {
-            winningPlayers.addAll(team.getPlayers());
+            this.winningPlayers.addAll(team.getPlayers());
 
             for (Player player : team.getPlayers()) {
-                plugin.getGameManager().getProfile(player).setWinner(true);
+                this.plugin.getGameManager().getProfile(player).setWinner(true);
             }
         }
 
         StringBuilder winners = new StringBuilder("&7");
 
         if (teamManager.getTeamSize() == 1) {
-            winners.append(winningPlayers.stream()
-                    .map(Player::getName)
-                    .collect(Collectors.joining("&7, ")));
+            winners.append(this.winningPlayers.stream().map(Player::getName).collect(Collectors.joining("&7, ")));
 
         } else {
-            winners.append(winningPlayers.stream()
+            winners.append(this.winningPlayers.stream()
                     .map(player -> teamManager.getPlayerTeam(player).getColor() + player.getName())
                     .collect(Collectors.joining("&7, ")));
         }
@@ -107,12 +105,12 @@ public class EndState extends GameState {
             title = "&dTie!";
         }
 
-        for (Player player : plugin.getGameManager().getParticipators()) {
+        for (Player player : this.plugin.getGameManager().getParticipators()) {
             if (!player.isOnline()) return;
 
             String winMessage;
 
-            if (winningPlayers.contains(player)) {
+            if (this.winningPlayers.contains(player)) {
 
                 if (winningTeams.size() == 1) {
                     winMessage = "&7You have &a&lwon!";
@@ -127,18 +125,18 @@ public class EndState extends GameState {
 
             Chat.GAME.send(player, winMessage);
 
-            plugin.getKitManager().getSelectedKit(player).destroy();
+            this.plugin.getKitManager().getSelectedKit(player).destroy();
             player.setAllowFlight(true);
 
             TitleAPI.sendTitle(player, title, MessageUtils.color(winners.toString()), 10, 40, 10);
             player.playSound(player.getLocation(), Sound.FIREWORK_LARGE_BLAST, 3, 1);
 
-            if (plugin.getGameManager().isPlayerParticipating(player)) {
-                plugin.getGameManager().uploadPlayerStatsAtEnd(player, winningPlayers.contains(player));
+            if (this.plugin.getGameManager().isPlayerParticipating(player)) {
+                this.plugin.getGameManager().uploadPlayerStatsAtEnd(player, this.winningPlayers.contains(player));
             }
         }
 
-        endCountdown = new BukkitRunnable() {
+        this.endCountdown = new BukkitRunnable() {
             int secondsLeft = plugin.getResources().getConfig().getInt("Game.EndWaitSeconds");
             float pitch = 0.5f;
             final double pitchStep = 1.5 / secondsLeft;
@@ -146,18 +144,20 @@ public class EndState extends GameState {
             @Override
             public void run() {
 
-                if (secondsLeft == 0) {
+                if (this.secondsLeft == 0) {
                     plugin.getGameManager().advanceState();
                     return;
                 }
 
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    TitleAPI.sendTitle(player, MessageUtils.color("&7Resetting in..."), MessageUtils.color("&5&l" + secondsLeft), 4, 12, 4);
-                    player.playSound(player.getLocation(), Sound.ENDERDRAGON_HIT, 2, pitch);
+                    String title = MessageUtils.color("&7Resetting in...");
+                    String subtitle = MessageUtils.color("&5&l" + this.secondsLeft);
+                    TitleAPI.sendTitle(player, title, subtitle, 4, 12, 4);
+                    player.playSound(player.getLocation(), Sound.ENDERDRAGON_HIT, 2, this.pitch);
                 }
 
-                pitch += pitchStep;
-                secondsLeft--;
+                this.pitch += this.pitchStep;
+                this.secondsLeft--;
             }
 
         }.runTaskTimer(plugin, 70, 20);
