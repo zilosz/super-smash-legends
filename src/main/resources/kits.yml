@@ -193,13 +193,13 @@ Globby:
         - "&7that damages nearby enemies. He is flung"
         - "&7backwards, away from any potential threats."
       Cooldown: 125
-      Velocity: 2.2
-      MinDamage: 2.5
-      MaxDamage: 7.5
-      MinKb: 0.9
-      MaxKb: 1.9
+      Velocity: 1.9
+      MinDamage: 1.5
+      MaxDamage: 5.5
+      MinKb: 0.8
+      MaxKb: 1.65
       KbY: 0.85
-      Radius: 7
+      Radius: 6
     3:
       ConfigName: StickySituation
       Name: "Sticky Situation"
