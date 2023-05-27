@@ -62,8 +62,6 @@ public class EndState extends GameState {
 
     @Override
     public void start() {
-        this.plugin.getPowerManager().stop();
-
         TeamManager teamManager = this.plugin.getTeamManager();
 
         teamManager.getAliveTeams().forEach(team -> team.setLifespan(team.getLifespan() + 1));
@@ -140,7 +138,7 @@ public class EndState extends GameState {
             title = teamManager.getTeamSize() == 1 ? "&aWinner!" : "&aWinners!";
 
         } else {
-            title = "&dTie!";
+            title = "&eTie!";
             rankedTeams.get(0).forEach(team -> tiedPlayers.addAll(team.getPlayers()));
         }
 
@@ -206,6 +204,8 @@ public class EndState extends GameState {
                 this.plugin.getGameManager().uploadPlayerStatsAtEnd(player, topPlayers.contains(player));
             }
         }
+
+        this.plugin.getPowerManager().stop();
 
         this.endCountdown = new BukkitRunnable() {
             int secondsLeft = plugin.getResources().getConfig().getInt("Game.EndWaitSeconds");

@@ -3,6 +3,7 @@ package io.github.aura6.supersmashlegends.power;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
+import io.github.aura6.supersmashlegends.attribute.Attribute;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.CollectionUtils;
 import io.github.aura6.supersmashlegends.utils.Reflector;
@@ -23,17 +24,22 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.OptionalInt;
 import java.util.Set;
 
 public class PowerManager implements Listener {
     private final SuperSmashLegends plugin;
+
     private final List<Class<? extends Ability>> powerClasses = new ArrayList<>();
     private final List<PowerInfo> powerInfoList = new ArrayList<>();
     private final Set<PowerCrystal> activeCrystals = new HashSet<>();
     private final Set<Location> occupiedLocations = new HashSet<>();
+    private final Map<Kit, List<Attribute>> givenPowerUps = new HashMap<>();
+
     private BukkitTask powerTimer;
     private BukkitTask powerSpawnTask;
     private BukkitTask soundTask;
@@ -147,6 +153,9 @@ public class PowerManager implements Listener {
             effectTask.cancel();
             soundTask.cancel();
         }
+
+        this.givenPowerUps.forEach((kit, powerUps) -> powerUps.forEach(kit::removeAttribute));
+        this.givenPowerUps.clear();
     }
 
     @EventHandler
@@ -169,9 +178,10 @@ public class PowerManager implements Listener {
                 toRemove.add(crystal);
 
                 PowerInfo info = crystal.getPowerInfo();
-
                 Ability power = Reflector.newInstance(crystal.getPower(), plugin, info.getConfig(), kit);
                 kit.addAbility(power, openSlot.getAsInt());
+                this.givenPowerUps.putIfAbsent(kit, new ArrayList<>());
+                this.givenPowerUps.get(kit).add(power);
 
                 String playerName = kit.getColor() + player.getName();
                 Chat.POWER.broadcast(String.format("%s &7collected the %s&7!", playerName, info.getName()));
