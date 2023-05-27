@@ -60,12 +60,6 @@ public class EndState extends GameState {
         return replacers.replaceLines(lines);
     }
 
-    private void broadcastWin(Team winningTeam, String message) {
-        Bukkit.getOnlinePlayers().stream()
-                .filter(player -> !winningTeam.getPlayers().contains(player))
-                .forEach(player -> Chat.GAME.send(player, message));
-    }
-
     @Override
     public void start() {
         this.plugin.getPowerManager().stop();
@@ -77,13 +71,13 @@ public class EndState extends GameState {
         Comparator<Team> comp = Comparator.comparingInt(Team::getLifespan);
         List<List<Team>> rankedTeams = CollectionUtils.getRankedGroups(teamManager.getTeamList(), comp);
 
-        List<Player> winningPlayers = new ArrayList<>();
+        List<Player> topPlayers = new ArrayList<>();
 
         for (Team winningTeam : rankedTeams.get(0)) {
 
             for (Player player : winningTeam.getPlayers()) {
                 this.plugin.getGameManager().getProfile(player).setWinner(true);
-                winningPlayers.add(player);
+                topPlayers.add(player);
             }
         }
 
@@ -135,17 +129,19 @@ public class EndState extends GameState {
 
         ranking.add("&5--------------------------");
 
-        StringBuilder winners = new StringBuilder("&7").append(winningPlayers.stream()
+        StringBuilder winners = new StringBuilder("&7").append(topPlayers.stream()
                 .map(player -> teamManager.getPlayerColor(player) + player.getName())
                 .collect(Collectors.joining("&7, ")));
 
         String title;
+        List<Player> tiedPlayers = new ArrayList<>();
 
         if (rankedTeams.get(0).size() == 1) {
             title = teamManager.getTeamSize() == 1 ? "&aWinner!" : "&aWinners!";
 
         } else {
             title = "&dTie!";
+            rankedTeams.get(0).forEach(team -> tiedPlayers.addAll(team.getPlayers()));
         }
 
         for (Player player : this.plugin.getGameManager().getParticipators()) {
@@ -153,22 +149,52 @@ public class EndState extends GameState {
 
             ranking.forEach(line -> player.sendMessage(MessageUtils.color(line)));
 
-            String winMessage;
+            String broadcastMessage = null;
 
-            if (winningPlayers.contains(player)) {
+            if (teamManager.getTeamSize() == 1) {
 
-                if (rankedTeams.get(0).size() == 1) {
-                    winMessage = "&7You have &a&lwon!";
+                if (tiedPlayers.isEmpty()) {
+                    Player winner = topPlayers.get(0);
+
+                    if (player != winner) {
+                        broadcastMessage = teamManager.getPlayerColor(winner) + winner.getName() + " &7has won!";
+                    }
+
+                } else if (!tiedPlayers.contains(player)) {
+                    broadcastMessage = "&7There has been a &e&ltie!";
+                }
+
+            } else if (tiedPlayers.isEmpty()) {
+
+                if (!topPlayers.contains(player)) {
+                    Team winningTeam = rankedTeams.get(0).get(0);
+                    broadcastMessage = winningTeam.getColor() + winningTeam.getName() + " &7has won!";
+                }
+
+            } else if (!tiedPlayers.contains(player)) {
+                broadcastMessage = "&7There has been a &e&ltie &7between teams!";
+            }
+
+            if (broadcastMessage != null) {
+                Chat.GAME.broadcast(broadcastMessage);
+            }
+
+            String uniqueMessage;
+
+            if (topPlayers.contains(player)) {
+
+                if (tiedPlayers.contains(player)) {
+                    uniqueMessage = "&7You have &e&ltied.";
 
                 } else {
-                    winMessage = "&7You have &e&ltied.";
+                    uniqueMessage = "&7You have &a&lwon!";
                 }
 
             } else {
-                winMessage = "&7You have &c&llost...";
+                uniqueMessage = "&7You have &c&llost...";
             }
 
-            Chat.GAME.send(player, winMessage);
+            Chat.GAME.send(player, uniqueMessage);
 
             this.plugin.getKitManager().getSelectedKit(player).destroy();
             player.setAllowFlight(true);
@@ -177,27 +203,8 @@ public class EndState extends GameState {
             player.playSound(player.getLocation(), Sound.FIREWORK_LARGE_BLAST, 3, 1);
 
             if (this.plugin.getGameManager().isPlayerParticipating(player)) {
-                this.plugin.getGameManager().uploadPlayerStatsAtEnd(player, winningPlayers.contains(player));
+                this.plugin.getGameManager().uploadPlayerStatsAtEnd(player, topPlayers.contains(player));
             }
-        }
-
-        Team winningTeam = rankedTeams.get(0).get(0);
-
-        if (teamManager.getTeamSize() == 1) {
-
-            if (rankedTeams.get(0).size() == 1) {
-                Player winner = winningTeam.getPlayers().get(0);
-                broadcastWin(winningTeam, teamManager.getPlayerColor(winner) + winner.getName() + " &7has won!");
-
-            } else {
-                Chat.GAME.broadcast("&7There has been a &e&ltie!");
-            }
-
-        } else if (rankedTeams.get(0).size() == 1) {
-            broadcastWin(winningTeam, winningTeam.getColor() + winningTeam.getName() + " &7has won!");
-
-        } else {
-            Chat.GAME.broadcast("&7There has been a &e&ltie &7between teams!");
         }
 
         this.endCountdown = new BukkitRunnable() {
