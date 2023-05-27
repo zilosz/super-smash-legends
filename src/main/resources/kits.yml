@@ -238,7 +238,7 @@ Mechon:
     Height: 1
     Sound:
       Type: ZOMBIE_METAL
-      Volume: 1
+      Volume: 0.5
       Pitch: 0.5
   Abilities:
     0:
