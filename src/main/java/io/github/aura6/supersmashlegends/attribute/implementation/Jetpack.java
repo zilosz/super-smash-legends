@@ -5,7 +5,7 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.PassiveAbility;
 import io.github.aura6.supersmashlegends.event.EnergyEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
-import io.github.aura6.supersmashlegends.utils.EntityUtils;
+import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;

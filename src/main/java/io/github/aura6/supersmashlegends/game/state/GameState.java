@@ -73,7 +73,9 @@ public abstract class GameState implements Listener {
         }
 
         if (!player.hasPlayedBefore()) {
-            TitleAPI.sendTitle(player, MessageUtils.color("&7Welcome to"), MessageUtils.color("&5&lSuper Smash Legends!"), 10, 40, 10);
+            String title = MessageUtils.color("&7Welcome to");
+            String subtitle = MessageUtils.color("&5&lSuper Smash Legends!");
+            TitleAPI.sendTitle(player, title, subtitle, 10, 40, 10);
             player.playSound(player.getLocation(), Sound.LEVEL_UP, 2, 1);
         }
     }
@@ -86,7 +88,8 @@ public abstract class GameState implements Listener {
         this.plugin.getGameManager().removeSpectator(player);
 
         if (isInArena() && this.plugin.getGameManager().isPlayerAlive(player)) {
-            event.setQuitMessage(Chat.QUIT.get(String.format("&5%s &7has quit mid-game.", player.getName())));
+            String color = this.plugin.getTeamManager().getPlayerColor(player);
+            event.setQuitMessage(Chat.QUIT.get(String.format("%s &7has quit mid-game.", color + player.getName())));
 
             int lifespan = this.plugin.getGameManager().getTicksActive();
             this.plugin.getTeamManager().getPlayerTeam(player).setLifespan(lifespan);

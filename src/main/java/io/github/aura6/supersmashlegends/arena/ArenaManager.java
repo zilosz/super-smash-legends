@@ -1,7 +1,7 @@
 package io.github.aura6.supersmashlegends.arena;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import io.github.aura6.supersmashlegends.utils.math.MathUtils;
+import io.github.aura6.supersmashlegends.utils.CollectionUtils;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 
@@ -31,8 +31,8 @@ public class ArenaManager {
     }
 
     public void setupArena() {
-        List<Arena> bestArenas = MathUtils.findByHighestInt(arenas, Arena::getTotalVotes);
-        arena = bestArenas.size() == 1 ? bestArenas.get(0) : MathUtils.selectRandom(bestArenas);
+        List<Arena> bestArenas = CollectionUtils.findByHighestInt(arenas, Arena::getTotalVotes);
+        arena = bestArenas.size() == 1 ? bestArenas.get(0) : CollectionUtils.selectRandom(bestArenas);
         arena.create();
     }
 

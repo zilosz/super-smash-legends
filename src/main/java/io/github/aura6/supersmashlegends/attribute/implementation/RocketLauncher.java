@@ -6,11 +6,11 @@ import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.ChargedRightClickAbility;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
+import io.github.aura6.supersmashlegends.utils.CollectionUtils;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
-import io.github.aura6.supersmashlegends.utils.finder.EntityFinder;
-import io.github.aura6.supersmashlegends.utils.math.MathUtils;
+import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -92,7 +92,7 @@ public class RocketLauncher extends ChargedRightClickAbility {
                 Location launchLocation = location.clone();
                 launchLocation.setYaw(yaw);
 
-                ParticleBuilder particle = MathUtils.selectRandom(PARTICLES);
+                ParticleBuilder particle = CollectionUtils.selectRandom(PARTICLES);
                 Shrapnel shrapnel = new Shrapnel(this.plugin, this.ability, config.getSection("Shrapnel"), particle, toAvoid);
 
                 double multiplier =  config.getDouble("Shrapnel.Multiplier");

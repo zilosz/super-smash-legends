@@ -7,12 +7,11 @@ import io.github.aura6.supersmashlegends.attribute.Nameable;
 import io.github.aura6.supersmashlegends.damage.DamageManager;
 import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.kit.Kit;
-import io.github.aura6.supersmashlegends.kit.KitManager;
 import io.github.aura6.supersmashlegends.team.Team;
 import io.github.aura6.supersmashlegends.team.TeamManager;
+import io.github.aura6.supersmashlegends.utils.CollectionUtils;
 import io.github.aura6.supersmashlegends.utils.NmsUtils;
 import io.github.aura6.supersmashlegends.utils.effect.DeathNPC;
-import io.github.aura6.supersmashlegends.utils.math.MathUtils;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
@@ -147,7 +146,7 @@ public class InGameState extends GameState {
         for (Player player : Bukkit.getOnlinePlayers()) {
 
             if (this.plugin.getGameManager().isPlayerAlive(player)) {
-                Location spawn = MathUtils.selectRandom(spawnsLeft);
+                Location spawn = CollectionUtils.selectRandom(spawnsLeft);
                 spawnsLeft.remove(spawn);
                 player.teleport(spawn);
 
@@ -197,16 +196,13 @@ public class InGameState extends GameState {
     }
 
     private void handleDeath(Player died, boolean makeNpc) {
-        died.setVelocity(new Vector(0, 0, 0));
-
-        KitManager kitManager = plugin.getKitManager();
-        Kit diedKit = kitManager.getSelectedKit(died);
-        diedKit.destroy();
+        this.plugin.getKitManager().getSelectedKit(died).destroy();
 
         if (makeNpc) {
             DeathNPC.spawn(plugin, died);
         }
 
+        died.setVelocity(new Vector(0, 0, 0));
         died.setGameMode(GameMode.SPECTATOR);
         NmsUtils.getConnection(died).a(new PacketPlayInClientCommand(PacketPlayInClientCommand.EnumClientCommand.PERFORM_RESPAWN));
 
@@ -220,7 +216,7 @@ public class InGameState extends GameState {
         DamageManager damageManager = plugin.getDamageManager();
         Attribute killingAttribute = damageManager.getLastDamagingAttribute(died);
 
-        String diedName = diedKit.getColor() + died.getName();
+        String diedName = this.plugin.getTeamManager().getPlayerColor(died) + died.getName();
 
         if (killingAttribute == null) {
             tpLocation = plugin.getArenaManager().getArena().getWaitLocation();
@@ -228,7 +224,6 @@ public class InGameState extends GameState {
 
         } else {
             Player killer = killingAttribute.getPlayer();
-            Kit killerKit = kitManager.getSelectedKit(killer);
 
             killer.playSound(killer.getLocation(), Sound.LEVEL_UP, 2, 2);
             killer.playSound(killer.getLocation(), Sound.WOLF_HOWL, 3, 2);
@@ -237,7 +232,7 @@ public class InGameState extends GameState {
             killerProfile.setKills(killerProfile.getKills() + 1);
             killerProfile.setKillStreak(killerProfile.getKillStreak() + 1);
 
-            String killerName = killerKit.getColor() + killer.getName();
+            String killerName = this.plugin.getTeamManager().getPlayerColor(killer) + killer.getName();
 
             if (killingAttribute instanceof Nameable) {
                 String killName = ((Nameable) killingAttribute).getDisplayName();
@@ -260,7 +255,7 @@ public class InGameState extends GameState {
         if (profile.getLives() <= 0) {
             died.playSound(died.getLocation(), Sound.WITHER_DEATH, 2, 1);
             TitleAPI.sendTitle(died, MessageUtils.color("&7You have been"), MessageUtils.color("&celiminated!"), 7, 25, 7);
-            Chat.DEATH.broadcast(MessageUtils.color(String.format("%s%s &7has been &celiminated!", diedKit.getColor(), died.getName())));
+            Chat.DEATH.broadcast(MessageUtils.color(String.format("%s &7has been &celiminated!", diedName)));
 
             Team diedTeam = plugin.getTeamManager().getPlayerTeam(died);
 
@@ -293,7 +288,8 @@ public class InGameState extends GameState {
                     return;
                 }
 
-                TitleAPI.sendTitle(died, MessageUtils.color("&7Respawning in..."), MessageUtils.color("&5&l" + secondsLeft), 4, 12, 4);
+                String title = MessageUtils.color("&7Respawning in...");
+                TitleAPI.sendTitle(died, title, MessageUtils.color("&5&l" + secondsLeft), 4, 12, 4);
                 died.playSound(died.getLocation(), Sound.ENDERDRAGON_HIT, 2, pitch);
 
                 pitch += pitchStep;

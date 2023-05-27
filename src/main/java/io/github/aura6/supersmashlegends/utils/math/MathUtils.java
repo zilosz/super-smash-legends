@@ -5,7 +5,6 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 public class MathUtils {
 
@@ -35,38 +34,6 @@ public class MathUtils {
 
     public static double decreasingLinear(double min, double max, double rangeAtMin, double x) {
         return -x * (max - min) / rangeAtMin + max;
-    }
-
-    public static <T> T selectRandom(List<T> items) {
-        return items.get((int) randRange(0, items.size()));
-    }
-
-    public static <T> List<T> findByHighestDouble(List<T> items, Function<T, Double> key) {
-        List<T> highestList = new ArrayList<>();
-        double highestScore = Integer.MIN_VALUE;
-
-        for (T item : items) {
-            double score = key.apply(item);
-
-            if (score == highestScore) {
-                highestList.add(item);
-
-            } else if (score > highestScore) {
-                highestList = new ArrayList<>();
-                highestList.add(item);
-                highestScore = score;
-            }
-        }
-
-        return highestList;
-    }
-
-    public static <T> List<T> findByHighestInt(List<T> items, Function<T, Integer> key) {
-        return findByHighestDouble(items, key.andThen(Integer::doubleValue));
-    }
-
-    public static <T> List<T> findByLowestInt(List<T> items, Function<T, Integer> key) {
-        return findByHighestInt(items, key.andThen(number -> -number));
     }
 
     public static Location ringPoint(Location center, float pitch, float yaw, double radius, double radians) {

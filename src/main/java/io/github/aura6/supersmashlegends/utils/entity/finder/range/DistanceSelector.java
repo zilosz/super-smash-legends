@@ -1,4 +1,4 @@
-package io.github.aura6.supersmashlegends.utils.finder.range;
+package io.github.aura6.supersmashlegends.utils.entity.finder.range;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -14,6 +14,7 @@ public class DistanceSelector implements RangeSelector {
 
     @Override
     public Stream<Entity> getEntityStream(Location location) {
-        return location.getWorld().getEntities().stream().filter(entity -> entity.getLocation().distanceSquared(location) <= distance * distance);
+        return location.getWorld().getEntities().stream()
+                .filter(entity -> entity.getLocation().distanceSquared(location) <= distance * distance);
     }
 }

@@ -4,9 +4,9 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.kit.Kit;
+import io.github.aura6.supersmashlegends.utils.CollectionUtils;
 import io.github.aura6.supersmashlegends.utils.Reflector;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
-import io.github.aura6.supersmashlegends.utils.math.MathUtils;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
@@ -92,7 +92,7 @@ public class PowerManager implements Listener {
             player.playSound(player.getLocation(), Sound.ENDERDRAGON_GROWL, 3, 0.75f);
         }
 
-        Location powerLocation = MathUtils.selectRandom(possibleLocations);
+        Location powerLocation = CollectionUtils.selectRandom(possibleLocations);
         occupiedLocations.add(powerLocation);
 
         double height = getConfig().getDouble("Height") + getConfig().getDouble("DropSpeed");

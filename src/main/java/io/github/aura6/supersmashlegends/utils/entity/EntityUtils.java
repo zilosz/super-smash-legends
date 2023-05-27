@@ -1,4 +1,4 @@
-package io.github.aura6.supersmashlegends.utils;
+package io.github.aura6.supersmashlegends.utils.entity;
 
 import net.minecraft.server.v1_8_R3.AxisAlignedBB;
 import org.bukkit.Location;

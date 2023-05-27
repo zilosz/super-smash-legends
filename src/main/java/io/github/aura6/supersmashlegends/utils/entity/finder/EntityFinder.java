@@ -1,8 +1,8 @@
-package io.github.aura6.supersmashlegends.utils.finder;
+package io.github.aura6.supersmashlegends.utils.entity.finder;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.team.TeamPreference;
-import io.github.aura6.supersmashlegends.utils.finder.range.RangeSelector;
+import io.github.aura6.supersmashlegends.utils.entity.finder.range.RangeSelector;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;

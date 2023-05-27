@@ -4,7 +4,7 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
 import io.github.aura6.supersmashlegends.event.JumpEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
-import io.github.aura6.supersmashlegends.utils.EntityUtils;
+import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;

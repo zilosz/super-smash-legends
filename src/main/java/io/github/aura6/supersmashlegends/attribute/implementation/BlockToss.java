@@ -7,7 +7,7 @@ import io.github.aura6.supersmashlegends.attribute.ChargedRightClickBlockAbility
 import io.github.aura6.supersmashlegends.event.JumpEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.BlockProjectile;
-import io.github.aura6.supersmashlegends.utils.EntityUtils;
+import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;

@@ -4,10 +4,10 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.kit.Kit;
-import io.github.aura6.supersmashlegends.utils.EntityUtils;
+import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
-import io.github.aura6.supersmashlegends.utils.finder.EntityFinder;
-import io.github.aura6.supersmashlegends.utils.finder.range.DistanceSelector;
+import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
+import io.github.aura6.supersmashlegends.utils.entity.finder.range.DistanceSelector;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -30,7 +30,7 @@ public class ShadowAmbush extends RightClickAbility {
         Location spotBehind = targetLoc.subtract(targetDir).setDirection(targetDir);
 
         Block one = spotBehind.getBlock();
-        Block two = spotBehind.add(0, 1, 0).getBlock();
+        Block two = spotBehind.clone().add(0, 1, 0).getBlock();
 
         player.teleport(one.getType().isSolid() || two.getType().isSolid() ? targetLoc : spotBehind);
         target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, config.getInt("BlindnessDuration"), 1));

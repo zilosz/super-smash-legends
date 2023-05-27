@@ -6,8 +6,8 @@ import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
+import io.github.aura6.supersmashlegends.utils.CollectionUtils;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
-import io.github.aura6.supersmashlegends.utils.math.MathUtils;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -54,7 +54,7 @@ public class DiseasedFlesh extends RightClickAbility {
 
         @Override
         public ItemStack getStack() {
-            return new ItemStack(MathUtils.selectRandom(ITEMS));
+            return new ItemStack(CollectionUtils.selectRandom(ITEMS));
         }
 
         @Override

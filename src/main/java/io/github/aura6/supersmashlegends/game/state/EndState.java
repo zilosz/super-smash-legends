@@ -4,7 +4,7 @@ import com.connorlinfoot.titleapi.TitleAPI;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.team.Team;
 import io.github.aura6.supersmashlegends.team.TeamManager;
-import io.github.aura6.supersmashlegends.utils.math.MathUtils;
+import io.github.aura6.supersmashlegends.utils.CollectionUtils;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
@@ -18,11 +18,11 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class EndState extends GameState {
-    private final List<Player> winningPlayers = new ArrayList<>();
     private BukkitTask endCountdown;
 
     public EndState(SuperSmashLegends plugin) {
@@ -41,28 +41,18 @@ public class EndState extends GameState {
 
     @Override
     public List<String> getScoreboard(Player player) {
-        List<String> winners = new ArrayList<>();
-
-        for (Player winner : winningPlayers) {
-            TeamManager teamManager = plugin.getTeamManager();
-            String color = teamManager.getTeamSize() == 1 ? "&7" : teamManager.getPlayerTeam(winner).getColor();
-            winners.add(color + winner.getName());
-        }
-
-        Replacers replacers = new Replacers().add("WINNERS", winners);
 
         List<String> lines = new ArrayList<>(Arrays.asList(
                 "&5&l---------------------",
-                "&7Ending the game...",
-                "",
-                "&fWinners:",
-                "{WINNERS}"
+                "&7Ending the game..."
         ));
+
+        Replacers replacers = new Replacers();
 
         if (this.plugin.getGameManager().isPlayerParticipating(player)) {
             lines.add("");
-            replacers.add("KILLS", String.valueOf(plugin.getGameManager().getProfile(player).getKills()));
-            replacers.add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+            replacers.add("KILLS", String.valueOf(this.plugin.getGameManager().getProfile(player).getKills()));
+            replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
             lines.addAll(Arrays.asList("&fKills: &5{KILLS}", "&fKit: {KIT}"));
         }
 
@@ -70,36 +60,89 @@ public class EndState extends GameState {
         return replacers.replaceLines(lines);
     }
 
+    private void broadcastWin(Team winningTeam, String message) {
+        Bukkit.getOnlinePlayers().stream()
+                .filter(player -> !winningTeam.getPlayers().contains(player))
+                .forEach(player -> Chat.GAME.send(player, message));
+    }
+
     @Override
     public void start() {
         this.plugin.getPowerManager().stop();
 
         TeamManager teamManager = this.plugin.getTeamManager();
-        List<Team> winningTeams = MathUtils.findByHighestInt(teamManager.getTeamList(), Team::getLifespan);
 
-        for (Team team: winningTeams) {
-            this.winningPlayers.addAll(team.getPlayers());
+        teamManager.getAliveTeams().forEach(team -> team.setLifespan(team.getLifespan() + 1));
 
-            for (Player player : team.getPlayers()) {
+        Comparator<Team> comp = Comparator.comparingInt(Team::getLifespan);
+        List<List<Team>> rankedTeams = CollectionUtils.getRankedGroups(teamManager.getTeamList(), comp);
+
+        List<Player> winningPlayers = new ArrayList<>();
+
+        for (Team winningTeam : rankedTeams.get(0)) {
+
+            for (Player player : winningTeam.getPlayers()) {
                 this.plugin.getGameManager().getProfile(player).setWinner(true);
+                winningPlayers.add(player);
             }
         }
 
-        StringBuilder winners = new StringBuilder("&7");
+        List<String> ranking = new ArrayList<>(Arrays.asList(
+                "&5--------------------------",
+                "&5&lFinal Player Ranking",
+                ""
+        ));
 
-        if (teamManager.getTeamSize() == 1) {
-            winners.append(this.winningPlayers.stream().map(Player::getName).collect(Collectors.joining("&7, ")));
+        int currRankIndex = 0;
 
-        } else {
-            winners.append(this.winningPlayers.stream()
-                    .map(player -> teamManager.getPlayerTeam(player).getColor() + player.getName())
-                    .collect(Collectors.joining("&7, ")));
+        while (currRankIndex < Math.min(3, rankedTeams.size())) {
+            StringBuilder players = new StringBuilder();
+
+            for (Team team : rankedTeams.get(currRankIndex)) {
+
+                for (Player player : team.getPlayers()) {
+                    players.append(teamManager.getPlayerColor(player)).append(player.getName()).append("&7, ");
+                }
+            }
+
+            if (players.toString().endsWith(", ")) {
+                players.delete(players.length() - 2, players.length());
+            }
+
+            String rankColor;
+
+            switch (currRankIndex) {
+
+                case 0:
+                    rankColor = "&a";
+                    break;
+
+                case 1:
+                    rankColor = "&e";
+                    break;
+
+                case 2:
+                    rankColor = "&6";
+                    break;
+
+                default:
+                    rankColor = "&9";
+            }
+
+            ranking.add(String.format("%s&l%d. %s", rankColor, currRankIndex + 1, players));
+            currRankIndex++;
         }
+
+        ranking.add("&5--------------------------");
+
+        StringBuilder winners = new StringBuilder("&7").append(winningPlayers.stream()
+                .map(player -> teamManager.getPlayerColor(player) + player.getName())
+                .collect(Collectors.joining("&7, ")));
 
         String title;
 
-        if (winningTeams.size() == 1) {
-            title = winningTeams.get(0).getSize() == 1 ? "&aWinner!" : "&aWinners!";
+        if (rankedTeams.get(0).size() == 1) {
+            title = teamManager.getTeamSize() == 1 ? "&aWinner!" : "&aWinners!";
 
         } else {
             title = "&dTie!";
@@ -108,11 +151,13 @@ public class EndState extends GameState {
         for (Player player : this.plugin.getGameManager().getParticipators()) {
             if (!player.isOnline()) return;
 
+            ranking.forEach(line -> player.sendMessage(MessageUtils.color(line)));
+
             String winMessage;
 
-            if (this.winningPlayers.contains(player)) {
+            if (winningPlayers.contains(player)) {
 
-                if (winningTeams.size() == 1) {
+                if (rankedTeams.get(0).size() == 1) {
                     winMessage = "&7You have &a&lwon!";
 
                 } else {
@@ -132,8 +177,27 @@ public class EndState extends GameState {
             player.playSound(player.getLocation(), Sound.FIREWORK_LARGE_BLAST, 3, 1);
 
             if (this.plugin.getGameManager().isPlayerParticipating(player)) {
-                this.plugin.getGameManager().uploadPlayerStatsAtEnd(player, this.winningPlayers.contains(player));
+                this.plugin.getGameManager().uploadPlayerStatsAtEnd(player, winningPlayers.contains(player));
             }
+        }
+
+        Team winningTeam = rankedTeams.get(0).get(0);
+
+        if (teamManager.getTeamSize() == 1) {
+
+            if (rankedTeams.get(0).size() == 1) {
+                Player winner = winningTeam.getPlayers().get(0);
+                broadcastWin(winningTeam, teamManager.getPlayerColor(winner) + winner.getName() + " &7has won!");
+
+            } else {
+                Chat.GAME.broadcast("&7There has been a &e&ltie!");
+            }
+
+        } else if (rankedTeams.get(0).size() == 1) {
+            broadcastWin(winningTeam, winningTeam.getColor() + winningTeam.getName() + " &7has won!");
+
+        } else {
+            Chat.GAME.broadcast("&7There has been a &e&ltie &7between teams!");
         }
 
         this.endCountdown = new BukkitRunnable() {
@@ -166,13 +230,13 @@ public class EndState extends GameState {
     @Override
     public void end() {
         endCountdown.cancel();
-        winningPlayers.clear();
 
         plugin.getTeamManager().reset();
         plugin.getWorldManager().resetWorld("arena");
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setAllowFlight(false);
+            player.setFlying(false);
             TitleAPI.clearTitle(player);
         }
     }

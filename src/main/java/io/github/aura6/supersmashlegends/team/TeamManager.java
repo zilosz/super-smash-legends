@@ -72,6 +72,10 @@ public class TeamManager {
         return teamList.stream().filter(team -> team.hasPlayer(player)).findAny();
     }
 
+    public String getPlayerColor(Player player) {
+        return getTeamSize() == 1 ? this.plugin.getKitManager().getSelectedKit(player).getColor() : getPlayerTeam(player).getColor();
+    }
+
     public void assignPlayer(Player player) {
         teamList.stream()
                 .filter(team -> team.hasPlayer(player))

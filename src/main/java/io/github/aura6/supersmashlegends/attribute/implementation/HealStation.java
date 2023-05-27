@@ -7,7 +7,7 @@ import io.github.aura6.supersmashlegends.event.DamageEvent;
 import io.github.aura6.supersmashlegends.event.RegenEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.team.TeamManager;
-import io.github.aura6.supersmashlegends.utils.EntityUtils;
+import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.block.BlockUtils;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
