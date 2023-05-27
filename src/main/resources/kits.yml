@@ -984,6 +984,7 @@ Moreo:
         Damage: 3
         Kb: 1
         Speed: 1
+        ImmunityTicks: 0
         Item:
           Material: COAL_BLOCK
         Explode:
