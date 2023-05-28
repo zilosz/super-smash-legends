@@ -56,8 +56,12 @@ public class TeamManager {
         return Math.min(getTeamConfig().getInt("Count"), TEAM_COLORS.size());
     }
 
-    public int getPlayerCap() {
+    public int getPlayerStartCount() {
         return getTeamCount() * getTeamSize();
+    }
+
+    public int getAbsolutePlayerCap() {
+        return TEAM_COLORS.size() * getTeamSize();
     }
 
     public List<Team> getTeamList() {

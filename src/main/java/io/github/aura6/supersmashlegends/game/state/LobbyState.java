@@ -67,7 +67,7 @@ public class LobbyState extends GameState {
 
         Replacers replacers = new Replacers()
                 .add("CURRENT", String.valueOf(Bukkit.getOnlinePlayers().size()))
-                .add("CAP", String.valueOf(plugin.getTeamManager().getPlayerCap()))
+                .add("CAP", String.valueOf(plugin.getTeamManager().getPlayerStartCount()))
                 .add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
 
         List<String> lines = new ArrayList<>();
@@ -164,7 +164,7 @@ public class LobbyState extends GameState {
     }
 
     private void tryCountdownStart() {
-        if (Bukkit.getOnlinePlayers().size() < this.plugin.getTeamManager().getPlayerCap()) return;
+        if (Bukkit.getOnlinePlayers().size() < this.plugin.getTeamManager().getPlayerStartCount()) return;
 
         int notifyInterval = this.plugin.getResources().getConfig().getInt("Game.LobbyCountdown.NotifyInterval");
         int totalSec = this.plugin.getResources().getConfig().getInt("Game.LobbyCountdown.Seconds");

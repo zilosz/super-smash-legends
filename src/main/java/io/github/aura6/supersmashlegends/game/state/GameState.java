@@ -51,8 +51,8 @@ public abstract class GameState implements Listener {
     }
 
     @EventHandler
-    public void handleJoinCapacity(AsyncPlayerPreLoginEvent event) {
-        if (Bukkit.getOnlinePlayers().size() >= plugin.getTeamManager().getPlayerCap()) {
+    public void onPreJoin(AsyncPlayerPreLoginEvent event) {
+        if (Bukkit.getOnlinePlayers().size() >= plugin.getTeamManager().getAbsolutePlayerCap()) {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_FULL, "The game is full!");
         }
     }
