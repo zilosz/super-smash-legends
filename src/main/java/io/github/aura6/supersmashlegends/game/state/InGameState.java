@@ -91,13 +91,21 @@ public class InGameState extends GameState {
                 ""
         ));
 
+        int playerIndex = scoreboard.size();
+
         Replacers replacers = new Replacers().add("SEC_LEFT", String.valueOf(this.secLeft));
+
+        if (this.plugin.getGameManager().isPlayerParticipating(player)) {
+            scoreboard.add("");
+            scoreboard.add("&fKit: {KIT}");
+            replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+        }
+
+        scoreboard.add("&5&l---------------------");
 
         TeamManager teamManager = plugin.getTeamManager();
         int lifeCap = plugin.getResources().getConfig().getInt("Game.Lives");
         Set<Player> alivePlayers = this.plugin.getGameManager().getAlivePlayers();
-
-        int playerIndex = scoreboard.size();
 
         if (teamManager.getTeamSize() == 1) {
             scoreboard.add(playerIndex, "&5&lPlayers");
@@ -130,13 +138,6 @@ public class InGameState extends GameState {
             }
         }
 
-        if (this.plugin.getGameManager().isPlayerParticipating(player)) {
-            scoreboard.add("");
-            scoreboard.add("&fKit: {KIT}");
-            replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
-        }
-
-        scoreboard.add("&5&l---------------------");
         return replacers.replaceLines(scoreboard);
     }
 

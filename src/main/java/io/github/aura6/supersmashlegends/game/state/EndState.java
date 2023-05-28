@@ -1,8 +1,8 @@
 package io.github.aura6.supersmashlegends.game.state;
 
 import com.connorlinfoot.titleapi.TitleAPI;
-import com.nametagedit.plugin.NametagEdit;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
+import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.team.Team;
 import io.github.aura6.supersmashlegends.team.TeamManager;
 import io.github.aura6.supersmashlegends.utils.CollectionUtils;
@@ -21,9 +21,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class EndState extends GameState {
+    private String winnerString;
     private BukkitTask endCountdown;
 
     public EndState(SuperSmashLegends plugin) {
@@ -45,10 +47,19 @@ public class EndState extends GameState {
 
         List<String> lines = new ArrayList<>(Arrays.asList(
                 "&5&l---------------------",
-                "&7Ending the game..."
+                "&7Ending the game...",
+                ""
         ));
 
         Replacers replacers = new Replacers();
+
+        if (this.winnerString == null) {
+            lines.add("&fResult: &eTie");
+
+        } else {
+            lines.add("&fWinner: {WINNER}");
+            replacers.add("WINNER", this.winnerString);
+        }
 
         if (this.plugin.getGameManager().isPlayerParticipating(player)) {
             lines.add("");
@@ -70,19 +81,9 @@ public class EndState extends GameState {
         Comparator<Team> comp = Comparator.comparingInt(Team::getLifespan);
         List<List<Team>> rankedTeams = CollectionUtils.getRankedGroups(teamManager.getTeamList(), comp);
 
-        List<Player> topPlayers = new ArrayList<>();
-
-        for (Team winningTeam : rankedTeams.get(0)) {
-
-            for (Player player : winningTeam.getPlayers()) {
-                this.plugin.getGameManager().getProfile(player).setWinner(true);
-                topPlayers.add(player);
-            }
-        }
-
         List<String> ranking = new ArrayList<>(Arrays.asList(
                 "&5--------------------------",
-                "&5&lFinal Player Ranking",
+                "&d&lFinal Player Ranking",
                 ""
         ));
 
@@ -94,8 +95,7 @@ public class EndState extends GameState {
             for (Team team : rankedTeams.get(currRankIndex)) {
 
                 for (Player player : team.getPlayers()) {
-                    String color = this.plugin.getTeamManager().getTeamSize() == 1 ? "&f" : team.getColor();
-                    players.append(color).append(player.getName()).append("&7, ");
+                    players.append(teamManager.getPlayerColor(player)).append(player.getName()).append("&7, ");
                 }
             }
 
@@ -129,79 +129,61 @@ public class EndState extends GameState {
 
         ranking.add("&5--------------------------");
 
-        StringBuilder winners = new StringBuilder("&7").append(topPlayers.stream()
-                .map(player -> teamManager.getPlayerColor(player) + player.getName())
-                .collect(Collectors.joining("&7, ")));
-
-        String title;
-        List<Player> tiedPlayers = new ArrayList<>();
-
         if (rankedTeams.get(0).size() == 1) {
-            title = teamManager.getTeamSize() == 1 ? "&aWinner!" : "&aWinners!";
-
-        } else {
-            title = "&eTie!";
-            rankedTeams.get(0).forEach(team -> tiedPlayers.addAll(team.getPlayers()));
-        }
-
-        for (Player player : this.plugin.getGameManager().getParticipators()) {
-            if (!player.isOnline()) return;
-
-            ranking.forEach(line -> player.sendMessage(MessageUtils.color(line)));
+            Team winningTeam = rankedTeams.get(0).get(0);
+            List<Player> winningList = winningTeam.getPlayers();
 
             if (teamManager.getTeamSize() == 1) {
-
-                if (tiedPlayers.isEmpty()) {
-                    Player winner = topPlayers.get(0);
-
-                    if (player != winner) {
-                        Chat.GAME.broadcast(teamManager.getPlayerColor(winner) + winner.getName() + " &7has won!");
-                    }
-
-                } else if (!tiedPlayers.contains(player)) {
-                    Chat.GAME.broadcast("&7There has been a &e&ltie!");
-                }
+                Player winner = winningList.get(0);
+                Kit winnerKit = this.plugin.getKitManager().getSelectedKit(winner);
+                this.winnerString = winnerKit.getColor() + winner.getName();
 
             } else {
-                NametagEdit.getApi().setPrefix(player, "");
-
-                if (tiedPlayers.isEmpty()) {
-
-                    if (!topPlayers.contains(player)) {
-                        Team winningTeam = rankedTeams.get(0).get(0);
-                        Chat.GAME.broadcast(winningTeam.getColor() + winningTeam.getName() + " &7has won!");
-                    }
-
-                } else if (!tiedPlayers.contains(player)) {
-                    Chat.GAME.broadcast("&7There has been a &e&ltie &7between teams!");
-                }
+                this.winnerString = winningTeam.getColor() + winningTeam.getName();
             }
 
-            String uniqueMessage;
+            for (Player player : Bukkit.getOnlinePlayers()) {
 
-            if (topPlayers.contains(player)) {
-
-                if (tiedPlayers.contains(player)) {
-                    uniqueMessage = "&7You have &e&ltied.";
+                if (winningList.contains(player)) {
+                    this.plugin.getGameManager().getProfile(player).setWinner(true);
+                    Chat.GAME.send(player, "&7You have &a&lwon!");
 
                 } else {
-                    uniqueMessage = "&7You have &a&lwon!";
+                    Chat.GAME.send(player, String.format("%s &7has &awon!", this.winnerString));
                 }
-
-            } else {
-                uniqueMessage = "&7You have &c&llost...";
             }
 
-            Chat.GAME.send(player, uniqueMessage);
+        } else {
+            Set<Player> tiedPlayers = rankedTeams.get(0).stream()
+                    .flatMap(team -> team.getPlayers().stream()).collect(Collectors.toSet());
 
-            this.plugin.getKitManager().getSelectedKit(player).destroy();
-            player.setAllowFlight(true);
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                String tieString;
 
-            TitleAPI.sendTitle(player, title, MessageUtils.color(winners.toString()), 10, 40, 10);
-            player.playSound(player.getLocation(), Sound.FIREWORK_LARGE_BLAST, 3, 1);
+                if (tiedPlayers.contains(player)) {
+                    tieString = "&7You have &e&ltied.";
 
-            if (this.plugin.getGameManager().isPlayerParticipating(player)) {
-                this.plugin.getGameManager().uploadPlayerStatsAtEnd(player, topPlayers.contains(player));
+                } else if (teamManager.getTeamSize() == 1) {
+                    tieString = "&7There has been a &etie.";
+
+                } else {
+                    tieString = "&7There has been a &etie &7between teams.";
+                }
+
+                Chat.GAME.send(player, tieString);
+            }
+        }
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            ranking.forEach(line -> player.sendMessage(MessageUtils.color(line)));
+
+            if (!this.plugin.getGameManager().isSpectator(player)) {
+                this.plugin.getKitManager().getSelectedKit(player).destroy();
+                player.setAllowFlight(true);
+
+                player.playSound(player.getLocation(), Sound.FIREWORK_LARGE_BLAST, 2, 1);
+
+                this.plugin.getGameManager().uploadPlayerStatsAtEnd(player);
             }
         }
 
@@ -236,10 +218,11 @@ public class EndState extends GameState {
 
     @Override
     public void end() {
-        endCountdown.cancel();
+        this.winnerString = null;
+        this.endCountdown.cancel();
 
-        plugin.getTeamManager().reset();
-        plugin.getWorldManager().resetWorld("arena");
+        this.plugin.getTeamManager().reset();
+        this.plugin.getWorldManager().resetWorld("arena");
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setAllowFlight(false);

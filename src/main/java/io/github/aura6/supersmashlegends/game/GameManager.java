@@ -156,13 +156,13 @@ public class GameManager {
         plugin.getDb().setIfEnabled(player.getUniqueId(), "losses", before + 1);
     }
 
-    public void uploadPlayerStatsAtEnd(Player player, boolean winner) {
+    public void uploadPlayerStatsAtEnd(Player player) {
         uploadPlayerStats(player);
 
         Database db = this.plugin.getDb();
         UUID uuid = player.getUniqueId();
 
-        if (winner) {
+        if (getProfile(player).isWinner()) {
 
             if (this.getParticipators().size() > 1) {
                 db.setIfEnabled(uuid, "wins", db.getOrDefault(uuid, "wins", 0, 0) + 1);
