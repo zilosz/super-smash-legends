@@ -1,6 +1,7 @@
 package io.github.aura6.supersmashlegends.game.state;
 
 import com.connorlinfoot.titleapi.TitleAPI;
+import com.nametagedit.plugin.NametagEdit;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Nameable;
 import io.github.aura6.supersmashlegends.damage.DamageManager;
@@ -155,6 +156,12 @@ public class InGameState extends GameState {
                 }
 
                 plugin.getKitManager().getSelectedKit(player).activate();
+
+                if (this.plugin.getTeamManager().getTeamSize() > 1) {
+                    String color = this.plugin.getTeamManager().getPlayerColor(player);
+                    Bukkit.broadcastMessage(String.valueOf(NametagEdit.getApi() == null));
+                    NametagEdit.getApi().setPrefix(player, MessageUtils.color(color));
+                }
             }
 
             player.playSound(player.getLocation(), Sound.WOLF_HOWL, 2, 0.8f);

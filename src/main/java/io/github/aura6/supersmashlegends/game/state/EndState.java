@@ -1,6 +1,7 @@
 package io.github.aura6.supersmashlegends.game.state;
 
 import com.connorlinfoot.titleapi.TitleAPI;
+import com.nametagedit.plugin.NametagEdit;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.team.Team;
 import io.github.aura6.supersmashlegends.team.TeamManager;
@@ -196,6 +197,8 @@ public class EndState extends GameState {
 
             this.plugin.getKitManager().getSelectedKit(player).destroy();
             player.setAllowFlight(true);
+
+            NametagEdit.getApi().setPrefix(player, "");
 
             TitleAPI.sendTitle(player, title, MessageUtils.color(winners.toString()), 10, 40, 10);
             player.playSound(player.getLocation(), Sound.FIREWORK_LARGE_BLAST, 3, 1);
