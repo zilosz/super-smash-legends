@@ -149,34 +149,32 @@ public class EndState extends GameState {
 
             ranking.forEach(line -> player.sendMessage(MessageUtils.color(line)));
 
-            String broadcastMessage = null;
-
             if (teamManager.getTeamSize() == 1) {
 
                 if (tiedPlayers.isEmpty()) {
                     Player winner = topPlayers.get(0);
 
                     if (player != winner) {
-                        broadcastMessage = teamManager.getPlayerColor(winner) + winner.getName() + " &7has won!";
+                        Chat.GAME.broadcast(teamManager.getPlayerColor(winner) + winner.getName() + " &7has won!");
                     }
 
                 } else if (!tiedPlayers.contains(player)) {
-                    broadcastMessage = "&7There has been a &e&ltie!";
+                    Chat.GAME.broadcast("&7There has been a &e&ltie!");
                 }
 
-            } else if (tiedPlayers.isEmpty()) {
+            } else {
+                NametagEdit.getApi().setPrefix(player, "");
 
-                if (!topPlayers.contains(player)) {
-                    Team winningTeam = rankedTeams.get(0).get(0);
-                    broadcastMessage = winningTeam.getColor() + winningTeam.getName() + " &7has won!";
+                if (tiedPlayers.isEmpty()) {
+
+                    if (!topPlayers.contains(player)) {
+                        Team winningTeam = rankedTeams.get(0).get(0);
+                        Chat.GAME.broadcast(winningTeam.getColor() + winningTeam.getName() + " &7has won!");
+                    }
+
+                } else if (!tiedPlayers.contains(player)) {
+                    Chat.GAME.broadcast("&7There has been a &e&ltie &7between teams!");
                 }
-
-            } else if (!tiedPlayers.contains(player)) {
-                broadcastMessage = "&7There has been a &e&ltie &7between teams!";
-            }
-
-            if (broadcastMessage != null) {
-                Chat.GAME.broadcast(broadcastMessage);
             }
 
             String uniqueMessage;
@@ -198,8 +196,6 @@ public class EndState extends GameState {
 
             this.plugin.getKitManager().getSelectedKit(player).destroy();
             player.setAllowFlight(true);
-
-            NametagEdit.getApi().setPrefix(player, "");
 
             TitleAPI.sendTitle(player, title, MessageUtils.color(winners.toString()), 10, 40, 10);
             player.playSound(player.getLocation(), Sound.FIREWORK_LARGE_BLAST, 3, 1);
