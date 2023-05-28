@@ -40,6 +40,9 @@ Game:
   Tutorial:
     DurationTicks: 200
     DelayTicks: 45
+  LobbyCountdown:
+    Seconds: 30
+    NotifyInterval: 10
   DeathWaitSeconds: 5
   StartWaitSeconds: 5
   EndWaitSeconds: 5

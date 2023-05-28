@@ -227,7 +227,7 @@ public class EndState extends GameState {
                     String title = MessageUtils.color("&7Resetting in...");
                     String subtitle = MessageUtils.color("&5&l" + this.secondsLeft);
                     TitleAPI.sendTitle(player, title, subtitle, 4, 12, 4);
-                    player.playSound(player.getLocation(), Sound.ENDERDRAGON_HIT, 2, this.pitch);
+                    player.playSound(player.getLocation(), Sound.CLICK, 1, this.pitch);
                 }
 
                 this.pitch += this.pitchStep;
