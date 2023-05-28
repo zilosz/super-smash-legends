@@ -32,6 +32,11 @@ public class Earthquake extends RightClickAbility {
     }
 
     @Override
+    public boolean invalidate(PlayerInteractEvent event) {
+        return super.invalidate(event) || this.stopTask != null;
+    }
+
+    @Override
     public void onClick(PlayerInteractEvent event) {
         player.getWorld().playSound(player.getLocation(), Sound.IRONGOLEM_THROW, 1, 0.5f);
 
