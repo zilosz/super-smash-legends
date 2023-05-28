@@ -30,6 +30,8 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -42,6 +44,9 @@ import java.util.Set;
 public class LobbyState extends GameState {
     private final Set<HotbarItem> hotbarItems = new HashSet<>();
     private final Set<Hologram> holograms = new HashSet<>();
+
+    private BukkitTask countdownTask;
+    private int secUntilStart;
 
     public LobbyState(SuperSmashLegends plugin) {
         super(plugin);
@@ -65,15 +70,25 @@ public class LobbyState extends GameState {
                 .add("CAP", String.valueOf(plugin.getTeamManager().getPlayerCap()))
                 .add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
 
-        return replacers.replaceLines(Arrays.asList(
-                "&5&l---------------------",
-                "&7Waiting for players...",
+        List<String> lines = new ArrayList<>();
+        lines.add("&5&l---------------------");
+
+        if (this.countdownTask == null) {
+            lines.add("&7Waiting for players...");
+
+        } else {
+            lines.add(String.format("&7Starting in &e&l%d &7seconds.", this.secUntilStart));
+        }
+
+        lines.addAll(Arrays.asList(
                 "",
                 "&fPlayers: &5{CURRENT}&7/&f{CAP}",
                 "",
                 "&fKit: &5{KIT}",
                 "&5&l---------------------"
         ));
+
+        return replacers.replaceLines(lines);
     }
 
     private void createLeaderboard(String titleName, String statName, String configName) {
@@ -137,10 +152,58 @@ public class LobbyState extends GameState {
         lines.appendText(MessageUtils.color("&7------------------"));
     }
 
+    private void stopCountdownTask(boolean abrupt) {
+        if (this.countdownTask == null) return;
+
+        this.countdownTask.cancel();
+        this.countdownTask = null;
+
+        if (abrupt) {
+            Chat.GAME.broadcast("&7Not enough players to start.");
+        }
+    }
+
+    private void tryCountdownStart() {
+        if (Bukkit.getOnlinePlayers().size() < this.plugin.getTeamManager().getPlayerCap()) return;
+
+        int notifyInterval = this.plugin.getResources().getConfig().getInt("Game.LobbyCountdown.NotifyInterval");
+        int totalSec = this.plugin.getResources().getConfig().getInt("Game.LobbyCountdown.Seconds");
+        this.secUntilStart = totalSec + 1;
+
+        this.countdownTask = new BukkitRunnable() {
+            float pitch = 0.5f;
+
+            @Override
+            public void run() {
+                secUntilStart--;
+
+                if (secUntilStart == 0) {
+                    plugin.getGameManager().advanceState();
+                    stopCountdownTask(false);
+                    return;
+                }
+
+                if (secUntilStart <= 5 || secUntilStart % notifyInterval == 0) {
+                    Chat.GAME.broadcast(String.format("&7Starting in &e&l%d &7seconds.", secUntilStart));
+
+                    if (secUntilStart <= 4) {
+                        this.pitch += 1.5f / totalSec;
+                    }
+
+                    if (secUntilStart != totalSec) {
+
+                        for (Player player : Bukkit.getOnlinePlayers()) {
+                            player.playSound(player.getLocation(), Sound.CLICK, 1, this.pitch);
+                        }
+                    }
+                }
+            }
+
+        }.runTaskTimer(this.plugin, 0, 20);
+    }
+
     @Override
     public void start() {
-        plugin.getArenaManager().setupArenas();
-
         createLeaderboard("Win", "wins", "Wins");
         createLeaderboard("Kill", "kills", "Kills");
 
@@ -159,8 +222,11 @@ public class LobbyState extends GameState {
             }
 
             InGameProfile profile = this.plugin.getGameManager().getProfile(player);
-            Location lastGameLocation = YamlReader.location("lobby", plugin.getResources().getLobby().getString("LastGame"));
+
+            String lastGameLoc = plugin.getResources().getLobby().getString("LastGame");
+            Location lastGameLocation = YamlReader.location("lobby", lastGameLoc);
             Hologram lastGame = HolographicDisplaysAPI.get(plugin).createHologram(lastGameLocation);
+
             DecimalFormat format = new DecimalFormat("#.#");
 
             Replacers replacers = new Replacers()
@@ -193,7 +259,10 @@ public class LobbyState extends GameState {
             }
         }
 
-        plugin.getGameManager().reset();
+        this.plugin.getGameManager().reset();
+        this.plugin.getArenaManager().setupArenas();
+
+        tryCountdownStart();
     }
 
     private Location getSpawn() {
@@ -232,6 +301,8 @@ public class LobbyState extends GameState {
         holograms.forEach(Hologram::delete);
         holograms.clear();
 
+        stopCountdownTask(false);
+
         Chat.GAME.broadcast("&7The game is starting...");
         plugin.getGameManager().startTicks();
 
@@ -262,14 +333,20 @@ public class LobbyState extends GameState {
         Player player = event.getPlayer();
         initializePlayer(player);
 
-        plugin.getDb().setIfEnabled(player.getUniqueId(), "name", player.getName());
-        plugin.getKitManager().setupUser(player);
+        this.plugin.getDb().setIfEnabled(player.getUniqueId(), "name", player.getName());
+        this.plugin.getKitManager().setupUser(player);
+
+        tryCountdownStart();
     }
 
     @EventHandler
     public void onLobbyQuit(PlayerQuitEvent event) {
-        this.plugin.getArenaManager().wipePlayer(event.getPlayer());
-        this.plugin.getTeamManager().wipePlayer(event.getPlayer());
+        Player player = event.getPlayer();
+
+        this.plugin.getArenaManager().wipePlayer(player);
+        this.plugin.getTeamManager().wipePlayer(player);
+
+        stopCountdownTask(true);
     }
 
     @EventHandler

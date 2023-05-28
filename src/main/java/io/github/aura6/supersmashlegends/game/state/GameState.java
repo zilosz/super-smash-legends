@@ -68,7 +68,7 @@ public abstract class GameState implements Listener {
             player.teleport(this.plugin.getArenaManager().getArena().getWaitLocation());
 
         } else {
-            Chat.GAME.send(player, "&7Please use &d&l/start &7 and &3&l/end &7to control the game.");
+            Chat.GAME.send(player, "&7You can use &d&l/start &7 and &3&l/end &7to force game progress.");
             event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined the game.", player.getName())));
         }
 

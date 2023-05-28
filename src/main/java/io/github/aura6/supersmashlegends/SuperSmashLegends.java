@@ -24,7 +24,6 @@ import io.github.aura6.supersmashlegends.utils.WorldManager;
 import io.github.aura6.supersmashlegends.utils.file.FileUtility;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.thatkawaiisam.assemble.Assemble;
-import io.github.thatkawaiisam.assemble.AssembleStyle;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -90,9 +89,7 @@ public class SuperSmashLegends extends JavaPlugin {
         kitManager.setupKits();
         gameManager.activateState();
 
-        Assemble scoreboard = new Assemble(this, new GameScoreboard(this));
-        scoreboard.setTicks(20);
-        scoreboard.setAssembleStyle(AssembleStyle.MODERN);
+        new Assemble(this, new GameScoreboard(this));
 
         getCommand("kit").setExecutor(new KitCommand(this));
         getCommand("reloadconfig").setExecutor(new ReloadConfigCommand(resources));
