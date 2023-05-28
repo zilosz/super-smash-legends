@@ -159,7 +159,6 @@ public class InGameState extends GameState {
 
                 if (this.plugin.getTeamManager().getTeamSize() > 1) {
                     String color = this.plugin.getTeamManager().getPlayerColor(player);
-                    Bukkit.broadcastMessage(String.valueOf(NametagEdit.getApi() == null));
                     NametagEdit.getApi().setPrefix(player, MessageUtils.color(color));
                 }
             }
