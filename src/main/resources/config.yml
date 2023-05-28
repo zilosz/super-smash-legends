@@ -36,7 +36,7 @@ Game:
   Lives: 4
   Team:
     Size: 1
-    Count: 10
+    Count: 4
   Tutorial:
     DurationTicks: 200
     DelayTicks: 45
