@@ -144,7 +144,7 @@ public class InGameState extends GameState {
     public void start() {
         this.plugin.getPowerManager().startPowerTimer();
 
-        this.secLeft = this.plugin.getResources().getConfig().getInt("Game.MaxGameSec");
+        this.secLeft = this.plugin.getResources().getConfig().getInt("Game.MaxGameSeconds");
 
         this.gameTimer = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
             if (--this.secLeft <= 0) {

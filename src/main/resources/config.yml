@@ -43,7 +43,7 @@ Game:
   LobbyCountdown:
     Seconds: 30
     NotifyInterval: 10
-  MaxGameSec: 600
+  MaxGameSeconds: 600
   DeathWaitSeconds: 5
   StartWaitSeconds: 5
   EndWaitSeconds: 5
