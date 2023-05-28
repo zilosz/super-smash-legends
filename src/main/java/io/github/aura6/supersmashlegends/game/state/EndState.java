@@ -94,7 +94,8 @@ public class EndState extends GameState {
             for (Team team : rankedTeams.get(currRankIndex)) {
 
                 for (Player player : team.getPlayers()) {
-                    players.append(teamManager.getPlayerColor(player)).append(player.getName()).append("&7, ");
+                    String color = this.plugin.getTeamManager().getTeamSize() == 1 ? "&f" : team.getColor();
+                    players.append(color).append(player.getName()).append("&7, ");
                 }
             }
 
