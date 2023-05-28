@@ -40,7 +40,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class InGameState extends GameState {
     private static final int MAX_SCOREBOARD_SIZE = 15;
+
     private final Map<UUID, BukkitTask> respawnTasks = new HashMap<>();
+
+    private int secLeft;
+    private BukkitTask gameTimer;
 
     public InGameState(SuperSmashLegends plugin) {
         super(plugin);
@@ -83,24 +87,17 @@ public class InGameState extends GameState {
 
         List<String> scoreboard = new ArrayList<>(Arrays.asList(
                 "&5&l---------------------",
-                "&cAttack &7others to win!",
+                "&fSeconds Left: &e{SEC_LEFT}",
                 ""
         ));
 
-        int playerIndex = scoreboard.size();
-
-        Replacers replacers = new Replacers();
-        List<String> lore = new ArrayList<>(List.of("&5&l---------------------"));
-
-        if (this.plugin.getGameManager().isPlayerParticipating(player)) {
-            scoreboard.add("");
-            lore.add(0, "&fKit: {KIT}");
-            replacers.add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
-        }
+        Replacers replacers = new Replacers().add("SEC_LEFT", String.valueOf(this.secLeft));
 
         TeamManager teamManager = plugin.getTeamManager();
         int lifeCap = plugin.getResources().getConfig().getInt("Game.Lives");
         Set<Player> alivePlayers = this.plugin.getGameManager().getAlivePlayers();
+
+        int playerIndex = scoreboard.size();
 
         if (teamManager.getTeamSize() == 1) {
             scoreboard.add(playerIndex, "&5&lPlayers");
@@ -133,15 +130,30 @@ public class InGameState extends GameState {
             }
         }
 
-        scoreboard.addAll(replacers.replaceLines(lore));
-        return scoreboard;
+        if (this.plugin.getGameManager().isPlayerParticipating(player)) {
+            scoreboard.add("");
+            scoreboard.add("&fKit: {KIT}");
+            replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+        }
+
+        scoreboard.add("&5&l---------------------");
+        return replacers.replaceLines(scoreboard);
     }
 
     @Override
     public void start() {
-        plugin.getPowerManager().startPowerTimer();
+        this.plugin.getPowerManager().startPowerTimer();
 
-        List<Location> spawnLocations = plugin.getArenaManager().getArena().getSpawnLocations();
+        this.secLeft = this.plugin.getResources().getConfig().getInt("Game.MaxGameSec");
+
+        this.gameTimer = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+            if (--this.secLeft <= 0) {
+                Chat.GAME.broadcast("&7Ran out of time!");
+                this.plugin.getGameManager().advanceState();
+            }
+        }, 20, 20);
+
+        List<Location> spawnLocations = this.plugin.getArenaManager().getArena().getSpawnLocations();
         List<Location> spawnsLeft = new ArrayList<>(spawnLocations);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -155,7 +167,7 @@ public class InGameState extends GameState {
                     spawnsLeft = spawnLocations;
                 }
 
-                plugin.getKitManager().getSelectedKit(player).activate();
+                this.plugin.getKitManager().getSelectedKit(player).activate();
 
                 if (this.plugin.getTeamManager().getTeamSize() > 1) {
                     String color = this.plugin.getTeamManager().getPlayerColor(player);
@@ -185,6 +197,8 @@ public class InGameState extends GameState {
 
     @Override
     public void end() {
+        this.gameTimer.cancel();
+
         respawnTasks.forEach((uuid, respawnTask) -> {
             respawnPlayer(Bukkit.getPlayer(uuid));
             respawnTask.cancel();
