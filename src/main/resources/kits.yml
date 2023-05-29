@@ -8,7 +8,6 @@ Barbarian:
     - "&7to wreak havoc on enemies. Become a "
     - "&7Barbarian and enjoy the mayhem."
   Skin: "Santi_MST"
-  Price: 0
   Item:
     Material: IRON_AXE
   Damage: 5.5
@@ -113,7 +112,6 @@ Globby:
     - "&7unpredictable nature. The King of Slimes is"
     - "&7a great choice for destroying opponents."
   Skin: "BalmungM90"
-  Price: 3000
   Item:
     Material: SLIME_BALL
   Damage: 4.5
@@ -225,7 +223,6 @@ Mechon:
     - "&7to make use of various mechanized"
     - "&7gadgets to destroy his opponents."
   Skin: "MrGabeeee"
-  Price: 6000
   Item:
     Material: IRON_CHESTPLATE
   Damage: 5
@@ -325,7 +322,6 @@ Squawk:
     - "&7Squawk"
   Color: "&f"
   Skin: "Nugleet"
-  Price: 4500
   Item:
     Material: FEATHER
   Damage: 4
@@ -336,7 +332,7 @@ Squawk:
   Jump:
     Power: 1.03
     Height: 0.85
-    Count: 4
+    Count: 3
     Sound:
       Type: CHICKEN_IDLE
       Volume: 1
@@ -403,7 +399,6 @@ Drakula:
     - "&7rather engage in life-or-death combat"
     - "&7to satisfy its bloody appetite."
   Skin: "UFC321"
-  Price: 3500
   Damage: 4.5
   Armor: 0.7
   Kb: 1.75
@@ -519,7 +514,6 @@ Cryomancer:
     - "&7capable of slowing down enemies"
     - "&7by freezing them solid."
   Skin: "Ernestitoninja"
-  Price: 4750
   Damage: 5.5
   Armor: 0.55
   Kb: 1.35
@@ -548,6 +542,7 @@ Cryomancer:
         FactorsArmor: false
         Damage: 4
         Kb: -1
+        HitBox: 0.85
         LaunchSound:
           Type: GLASS
           Volume: 1
@@ -568,7 +563,7 @@ Cryomancer:
       MinRadius: 0.3
       MaxRadius: 2.2
       HitBox: 1.5
-      Range: 7.25
+      Range: 7.5
       RingCount: 15
       ParticleDensity: 20
       Kb: 1.8
@@ -591,7 +586,7 @@ Cryomancer:
       Damage: 5
       Kb: 2
       KbY: 0.5
-      HitBox: 1.1
+      HitBox: 1.35
     3:
       ConfigName: IceSkates
       Name: "Ice Skates"
@@ -613,7 +608,6 @@ Deadmortal:
     - "&7healing and immense physical strength."
     - "&7Use him to clutch opponent's health!"
   Skin: "MarMC"
-  Price: 5000
   Damage: 5.5
   Armor: 0.625
   Kb: 1.66
@@ -701,7 +695,6 @@ Tank:
     - "&7all, and is even capable of manipulating"
     - "&7the terrain around him to his advantage."
   Skin: "zzz0www"
-  Price: 5000
   Damage: 6
   Armor: 0.4
   Kb: 1
@@ -786,7 +779,7 @@ Tank:
       MaxChargeTicks: 85
       KbY: 1.2
       MinDamage: 5
-      MaxDamage: 16
+      MaxDamage: 14
       MinSpeed: 0.45
       MaxSpeed: 1.45
       MinKb: 1.7
@@ -817,7 +810,6 @@ Tool:
     - "&7of various household items and"
     - "&7machinery to overwhelm enemies."
   Skin: "Lifio13"
-  Price: 0
   Damage: 5
   Armor: 0.5
   Kb: 1.15
@@ -910,7 +902,6 @@ Moreo:
     - "&7of a seasoned physician. Is his jumping"
     - "&7prowess a boon from his grider-climbing days?"
   Skin: "PapaLegend"
-  Price: 7000
   Damage: 4.5
   Armor: 0.625
   Kb: 1.55
@@ -1007,7 +998,6 @@ MasterBlade:
     - "&7and protects all sapient life. Use Master"
     - "&7Blade to restore the galaxy!"
   Skin: "Goldbot"
-  Price: 6500
   Damage: 5.5
   Armor: 0.6
   Kb: 1.65
@@ -1030,7 +1020,7 @@ MasterBlade:
         - "&7the Earth, throwing them at enemies."
       Cooldown: 120
       AutoStartCooldown: false
-      MinChargeTicks: 16
+      MinChargeTicks: 12
       MinSpeed: 0.6
       MaxSpeed: 2
       MinKb: 1
@@ -1038,7 +1028,7 @@ MasterBlade:
       MinDamage: 2
       MaxDamage: 6.5
       Stages: 5
-      StageDuration: 11
+      StageDuration: 9
       Height: 3
       Count: 3
       RotationRadius: 1
@@ -1071,7 +1061,7 @@ MasterBlade:
         - "&7Left click to use your aura to fling"
         - "&7enemies towards you. Within the right"
         - "&7range, the grip is virtually inescapable."
-      Cooldown: 130
+      Cooldown: 110
       Range: 14
       Damage: 6
       Kb: -1.15
@@ -1089,7 +1079,6 @@ Pikachew:
     - "&7of his cheeks. He also has beautiful shoes"
     - "&7that allow him to scamper at high speeds!"
   Skin: "bink10"
-  Price: 7000
   Damage: 4.5
   Armor: 0.75
   Kb: 1.85
@@ -1173,7 +1162,6 @@ Skellington:
     - "&7to eliminate foes with a skeletal bow, a"
     - "&7family hierloom from his mortal past."
   Skin: "Im_Spooki"
-  Price: 0
   Damage: 4.5
   Armor: 0.675
   Regen: 0.25
@@ -1242,7 +1230,7 @@ Skellington:
         - "&7deadly onslaughts of barrage fire."
       MaxStage: 6
       StageDuration: 7
-      ArrowsPerStage: 0.85
+      ArrowsPerStage: 1
       ShotInterval: 1
       MaxSpeed: 2.5
       Projectile:
@@ -1261,7 +1249,6 @@ Shinoby:
   Description:
     - "&7Shinoby"
   Skin: "SunSon19"
-  Price: 10000
   Damage: 4.5
   Armor: 0.65
   Kb: 1.7

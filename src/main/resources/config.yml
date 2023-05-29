@@ -22,8 +22,8 @@ Description:
 KitHologramHeight: 2.7
 Death:
   Skin: "BroliaiJagm"
-  Velocity: 0.35
-  Duration: 80
+  Velocity: 0.3
+  Duration: 70
 LeaderboardSizes:
   Wins: 10
   Kills: 10
@@ -65,7 +65,7 @@ Damage:
     Min: 1
     Max: 2
 Power:
-  Frequency: 3000
+  Frequency: 3600
   Height: 100
   DropSpeed: 0.45
   DetectionRadiusSquared: 4.5
@@ -88,8 +88,8 @@ Power:
       Main:
         Speed: 0.75
         HomingSpeed: 1.75
-        Vision: 30
-        Damage: 8
+        Vision: 25
+        Damage: 7.5
         ImmunityTicks: 0
         Kb: 2.75
         KbY: 1

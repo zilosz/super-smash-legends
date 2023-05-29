@@ -204,12 +204,12 @@ public class LobbyState extends GameState {
     @Override
     public void start() {
         this.plugin.getGameManager().reset();
+        this.plugin.getArenaManager().setupArenas();
 
         createLeaderboard("Win", "wins", "Wins");
         createLeaderboard("Kill", "kills", "Kills");
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Returned to the lobby."));
             initializePlayer(player);
 
             KitManager kitManager = this.plugin.getKitManager();
@@ -220,6 +220,8 @@ public class LobbyState extends GameState {
             });
 
             kitManager.updateHolograms(player);
+
+            ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Returned to the lobby."));
 
             if (!this.plugin.getGameManager().hasProfile(player)) {
                 continue;
@@ -263,7 +265,6 @@ public class LobbyState extends GameState {
             }
         }
 
-        this.plugin.getArenaManager().setupArenas();
         tryCountdownStart();
     }
 
