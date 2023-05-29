@@ -3,6 +3,7 @@ package io.github.aura6.supersmashlegends.game.state;
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.arena.Arena;
+import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
 import org.bukkit.Bukkit;
@@ -138,9 +139,10 @@ public class TutorialState extends GameState {
                 .replaceLines(plugin.getResources().getConfig().getStringList("Rules"));
 
         for (Player player : players) {
+            Kit kit = this.plugin.getKitManager().getSelectedKit(player);
             player.setGameMode(GameMode.SPECTATOR);
 
-            this.skinChangers.put(player.getUniqueId(), this.plugin.getKitManager().getSelectedKit(player).applySkin(() -> {
+            this.skinChangers.put(player.getUniqueId(), kit.getSkin().applyAcrossTp(this.plugin, player, () -> {
                 player.teleport(tutorialLocations.get(0));
                 player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 2, 1);
                 player.setFlySpeed(0);

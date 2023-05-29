@@ -31,6 +31,7 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +42,7 @@ public class InGameState extends GameState {
     private static final int MAX_SCOREBOARD_SIZE = 15;
 
     private final Map<UUID, BukkitTask> respawnTasks = new HashMap<>();
+    private final Set<BukkitTask> skinRestorers = new HashSet<>();
 
     private int secLeft;
     private BukkitTask gameTimer;
@@ -199,12 +201,15 @@ public class InGameState extends GameState {
     public void end() {
         this.gameTimer.cancel();
 
-        respawnTasks.forEach((uuid, respawnTask) -> {
+        this.skinRestorers.forEach(BukkitTask::cancel);
+        this.skinRestorers.clear();
+
+        this.respawnTasks.forEach((uuid, respawnTask) -> {
             respawnPlayer(Bukkit.getPlayer(uuid));
             respawnTask.cancel();
         });
 
-        respawnTasks.clear();
+        this.respawnTasks.clear();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             TitleAPI.clearTitle(player);

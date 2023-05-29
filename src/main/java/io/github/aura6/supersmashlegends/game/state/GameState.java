@@ -72,8 +72,10 @@ public abstract class GameState implements Listener {
             event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined the game.", player.getName())));
         }
 
-        ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Welcome to &5&lSuper Smash Legends!"), 60);
-        player.playSound(player.getLocation(), Sound.LEVEL_UP, 2, 1);
+        Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+            ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Welcome to &5&lSuper Smash Legends!"), 90);
+            player.playSound(player.getLocation(), Sound.LEVEL_UP, 2, 1);
+        }, 5);
     }
 
     @EventHandler

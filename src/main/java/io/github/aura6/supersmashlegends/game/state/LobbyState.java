@@ -10,6 +10,7 @@ import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.kit.KitManager;
 import io.github.aura6.supersmashlegends.utils.HotbarItem;
+import io.github.aura6.supersmashlegends.utils.Skin;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
@@ -36,17 +37,14 @@ import org.bukkit.scheduler.BukkitTask;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 public class LobbyState extends GameState {
     private final Set<HotbarItem> hotbarItems = new HashSet<>();
     private final Set<Hologram> holograms = new HashSet<>();
-    private final Map<Player, BukkitTask> skinRestorers = new HashMap<>();
 
     private BukkitTask countdownTask;
     private int secUntilStart;
@@ -223,14 +221,14 @@ public class LobbyState extends GameState {
             kitManager.updateHolograms(player);
 
             if (!gameManager.hasProfile(player)) {
-                initializePlayer(player);
+                this.initializePlayer(player);
                 continue;
             }
 
-            player.setGameMode(GameMode.SURVIVAL);
-
-            kitManager.getSelectedKit(player).restoreSkin(() -> this.initializePlayer(player))
-                    .ifPresent(task -> this.skinRestorers.put(player, task));
+            Skin skin = kitManager.getSelectedKit(player).getSkin();
+            String text = skin.getPreviousTexture();
+            String sig = skin.getPreviousSignature();
+            Skin.applyAcrossTp(this.plugin, player, text, sig, () -> this.initializePlayer(player));
 
             InGameProfile profile = gameManager.getProfile(player);
             DecimalFormat format = new DecimalFormat("#.#");
@@ -283,6 +281,7 @@ public class LobbyState extends GameState {
     }
 
     private void initializePlayer(Player player) {
+        player.setGameMode(GameMode.SURVIVAL);
         player.setHealth(20);
         player.setLevel(0);
         player.teleport(getSpawn());
@@ -332,19 +331,15 @@ public class LobbyState extends GameState {
             this.plugin.getGameManager().setupProfile(player);
             this.plugin.getTeamManager().assignPlayer(player);
 
-            Optional.ofNullable(this.skinRestorers.remove(player)).ifPresent(BukkitTask::cancel);
-
             description.forEach(player::sendMessage);
         }
 
-        this.skinRestorers.clear();
         this.plugin.getTeamManager().removeEmptyTeams();
     }
 
     @EventHandler
     public void onLobbyJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        player.setGameMode(GameMode.SURVIVAL);
         initializePlayer(player);
 
         KitManager kitManager = this.plugin.getKitManager();

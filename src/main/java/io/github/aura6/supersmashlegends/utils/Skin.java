@@ -4,8 +4,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import lombok.Getter;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
 import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo;
+import net.minecraft.server.v1_8_R3.PacketPlayOutRespawn;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -14,8 +16,8 @@ import org.bukkit.scheduler.BukkitTask;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.Optional;
 
+@Getter
 public class Skin {
     private final String texture;
     private final String signature;
@@ -27,10 +29,8 @@ public class Skin {
         this.signature = signature;
     }
 
-    public static BukkitTask apply(Plugin plugin, Player player, String texture, String signature, Runnable onTp) {
-        EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
-        GameProfile profile = nmsPlayer.getProfile();
-
+    public static BukkitTask applyAcrossTp(Plugin plugin, Player player, String texture, String signature, Runnable onTp) {
+        GameProfile profile = NmsUtils.getPlayer(player).getProfile();
         profile.getProperties().removeAll("textures");
         profile.getProperties().put("textures", new Property("textures", texture, signature));
 
@@ -39,15 +39,23 @@ public class Skin {
             other.showPlayer(player);
         }
 
+        EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
+
+        NmsUtils.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, nmsPlayer));
+        NmsUtils.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, nmsPlayer));
+
         return Bukkit.getScheduler().runTaskLater(plugin, () -> {
             onTp.run();
 
-            NmsUtils.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, nmsPlayer));
-            NmsUtils.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, nmsPlayer));
-        }, 10);
+            NmsUtils.sendPacket(player, new PacketPlayOutRespawn(
+                    nmsPlayer.dimension,
+                    nmsPlayer.getWorld().getDifficulty(),
+                    nmsPlayer.getWorld().getWorldData().getType(),
+                    nmsPlayer.playerInteractManager.getGameMode()));
+        }, 2);
     }
 
-    public BukkitTask apply(Plugin plugin, Player player, Runnable tpFunc) {
+    public BukkitTask applyAcrossTp(Plugin plugin, Player player, Runnable onTp) {
         EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
         GameProfile profile = nmsPlayer.getProfile();
 
@@ -55,14 +63,10 @@ public class Skin {
         this.previousSignature = property.getSignature();
         this.previousTexture = property.getValue();
 
-        return apply(plugin, player, this.texture, this.signature, tpFunc);
+        return applyAcrossTp(plugin, player, this.texture, this.signature, onTp);
     }
 
-    public BukkitTask restorePrevious(Plugin plugin, Player player, Runnable tpFunc) {
-        return apply(plugin, player, this.previousTexture, this.previousSignature, tpFunc);
-    }
-
-    public static Optional<Skin> fromMojang(String playerName) {
+    public static Skin fromMojang(String playerName) {
 
         try {
             URL profileUrl = new URL("https://api.mojang.com/users/profiles/minecraft/" + playerName);
@@ -75,10 +79,10 @@ public class Skin {
             String texture = textureProperty.get("value").getAsString();
             String signature = textureProperty.get("signature").getAsString();
 
-            return Optional.of(new Skin(texture, signature));
+            return new Skin(texture, signature);
 
         } catch (IOException e) {
-            return Optional.empty();
+            return fromMojang("Notch");
         }
     }
 }
