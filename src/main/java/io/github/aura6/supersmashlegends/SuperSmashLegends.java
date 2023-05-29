@@ -103,15 +103,14 @@ public class SuperSmashLegends extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        kitManager.destroyNpcs();
+        this.kitManager.destroyNpcs();
 
         try {
-            gameManager.getState().end();
+            this.gameManager.getState().end();
         } catch (IllegalPluginAccessException ignored) {}
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            kitManager.wipePlayer(player);
-            kitManager.getSelectedKit(player).deactivate();
+            this.kitManager.wipePlayer(player);
         }
     }
 }

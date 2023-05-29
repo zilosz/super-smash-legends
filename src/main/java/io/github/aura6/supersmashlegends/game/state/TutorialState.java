@@ -32,6 +32,7 @@ public class TutorialState extends GameState {
     private final Map<UUID, BukkitTask> moveDelayers = new HashMap<>();
     private final Map<UUID, BukkitTask> tutorialSchedulers = new HashMap<>();
     private final Map<UUID, BukkitTask> ruleDisplayers = new HashMap<>();
+    private final Map<UUID, BukkitTask> skinChangers = new HashMap<>();
 
     public TutorialState(SuperSmashLegends plugin) {
         super(plugin);
@@ -137,34 +138,35 @@ public class TutorialState extends GameState {
                 .replaceLines(plugin.getResources().getConfig().getStringList("Rules"));
 
         for (Player player : players) {
-            player.teleport(tutorialLocations.get(0));
-            player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 1);
             player.setGameMode(GameMode.SPECTATOR);
-            player.setFlySpeed(0);
 
-            UUID uuid = player.getUniqueId();
+            this.skinChangers.put(player.getUniqueId(), this.plugin.getKitManager().getSelectedKit(player).applySkin(() -> {
+                player.teleport(tutorialLocations.get(0));
+                player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 2, 1);
+                player.setFlySpeed(0);
 
-            tutorialSchedulers.put(uuid, Bukkit.getScheduler().runTaskLater(plugin,
-                    () -> startTutorialMovement(player, tutorialLocations, velocity, 0, 1), delay));
+                this.tutorialSchedulers.put(player.getUniqueId(), Bukkit.getScheduler().runTaskLater(this.plugin,
+                        () -> startTutorialMovement(player, tutorialLocations, velocity, 0, 1), delay));
 
-            int ruleDelay = ((int) (double) tutorialDuration / (rules.size() + 1));
+                int ruleDelay = ((int) (double) tutorialDuration / (rules.size() + 1));
 
-            ruleDisplayers.put(uuid, new BukkitRunnable() {
-                int i = 0;
+                this.ruleDisplayers.put(player.getUniqueId(), new BukkitRunnable() {
+                    int i = 0;
 
-                @Override
-                public void run() {
+                    @Override
+                    public void run() {
 
-                    if (i == rules.size()) {
-                        cancel();
-                        return;
+                        if (this.i == rules.size()) {
+                            cancel();
+                            return;
+                        }
+
+                        ActionBarAPI.sendActionBar(player, rules.get(this.i++));
+                        player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 0.5F);
                     }
 
-                    ActionBarAPI.sendActionBar(player, rules.get(i++));
-                    player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 0.5F);
-                }
-
-            }.runTaskTimer(plugin, ruleDelay + 15, ruleDelay));
+                }.runTaskTimer(this.plugin, ruleDelay + 15, ruleDelay));
+            }));
         }
     }
 
@@ -181,6 +183,9 @@ public class TutorialState extends GameState {
 
         this.moveDelayers.values().forEach(BukkitTask::cancel);
         this.moveDelayers.clear();
+
+        this.skinChangers.values().forEach(BukkitTask::cancel);
+        this.skinChangers.clear();
 
         new ArrayList<>(this.playersInTutorial).forEach(this::stopPlayerAfterCompletion);
     }

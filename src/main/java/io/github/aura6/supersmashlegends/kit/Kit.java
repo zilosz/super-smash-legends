@@ -16,11 +16,14 @@ import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
 public class Kit {
@@ -31,6 +34,8 @@ public class Kit {
 
     @Getter private Player player;
     @Getter private final Jump jump;
+
+    private Skin skin;
 
     @SuppressWarnings("unchecked")
     public Kit(SuperSmashLegends plugin, Section config) {
@@ -128,13 +133,23 @@ public class Kit {
         return Collections.unmodifiableList(attributes);
     }
 
-    public void applySkin() {
-        Skin.fromMojang(getSkinName()).ifPresent(skin -> skin.apply(plugin, player));
+    public BukkitTask applySkin(Runnable onTp) {
+        AtomicReference<BukkitTask> task = new AtomicReference<>();
+
+        Skin.fromMojang(this.getSkinName()).ifPresent(skin -> {
+            task.set(skin.apply(this.plugin, this.player, onTp));
+            this.skin = skin;
+        });
+
+        return task.get();
+    }
+
+    public Optional<BukkitTask> restoreSkin(Runnable onTp) {
+        return this.skin == null ? Optional.empty() : Optional.ofNullable(this.skin.restorePrevious(this.plugin, this.player, onTp));
     }
 
     public void equip(Player player) {
         this.player = player;
-        applySkin();
         giveItems();
     }
 
@@ -144,10 +159,6 @@ public class Kit {
 
     public void activate() {
         attributes.forEach(Attribute::activate);
-    }
-
-    public void unequip() {
-        attributes.forEach(Attribute::unequip);
     }
 
     public void deactivate() {

@@ -36,14 +36,17 @@ import org.bukkit.scheduler.BukkitTask;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 public class LobbyState extends GameState {
     private final Set<HotbarItem> hotbarItems = new HashSet<>();
     private final Set<Hologram> holograms = new HashSet<>();
+    private final Map<Player, BukkitTask> skinRestorers = new HashMap<>();
 
     private BukkitTask countdownTask;
     private int secUntilStart;
@@ -210,9 +213,6 @@ public class LobbyState extends GameState {
         GameManager gameManager = this.plugin.getGameManager();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Returned to the lobby."));
-            initializePlayer(player);
-
             KitManager kitManager = this.plugin.getKitManager();
 
             Optional.ofNullable(kitManager.getSelectedKit(player)).ifPresentOrElse(kit -> kit.equip(player), () -> {
@@ -222,41 +222,49 @@ public class LobbyState extends GameState {
 
             kitManager.updateHolograms(player);
 
-            if (gameManager.hasProfile(player)) {
-                InGameProfile profile = gameManager.getProfile(player);
-                DecimalFormat format = new DecimalFormat("#.#");
+            if (!gameManager.hasProfile(player)) {
+                initializePlayer(player);
+                continue;
+            }
 
-                Replacers replacers = new Replacers()
-                        .add("RESULT", profile.getGameResult().getHologramString())
-                        .add("KIT", profile.getKit().getBoldedDisplayName())
-                        .add("KILLS", String.valueOf(profile.getKills()))
-                        .add("DEATHS", String.valueOf(profile.getDeaths()))
-                        .add("DAMAGE_TAKEN", format.format(profile.getDamageTaken()))
-                        .add("DAMAGE_DEALT", format.format(profile.getDamageDealt()));
+            player.setGameMode(GameMode.SURVIVAL);
 
-                String lastGameLoc = this.plugin.getResources().getLobby().getString("LastGame");
-                Location lastGameLocation = YamlReader.location("lobby", lastGameLoc);
-                Hologram lastGameHolo = HolographicDisplaysAPI.get(this.plugin).createHologram(lastGameLocation);
-                this.holograms.add(lastGameHolo);
+            kitManager.getSelectedKit(player).restoreSkin(() -> this.initializePlayer(player))
+                    .ifPresent(task -> this.skinRestorers.put(player, task));
 
-                replacers.replaceLines(Arrays.asList(
-                        "&5&lLast Game",
-                        "&7----------------",
-                        "&fResult: {RESULT}",
-                        "&fKit: {KIT}",
-                        "&fKills: &e{KILLS}",
-                        "&fDeaths: &e{DEATHS}",
-                        "&fDamage Taken: &e{DAMAGE_TAKEN}",
-                        "&fDamage Dealt: &e{DAMAGE_DEALT}",
-                        "&7----------------"
-                )).forEach(line -> lastGameHolo.getLines().appendText(line));
+            InGameProfile profile = gameManager.getProfile(player);
+            DecimalFormat format = new DecimalFormat("#.#");
 
-                for (Player other : Bukkit.getOnlinePlayers()) {
+            Replacers replacers = new Replacers()
+                    .add("RESULT", profile.getGameResult().getHologramString())
+                    .add("KIT", profile.getKit().getBoldedDisplayName())
+                    .add("KILLS", String.valueOf(profile.getKills()))
+                    .add("DEATHS", String.valueOf(profile.getDeaths()))
+                    .add("DAMAGE_TAKEN", format.format(profile.getDamageTaken()))
+                    .add("DAMAGE_DEALT", format.format(profile.getDamageDealt()));
 
-                    if (!other.equals(player)) {
-                        lastGameHolo.getVisibilitySettings()
-                                .setIndividualVisibility(other, VisibilitySettings.Visibility.HIDDEN);
-                    }
+            String lastGameLoc = this.plugin.getResources().getLobby().getString("LastGame");
+            Location lastGameLocation = YamlReader.location("lobby", lastGameLoc);
+            Hologram lastGameHolo = HolographicDisplaysAPI.get(this.plugin).createHologram(lastGameLocation);
+            this.holograms.add(lastGameHolo);
+
+            replacers.replaceLines(Arrays.asList(
+                    "&5&lLast Game",
+                    "&7----------------",
+                    "&fResult: {RESULT}",
+                    "&fKit: {KIT}",
+                    "&fKills: &e{KILLS}",
+                    "&fDeaths: &e{DEATHS}",
+                    "&fDamage Taken: &e{DAMAGE_TAKEN}",
+                    "&fDamage Dealt: &e{DAMAGE_DEALT}",
+                    "&7----------------"
+            )).forEach(line -> lastGameHolo.getLines().appendText(line));
+
+            for (Player other : Bukkit.getOnlinePlayers()) {
+
+                if (!other.equals(player)) {
+                    lastGameHolo.getVisibilitySettings()
+                            .setIndividualVisibility(other, VisibilitySettings.Visibility.HIDDEN);
                 }
             }
         }
@@ -276,10 +284,12 @@ public class LobbyState extends GameState {
 
     private void initializePlayer(Player player) {
         player.setHealth(20);
-        player.setGameMode(GameMode.SURVIVAL);
-
-        player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 1);
+        player.setLevel(0);
         player.teleport(getSpawn());
+
+        if (this.plugin.getGameManager().hasProfile(player)) {
+            ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Returned to the lobby."));
+        }
 
         Resources resources = plugin.getResources();
 
@@ -297,39 +307,44 @@ public class LobbyState extends GameState {
 
     @Override
     public void end() {
-        holograms.forEach(Hologram::delete);
-        holograms.clear();
+        this.holograms.forEach(Hologram::delete);
+        this.holograms.clear();
 
         stopCountdownTask(false);
 
         Chat.GAME.broadcast("&7The game is starting...");
-        plugin.getGameManager().startTicks();
+        this.plugin.getGameManager().startTicks();
 
-        hotbarItems.forEach(HotbarItem::destroy);
-        hotbarItems.clear();
+        this.hotbarItems.forEach(HotbarItem::destroy);
+        this.hotbarItems.clear();
 
-        plugin.getArenaManager().setupArena();
-        Arena arena = plugin.getArenaManager().getArena();
+        this.plugin.getArenaManager().setupArena();
+        Arena arena = this.plugin.getArenaManager().getArena();
 
         Replacers replacers = new Replacers()
                 .add("ARENA", arena.getName())
                 .add("AUTHORS", arena.getAuthors());
 
         List<String> description = replacers.replaceLines(
-                plugin.getResources().getConfig().getStringList("Description"));
+               this.plugin.getResources().getConfig().getStringList("Description"));
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            plugin.getGameManager().setupProfile(player);
-            plugin.getTeamManager().assignPlayer(player);
+            this.plugin.getGameManager().setupProfile(player);
+            this.plugin.getTeamManager().assignPlayer(player);
+
+            Optional.ofNullable(this.skinRestorers.remove(player)).ifPresent(BukkitTask::cancel);
+
             description.forEach(player::sendMessage);
         }
 
-        plugin.getTeamManager().removeEmptyTeams();
+        this.skinRestorers.clear();
+        this.plugin.getTeamManager().removeEmptyTeams();
     }
 
     @EventHandler
     public void onLobbyJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        player.setGameMode(GameMode.SURVIVAL);
         initializePlayer(player);
 
         KitManager kitManager = this.plugin.getKitManager();

@@ -7,9 +7,9 @@ import com.mojang.authlib.properties.Property;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
 import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -19,35 +19,47 @@ import java.util.Optional;
 public class Skin {
     private final String texture;
     private final String signature;
+    private String previousTexture;
+    private String previousSignature;
 
     public Skin(String texture, String signature) {
         this.texture = texture;
         this.signature = signature;
     }
 
-    public void updateProfile(GameProfile profile) {
-        profile.getProperties().put("textures", new Property("textures", texture, signature));
-    }
-
-    public void apply(Plugin plugin, Player player) {
+    public static BukkitTask apply(Plugin plugin, Player player, String texture, String signature, Runnable onTp) {
         EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
         GameProfile profile = nmsPlayer.getProfile();
+
         profile.getProperties().removeAll("textures");
-        updateProfile(profile);
+        profile.getProperties().put("textures", new Property("textures", texture, signature));
 
         for (Player other : Bukkit.getOnlinePlayers()) {
             other.hidePlayer(player);
             other.showPlayer(player);
         }
 
-        Location old = player.getLocation();
-        player.teleport(new Location(Bukkit.getWorld("world"), 0, 255, 0));
+        return Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            onTp.run();
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            player.teleport(old);
             NmsUtils.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, nmsPlayer));
             NmsUtils.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, nmsPlayer));
-        }, 3);
+        }, 10);
+    }
+
+    public BukkitTask apply(Plugin plugin, Player player, Runnable tpFunc) {
+        EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
+        GameProfile profile = nmsPlayer.getProfile();
+
+        Property property = profile.getProperties().get("textures").iterator().next();
+        this.previousSignature = property.getSignature();
+        this.previousTexture = property.getValue();
+
+        return apply(plugin, player, this.texture, this.signature, tpFunc);
+    }
+
+    public BukkitTask restorePrevious(Plugin plugin, Player player, Runnable tpFunc) {
+        return apply(plugin, player, this.previousTexture, this.previousSignature, tpFunc);
     }
 
     public static Optional<Skin> fromMojang(String playerName) {

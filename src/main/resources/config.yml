@@ -39,7 +39,7 @@ Game:
     Count: 4
   Tutorial:
     DurationTicks: 200
-    DelayTicks: 45
+    DelayTicks: 55
   LobbyCountdown:
     Seconds: 30
     NotifyInterval: 10

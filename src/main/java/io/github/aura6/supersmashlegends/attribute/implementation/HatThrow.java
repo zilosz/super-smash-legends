@@ -81,21 +81,21 @@ public class HatThrow extends RightClickAbility {
         }
 
         private double speedFunction(int ticks) {
-            return -launchSpeed * 2 / config.getInt("TicksToReturn") * ticks + launchSpeed;
+            return -2 * ticks * this.launchSpeed / this.config.getInt("TicksToReturn") + this.launchSpeed;
         }
 
         @Override
         public void onTick() {
             this.entity.getWorld().playSound(this.entity.getLocation(), Sound.ITEM_PICKUP, 1, 1);
             this.entity.setVelocity(this.constantVelocity.clone().multiply(speedFunction(this.ticksAlive)));
-            this.entity.setRightArmPose(new EulerAngle(0, this.ticksAlive * config.getDouble("RotationPerTick"), 0));
+            this.entity.setRightArmPose(new EulerAngle(0, this.ticksAlive * this.config.getDouble("RotationPerTick"), 0));
         }
 
         @Override
         public void onRemove() {
             this.state = HatThrowState.INACTIVE;
 
-            if (this.ability instanceof ClickableAbility && this.ability.isEnabled()) {
+            if (this.ability.isEnabled()) {
                 ((ClickableAbility) this.ability).startCooldown();
             }
         }

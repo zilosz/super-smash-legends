@@ -1,6 +1,6 @@
 package io.github.aura6.supersmashlegends.game.state;
 
-import com.connorlinfoot.titleapi.TitleAPI;
+import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
@@ -72,12 +72,8 @@ public abstract class GameState implements Listener {
             event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined the game.", player.getName())));
         }
 
-        if (!player.hasPlayedBefore()) {
-            String title = MessageUtils.color("&7Welcome to");
-            String subtitle = MessageUtils.color("&5&lSuper Smash Legends!");
-            TitleAPI.sendTitle(player, title, subtitle, 10, 40, 10);
-            player.playSound(player.getLocation(), Sound.LEVEL_UP, 2, 1);
-        }
+        ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Welcome to &5&lSuper Smash Legends!"), 60);
+        player.playSound(player.getLocation(), Sound.LEVEL_UP, 2, 1);
     }
 
     @EventHandler

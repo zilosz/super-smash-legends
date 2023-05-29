@@ -180,25 +180,6 @@ Globby:
       Kb: 2.1
       KbY: 0.65
     2:
-      ConfigName: SlimyRetreat
-      Name: "Slimy Retreat"
-      Item:
-        Material: DIAMOND_SPADE
-      Description:
-        - "&7Globby may be powerful, but he likes"
-        - "&7attacking from a distance. He releases"
-        - "&7pent-up frustration in a mini slime explosion"
-        - "&7that damages nearby enemies. He is flung"
-        - "&7backwards, away from any potential threats."
-      Cooldown: 125
-      Velocity: 1.9
-      MinDamage: 1.5
-      MaxDamage: 5.5
-      MinKb: 0.8
-      MaxKb: 1.65
-      KbY: 0.85
-      Radius: 6
-    3:
       ConfigName: StickySituation
       Name: "Sticky Situation"
       Item:
@@ -314,7 +295,7 @@ Mechon:
       StreamSpreadStep: 0.015f
       StreamStep: 0.1
       ParticlesPerStep: 10
-      EnergyPerTick: 0.05
+      EnergyPerTick: 0.06
 Squawk:
   ConfigName: Squawk
   Name: "Squawk"
@@ -950,8 +931,8 @@ Moreo:
       Cooldown: 160
       AutoStartCooldown: false
       AutoSendUseMessage: false
-      Speed: 1.05
-      TicksToReturn: 95
+      Speed: 1.15
+      TicksToReturn: 115
       RotationPerTick: 0.45
       RemoveOnEntityHit: false
       HasGravity: false
