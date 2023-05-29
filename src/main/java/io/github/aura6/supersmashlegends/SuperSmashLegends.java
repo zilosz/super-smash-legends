@@ -109,7 +109,7 @@ public class SuperSmashLegends extends JavaPlugin {
         } catch (IllegalPluginAccessException ignored) {}
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            kitManager.endUser(player);
+            kitManager.wipePlayer(player);
             kitManager.getSelectedKit(player).deactivate();
         }
     }

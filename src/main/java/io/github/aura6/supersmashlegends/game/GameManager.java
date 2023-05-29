@@ -174,12 +174,13 @@ public class GameManager {
     }
 
     public void reset() {
-        profiles.clear();
-        spectators.clear();
-        ticksActive = 0;
+        new HashSet<>(this.spectators).forEach(this::removeSpectator);
 
-        if (tickTask != null) {
-            tickTask.cancel();
+        this.profiles.clear();
+        this.ticksActive = 0;
+
+        if (this.tickTask != null) {
+            this.tickTask.cancel();
         }
     }
 }

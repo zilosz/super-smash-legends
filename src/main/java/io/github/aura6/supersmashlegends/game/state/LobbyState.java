@@ -29,7 +29,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -204,6 +203,8 @@ public class LobbyState extends GameState {
 
     @Override
     public void start() {
+        this.plugin.getGameManager().reset();
+
         createLeaderboard("Win", "wins", "Wins");
         createLeaderboard("Kill", "kills", "Kills");
 
@@ -213,9 +214,13 @@ public class LobbyState extends GameState {
 
             KitManager kitManager = this.plugin.getKitManager();
 
-            Optional.ofNullable(kitManager.getSelectedKit(player)).ifPresentOrElse(
-                    kit -> kit.equip(player), () -> kitManager.setupUser(player)
-            );
+            Optional.ofNullable(kitManager.getSelectedKit(player)).ifPresentOrElse(kit -> kit.equip(player), () -> {
+                kitManager.createHolograms(player);
+                kitManager.pullUserKit(player);
+            });
+
+            Bukkit.broadcastMessage("updated holos for " + player.getName());
+            kitManager.updateHolograms(player);
 
             if (!this.plugin.getGameManager().hasProfile(player)) {
                 continue;
@@ -259,9 +264,7 @@ public class LobbyState extends GameState {
             }
         }
 
-        this.plugin.getGameManager().reset();
         this.plugin.getArenaManager().setupArenas();
-
         tryCountdownStart();
     }
 
@@ -270,14 +273,8 @@ public class LobbyState extends GameState {
     }
 
     private void initializePlayer(Player player) {
-        player.getInventory().clear();
-        player.getInventory().setArmorContents(new ItemStack[] {null, null, null, null});
-        player.setGameMode(GameMode.SURVIVAL);
-        player.setFlySpeed(0.1f);
         player.setHealth(20);
-        player.setExp(0);
-        player.setLevel(0);
-        player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
+        player.setGameMode(GameMode.SURVIVAL);
 
         player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 1);
         player.teleport(getSpawn());
@@ -333,8 +330,12 @@ public class LobbyState extends GameState {
         Player player = event.getPlayer();
         initializePlayer(player);
 
+        KitManager kitManager = this.plugin.getKitManager();
+        kitManager.createHolograms(player);
+        kitManager.pullUserKit(player);
+        kitManager.updateHolograms(player);
+
         this.plugin.getDb().setIfEnabled(player.getUniqueId(), "name", player.getName());
-        this.plugin.getKitManager().setupUser(player);
 
         tryCountdownStart();
     }

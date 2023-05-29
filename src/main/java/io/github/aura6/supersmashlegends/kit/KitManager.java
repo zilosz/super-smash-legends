@@ -67,10 +67,8 @@ public class KitManager implements Listener {
         hologram.getLines().appendText(accessType.getHologram(kit));
     }
 
-    public void setupUser(Player player) {
-        UUID uuid = player.getUniqueId();
-        String chosenKit = plugin.getDb().getOrDefault(uuid, "chosenKit", "Barbarian", "Barbarian");
-        kitHolograms.put(uuid, new HashMap<>());
+    public void createHolograms(Player player) {
+        kitHolograms.put(player.getUniqueId(), new HashMap<>());
 
         kitsByName.forEach((name, kit) -> {
             Location location = npcsByKit.get(name).getStoredLocation();
@@ -78,18 +76,17 @@ public class KitManager implements Listener {
 
             Hologram hologram = HolographicDisplaysAPI.get(plugin).createHologram(location);
             hologram.getLines().appendText("");
-            kitHolograms.get(uuid).put(name, hologram);
+            kitHolograms.get(player.getUniqueId()).put(name, hologram);
         });
+    }
 
-        Kit chosen = this.kitsByName.get(chosenKit);
-        setKit(player, chosen == null ? this.kitsByName.get("Barbarian") : chosen);
-
-        kitHolograms.get(uuid).forEach((kitName, holo) ->
+    public void updateHolograms(Player player) {
+        kitHolograms.get(player.getUniqueId()).forEach((kitName, holo) ->
                 updateAccessHologram(holo, getKitAccess(player, kitName), kitsByName.get(kitName)));
 
         kitHolograms.forEach((otherUuid, holograms) -> {
 
-            if (!otherUuid.equals(uuid)) {
+            if (!otherUuid.equals(player.getUniqueId())) {
 
                 for (Hologram holo : holograms.values()) {
                     holo.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.HIDDEN);
@@ -99,7 +96,7 @@ public class KitManager implements Listener {
 
                 if (other.isOnline()) {
 
-                    for (Hologram holo : kitHolograms.get(uuid).values()) {
+                    for (Hologram holo : kitHolograms.get(player.getUniqueId()).values()) {
                         holo.getVisibilitySettings().setIndividualVisibility((Player) other, VisibilitySettings.Visibility.HIDDEN);
                     }
                 }
@@ -107,13 +104,19 @@ public class KitManager implements Listener {
         });
     }
 
-    public void endUser(Player player) {
-        UUID uuid = player.getUniqueId();
-        Optional.ofNullable(this.kitHolograms.remove(uuid)).ifPresent(holograms -> holograms.values().forEach(Hologram::delete));
+    public void pullUserKit(Player player) {
+        String chosenKit = plugin.getDb().getOrDefault(player.getUniqueId(), "chosenKit", "Barbarian", "Barbarian");
+        Kit chosen = this.kitsByName.get(chosenKit);
+        setKit(player, chosen == null ? this.kitsByName.get("Barbarian") : chosen);
+    }
 
-        Optional.ofNullable(getSelectedKit(player)).ifPresent(kit -> {
+    public void wipePlayer(Player player) {
+        Optional.ofNullable(this.kitHolograms.remove(player.getUniqueId()))
+                .ifPresent(holograms -> holograms.values().forEach(Hologram::delete));
+
+        Optional.ofNullable(this.selectedKits.remove(player.getUniqueId())).ifPresent(kit -> {
             kit.destroy();
-            this.plugin.getDb().setIfEnabled(uuid, "chosenKit", kit.getConfigName());
+            this.plugin.getDb().setIfEnabled(player.getUniqueId(), "chosenKit", kit.getConfigName());
         });
     }
 
@@ -148,12 +151,7 @@ public class KitManager implements Listener {
     }
 
     public void wipePlayerKit(Player player) {
-        Optional.ofNullable(selectedKits.remove(player.getUniqueId())).ifPresent(kit -> {
-            kit.unequip();
-            if (plugin.getGameManager().getState() instanceof InGameState) {
-                kit.deactivate();
-            }
-        });
+        Optional.ofNullable(selectedKits.remove(player.getUniqueId())).ifPresent(Kit::destroy);
     }
 
     public Optional<Kit> getKitByName(String name) {

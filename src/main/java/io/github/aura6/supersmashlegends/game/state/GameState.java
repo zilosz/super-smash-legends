@@ -63,7 +63,7 @@ public abstract class GameState implements Listener {
 
         if (isInArena()) {
             event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined mid-game.", player.getName())));
-            Chat.GAME.send(event.getPlayer(), "&7The game you joined is in progress.");
+            Chat.GAME.send(player, "&7The game you joined is in progress.");
             this.plugin.getGameManager().addSpectator(event.getPlayer());
             player.teleport(this.plugin.getArenaManager().getArena().getWaitLocation());
 
@@ -84,9 +84,6 @@ public abstract class GameState implements Listener {
     public void onGeneralQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
 
-        this.plugin.getKitManager().endUser(player);
-        this.plugin.getGameManager().removeSpectator(player);
-
         if (isInArena() && this.plugin.getGameManager().isPlayerAlive(player)) {
             String color = this.plugin.getTeamManager().getPlayerColor(player);
             event.setQuitMessage(Chat.QUIT.get(String.format("%s &7has quit mid-game.", color + player.getName())));
@@ -101,6 +98,9 @@ public abstract class GameState implements Listener {
         } else {
             event.setQuitMessage(Chat.QUIT.get(String.format("&5%s &7has quit the game.", player.getName())));
         }
+
+        this.plugin.getKitManager().wipePlayer(player);
+        this.plugin.getGameManager().removeSpectator(player);
     }
 
     @EventHandler
