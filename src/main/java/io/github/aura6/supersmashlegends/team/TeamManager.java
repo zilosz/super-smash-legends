@@ -77,22 +77,23 @@ public class TeamManager {
     }
 
     public String getPlayerColor(Player player) {
-        return getTeamSize() == 1 ? this.plugin.getKitManager().getSelectedKit(player).getColor() : getPlayerTeam(player).getColor();
+        return getTeamSize() == 1 ? this.plugin.getGameManager().getProfile(player).getKit().getColor() : getPlayerTeam(player).getColor();
     }
 
     public void assignPlayer(Player player) {
-        teamList.stream()
-                .filter(team -> team.hasPlayer(player))
-                .findAny()
-                .ifPresentOrElse(
-                        chosen -> teamsByEntity.put(player.getUniqueId(), chosen),
-                        () -> teamList.stream()
-                                .filter(team -> team.canJoin(player))
-                                .findFirst()
-                                .ifPresent(team -> {
-                team.addPlayer(player);
-                teamsByEntity.put(player.getUniqueId(), team);
-        }));
+
+        for (Team team : this.teamList) {
+
+            if (team.hasPlayer(player) || team.canJoin(player)) {
+                this.teamsByEntity.put(player.getUniqueId(), team);
+
+                if (team.canJoin(player)) {
+                    team.addPlayer(player);
+                }
+
+                break;
+            }
+        }
     }
 
     public void removeEmptyTeams() {

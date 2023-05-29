@@ -1,6 +1,7 @@
 package io.github.aura6.supersmashlegends.kit;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
+import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.game.state.InGameState;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
@@ -105,9 +106,9 @@ public class KitManager implements Listener {
     }
 
     public void pullUserKit(Player player) {
-        String chosenKit = plugin.getDb().getOrDefault(player.getUniqueId(), "chosenKit", "Barbarian", "Barbarian");
-        Kit chosen = this.kitsByName.get(chosenKit);
-        setKit(player, chosen == null ? this.kitsByName.get("Barbarian") : chosen);
+        String kitString = plugin.getDb().getOrDefault(player.getUniqueId(), "kit", "Barbarian", "Barbarian");
+        Kit kit = this.kitsByName.get(kitString);
+        setKit(player, kit == null ? this.kitsByName.get("Barbarian") : kit);
     }
 
     public void wipePlayer(Player player) {
@@ -116,7 +117,7 @@ public class KitManager implements Listener {
 
         Optional.ofNullable(this.selectedKits.remove(player.getUniqueId())).ifPresent(kit -> {
             kit.destroy();
-            this.plugin.getDb().setIfEnabled(player.getUniqueId(), "chosenKit", kit.getConfigName());
+            this.plugin.getDb().setIfEnabled(player.getUniqueId(), "kit", kit.getConfigName());
         });
     }
 
@@ -127,22 +128,27 @@ public class KitManager implements Listener {
     public void setKit(Player player, Kit kit) {
         UUID uuid = player.getUniqueId();
 
-        if (selectedKits.containsKey(uuid)) {
-            Kit oldKit = selectedKits.get(player.getUniqueId());
-            updateAccessHologram(kitHolograms.get(uuid).get(oldKit.getConfigName()), KitAccessType.ACCESS, oldKit);
+        if (this.selectedKits.containsKey(uuid)) {
+            Kit oldKit = this.selectedKits.get(player.getUniqueId());
+            updateAccessHologram(this.kitHolograms.get(uuid).get(oldKit.getConfigName()), KitAccessType.ACCESS, oldKit);
         }
 
         wipePlayerKit(player);
-
         Kit newKit = kit.copy();
-        selectedKits.put(uuid, newKit);
+        this.selectedKits.put(uuid, newKit);
         newKit.equip(player);
 
-        if (plugin.getGameManager().getState() instanceof InGameState) {
+        GameManager gameManager = this.plugin.getGameManager();
+
+        if (gameManager.hasProfile(player)) {
+            gameManager.getProfile(player).setKit(newKit);
+        }
+
+        if (gameManager.getState() instanceof InGameState) {
             newKit.activate();
         }
 
-        updateAccessHologram(kitHolograms.get(uuid).get(kit.getConfigName()), KitAccessType.ALREADY_SELECTED, newKit);
+        updateAccessHologram(this.kitHolograms.get(uuid).get(kit.getConfigName()), KitAccessType.ALREADY_SELECTED, newKit);
         Chat.KIT.send(player, String.format("&7You have selected the %s &7kit.", newKit.getDisplayName()));
     }
 

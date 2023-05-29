@@ -89,7 +89,8 @@ public class SuperSmashLegends extends JavaPlugin {
         kitManager.setupKits();
         gameManager.activateState();
 
-        new Assemble(this, new GameScoreboard(this));
+        Assemble scoreboard = new Assemble(this, new GameScoreboard(this));
+        scoreboard.setTicks(5);
 
         getCommand("kit").setExecutor(new KitCommand(this));
         getCommand("reloadconfig").setExecutor(new ReloadConfigCommand(resources));

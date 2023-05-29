@@ -52,6 +52,16 @@ public class Database {
         }
     }
 
+    public void increaseDouble(UUID uuid, String key, double amount) {
+        double oldDouble = this.getOrDefault(uuid, key, 0.0, 0.0);
+        this.setIfEnabled(uuid, key, oldDouble + amount);
+    }
+
+    public void increaseInt(UUID uuid, String key, int amount) {
+        int oldInt = this.getOrDefault(uuid, key, 0, 0);
+        this.setIfEnabled(uuid, key, oldInt + amount);
+    }
+
     public List<Document> getDocuments() {
         if (mongoCollection == null) return Collections.emptyList();
 

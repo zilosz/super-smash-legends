@@ -88,11 +88,13 @@ public abstract class GameState implements Listener {
             String color = this.plugin.getTeamManager().getPlayerColor(player);
             event.setQuitMessage(Chat.QUIT.get(String.format("%s &7has quit mid-game.", color + player.getName())));
 
-            int lifespan = this.plugin.getGameManager().getTicksActive();
-            this.plugin.getTeamManager().getPlayerTeam(player).setLifespan(lifespan);
+            if (!(this instanceof EndState)) {
+                int lifespan = this.plugin.getGameManager().getTicksActive();
+                this.plugin.getTeamManager().getPlayerTeam(player).setLifespan(lifespan);
 
-            if (this.plugin.getGameManager().getAlivePlayers().size() <= 2) {
-                this.plugin.getGameManager().skipToState(new EndState(this.plugin));
+                if (this.plugin.getGameManager().getAlivePlayers().size() <= 2) {
+                    this.plugin.getGameManager().skipToState(new EndState(this.plugin));
+                }
             }
 
         } else {

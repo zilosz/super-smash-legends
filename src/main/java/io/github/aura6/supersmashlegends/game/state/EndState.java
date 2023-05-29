@@ -2,6 +2,10 @@ package io.github.aura6.supersmashlegends.game.state;
 
 import com.connorlinfoot.titleapi.TitleAPI;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
+import io.github.aura6.supersmashlegends.database.Database;
+import io.github.aura6.supersmashlegends.game.GameManager;
+import io.github.aura6.supersmashlegends.game.GameResult;
+import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.team.Team;
 import io.github.aura6.supersmashlegends.team.TeamManager;
@@ -20,8 +24,11 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class EndState extends GameState {
@@ -61,10 +68,15 @@ public class EndState extends GameState {
             replacers.add("WINNER", this.winnerString);
         }
 
-        if (this.plugin.getGameManager().isPlayerParticipating(player)) {
+        GameManager gameManager = this.plugin.getGameManager();
+
+        if (gameManager.hasProfile(player)) {
+            InGameProfile profile = gameManager.getProfile(player);
+
+            replacers.add("KILLS", String.valueOf(profile.getKills()));
+            replacers.add("KIT", profile.getKit().getBoldedDisplayName());
+
             lines.add("");
-            replacers.add("KILLS", String.valueOf(this.plugin.getGameManager().getProfile(player).getKills()));
-            replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
             lines.addAll(Arrays.asList("&fKills: &5{KILLS}", "&fKit: {KIT}"));
         }
 
@@ -77,7 +89,6 @@ public class EndState extends GameState {
         TeamManager teamManager = this.plugin.getTeamManager();
 
         teamManager.getAliveTeams().forEach(team -> team.setLifespan(team.getLifespan() + 1));
-
         Comparator<Team> comp = Comparator.comparingInt(Team::getLifespan);
         List<List<Team>> rankedTeams = CollectionUtils.getRankedGroups(teamManager.getTeamList(), comp);
 
@@ -87,6 +98,7 @@ public class EndState extends GameState {
                 ""
         ));
 
+        Map<Player, Integer> playerRanks = new HashMap<>();
         int currRankIndex = 0;
 
         while (currRankIndex < Math.min(3, rankedTeams.size())) {
@@ -96,6 +108,7 @@ public class EndState extends GameState {
 
                 for (Player player : team.getPlayers()) {
                     players.append(teamManager.getPlayerColor(player)).append(player.getName()).append("&7, ");
+                    playerRanks.put(player, currRankIndex + 1);
                 }
             }
 
@@ -129,6 +142,8 @@ public class EndState extends GameState {
 
         ranking.add("&5--------------------------");
 
+        GameManager gameManager = this.plugin.getGameManager();
+
         if (rankedTeams.get(0).size() == 1) {
             Team winningTeam = rankedTeams.get(0).get(0);
             List<Player> winningList = winningTeam.getPlayers();
@@ -145,11 +160,15 @@ public class EndState extends GameState {
             for (Player player : Bukkit.getOnlinePlayers()) {
 
                 if (winningList.contains(player)) {
-                    this.plugin.getGameManager().getProfile(player).setWinner(true);
+                    gameManager.getProfile(player).setGameResult(GameResult.WIN);
                     Chat.GAME.send(player, "&7You have &a&lwon!");
 
                 } else {
                     Chat.GAME.send(player, String.format("%s &7has &awon!", this.winnerString));
+
+                    if (gameManager.hasProfile(player)) {
+                        gameManager.getProfile(player).setGameResult(GameResult.LOSE);
+                    }
                 }
             }
 
@@ -161,6 +180,7 @@ public class EndState extends GameState {
                 String tieString;
 
                 if (tiedPlayers.contains(player)) {
+                    gameManager.getProfile(player).setGameResult(GameResult.TIE);
                     tieString = "&7You have &e&ltied.";
 
                 } else if (teamManager.getTeamSize() == 1) {
@@ -174,16 +194,33 @@ public class EndState extends GameState {
             }
         }
 
+        for (Team team : teamManager.getTeamList()) {
+
+            for (Player player : team.getPlayers()) {
+                UUID uuid = player.getUniqueId();
+                InGameProfile profile = gameManager.getProfile(player);
+                Database db = this.plugin.getDb();
+
+                if (teamManager.getTeamList().size() > 1) {
+                    db.increaseInt(uuid, profile.getGameResult().getDbString(), 1);
+                    db.increaseInt(uuid, "result." + playerRanks.get(player), 1);
+                    db.increaseInt(uuid, "kills", profile.getKills());
+                    db.increaseInt(uuid, "deaths", profile.getDeaths());
+                    db.increaseDouble(uuid, "damageDealt", profile.getDamageDealt());
+                    db.increaseDouble(uuid, "damageTaken", profile.getDamageTaken());
+                }
+            }
+        }
+
         for (Player player : Bukkit.getOnlinePlayers()) {
             ranking.forEach(line -> player.sendMessage(MessageUtils.color(line)));
+            player.playSound(player.getLocation(), Sound.FIREWORK_LARGE_BLAST, 2, 1);
 
-            if (!this.plugin.getGameManager().isSpectator(player)) {
-                this.plugin.getKitManager().getSelectedKit(player).destroy();
+            if (!gameManager.isSpectator(player)) {
+                Kit kit = this.plugin.getKitManager().getSelectedKit(player);
+                kit.destroy();
+
                 player.setAllowFlight(true);
-
-                player.playSound(player.getLocation(), Sound.FIREWORK_LARGE_BLAST, 2, 1);
-
-                this.plugin.getGameManager().uploadPlayerStatsAtEnd(player);
             }
         }
 
@@ -198,7 +235,7 @@ public class EndState extends GameState {
             public void run() {
 
                 if (this.secondsLeft == 0) {
-                    plugin.getGameManager().advanceState();
+                    gameManager.advanceState();
                     return;
                 }
 
@@ -235,7 +272,7 @@ public class EndState extends GameState {
     public void handleVoid(EntityDamageEvent event) {
         if (event.getCause() == EntityDamageEvent.DamageCause.VOID && event.getEntity() instanceof Player) {
             event.setCancelled(true);
-            event.getEntity().teleport(plugin.getArenaManager().getArena().getWaitLocation());
+            event.getEntity().teleport(this.plugin.getArenaManager().getArena().getWaitLocation());
         }
     }
 }

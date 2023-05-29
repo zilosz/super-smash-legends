@@ -1,13 +1,13 @@
 package io.github.aura6.supersmashlegends.game;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import io.github.aura6.supersmashlegends.database.Database;
 import io.github.aura6.supersmashlegends.game.state.EndState;
 import io.github.aura6.supersmashlegends.game.state.GameState;
 import io.github.aura6.supersmashlegends.game.state.InGameState;
 import io.github.aura6.supersmashlegends.game.state.LobbyState;
 import io.github.aura6.supersmashlegends.game.state.PreGameState;
 import io.github.aura6.supersmashlegends.game.state.TutorialState;
+import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -97,7 +97,9 @@ public class GameManager {
     }
 
     public void setupProfile(Player player) {
-        profiles.put(player.getUniqueId(), new InGameProfile(plugin.getResources().getConfig().getInt("Game.Lives")));
+        int lives = this.plugin.getResources().getConfig().getInt("Game.Lives");
+        Kit kit = this.plugin.getKitManager().getSelectedKit(player);
+        this.profiles.put(player.getUniqueId(), new InGameProfile(lives, kit));
     }
 
     public InGameProfile getProfile(Player player) {
@@ -108,20 +110,17 @@ public class GameManager {
         return profiles.containsKey(player.getUniqueId());
     }
 
-    public boolean isPlayerParticipating(Player player) {
-        return player != null && profiles.containsKey(player.getUniqueId()) && !isSpectator(player);
-    }
-
-    public Set<Player> getParticipators() {
-        return profiles.keySet().stream().map(Bukkit::getPlayer).filter(this::isPlayerParticipating).collect(Collectors.toSet());
-    }
-
     public boolean isPlayerAlive(Player player) {
-        return isPlayerParticipating(player) && profiles.get(player.getUniqueId()).getLives() > 0;
+        boolean hasTeam = this.plugin.getTeamManager().getPlayerTeam(player) != null;
+        return hasTeam && this.profiles.get(player.getUniqueId()).getLives() > 0;
     }
 
     public Set<Player> getAlivePlayers() {
-        return profiles.keySet().stream().map(Bukkit::getPlayer).filter(this::isPlayerAlive).collect(Collectors.toSet());
+        return this.profiles.keySet().stream()
+                .map(Bukkit::getPlayer)
+                .filter(Player::isOnline)
+                .filter(this::isPlayerAlive)
+                .collect(Collectors.toSet());
     }
 
     public void addSpectator(Player player) {
@@ -136,41 +135,6 @@ public class GameManager {
 
     public boolean isSpectator(Player player) {
         return spectators.contains(player);
-    }
-
-    public void uploadPlayerStats(Player player) {
-        UUID uuid = player.getUniqueId();
-        InGameProfile profile = profiles.get(uuid);
-        Database db = plugin.getDb();
-
-        db.setIfEnabled(uuid, "kills", db.getOrDefault(uuid, "kills", 0, 0) + profile.getKills());
-        db.setIfEnabled(uuid, "deaths", db.getOrDefault(uuid, "deaths", 0, 0) + profile.getDeaths());
-        db.setIfEnabled(uuid, "damageTaken", db.getOrDefault(uuid, "damageTaken", 0.0, 0.0) + profile.getDamageTaken());
-        db.setIfEnabled(uuid, "damageDealt", db.getOrDefault(uuid, "damageDealt", 0.0, 0.0) + profile.getDamageDealt());
-    }
-
-    public void uploadPlayerStatsMidGame(Player player) {
-        uploadPlayerStats(player);
-
-        int before = plugin.getDb().getOrDefault(player.getUniqueId(), "losses", 0, 0);
-        plugin.getDb().setIfEnabled(player.getUniqueId(), "losses", before + 1);
-    }
-
-    public void uploadPlayerStatsAtEnd(Player player) {
-        uploadPlayerStats(player);
-
-        Database db = this.plugin.getDb();
-        UUID uuid = player.getUniqueId();
-
-        if (getProfile(player).isWinner()) {
-
-            if (this.getParticipators().size() > 1) {
-                db.setIfEnabled(uuid, "wins", db.getOrDefault(uuid, "wins", 0, 0) + 1);
-            }
-
-        } else {
-            db.setIfEnabled(uuid, "losses", db.getOrDefault(uuid, "losses", 0, 0) + 1);
-        }
     }
 
     public void reset() {

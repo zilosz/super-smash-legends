@@ -24,7 +24,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
@@ -95,7 +94,7 @@ public class InGameState extends GameState {
 
         Replacers replacers = new Replacers().add("SEC_LEFT", String.valueOf(this.secLeft));
 
-        if (this.plugin.getGameManager().isPlayerParticipating(player)) {
+        if (this.plugin.getGameManager().isPlayerAlive(player)) {
             scoreboard.add("");
             scoreboard.add("&fKit: {KIT}");
             replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
@@ -246,7 +245,6 @@ public class InGameState extends GameState {
 
             InGameProfile killerProfile = plugin.getGameManager().getProfile(killer);
             killerProfile.setKills(killerProfile.getKills() + 1);
-            killerProfile.setKillStreak(killerProfile.getKillStreak() + 1);
 
             String killerName = this.plugin.getTeamManager().getPlayerColor(killer) + killer.getName();
 
@@ -351,12 +349,5 @@ public class InGameState extends GameState {
         event.getDrops().clear();
         event.setDeathMessage("");
         handleDeath(event.getEntity(), true);
-    }
-
-    @EventHandler
-    public void onQuitInGame(PlayerQuitEvent event) {
-        if (this.plugin.getGameManager().isPlayerAlive(event.getPlayer())) {
-            this.plugin.getGameManager().uploadPlayerStatsMidGame(event.getPlayer());
-        }
     }
 }

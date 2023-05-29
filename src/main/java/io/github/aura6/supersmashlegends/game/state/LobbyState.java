@@ -6,6 +6,7 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.arena.Arena;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
+import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.kit.KitManager;
 import io.github.aura6.supersmashlegends.utils.HotbarItem;
@@ -66,8 +67,11 @@ public class LobbyState extends GameState {
 
         Replacers replacers = new Replacers()
                 .add("CURRENT", String.valueOf(Bukkit.getOnlinePlayers().size()))
-                .add("CAP", String.valueOf(plugin.getTeamManager().getPlayerStartCount()))
-                .add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+                .add("CAP", String.valueOf(this.plugin.getTeamManager().getPlayerStartCount()));
+
+        try {
+            replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+        } catch (NullPointerException ignored) {}
 
         List<String> lines = new ArrayList<>();
         lines.add("&5&l---------------------");
@@ -203,13 +207,10 @@ public class LobbyState extends GameState {
 
     @Override
     public void start() {
-        this.plugin.getGameManager().reset();
-        this.plugin.getArenaManager().setupArenas();
-
-        createLeaderboard("Win", "wins", "Wins");
-        createLeaderboard("Kill", "kills", "Kills");
+        GameManager gameManager = this.plugin.getGameManager();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
+            ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Returned to the lobby."));
             initializePlayer(player);
 
             KitManager kitManager = this.plugin.getKitManager();
@@ -221,50 +222,51 @@ public class LobbyState extends GameState {
 
             kitManager.updateHolograms(player);
 
-            ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Returned to the lobby."));
+            if (gameManager.hasProfile(player)) {
+                InGameProfile profile = gameManager.getProfile(player);
+                DecimalFormat format = new DecimalFormat("#.#");
 
-            if (!this.plugin.getGameManager().hasProfile(player)) {
-                continue;
-            }
+                Replacers replacers = new Replacers()
+                        .add("RESULT", profile.getGameResult().getHologramString())
+                        .add("KIT", profile.getKit().getBoldedDisplayName())
+                        .add("KILLS", String.valueOf(profile.getKills()))
+                        .add("DEATHS", String.valueOf(profile.getDeaths()))
+                        .add("DAMAGE_TAKEN", format.format(profile.getDamageTaken()))
+                        .add("DAMAGE_DEALT", format.format(profile.getDamageDealt()));
 
-            InGameProfile profile = this.plugin.getGameManager().getProfile(player);
+                String lastGameLoc = this.plugin.getResources().getLobby().getString("LastGame");
+                Location lastGameLocation = YamlReader.location("lobby", lastGameLoc);
+                Hologram lastGameHolo = HolographicDisplaysAPI.get(this.plugin).createHologram(lastGameLocation);
+                this.holograms.add(lastGameHolo);
 
-            String lastGameLoc = plugin.getResources().getLobby().getString("LastGame");
-            Location lastGameLocation = YamlReader.location("lobby", lastGameLoc);
-            Hologram lastGame = HolographicDisplaysAPI.get(plugin).createHologram(lastGameLocation);
+                replacers.replaceLines(Arrays.asList(
+                        "&5&lLast Game",
+                        "&7----------------",
+                        "&fResult: {RESULT}",
+                        "&fKit: {KIT}",
+                        "&fKills: &e{KILLS}",
+                        "&fDeaths: &e{DEATHS}",
+                        "&fDamage Taken: &e{DAMAGE_TAKEN}",
+                        "&fDamage Dealt: &e{DAMAGE_DEALT}",
+                        "&7----------------"
+                )).forEach(line -> lastGameHolo.getLines().appendText(line));
 
-            DecimalFormat format = new DecimalFormat("#.#");
+                for (Player other : Bukkit.getOnlinePlayers()) {
 
-            Replacers replacers = new Replacers()
-                    .add("RESULT", profile.isWinner() ? "&a&lVictory!" : "&c&lLoss")
-                    .add("KIT", kitManager.getSelectedKit(player).getBoldedDisplayName())
-                    .add("KILLS", String.valueOf(profile.getKills()))
-                    .add("DEATHS", String.valueOf(profile.getDeaths()))
-                    .add("DAMAGE_TAKEN", format.format(profile.getDamageTaken()))
-                    .add("DAMAGE_DEALT", format.format(profile.getDamageDealt()));
-
-            replacers.replaceLines(Arrays.asList(
-                    "&5&lLast Game",
-                    "&7----------------",
-                    "&fResult: {RESULT}",
-                    "&fKit: {KIT}",
-                    "&fKills: &e{KILLS}",
-                    "&fDeaths: &e{DEATHS}",
-                    "&fDamage Taken: &e{DAMAGE_TAKEN}",
-                    "&fDamage Dealt: &e{DAMAGE_DEALT}",
-                    "&7----------------"
-            )).forEach(line -> lastGame.getLines().appendText(line));
-
-            holograms.add(lastGame);
-
-            for (Player other : Bukkit.getOnlinePlayers()) {
-
-                if (!other.equals(player)) {
-                    lastGame.getVisibilitySettings().setIndividualVisibility(other, VisibilitySettings.Visibility.HIDDEN);
+                    if (!other.equals(player)) {
+                        lastGameHolo.getVisibilitySettings()
+                                .setIndividualVisibility(other, VisibilitySettings.Visibility.HIDDEN);
+                    }
                 }
             }
         }
 
+        this.plugin.getArenaManager().setupArenas();
+
+        createLeaderboard("Win", "wins", "Wins");
+        createLeaderboard("Kill", "kills", "Kills");
+
+        gameManager.reset();
         tryCountdownStart();
     }
 
