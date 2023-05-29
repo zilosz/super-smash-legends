@@ -19,3 +19,4 @@ A Minecraft combat mini-game inspired by Nintendo's Super Smash Bros.
 - LibsDisguises
 - Citizens
 - FastAsyncWorldEdit
+- NameTagEdit
