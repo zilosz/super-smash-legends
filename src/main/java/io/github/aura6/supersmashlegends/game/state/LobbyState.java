@@ -219,7 +219,6 @@ public class LobbyState extends GameState {
                 kitManager.pullUserKit(player);
             });
 
-            Bukkit.broadcastMessage("updated holos for " + player.getName());
             kitManager.updateHolograms(player);
 
             if (!this.plugin.getGameManager().hasProfile(player)) {
