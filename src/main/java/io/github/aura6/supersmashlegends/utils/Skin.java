@@ -9,6 +9,7 @@ import net.minecraft.server.v1_8_R3.EntityPlayer;
 import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_8_R3.PacketPlayOutRespawn;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -29,7 +30,7 @@ public class Skin {
         this.signature = signature;
     }
 
-    public static BukkitTask applyAcrossTp(Plugin plugin, Player player, String texture, String signature, Runnable onTp) {
+    private static void showToOthers(Player player, String texture, String signature) {
         GameProfile profile = NmsUtils.getPlayer(player).getProfile();
         profile.getProperties().removeAll("textures");
         profile.getProperties().put("textures", new Property("textures", texture, signature));
@@ -38,11 +39,18 @@ public class Skin {
             other.hidePlayer(player);
             other.showPlayer(player);
         }
+    }
 
+    private static void sendAddRemovePackets(Player player) {
         EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
 
         NmsUtils.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, nmsPlayer));
         NmsUtils.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, nmsPlayer));
+
+    }
+
+    private static BukkitTask fakeRespawnAfterDelay(Plugin plugin, Player player, Runnable onTp) {
+        EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
 
         return Bukkit.getScheduler().runTaskLater(plugin, () -> {
             onTp.run();
@@ -53,6 +61,23 @@ public class Skin {
                     nmsPlayer.getWorld().getWorldData().getType(),
                     nmsPlayer.playerInteractManager.getGameMode()));
         }, 2);
+    }
+
+    private static BukkitTask showToSelf(Plugin plugin, Player player, Runnable onTp) {
+        sendAddRemovePackets(player);
+        return fakeRespawnAfterDelay(plugin, player, onTp);
+    }
+
+    public static BukkitTask applyAcrossTp(Plugin plugin, Player player, String texture, String signature, Runnable onTp) {
+        showToOthers(player, texture, signature);
+        return showToSelf(plugin, player, onTp);
+    }
+
+    public static void apply(Plugin plugin, Player player, String texture, String signature) {
+        showToOthers(player, texture, signature);
+        Location oldLoc = player.getLocation();
+        player.teleport(new Location(Bukkit.getWorld("world"), 0, 120, 0));
+        showToSelf(plugin, player, () -> player.teleport(oldLoc));
     }
 
     public BukkitTask applyAcrossTp(Plugin plugin, Player player, Runnable onTp) {

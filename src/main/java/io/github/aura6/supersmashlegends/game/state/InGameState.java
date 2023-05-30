@@ -99,7 +99,10 @@ public class InGameState extends GameState {
         if (this.plugin.getGameManager().isPlayerAlive(player)) {
             scoreboard.add("");
             scoreboard.add("&fKit: {KIT}");
-            replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+
+            try {
+                replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+            } catch (NullPointerException ignored) {}
         }
 
         scoreboard.add("&5&l---------------------");

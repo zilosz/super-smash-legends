@@ -3,6 +3,7 @@ package io.github.aura6.supersmashlegends.kit;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.game.state.InGameState;
+import io.github.aura6.supersmashlegends.utils.Skin;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
@@ -146,6 +147,7 @@ public class KitManager implements Listener {
 
         if (gameManager.getState() instanceof InGameState) {
             newKit.activate();
+            Skin.apply(this.plugin, player, newKit.getSkin().getTexture(), newKit.getSkin().getSignature());
         }
 
         updateAccessHologram(this.kitHolograms.get(uuid).get(kit.getConfigName()), KitAccessType.ALREADY_SELECTED, newKit);
