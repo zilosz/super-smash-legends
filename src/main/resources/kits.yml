@@ -294,7 +294,7 @@ Mechon:
       StreamSpreadStep: 0.009
       StreamStep: 0.1
       ParticlesPerSpread: 7
-      EnergyPerTick: 0.06
+      EnergyPerTick: 0.05
 Squawk:
   ConfigName: Squawk
   Name: "Squawk"
