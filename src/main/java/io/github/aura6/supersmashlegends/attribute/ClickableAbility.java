@@ -80,28 +80,33 @@ public abstract class ClickableAbility extends Ability {
     @Override
     public void run() {
 
-        if (cooldownLeft > 0) {
-            cooldownLeft--;
+        if (this.cooldownLeft > 0) {
 
-            if (cooldownLeft == 0) {
-                onCooldownEnd();
-                Chat.ABILITY.send(player, String.format("&7You can now use %s&7.", getDisplayName()));
+            if (--this.cooldownLeft == 0) {
+                this.onCooldownEnd();
+                Chat.ABILITY.send(this.player, String.format("&7You can use %s&7.", this.getDisplayName()));
             }
         }
 
-        if (slot != player.getInventory().getHeldItemSlot()) return;
+        if (this.slot != this.player.getInventory().getHeldItemSlot()) return;
 
         String message;
 
-        if (cooldownLeft == 0) {
-            message = String.format("%s &7- &6%s", getBoldedDisplayName(), "&l" + getUseType());
+        if (this.cooldownLeft == 0) {
+            message = String.format("%s &7- &6%s", this.getBoldedDisplayName(), "&l" + this.getUseType());
 
         } else {
-            String bar = MessageUtils.progressBar(cooldown - cooldownLeft, cooldown, 20, "&a&l❚", "&7&l❚");
-            String cd = new DecimalFormat("#.#").format(cooldownLeft / 20.0);
-            message = String.format("%s %s &f&l%s", getBoldedDisplayName(), bar, cd);
+            String emptyColor = this.kit.getColor().equals("&7") ? "&8" : "&7";
+            int cooldownSoFar = this.cooldown - this.cooldownLeft;
+            String bar = MessageUtils.progressBar("❚", "❚", this.kit.getColor(), emptyColor, cooldownSoFar, this.cooldown, 20);
+
+            DecimalFormat format = new DecimalFormat("#.#");
+            format.setMinimumFractionDigits(1);
+            String cd = format.format(this.cooldownLeft / 20.0);
+
+            message = String.format("%s %s &f&l%s", this.getBoldedDisplayName(), bar, cd);
         }
 
-        ActionBarAPI.sendActionBar(player, MessageUtils.color(message));
+        ActionBarAPI.sendActionBar(this.player, MessageUtils.color(message));
     }
 }

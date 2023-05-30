@@ -16,10 +16,10 @@ public class MessageUtils {
         return lines.stream().map(MessageUtils::color).collect(Collectors.toList());
     }
 
-    public static String progressBar(int value, int limit, int totalBlocks, String complete, String incomplete) {
-        int filledBlocks = (int) (totalBlocks * ((float) value / limit));
-        String completed = StringUtils.repeat(color(complete), filledBlocks);
-        String notCompleted = StringUtils.repeat(color(incomplete), totalBlocks - filledBlocks);
-        return color(completed + notCompleted);
+    public static String progressBar(String fullChar, String emptyChar, String fullColor, String emptyColor, double full, double total, int charCount) {
+        int fullCount = (int) (charCount * full / total);
+        String fullBars = fullColor + StringUtils.repeat(fullChar, fullCount);
+        String emptyBars = emptyColor + StringUtils.repeat(emptyChar, charCount - fullCount);
+        return color(fullBars + emptyBars);
     }
 }

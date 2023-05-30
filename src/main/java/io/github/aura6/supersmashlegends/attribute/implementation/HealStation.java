@@ -113,7 +113,9 @@ public class HealStation extends RightClickBlockAbility {
     }
 
     private void updateStationHealth() {
-        stand.setCustomName(MessageUtils.progressBar((int) Math.ceil(stationHealth), config.getInt("Health"), 10, "&a|", "&c|"));
+        double health = this.config.getDouble("Health");
+        double healthRemaining = Math.ceil(this.stationHealth);
+        this.stand.setCustomName(MessageUtils.progressBar("❚", "❚", "&a", "&c", healthRemaining, health, 15));
     }
 
     private boolean isActive() {
