@@ -17,7 +17,7 @@ public class MessageUtils {
     }
 
     public static String progressBar(String fullChar, String emptyChar, String fullColor, String emptyColor, double full, double total, int charCount) {
-        int fullCount = (int) (charCount * full / total);
+        int fullCount = (int) Math.ceil((charCount * full / total));
         String fullBars = fullColor + StringUtils.repeat(fullChar, fullCount);
         String emptyBars = emptyColor + StringUtils.repeat(emptyChar, charCount - fullCount);
         return color(fullBars + emptyBars);

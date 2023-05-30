@@ -72,7 +72,7 @@ public abstract class ClickableAbility extends Ability {
     @Override
     public void deactivate() {
         super.deactivate();
-        cooldownLeft = 0;
+        this.cooldownLeft = 0;
     }
 
     public void onCooldownEnd() {}
@@ -96,15 +96,15 @@ public abstract class ClickableAbility extends Ability {
             message = String.format("%s &7- &6%s", this.getBoldedDisplayName(), "&l" + this.getUseType());
 
         } else {
-            String emptyColor = this.kit.getColor().equals("&7") ? "&8" : "&7";
+            String emptyColor = this.kit.getColor().equals("&7") ? "&8&l" : "&7&l";
             int cooldownSoFar = this.cooldown - this.cooldownLeft;
             String bar = MessageUtils.progressBar("❚", "❚", this.kit.getColor(), emptyColor, cooldownSoFar, this.cooldown, 20);
 
             DecimalFormat format = new DecimalFormat("#.#");
             format.setMinimumFractionDigits(1);
-            String cd = format.format(this.cooldownLeft / 20.0);
+            String label = format.format(this.cooldownLeft / 20.0);
 
-            message = String.format("%s %s &f&l%s", this.getBoldedDisplayName(), bar, cd);
+            message = String.format("%s %s &f&l%s", this.getBoldedDisplayName(), bar, label);
         }
 
         ActionBarAPI.sendActionBar(this.player, MessageUtils.color(message));
