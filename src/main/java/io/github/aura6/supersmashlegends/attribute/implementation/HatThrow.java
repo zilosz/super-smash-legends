@@ -71,13 +71,13 @@ public class HatThrow extends RightClickAbility {
         public void mount(Entity passenger) {
             this.state = HatThrowState.MOUNTED;
             this.entity.setPassenger(passenger);
-            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.WITHER_SPAWN, 2, 1);
+            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.CLICK, 2, 1);
         }
 
         public void dismount() {
             this.state = HatThrowState.DISMOUNTED;
             this.entity.eject();
-            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.WITHER_SPAWN, 2, 1);
+            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.CLICK, 2, 1);
         }
 
         private double speedFunction(int ticks) {
