@@ -97,7 +97,7 @@ public abstract class ClickableAbility extends Ability {
             message = String.format("%s &7- &6%s", getBoldedDisplayName(), "&l" + getUseType());
 
         } else {
-            String bar = MessageUtils.progressBar(cooldown - cooldownLeft, cooldown, 20, "&a&l|", "&7&l|");
+            String bar = MessageUtils.progressBar(cooldown - cooldownLeft, cooldown, 20, "&a&l❚", "&7&l❚");
             String cd = new DecimalFormat("#.#").format(cooldownLeft / 20.0);
             message = String.format("%s %s &f&l%s", getBoldedDisplayName(), bar, cd);
         }
