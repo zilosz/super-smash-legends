@@ -7,7 +7,6 @@ import fr.minuskube.inv.content.InventoryProvider;
 import fr.minuskube.inv.content.Pagination;
 import fr.minuskube.inv.content.SlotIterator;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import io.github.aura6.supersmashlegends.utils.ItemBuilder;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
