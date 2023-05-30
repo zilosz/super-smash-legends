@@ -289,12 +289,11 @@ Mechon:
         - "&7momentum, taking enemies by surprise."
       Velocity: 0.8
       VelocityY: 0.45
-      StreamLength: 5
       StreamFeetDistance: 0.5
-      MaxStreamSpread: 0.5
-      StreamSpreadStep: 0.015f
+      MaxStreamSpread: 0.4
+      StreamSpreadStep: 0.009
       StreamStep: 0.1
-      ParticlesPerStep: 10
+      ParticlesPerSpread: 7
       EnergyPerTick: 0.06
 Squawk:
   ConfigName: Squawk

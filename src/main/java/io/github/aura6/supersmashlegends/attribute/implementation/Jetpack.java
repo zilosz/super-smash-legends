@@ -26,41 +26,40 @@ public class Jetpack extends PassiveAbility {
 
     @Override
     public void run() {
-        if (!player.isSneaking() || player.getExp() < config.getFloat("EnergyPerTick")) return;
+        if (!this.player.isSneaking() || this.player.getExp() < this.config.getFloat("EnergyPerTick")) return;
 
-        player.setExp(player.getExp() - config.getFloat("EnergyPerTick"));
+        this.player.setExp(this.player.getExp() - this.config.getFloat("EnergyPerTick"));
 
-        player.getWorld().playSound(player.getLocation(), Sound.FIREWORK_LAUNCH, 2, 2);
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.FIREWORK_LAUNCH, 2, 2);
 
-        Vector direction = player.getEyeLocation().getDirection();
-        double velocity = config.getDouble("Velocity");
-        player.setVelocity(direction.multiply(new Vector(velocity, 1, velocity)).setY(config.getDouble("VelocityY")));
+        Vector direction = this.player.getEyeLocation().getDirection();
+        double velocity = this.config.getDouble("Velocity");
+        Vector multiplier =  new Vector(velocity, 1, velocity);
+        this.player.setVelocity(direction.multiply(multiplier).setY(this.config.getDouble("VelocityY")));
 
-        Location location = player.getLocation();
+        Location location = this.player.getLocation();
 
         double particleX = location.getX();
-        double particleY = location.getY() - config.getDouble("StreamFeetDistance");
+        double particleY = location.getY() - this.config.getDouble("StreamFeetDistance");
         double particleZ = location.getZ();
 
-        double stepped = 0;
-        float spread = config.getFloat("MaxStreamSpread");
+        float spread = this.config.getFloat("MaxStreamSpread");
 
-        while (stepped < config.getDouble("StreamLength")) {
+        while (spread > 0) {
 
-            for (int i = 0; i < (int) Math.ceil(config.getDouble("ParticlesPerStep") * spread); i++) {
-                Location particleLoc = new Location(player.getWorld(), particleX, particleY, particleZ);
+            for (int i = 0; i < this.config.getDouble("ParticlesPerSpread") * spread; i++) {
+                Location particleLoc = new Location(this.player.getWorld(), particleX, particleY, particleZ);
                 new ParticleBuilder(EnumParticle.FLAME).setSpread(spread, 0, spread).show(particleLoc);
             }
 
-            spread -= config.getDouble("StreamSpreadStep");
-            particleY -= config.getDouble("StreamStep");
-            stepped += config.getDouble("StreamStep");
+            spread -= this.config.getDouble("StreamSpreadStep");
+            particleY -= this.config.getDouble("StreamStep");
         }
     }
 
     @EventHandler
     public void onEnergy(EnergyEvent event) {
-        if (event.getPlayer() == player && (player.isSneaking() || !EntityUtils.isPlayerGrounded(player))) {
+        if (event.getPlayer() == this.player && (this.player.isSneaking() || !EntityUtils.isPlayerGrounded(this.player))) {
             event.setEnergy(0);
         }
     }
