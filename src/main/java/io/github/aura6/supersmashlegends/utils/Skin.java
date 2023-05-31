@@ -30,6 +30,11 @@ public class Skin {
         this.signature = signature;
     }
 
+    public void updatePrevious(String texture, String signature) {
+        this.previousTexture = texture;
+        this.previousSignature = signature;
+    }
+
     private static void showToOthers(Player player, String texture, String signature) {
         GameProfile profile = NmsUtils.getPlayer(player).getProfile();
         profile.getProperties().removeAll("textures");

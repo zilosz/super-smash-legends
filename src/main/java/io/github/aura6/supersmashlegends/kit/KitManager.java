@@ -2,7 +2,9 @@ package io.github.aura6.supersmashlegends.kit;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.game.GameManager;
+import io.github.aura6.supersmashlegends.game.state.GameState;
 import io.github.aura6.supersmashlegends.game.state.InGameState;
+import io.github.aura6.supersmashlegends.game.state.LobbyState;
 import io.github.aura6.supersmashlegends.utils.Skin;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
@@ -127,39 +129,46 @@ public class KitManager implements Listener {
     }
 
     public void setKit(Player player, Kit kit) {
-        UUID uuid = player.getUniqueId();
+        GameManager gameManager = this.plugin.getGameManager();
+        GameState state = gameManager.getState();
 
-        if (this.selectedKits.containsKey(uuid)) {
-            Kit oldKit = this.selectedKits.get(player.getUniqueId());
-            updateAccessHologram(this.kitHolograms.get(uuid).get(oldKit.getConfigName()), KitAccessType.ACCESS, oldKit);
+        if (!(state instanceof InGameState) && !(state instanceof LobbyState)) {
+            Chat.KIT.send(player, "&7You cannot set your kit at this time.");
+            return;
         }
 
-        wipePlayerKit(player);
+        UUID uuid = player.getUniqueId();
         Kit newKit = kit.copy();
-        this.selectedKits.put(uuid, newKit);
+
+        Optional.ofNullable(this.selectedKits.put(uuid, newKit)).ifPresent(oldKit -> {
+            oldKit.destroy();
+            updateAccessHologram(this.kitHolograms.get(uuid).get(oldKit.getConfigName()), KitAccessType.ACCESS, oldKit);
+
+            if (state instanceof InGameState) {
+                Skin oldSkin = oldKit.getSkin();
+                Skin newSkin = newKit.getSkin();
+
+                newSkin.updatePrevious(oldSkin.getPreviousTexture(), oldSkin.getPreviousSignature());
+                Skin.apply(this.plugin, player, newSkin.getTexture(), newSkin.getSignature());
+
+                gameManager.getProfile(player).setKit(newKit);
+            }
+        });
+
         newKit.equip(player);
 
-        GameManager gameManager = this.plugin.getGameManager();
-
-        if (gameManager.hasProfile(player)) {
-            gameManager.getProfile(player).setKit(newKit);
-        }
-
-        if (gameManager.getState() instanceof InGameState) {
+        if (state instanceof InGameState) {
             newKit.activate();
-            Skin.apply(this.plugin, player, newKit.getSkin().getTexture(), newKit.getSkin().getSignature());
         }
 
-        updateAccessHologram(this.kitHolograms.get(uuid).get(kit.getConfigName()), KitAccessType.ALREADY_SELECTED, newKit);
+        Hologram accessHologram = this.kitHolograms.get(uuid).get(newKit.getConfigName());
+        updateAccessHologram(accessHologram, KitAccessType.ALREADY_SELECTED, newKit);
+
         Chat.KIT.send(player, String.format("&7You have selected the %s &7kit.", newKit.getDisplayName()));
     }
 
     public Kit getSelectedKit(Player player) {
         return selectedKits.get(player.getUniqueId());
-    }
-
-    public void wipePlayerKit(Player player) {
-        Optional.ofNullable(selectedKits.remove(player.getUniqueId())).ifPresent(Kit::destroy);
     }
 
     public Optional<Kit> getKitByName(String name) {
