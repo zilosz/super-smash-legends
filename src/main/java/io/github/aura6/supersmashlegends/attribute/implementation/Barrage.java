@@ -66,7 +66,7 @@ public class Barrage extends Bow {
 
         @Override
         public void onLaunch() {
-            this.launcher.getWorld().playSound(this.launcher.getLocation(), Sound.SKELETON_HURT, 1, 2);
+            this.launcher.getWorld().playSound(this.launcher.getLocation(), Sound.SHOOT_ARROW, 1, 2);
         }
 
         @Override
@@ -76,8 +76,8 @@ public class Barrage extends Bow {
 
         @Override
         public void onTargetHit(LivingEntity target) {
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(200, 200, 200)
-                    .boom(this.plugin, this.entity.getLocation(), 1.5, 0.25, 12);
+            new ParticleBuilder(EnumParticle.REDSTONE)
+                    .setRgb(200, 200, 200).boom(this.plugin, this.entity.getLocation(), 1.5, 0.25, 12);
         }
     }
 }

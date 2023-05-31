@@ -4,6 +4,7 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.damage.Damage;
+import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
@@ -16,7 +17,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -165,8 +165,8 @@ public class HerculeanSmash extends RightClickAbility {
     }
 
     @EventHandler
-    public void onDamage(EntityDamageByEntityEvent event) {
-        if (event.getDamager() == player && event.getEntity() == entityBeingGrasped) {
+    public void onDamage(AttributeDamageEvent event) {
+        if (event.getAttribute().getPlayer() == this.player && event.getVictim() == this.entityBeingGrasped) {
             event.setCancelled(true);
         }
     }

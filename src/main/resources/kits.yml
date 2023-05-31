@@ -601,43 +601,6 @@ Deadmortal:
       Pitch: 1.5
   Abilities:
     0:
-      ConfigName: CorrosiveGun
-      Name: "Corrosive Gun"
-      Item:
-        Material: IRON_BARDING
-      Description:
-        - "&7Abuse your gun-wielding skills to"
-        - "&7rapidly fire a series of poisoned"
-        - "&7bullets. The gun's sheer power"
-        - "&7creates recoil, however."
-      Cooldown: 100
-      Speed: 1.2
-      Interval: 3
-      Recoil: 0.65
-      Count: 5
-      Damage: 2
-      Kb: 1.25
-      HitBox: 1
-      LaunchSound:
-        Type: FIREWORK_LARGE_BLAST
-        Volume: 2
-        Pitch: 2
-      BlockHitSound:
-        Type: EXPLODE
-        Volume: 1
-        Pitch: 2
-    1:
-      ConfigName: Teleport
-      Name: "Teleport"
-      Item:
-        Material: GOLD_HOE
-      Description:
-        - "&7Use your superhuman powers to teleport"
-        - "&7in the direction you're facing. Can be"
-        - "&7used to cover space and escape the void."
-      Cooldown: 145
-      Range: 20
-    2:
       ConfigName: DiseasedFlesh
       Name: "Diseased Flesh"
       Item:
@@ -654,6 +617,43 @@ Deadmortal:
       ImmunityTicks: 0
       Damage: 1.35
       Kb: 1.05
+    1:
+      ConfigName: CorrosiveGun
+      Name: "Corrosive Gun"
+      Item:
+        Material: IRON_BARDING
+      Description:
+        - "&7Abuse your gun-wielding skills to"
+        - "&7rapidly fire a series of poisoned"
+        - "&7bullets. The gun's sheer power"
+        - "&7creates recoil, however."
+      Cooldown: 110
+      Speed: 1.2
+      Interval: 3
+      Recoil: 0.7
+      Count: 5
+      Damage: 2
+      Kb: 1.25
+      HitBox: 1
+      LaunchSound:
+        Type: FIREWORK_LARGE_BLAST
+        Volume: 2
+        Pitch: 2
+      BlockHitSound:
+        Type: EXPLODE
+        Volume: 1
+        Pitch: 2
+    2:
+      ConfigName: Teleport
+      Name: "Teleport"
+      Item:
+        Material: GOLD_HOE
+      Description:
+        - "&7Use your superhuman powers to teleport"
+        - "&7in the direction you're facing. Can be"
+        - "&7used to cover space and escape the void."
+      Cooldown: 145
+      Range: 17
     3:
       ConfigName: Bloodlust
       Name: "Bloodlust"
@@ -998,7 +998,7 @@ MasterBlade:
       Description:
         - "&7Use the Force to pick up chunks of"
         - "&7the Earth, throwing them at enemies."
-      Cooldown: 120
+      Cooldown: 140
       AutoStartCooldown: false
       MinChargeTicks: 12
       MinSpeed: 0.6
@@ -1041,7 +1041,7 @@ MasterBlade:
         - "&7Left click to use your aura to fling"
         - "&7enemies towards you. Within the right"
         - "&7range, the grip is virtually inescapable."
-      Cooldown: 110
+      Cooldown: 120
       Range: 14
       Damage: 6
       Kb: -1.15
@@ -1064,7 +1064,7 @@ Pikachew:
   Kb: 1.85
   Regen: 0.325
   Jump:
-    Power: 1.5
+    Power: 1.4
     Height: 0.95
     Sound:
       Type: FIREWORK_LAUNCH
@@ -1072,44 +1072,6 @@ Pikachew:
       Pitch: 0.5
   Abilities:
     0:
-      ConfigName: ShockWave
-      Name: "Shock Wave"
-      Item:
-        Material: GOLD_SPADE
-      Description:
-        - "&7Fire a wide electric wave that shocks"
-        - "&7any enemies it comes into contact with."
-      Cooldown: 150
-      YawWidth: 17.5
-      Count: 8
-      Projectile:
-        Damage: 5
-        ImmunityTicks: 12
-        Kb: 1.6
-        Lifespan: 28
-        RemoveOnEntityHit: false
-        Speed: 1.1
-        HasGravity: false
-        Block:
-          Material: GOLD_BLOCK
-    1:
-      ConfigName: ElectrostaticLeap
-      Name: "Electrostatic Leap"
-      Item:
-        Material: IRON_AXE
-      Description:
-        - "&7Pikachew possesses strong hind legs that allow"
-        - "&7him to leap upwards. The liftoff power is"
-        - "&7strong and imbued with electricity, hurting"
-        - "&7enemies within a nearby radius."
-      Cooldown: 160
-      Radius: 4
-      Velocity: 1.5
-      HitBox: 1.3
-      Damage: 6
-      Kb: 2
-      KbY: 0.5
-    2:
       ConfigName: Thunderbolt
       Name: "Thunderbolt"
       Item:
@@ -1125,10 +1087,27 @@ Pikachew:
       MinDamage: 2
       MaxDamage: 7.5
       MinKb: 1
-      MaxKb: 2.75
+      MaxKb: 2.5
       MinRange: 5
       MaxRange: 40
       HitBox: 1.5
+    1:
+      ConfigName: ElectrostaticLeap
+      Name: "Electrostatic Leap"
+      Item:
+        Material: IRON_AXE
+      Description:
+        - "&7Pikachew possesses strong hind legs that allow"
+        - "&7him to leap upwards. The liftoff power is"
+        - "&7strong and imbued with electricity, hurting"
+        - "&7enemies within a nearby radius."
+      Cooldown: 180
+      Radius: 4
+      Velocity: 1.5
+      HitBox: 1.3
+      Damage: 6
+      Kb: 1.6
+      KbY: 0.5
 Skellington:
   ConfigName: Skellington
   Name: "Skellington"
@@ -1154,22 +1133,6 @@ Skellington:
       Volume: 2
       Pitch: 1
   Abilities:
-    1:
-      ConfigName: RopedArrow
-      Name: "Roped Arrow"
-      Item:
-        Material: BOW
-      Description:
-        - "&7Left click to launch a precise arrow"
-        - "&7that functions like a grapple. Allows"
-        - "&7for quick combos and agile movement."
-      Cooldown: 95
-      PullStrength: 1.6
-      ExtraY: 0.4
-      Speed: 2.1
-      Damage: 6
-      Kb: 1.6
-      KbY: 0.75
     0:
       ConfigName: BoneExplosion
       Name: "Bone Explosion"
@@ -1186,8 +1149,24 @@ Skellington:
       MinDamage: 2
       MaxDamage: 7
       MinKb: 0.9
-      MaxKb: 2.5
+      MaxKb: 2.1
       KbY: 0.8
+    1:
+      ConfigName: RopedArrow
+      Name: "Roped Arrow"
+      Item:
+        Material: BOW
+      Description:
+        - "&7Left click to launch a precise arrow"
+        - "&7that functions like a grapple. Allows"
+        - "&7for quick combos and agile movement."
+      Cooldown: 95
+      PullStrength: 1.6
+      ExtraY: 0.4
+      Speed: 2.1
+      Damage: 6
+      Kb: 1.6
+      KbY: 0.75
     2:
       ConfigName: BoneTippedArrow
       Name: "Bone-Tipped Arrow"

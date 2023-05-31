@@ -23,21 +23,20 @@ public abstract class ActualProjectile<T extends Projectile> extends CustomProje
     @Override
     public T createEntity(Location location) {
         T projectile = createProjectile(location);
-        projectile.setShooter(ability.getPlayer());
+        projectile.setShooter(this.ability.getPlayer());
         return projectile;
     }
 
     @EventHandler
-    public void checkTargetHit(EntityDamageByEntityEvent event) {
-        if (event.getDamager() != entity) return;
+    public void onTargetHit(EntityDamageByEntityEvent event) {
+        if (event.getDamager() != this.entity) return;
         if (!(event.getEntity() instanceof LivingEntity)) return;
 
-        if (event.getEntity() == ability.getPlayer()) {
-            event.setCancelled(true);
+        event.setCancelled(true);
 
-        } else {
-            handleTargetHit((LivingEntity) event.getEntity());
-            remove();
+        if (event.getEntity() != this.launcher) {
+            this.handleTargetHit((LivingEntity) event.getEntity());
+            this.remove();
         }
     }
 
@@ -45,15 +44,15 @@ public abstract class ActualProjectile<T extends Projectile> extends CustomProje
 
     @EventHandler
     public void handleBlockHit(ProjectileHitEvent event) {
-        if (event.getEntity() != entity) return;
+        if (event.getEntity() != this.entity) return;
 
-        onGeneralHit();
+        this.onGeneralHit();
 
-        Section collisionConfig = plugin.getResources().getConfig().getSection("Collision");
+        Section collisionConfig = this.plugin.getResources().getConfig().getSection("Collision");
         int range = collisionConfig.getInt("CheckRange");
         double step = collisionConfig.getDouble("CheckStep");
         double faceAccuracy = collisionConfig.getDouble("FaceAccuracy");
 
-        handleBlockHitResult(BlockUtils.findBlockHitWithRay(entity, entity.getVelocity(), range, step, faceAccuracy));
+        this.handleBlockHitResult(BlockUtils.findBlockHitWithRay(this.entity, this.entity.getVelocity(), range, step, faceAccuracy));
     }
 }
