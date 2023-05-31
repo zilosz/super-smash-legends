@@ -33,17 +33,13 @@ public abstract class Ability extends Attribute implements Nameable {
         return config.getStringList("Description");
     }
 
-    public String getColor() {
-        return kit.getColor();
-    }
-
     @Override
     public String getDisplayName() {
-        return MessageUtils.color(getColor() + config.getString("Name"));
+        return MessageUtils.color(this.kit.getColor() + config.getString("Name"));
     }
 
     public String getBoldedDisplayName() {
-        return MessageUtils.color(getColor() + "&l" + config.getString("Name"));
+        return MessageUtils.color(this.kit.getColor() + "&l" + config.getString("Name"));
     }
 
     public Material getMaterial() {
@@ -70,7 +66,7 @@ public abstract class Ability extends Attribute implements Nameable {
         player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 1);
 
         Replacers replacers = new Replacers()
-                .add("COLOR", getColor())
+                .add("COLOR", this.kit.getColor())
                 .add("DISPLAY_NAME", getDisplayName())
                 .add("USE_TYPE", getUseType())
                 .add("DESCRIPTION", getDescription());

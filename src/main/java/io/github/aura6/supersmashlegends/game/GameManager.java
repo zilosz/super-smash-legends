@@ -12,6 +12,7 @@ import io.github.aura6.supersmashlegends.utils.message.Chat;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.scheduler.BukkitTask;
@@ -117,8 +118,9 @@ public class GameManager {
 
     public Set<Player> getAlivePlayers() {
         return this.profiles.keySet().stream()
-                .map(Bukkit::getPlayer)
-                .filter(Player::isOnline)
+                .map(Bukkit::getOfflinePlayer)
+                .filter(OfflinePlayer::isOnline)
+                .map(OfflinePlayer::getPlayer)
                 .filter(this::isPlayerAlive)
                 .collect(Collectors.toSet());
     }
