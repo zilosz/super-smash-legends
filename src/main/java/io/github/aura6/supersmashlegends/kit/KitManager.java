@@ -2,9 +2,7 @@ package io.github.aura6.supersmashlegends.kit;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.game.GameManager;
-import io.github.aura6.supersmashlegends.game.state.GameState;
 import io.github.aura6.supersmashlegends.game.state.InGameState;
-import io.github.aura6.supersmashlegends.game.state.LobbyState;
 import io.github.aura6.supersmashlegends.utils.Skin;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
@@ -130,12 +128,6 @@ public class KitManager implements Listener {
 
     public void setKit(Player player, Kit kit) {
         GameManager gameManager = this.plugin.getGameManager();
-        GameState state = gameManager.getState();
-
-        if (!(state instanceof InGameState) && !(state instanceof LobbyState)) {
-            Chat.KIT.send(player, "&7You cannot set your kit at this time.");
-            return;
-        }
 
         UUID uuid = player.getUniqueId();
         Kit newKit = kit.copy();
@@ -144,7 +136,7 @@ public class KitManager implements Listener {
             oldKit.destroy();
             updateAccessHologram(this.kitHolograms.get(uuid).get(oldKit.getConfigName()), KitAccessType.ACCESS, oldKit);
 
-            if (state instanceof InGameState) {
+            if (gameManager.getState() instanceof InGameState) {
                 Skin oldSkin = oldKit.getSkin();
                 Skin newSkin = newKit.getSkin();
 
@@ -157,7 +149,7 @@ public class KitManager implements Listener {
 
         newKit.equip(player);
 
-        if (state instanceof InGameState) {
+        if (gameManager.getState() instanceof InGameState) {
             newKit.activate();
         }
 
@@ -168,11 +160,11 @@ public class KitManager implements Listener {
     }
 
     public Kit getSelectedKit(Player player) {
-        return selectedKits.get(player.getUniqueId());
+        return this.selectedKits.get(player.getUniqueId());
     }
 
     public Optional<Kit> getKitByName(String name) {
-        return kitsByName.containsKey(name) ? Optional.of(kitsByName.get(name)) : Optional.empty();
+        return this.kitsByName.containsKey(name) ? Optional.of(this.kitsByName.get(name)) : Optional.empty();
     }
 
     public KitAccessType handleKitSelection(Player player, Kit kit) {

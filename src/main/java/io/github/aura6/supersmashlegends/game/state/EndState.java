@@ -70,7 +70,7 @@ public class EndState extends GameState {
 
         GameManager gameManager = this.plugin.getGameManager();
 
-        if (gameManager.hasProfile(player)) {
+        if (this.plugin.getTeamManager().doesPlayerHaveTeam(player)) {
             InGameProfile profile = gameManager.getProfile(player);
 
             replacers.add("KILLS", String.valueOf(profile.getKills()));
@@ -86,10 +86,11 @@ public class EndState extends GameState {
 
     @Override
     public void start() {
+        GameManager gameManager = this.plugin.getGameManager();
         TeamManager teamManager = this.plugin.getTeamManager();
 
-        teamManager.getAliveTeams().forEach(team -> team.setLifespan(team.getLifespan() + 1));
-        Comparator<Team> comp = Comparator.comparingInt(Team::getLifespan);
+        teamManager.getAliveTeams().forEach(team -> team.setLifespan(gameManager.getTicksActive() + 1));
+        Comparator<Team> comp = Comparator.comparingInt(Team::getLifespan).reversed();
         List<List<Team>> rankedTeams = CollectionUtils.getRankedGroups(teamManager.getTeamList(), comp);
 
         List<String> ranking = new ArrayList<>(Arrays.asList(
@@ -142,14 +143,12 @@ public class EndState extends GameState {
 
         ranking.add("&5--------------------------");
 
-        GameManager gameManager = this.plugin.getGameManager();
-
         if (rankedTeams.get(0).size() == 1) {
             Team winningTeam = rankedTeams.get(0).get(0);
-            List<Player> winningList = winningTeam.getPlayers();
+            Set<Player> winningSet = winningTeam.getPlayers();
 
             if (teamManager.getTeamSize() == 1) {
-                Player winner = winningList.get(0);
+                Player winner = winningSet.iterator().next();
                 Kit winnerKit = this.plugin.getKitManager().getSelectedKit(winner);
                 this.winnerString = winnerKit.getColor() + winner.getName();
 
@@ -157,18 +156,15 @@ public class EndState extends GameState {
                 this.winnerString = winningTeam.getColor() + winningTeam.getName();
             }
 
-            for (Player player : Bukkit.getOnlinePlayers()) {
+            for (Player player : playerRanks.keySet()) {
 
-                if (winningList.contains(player)) {
+                if (winningSet.contains(player)) {
                     gameManager.getProfile(player).setGameResult(GameResult.WIN);
                     Chat.GAME.send(player, "&7You have &a&lwon!");
 
                 } else {
+                    gameManager.getProfile(player).setGameResult(GameResult.LOSE);
                     Chat.GAME.send(player, String.format("%s &7has &awon!", this.winnerString));
-
-                    if (gameManager.hasProfile(player)) {
-                        gameManager.getProfile(player).setGameResult(GameResult.LOSE);
-                    }
                 }
             }
 
@@ -176,39 +172,42 @@ public class EndState extends GameState {
             Set<Player> tiedPlayers = rankedTeams.get(0).stream()
                     .flatMap(team -> team.getPlayers().stream()).collect(Collectors.toSet());
 
-            for (Player player : Bukkit.getOnlinePlayers()) {
+            for (Player player : playerRanks.keySet()) {
                 String tieString;
+                GameResult result;
 
                 if (tiedPlayers.contains(player)) {
-                    gameManager.getProfile(player).setGameResult(GameResult.TIE);
+                    result = GameResult.TIE;
                     tieString = "&7You have &e&ltied.";
 
-                } else if (teamManager.getTeamSize() == 1) {
-                    tieString = "&7There has been a &etie.";
-
                 } else {
-                    tieString = "&7There has been a &etie &7between teams.";
+                    result = GameResult.LOSE;
+
+                    if (teamManager.getTeamSize() == 1) {
+                        tieString = "&7There has been a &etie.";
+
+                    } else {
+                        tieString = "&7There has been a &etie &7between teams.";
+                    }
                 }
 
                 Chat.GAME.send(player, tieString);
+                gameManager.getProfile(player).setGameResult(result);
             }
         }
 
-        for (Team team : teamManager.getTeamList()) {
+        for (Player player : playerRanks.keySet()) {
+            UUID uuid = player.getUniqueId();
+            InGameProfile profile = gameManager.getProfile(player);
+            Database db = this.plugin.getDb();
 
-            for (Player player : team.getPlayers()) {
-                UUID uuid = player.getUniqueId();
-                InGameProfile profile = gameManager.getProfile(player);
-                Database db = this.plugin.getDb();
-
-                if (teamManager.getTeamList().size() > 1) {
-                    db.increaseInt(uuid, profile.getGameResult().getDbString(), 1);
-                    db.increaseInt(uuid, "result." + playerRanks.get(player), 1);
-                    db.increaseInt(uuid, "kills", profile.getKills());
-                    db.increaseInt(uuid, "deaths", profile.getDeaths());
-                    db.increaseDouble(uuid, "damageDealt", profile.getDamageDealt());
-                    db.increaseDouble(uuid, "damageTaken", profile.getDamageTaken());
-                }
+            if (teamManager.getTeamList().size() > 1) {
+                db.increaseInt(uuid, profile.getGameResult().getDbString(), 1);
+                db.increaseInt(uuid, "result." + playerRanks.get(player), 1);
+                db.increaseInt(uuid, "kills", profile.getKills());
+                db.increaseInt(uuid, "deaths", profile.getDeaths());
+                db.increaseDouble(uuid, "damageDealt", profile.getDamageDealt());
+                db.increaseDouble(uuid, "damageTaken", profile.getDamageTaken());
             }
         }
 

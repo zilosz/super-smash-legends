@@ -94,7 +94,7 @@ public class GameManager {
     }
 
     public void startTicks() {
-        tickTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> ticksActive++, 0, 0);
+        this.tickTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> this.ticksActive++, 0, 0);
     }
 
     public void setupProfile(Player player) {
@@ -107,13 +107,8 @@ public class GameManager {
         return profiles.get(player.getUniqueId());
     }
 
-    public boolean hasProfile(Player player) {
-        return profiles.containsKey(player.getUniqueId());
-    }
-
     public boolean isPlayerAlive(Player player) {
-        boolean hasTeam = this.plugin.getTeamManager().getPlayerTeam(player) != null;
-        return hasTeam && this.profiles.get(player.getUniqueId()).getLives() > 0;
+        return !this.isSpectator(player) && this.getProfile(player).getLives() > 0;
     }
 
     public Set<Player> getAlivePlayers() {
@@ -127,16 +122,16 @@ public class GameManager {
 
     public void addSpectator(Player player) {
         player.setGameMode(GameMode.SPECTATOR);
-        spectators.add(player);
+        this.spectators.add(player);
     }
 
     public void removeSpectator(Player player) {
         player.setGameMode(GameMode.SURVIVAL);
-        spectators.remove(player);
+        this.spectators.remove(player);
     }
 
     public boolean isSpectator(Player player) {
-        return spectators.contains(player);
+        return this.spectators.contains(player);
     }
 
     public void reset() {

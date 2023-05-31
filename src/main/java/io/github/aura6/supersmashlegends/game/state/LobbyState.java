@@ -220,7 +220,7 @@ public class LobbyState extends GameState {
 
             kitManager.updateHolograms(player);
 
-            if (!gameManager.hasProfile(player)) {
+            if (gameManager.isSpectator(player)) {
                 this.initializePlayer(player);
                 continue;
             }
@@ -286,7 +286,7 @@ public class LobbyState extends GameState {
         player.setLevel(0);
         player.teleport(getSpawn());
 
-        if (this.plugin.getGameManager().hasProfile(player)) {
+        if (!this.plugin.getGameManager().isSpectator(player)) {
             ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Returned to the lobby."));
         }
 

@@ -18,6 +18,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -156,6 +157,8 @@ public class PowerManager implements Listener {
 
         this.givenPowerUps.forEach((kit, powerUps) -> powerUps.forEach(kit::removeAttribute));
         this.givenPowerUps.clear();
+
+        HandlerList.unregisterAll(this);
     }
 
     @EventHandler

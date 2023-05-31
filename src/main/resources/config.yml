@@ -47,7 +47,7 @@ Game:
   DeathWaitSeconds: 5
   StartWaitSeconds: 5
   EndWaitSeconds: 5
-  AllowKitSelectionInGame: false
+  AllowKitSelectionInGame: true
 Damage:
   DefaultImmunityTicks: 10
   Lifetime: 240

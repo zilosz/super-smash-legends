@@ -1,8 +1,11 @@
 package io.github.aura6.supersmashlegends.command;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
+import io.github.aura6.supersmashlegends.game.state.GameState;
 import io.github.aura6.supersmashlegends.game.state.InGameState;
+import io.github.aura6.supersmashlegends.game.state.LobbyState;
 import io.github.aura6.supersmashlegends.kit.KitManager;
+import io.github.aura6.supersmashlegends.utils.message.Chat;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -21,20 +24,23 @@ public class KitCommand implements CommandExecutor {
         if (!(commandSender instanceof Player)) return false;
 
         Player player = (Player) commandSender;
-        boolean canChangeInGame = this.plugin.getResources().getConfig().getBoolean("AllowKitSelectionInGame");
+        GameState state = this.plugin.getGameManager().getState();
 
-        if (this.plugin.getGameManager().getState() instanceof InGameState && canChangeInGame) {
-            player.sendMessage("&7You cannot change your kit in-game.");
-            return false;
-        }
+        boolean canChangeInGame = this.plugin.getResources().getConfig().getBoolean("Game.AllowKitSelectionInGame");
 
-        if (strings.length == 0) {
-            plugin.getKitSelector().build().open(player);
+        if (state instanceof LobbyState || state instanceof InGameState && canChangeInGame) {
+
+            if (strings.length == 0) {
+                this.plugin.getKitSelector().build().open(player);
+
+            } else {
+                KitManager kitManager = this.plugin.getKitManager();
+                String name = StringUtils.capitalize(strings[0].toLowerCase());
+                kitManager.getKitByName(name).ifPresent(kit -> kitManager.handleKitSelection(player, kit));
+            }
 
         } else {
-            KitManager kitManager = plugin.getKitManager();
-            String name = StringUtils.capitalize(strings[0].toLowerCase());
-            kitManager.getKitByName(name).ifPresent(kit -> kitManager.handleKitSelection(player, kit));
+            Chat.KIT.send(player, "&7You cannot change your kit at this time.");
         }
 
         return true;

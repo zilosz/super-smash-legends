@@ -69,11 +69,15 @@ public class TeamManager {
     }
 
     public Team getPlayerTeam(Player player) {
-        return teamsByEntity.get(player.getUniqueId());
+        return this.teamsByEntity.get(player.getUniqueId());
+    }
+
+    public boolean doesPlayerHaveTeam(Player player) {
+        return this.teamsByEntity.containsKey(player.getUniqueId());
     }
 
     public Optional<Team> findChosenTeam(Player player) {
-        return teamList.stream().filter(team -> team.hasPlayer(player)).findAny();
+        return this.teamList.stream().filter(team -> team.hasPlayer(player)).findAny();
     }
 
     public String getPlayerColor(Player player) {
@@ -97,28 +101,28 @@ public class TeamManager {
     }
 
     public void removeEmptyTeams() {
-        teamList.removeIf(Team::isEmpty);
+        this.teamList.removeIf(Team::isEmpty);
     }
 
     public List<Team> getAliveTeams() {
-        return teamList.stream().filter(Team::isAlive).collect(Collectors.toList());
+        return this.teamList.stream().filter(Team::isAlive).collect(Collectors.toList());
     }
 
     public boolean isGameTieOrWin() {
-        return teamList.stream().filter(Team::isAlive).count() <= 1;
+        return this.teamList.stream().filter(Team::isAlive).count() <= 1;
     }
 
     public void wipePlayer(Player player) {
-        Optional.ofNullable(teamsByEntity.remove(player.getUniqueId())).ifPresent(team -> team.removePlayer(player));
+        Optional.ofNullable(this.teamsByEntity.remove(player.getUniqueId())).ifPresent(team -> team.removePlayer(player));
     }
 
     public Optional<Team> findEntityTeam(LivingEntity entity) {
-        return Optional.ofNullable(teamsByEntity.getOrDefault(entity.getUniqueId(), null));
+        return Optional.ofNullable(this.teamsByEntity.getOrDefault(entity.getUniqueId(), null));
     }
 
     public void reset() {
-        teamList.clear();
-        teamsByEntity.clear();
+        this.teamList.clear();
+        this.teamsByEntity.clear();
         grabTeams();
     }
 }

@@ -132,8 +132,11 @@ public class InGameState extends GameState {
 
                 for (Team team : aliveTeams) {
 
-                    for (Player alivePlayer : team.getPlayers()) {
-                        scoreboard.add(playerIndex + 1, getPlayerLivesText(alivePlayer, lifeCap, team.getColor()));
+                    for (Player p : team.getSortedPlayers()) {
+
+                        if (this.plugin.getGameManager().isPlayerAlive(p)) {
+                            scoreboard.add(playerIndex + 1, getPlayerLivesText(p, lifeCap, team.getColor()));
+                        }
                     }
                 }
 
@@ -147,6 +150,7 @@ public class InGameState extends GameState {
 
     @Override
     public void start() {
+        Bukkit.getPluginManager().registerEvents(this.plugin.getPowerManager(), this.plugin);
         this.plugin.getPowerManager().startPowerTimer();
 
         this.secLeft = this.plugin.getResources().getConfig().getInt("Game.MaxGameSeconds");
@@ -172,7 +176,7 @@ public class InGameState extends GameState {
                     spawnsLeft = spawnLocations;
                 }
 
-                this.plugin.getKitManager().getSelectedKit(player).activate();
+                this.plugin.getGameManager().getProfile(player).getKit().activate();
 
                 if (this.plugin.getTeamManager().getTeamSize() > 1) {
                     String color = this.plugin.getTeamManager().getPlayerColor(player);

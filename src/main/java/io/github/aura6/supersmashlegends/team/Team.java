@@ -4,25 +4,26 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class Team {
     private final SuperSmashLegends plugin;
+
     private final TeamData data;
-    private final List<UUID> players = new ArrayList<>();
+
+    private final Set<Player> players = new HashSet<>();
     private final Set<LivingEntity> entities = new HashSet<>();
-    @Getter @Setter private int lifespan = Integer.MAX_VALUE;
+
+    @Getter @Setter private int lifespan;
 
     public Team(SuperSmashLegends plugin, TeamData data) {
         this.plugin = plugin;
@@ -30,58 +31,62 @@ public class Team {
     }
 
     public String getColor() {
-        return data.getTextColor();
+        return this.data.getTextColor();
     }
 
     public String getName() {
-        return MessageUtils.color(getColor() + data.getName());
+        return MessageUtils.color(getColor() + this.data.getName());
     }
 
     public ItemStack getItemStack() {
-        return new ItemStack(Material.WOOL, 1, (byte) data.getWoolData());
+        return new ItemStack(Material.WOOL, 1, (byte) this.data.getWoolData());
     }
 
     public void addPlayer(Player player) {
-        players.add(player.getUniqueId());
+        this.players.add(player);
     }
 
     public boolean hasPlayer(Player player) {
-        return players.contains(player.getUniqueId());
+        return this.players.contains(player);
     }
 
     public void removePlayer(Player player) {
-        players.remove(player.getUniqueId());
+        this.players.remove(player);
     }
 
     public void addEntity(LivingEntity entity) {
-        entities.add(entity);
+        this.entities.add(entity);
     }
 
     public boolean hasEntity(LivingEntity entity) {
-        return entities.contains(entity) || players.contains(entity.getUniqueId());
+        return this.entities.contains(entity) || entity instanceof Player && this.players.contains((Player) entity);
     }
 
     public void removeEntity(LivingEntity entity) {
-        entities.remove(entity);
+        this.entities.remove(entity);
     }
 
     public int getSize() {
-        return players.size();
+        return this.players.size();
     }
 
     public boolean isEmpty() {
-        return players.size() == 0;
+        return this.players.isEmpty();
     }
 
-    public List<Player> getPlayers() {
-        return players.stream().map(Bukkit::getPlayer).collect(Collectors.toList());
+    public Set<Player> getPlayers() {
+        return new HashSet<>(this.players);
+    }
+
+    public List<Player> getSortedPlayers() {
+        return this.players.stream().sorted(Comparator.comparing(Player::getName)).collect(Collectors.toList());
     }
 
     public boolean isAlive() {
-        return getPlayers().stream().allMatch(player -> plugin.getGameManager().isPlayerAlive(player));
+        return this.players.stream().allMatch(player -> this.plugin.getGameManager().isPlayerAlive(player));
     }
 
     public boolean canJoin(Player player) {
-        return !hasPlayer(player) && players.size() < plugin.getTeamManager().getTeamSize();
+        return !hasPlayer(player) && this.players.size() < this.plugin.getTeamManager().getTeamSize();
     }
 }

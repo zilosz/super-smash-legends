@@ -28,7 +28,6 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.IllegalPluginAccessException;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
@@ -77,9 +76,7 @@ public class SuperSmashLegends extends JavaPlugin {
             db.init(dbConfig.getString("Uri"), dbConfig.getString("Database"), dbConfig.getString("Collection"));
         }
 
-        PluginManager pluginManager = Bukkit.getPluginManager();
-        pluginManager.registerEvents(kitManager, this);
-        pluginManager.registerEvents(powerManager, this);
+        Bukkit.getPluginManager().registerEvents(this.kitManager, this);
 
         Vector pasteVector = YamlReader.vector(resources.getLobby().getString("PasteVector"));
         File schematic = FileUtility.loadSchematic(this, "lobby");

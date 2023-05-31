@@ -59,8 +59,8 @@ public class DiseasedFlesh extends RightClickAbility {
 
         @Override
         public void onTargetHit(LivingEntity target) {
-            target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 15, 1));
-            target.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 15, 1));
+            target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 1));
+            target.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 25, 1));
         }
 
         @Override

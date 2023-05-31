@@ -2,6 +2,8 @@ package io.github.aura6.supersmashlegends.game.state;
 
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
+import io.github.aura6.supersmashlegends.game.GameManager;
+import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import org.bukkit.Bukkit;
@@ -81,17 +83,21 @@ public abstract class GameState implements Listener {
     @EventHandler
     public void onGeneralQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        GameManager gameManager = this.plugin.getGameManager();
 
-        if (isInArena() && this.plugin.getGameManager().isPlayerAlive(player)) {
+        if (this.isInArena() && gameManager.isPlayerAlive(player)) {
             String color = this.plugin.getTeamManager().getPlayerColor(player);
             event.setQuitMessage(Chat.QUIT.get(String.format("%s &7has quit mid-game.", color + player.getName())));
 
-            if (!(this instanceof EndState)) {
-                int lifespan = this.plugin.getGameManager().getTicksActive();
-                this.plugin.getTeamManager().getPlayerTeam(player).setLifespan(lifespan);
+            InGameProfile profile = gameManager.getProfile(player);
+            profile.setDeaths(this.plugin.getResources().getConfig().getInt("Game.Lives"));
+            profile.setLives(0);
 
-                if (this.plugin.getGameManager().getAlivePlayers().size() <= 2) {
-                    this.plugin.getGameManager().skipToState(new EndState(this.plugin));
+            if (!(this instanceof EndState)) {
+                this.plugin.getTeamManager().getPlayerTeam(player).setLifespan(gameManager.getTicksActive());
+
+                if (gameManager.getAlivePlayers().size() <= 1) {
+                    gameManager.skipToState(new EndState(this.plugin));
                 }
             }
 
@@ -100,7 +106,7 @@ public abstract class GameState implements Listener {
         }
 
         this.plugin.getKitManager().wipePlayer(player);
-        this.plugin.getGameManager().removeSpectator(player);
+        gameManager.removeSpectator(player);
     }
 
     @EventHandler
