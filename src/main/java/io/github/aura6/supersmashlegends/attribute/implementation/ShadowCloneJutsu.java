@@ -165,7 +165,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
 
             double height = config.getDouble("Clone.Rasenshuriken.Height");
             this.lastShurikenLocation = EntityUtils.top(this.creature).add(0, height, 0);
-            Rasenshuriken.display(this.lastShurikenLocation, false, config);
+            Rasenshuriken.display(this.lastShurikenLocation, false, this.config);
         }
 
         @EventHandler

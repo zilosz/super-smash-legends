@@ -82,12 +82,12 @@ public class Rasenshuriken extends RightClickAbility {
         shuriken.launch();
 
         reset();
+        startCooldown();
     }
 
     private void reset() {
         if (task == null) return;
 
-        startCooldown();
         task.cancel();
         task = null;
         hotbarItem.show();
