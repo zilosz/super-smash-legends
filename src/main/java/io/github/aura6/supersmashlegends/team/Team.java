@@ -59,7 +59,7 @@ public class Team {
     }
 
     public boolean hasEntity(LivingEntity entity) {
-        return this.entities.contains(entity) || entity instanceof Player && this.players.contains((Player) entity);
+        return this.entities.contains(entity);
     }
 
     public void removeEntity(LivingEntity entity) {

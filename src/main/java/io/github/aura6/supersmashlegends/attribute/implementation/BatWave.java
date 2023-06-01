@@ -80,6 +80,7 @@ public class BatWave extends RightClickAbility {
 
         @Override
         public void onRemove() {
+            super.onRemove();
             this.unleash();
         }
     }
@@ -93,6 +94,7 @@ public class BatWave extends RightClickAbility {
 
         @Override
         public void onLaunch() {
+            super.onLaunch();
             this.state = BatWaveState.UNLEASHED;
         }
 
@@ -117,6 +119,7 @@ public class BatWave extends RightClickAbility {
 
         @Override
         public void onRemove() {
+            super.onRemove();
             this.state = BatWaveState.INACTIVE;
 
             if (this.ability.isEnabled()) {

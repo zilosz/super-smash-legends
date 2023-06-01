@@ -14,6 +14,7 @@ import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -133,16 +134,11 @@ public class DamageManager {
     }
 
     public void clearImmunities(LivingEntity entity) {
-        if (!this.immunities.containsKey(entity.getUniqueId())) return;
-
-        for (Attribute attribute : this.immunities.get(entity.getUniqueId())) {
-
-            if (this.immunityRemovers.containsKey(attribute)) {
-                this.immunityRemovers.get(attribute).cancel();
-                this.immunityRemovers.remove(attribute);
+        Optional.ofNullable(this.immunities.get(entity.getUniqueId())).ifPresent(immunities -> {
+            for (Attribute attribute : immunities) {
+                Optional.ofNullable(this.immunityRemovers.remove(attribute)).ifPresent(BukkitTask::cancel);
             }
-        }
-
-        this.immunities.get(entity.getUniqueId()).clear();
+            immunities.clear();
+        });
     }
 }

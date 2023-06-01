@@ -32,21 +32,21 @@ public class ShadowAmbush extends RightClickAbility {
         Block one = spotBehind.getBlock();
         Block two = spotBehind.clone().add(0, 1, 0).getBlock();
 
-        player.teleport(one.getType().isSolid() || two.getType().isSolid() ? targetLoc : spotBehind);
-        target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, config.getInt("BlindnessDuration"), 1));
+        this.player.teleport(one.getType().isSolid() || two.getType().isSolid() ? targetLoc : spotBehind);
+        target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, this.config.getInt("BlindnessDuration"), 1));
 
-        player.getWorld().playSound(player.getLocation(), Sound.WITHER_HURT, 1, 0.5f);
-        new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(EntityUtils.center(player), 2.5, 15, 0.5);
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.WITHER_HURT, 1, 0.5f);
+        new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(EntityUtils.center(this.player), 2.5, 15, 0.5);
     }
 
     private void fail() {
-        player.playSound(player.getLocation(), Sound.WITHER_HURT, 1, 2f);
+        this.player.playSound(this.player.getLocation(), Sound.WITHER_HURT, 1, 2f);
     }
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(EntityUtils.center(player), 1.5, 15, 0.5);
-        EntityFinder finder = new EntityFinder(plugin, new DistanceSelector(config.getDouble("Range")));
-        finder.findClosest(player).ifPresentOrElse(this::teleport, this::fail);
+        new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(EntityUtils.center(this.player), 1.5, 15, 0.5);
+        EntityFinder finder = new EntityFinder(this.plugin, new DistanceSelector(this.config.getDouble("Range")));
+        finder.findClosest(this.player).ifPresentOrElse(this::teleport, this::fail);
     }
 }

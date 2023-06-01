@@ -55,14 +55,14 @@ public class EntityFinder {
 
     private Stream<LivingEntity> getFilteredStream(LivingEntity user, Location location) {
         return rangeSelector.getEntityStream(location)
-                .filter(entity -> entityType == null || entity.getType() == entityType)
+                .filter(entity -> this.entityType == null || entity.getType().equals(this.entityType))
                 .filter(entity -> !(entity instanceof ArmorStand))
                 .filter(entity -> entity instanceof LivingEntity)
                 .map(LivingEntity.class::cast)
                 .filter(entity -> !(entity instanceof Player) || plugin.getGameManager().isPlayerAlive((Player) entity) && ((Player) entity).getGameMode() == GameMode.SURVIVAL)
                 .filter(entity -> !avoidsUser || entity != user)
                 .filter(entity -> !toAvoid.contains(entity.getUniqueId()))
-                .filter(entity -> plugin.getTeamManager().findEntityTeam(user).map(team -> teamPreference.validate(team, entity)).orElse(true));
+                .filter(entity -> plugin.getTeamManager().findEntityTeam(user).map(team -> teamPreference.validate(team, entity)).orElse(false));
     }
 
     public Optional<LivingEntity> findClosest(LivingEntity user, Location location) {

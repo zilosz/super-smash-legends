@@ -13,7 +13,7 @@ public class CollectionUtils {
     public static <T> List<List<T>> getRankedGroups(Iterable<T> elements, Comparator<T> comparator, int maxElements) {
         List<List<T>> ranked = new ArrayList<>();
 
-        if (maxElements == 0) return ranked;
+        if (maxElements <= 0) return ranked;
 
         List<T> list = Lists.newArrayList(elements);
         list.sort(comparator);
@@ -65,10 +65,6 @@ public class CollectionUtils {
 
     public static <T> List<T> findByHighestInt(List<T> items, Function<T, Integer> key) {
         return findByHighestDouble(items, key.andThen(Integer::doubleValue));
-    }
-
-    public static <T> List<T> findByLowestInt(List<T> items, Function<T, Integer> key) {
-        return findByHighestInt(items, key.andThen(number -> -number));
     }
 
     public static <T> T selectRandom(List<T> items) {
