@@ -38,81 +38,88 @@ public class Earthquake extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        player.getWorld().playSound(player.getLocation(), Sound.IRONGOLEM_THROW, 1, 0.5f);
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.IRONGOLEM_THROW, 1, 0.5f);
+
+        double horizontal = this.config.getDouble("HorizontalRange");
+        double vertical = this.config.getDouble("VerticalRange");
 
         this.quakeTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            if (!EntityUtils.isPlayerGrounded(player)) return;
+            if (!EntityUtils.isPlayerGrounded(this.player)) return;
 
-            Location location = player.getLocation().add(0, 0.3, 0);
+            Location location = this.player.getLocation().add(0, 0.3, 0);
             new ParticleBuilder(EnumParticle.REDSTONE).setRgb(139, 69, 19).ring(location, 90, 0, 1.5, 30);
             new ParticleBuilder(EnumParticle.REDSTONE).setRgb(160, 82, 45).ring(location, 90, 0, 0.75, 15);
 
-            RangeSelector selector = new HitBoxSelector(
-                    config.getDouble("HorizontalRange"), config.getDouble("VerticalRange"), config.getDouble("HorizontalRange"));
+            RangeSelector selector = new HitBoxSelector(horizontal, vertical, horizontal);
 
-            new EntityFinder(plugin, selector).findAll(player).forEach(target -> {
+            new EntityFinder(this.plugin, selector).findAll(this.player).forEach(target -> {
                 if (!target.isOnGround()) return;
 
-                Damage damage = Damage.Builder.fromConfig(config, VectorUtils.fromTo(player, target)).build();
+                Damage damage = Damage.Builder.fromConfig(this.config, VectorUtils.fromTo(this.player, target)).build();
 
-                if (plugin.getDamageManager().attemptAttributeDamage(target, damage, this)) {
-                    player.getWorld().playSound(target.getLocation(), Sound.ANVIL_LAND, 1, 1);
-                    uproot(target.getLocation());
+                if (this.plugin.getDamageManager().attemptAttributeDamage(target, damage, this)) {
+                    this.player.getWorld().playSound(target.getLocation(), Sound.ANVIL_LAND, 1, 1);
+                    this.uproot(target.getLocation());
                 }
             });
-        }, 0, config.getInt("UprootInterval"));
+        }, 0, this.config.getInt("UprootInterval"));
 
-        this.uprootTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            if (!EntityUtils.isPlayerGrounded(player)) return;
+        this.uprootTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+            if (!EntityUtils.isPlayerGrounded(this.player)) return;
 
-            Location center = player.getLocation();
+            Location center = this.player.getLocation();
 
-            int x = (int) MathUtils.randSpread(center.getBlockX(), config.getDouble("HorizontalRange"));
-            int z = (int) MathUtils.randSpread(center.getBlockZ(), config.getDouble("HorizontalRange"));
+            int x = (int) MathUtils.randSpread(center.getBlockX(), horizontal);
+            int z = (int) MathUtils.randSpread(center.getBlockZ(), horizontal);
 
-            Location currLoc = new Location(player.getWorld(), x, center.getBlockY() + config.getDouble("VerticalRange"), z);
+            Location currLoc = new Location(this.player.getWorld(), x, center.getBlockY() + vertical, z);
             int movedDown = 0;
 
-            while (movedDown < config.getDouble("VerticalRange") * 2 && currLoc.getBlock().getType() == Material.AIR) {
+            while (movedDown < vertical * 2 && currLoc.getBlock().getType() == Material.AIR) {
                 currLoc.subtract(0, 1, 0);
                 movedDown++;
             }
 
-            Location uprootLocation = new Location(player.getWorld(), x, currLoc.getY() + 1, z);
+            Location uprootLocation = new Location(this.player.getWorld(), x, currLoc.getY() + 1, z);
 
             if (uprootLocation.getBlock().getType() == Material.AIR) {
-                uproot(uprootLocation);
+                this.uproot(uprootLocation);
             }
-        }, 0, config.getInt("UprootInterval"));
+        }, 0, this.config.getInt("UprootInterval"));
 
-        this.stopTask = Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            startCooldown();
-            this.quakeTask.cancel();
-            this.uprootTask.cancel();
-            stopTask = null;
-            player.getWorld().playSound(player.getLocation(), Sound.IRONGOLEM_DEATH, 1, 1);
-        }, config.getInt("Duration"));
+        this.stopTask = Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+            if (this.tryReset()) {
+                this.startCooldown();
+                this.player.getWorld().playSound(this.player.getLocation(), Sound.IRONGOLEM_DEATH, 1, 1);
+            }
+        }, this.config.getInt("Duration"));
     }
 
     private void uproot(Location loc) {
-        player.getWorld().playSound(loc, Sound.DIG_GRASS, 1, 1);
+        this.player.getWorld().playSound(loc, Sound.DIG_GRASS, 1, 1);
 
         Block groundBlock = loc.clone().subtract(0, 0.5, 0).getBlock();
         BlockUtils.setBlockFast(loc, groundBlock.getTypeId(), groundBlock.getData());
 
-        Bukkit.getScheduler().runTaskLater(plugin, () ->
-                BlockUtils.setBlockFast(loc, Material.AIR.getId(), (byte) 2), config.getInt("UprootDuration"));
+        int id = Material.AIR.getId();
+        int duration = this.config.getInt("UprootDuration");
+        Bukkit.getScheduler().runTaskLater(this.plugin, () -> BlockUtils.setBlockFast(loc, id, (byte) 2), duration);
+    }
+
+    private boolean tryReset() {
+        if (this.stopTask == null) return false;
+
+        this.stopTask.cancel();
+        this.stopTask = null;
+        this.quakeTask.cancel();
+        this.uprootTask.cancel();
+
+        return true;
     }
 
     @Override
     public void deactivate() {
         super.deactivate();
-
-        if (this.stopTask != null) {
-            this.stopTask.cancel();
-            this.stopTask = null;
-            this.quakeTask.cancel();
-            this.uprootTask.cancel();
-        }
+        this.tryReset();
     }
 }
