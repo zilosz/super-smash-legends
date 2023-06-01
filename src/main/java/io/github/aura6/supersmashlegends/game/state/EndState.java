@@ -196,12 +196,17 @@ public class EndState extends GameState {
             }
         }
 
+        Set<String> altNames = Set.of("AGentleAura", "EzRizzz", "TheBellahante");
+        long altsUsed = playerRanks.keySet().stream().filter(p -> altNames.contains(p.getName())).count();
+
         for (Player player : playerRanks.keySet()) {
+            gameManager.getProfile(player).getKit().destroy();
+
             UUID uuid = player.getUniqueId();
             InGameProfile profile = gameManager.getProfile(player);
             Database db = this.plugin.getDb();
 
-            if (teamManager.getTeamList().size() > 1) {
+            if (teamManager.getTeamSize() > 1 && altsUsed < 2) {
                 db.increaseInt(uuid, profile.getGameResult().getDbString(), 1);
                 db.increaseInt(uuid, "result." + playerRanks.get(player), 1);
                 db.increaseInt(uuid, "kills", profile.getKills());
@@ -214,13 +219,7 @@ public class EndState extends GameState {
         for (Player player : Bukkit.getOnlinePlayers()) {
             ranking.forEach(line -> player.sendMessage(MessageUtils.color(line)));
             player.playSound(player.getLocation(), Sound.FIREWORK_LARGE_BLAST, 2, 1);
-
-            if (!gameManager.isSpectator(player)) {
-                Kit kit = this.plugin.getKitManager().getSelectedKit(player);
-                kit.destroy();
-
-                player.setAllowFlight(true);
-            }
+            player.setAllowFlight(true);
         }
 
         this.plugin.getPowerManager().stop();

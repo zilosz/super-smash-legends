@@ -25,29 +25,29 @@ public class BatWave extends RightClickAbility {
     }
 
     private void addAndLaunch(BatProjectile bat) {
-        batProjectiles.add(bat);
+        this.batProjectiles.add(bat);
         bat.launch();
     }
 
     @Override
     public void onClick(PlayerInteractEvent event) {
 
-        if (mainBatProjectile == null || mainBatProjectile.state == BatWaveState.INACTIVE) {
-            sendUseMessage();
+        if (this.mainBatProjectile == null || this.mainBatProjectile.state == BatWaveState.INACTIVE) {
+            this.sendUseMessage();
 
-            batProjectiles = new HashSet<>();
-            mainBatProjectile = new MainBatProjectile(plugin, this, config);
-            addAndLaunch(mainBatProjectile);
+            this.batProjectiles = new HashSet<>();
+            this.mainBatProjectile = new MainBatProjectile(this.plugin, this, this.config);
+            this.addAndLaunch(mainBatProjectile);
 
-            for (int i = 1; i < config.getInt("BatCount"); i++) {
-                addAndLaunch(new BatProjectile(plugin, this, config));
+            for (int i = 1; i < this.config.getInt("BatCount"); i++) {
+                this.addAndLaunch(new BatProjectile(this.plugin, this, this.config));
             }
 
-        } else if (mainBatProjectile.state == BatWaveState.UNLEASHED) {
-            batProjectiles.forEach(BatProjectile::leash);
+        } else if (this.mainBatProjectile.state == BatWaveState.UNLEASHED) {
+            this.batProjectiles.forEach(BatProjectile::leash);
 
         } else {
-            batProjectiles.forEach(BatProjectile::unleash);
+            this.batProjectiles.forEach(BatProjectile::unleash);
         }
     }
 
@@ -120,6 +120,7 @@ public class BatWave extends RightClickAbility {
         @Override
         public void onRemove() {
             super.onRemove();
+
             this.state = BatWaveState.INACTIVE;
 
             if (this.ability.isEnabled()) {
