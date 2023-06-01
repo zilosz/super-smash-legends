@@ -83,6 +83,7 @@ public class DeathNPC extends BukkitRunnable implements Listener {
 
         NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, skin);
         npc.setName(player.getName());
+
         SkinTrait skinTrait = npc.getTrait(SkinTrait.class);
         skinTrait.setSkinName(skin);
         npc.addTrait(skinTrait);

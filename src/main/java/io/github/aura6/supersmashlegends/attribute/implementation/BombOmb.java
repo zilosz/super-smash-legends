@@ -118,10 +118,6 @@ public class BombOmb extends RightClickAbility {
             this.soundTask.cancel();
             this.bombBlock.getWorld().playSound(this.bombBlock.getLocation(), Sound.EXPLODE, 2, 1);
 
-            if (this.ability instanceof ClickableAbility) {
-                ((ClickableAbility) this.ability).startCooldown();
-            }
-
             for (int i = 0; i < 3; i++) {
                 new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).show(this.bombBlock.getLocation());
             }
@@ -131,6 +127,10 @@ public class BombOmb extends RightClickAbility {
                     .setAvoidsUser(false)
                     .findAll(this.launcher, this.bombBlock.getLocation())
                     .forEach(this::attemptExplodeHit);
+
+            if (this.ability instanceof ClickableAbility) {
+                ((ClickableAbility) this.ability).startCooldown();
+            }
         }
 
         private void attemptExplodeHit(LivingEntity target) {
