@@ -104,7 +104,7 @@ public class GameManager {
     }
 
     public InGameProfile getProfile(Player player) {
-        return profiles.get(player.getUniqueId());
+        return this.profiles.get(player.getUniqueId());
     }
 
     public boolean isPlayerAlive(Player player) {

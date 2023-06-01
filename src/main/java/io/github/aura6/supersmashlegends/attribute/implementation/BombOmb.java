@@ -110,6 +110,8 @@ public class BombOmb extends RightClickAbility {
         }
 
         private void explode() {
+            if (this.bombBlock == null) return;
+
             this.state = BombState.INACTIVE;
             this.bombBlock.setType(Material.AIR);
 
