@@ -79,13 +79,12 @@ public class DeathNPC extends BukkitRunnable implements Listener {
 
     public static DeathNPC spawn(SuperSmashLegends plugin, Player player) {
         Section death = plugin.getResources().getConfig().getSection("Death");
-        String skin = death.getString("Skin");
 
-        NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, skin);
+        NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, "Death NPC");
         npc.setName(player.getName());
 
         SkinTrait skinTrait = npc.getTrait(SkinTrait.class);
-        skinTrait.setSkinName(skin);
+        skinTrait.setSkinName(plugin.getKitManager().getSelectedKit(player).getSkinName());
         npc.addTrait(skinTrait);
         npc.spawn(player.getLocation());
 

@@ -21,7 +21,6 @@ Description:
   - "&5&l------------------------------"
 KitHologramHeight: 2.7
 Death:
-  Skin: "BroliaiJagm"
   Velocity: 0.3
   Duration: 70
 LeaderboardSizes:
