@@ -1,5 +1,7 @@
 package io.github.aura6.supersmashlegends.utils.effect;
 
+import io.github.aura6.supersmashlegends.utils.Skin;
+import io.github.aura6.supersmashlegends.utils.entity.FakeNpc;
 import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;

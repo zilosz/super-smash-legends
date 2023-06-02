@@ -2,6 +2,7 @@ package io.github.aura6.supersmashlegends.game.state;
 
 import com.connorlinfoot.titleapi.TitleAPI;
 import com.nametagedit.plugin.NametagEdit;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Nameable;
 import io.github.aura6.supersmashlegends.damage.DamageManager;
@@ -11,10 +12,13 @@ import io.github.aura6.supersmashlegends.team.Team;
 import io.github.aura6.supersmashlegends.team.TeamManager;
 import io.github.aura6.supersmashlegends.utils.CollectionUtils;
 import io.github.aura6.supersmashlegends.utils.NmsUtils;
-import io.github.aura6.supersmashlegends.utils.effect.DeathNPC;
+import io.github.aura6.supersmashlegends.utils.Skin;
+import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
+import io.github.aura6.supersmashlegends.utils.entity.FakeNpc;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
+import net.minecraft.server.v1_8_R3.EnumParticle;
 import net.minecraft.server.v1_8_R3.PacketPlayInClientCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -42,6 +46,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class InGameState extends GameState {
     private static final int MAX_SCOREBOARD_SIZE = 15;
 
+    private final Map<FakeNpc, BukkitTask> deathNpcs = new HashMap<>();
     private final Map<UUID, BukkitTask> respawnTasks = new HashMap<>();
     private final Set<BukkitTask> skinRestorers = new HashSet<>();
 
@@ -216,8 +221,9 @@ public class InGameState extends GameState {
             respawnPlayer(Bukkit.getPlayer(uuid));
             respawnTask.cancel();
         });
-
         this.respawnTasks.clear();
+
+        this.deathNpcs.keySet().forEach(this::removeDeathNpc);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             TitleAPI.clearTitle(player);
@@ -228,11 +234,46 @@ public class InGameState extends GameState {
         }
     }
 
+    private void removeDeathNpc(FakeNpc npc) {
+        this.deathNpcs.remove(npc).cancel();
+        this.plugin.getNpcManager().removeNpc(npc);
+        npc.destroyForAll();
+    }
+
     private void handleDeath(Player died, boolean makeNpc) {
         this.plugin.getKitManager().getSelectedKit(died).destroy();
 
         if (makeNpc) {
-            DeathNPC.spawn(plugin, died);
+            FakeNpc npc = new FakeNpc();
+            npc.spawn(died.getLocation());
+            npc.setSkin(Skin.fromMojang(died.getName()));
+            npc.showToAll();
+            this.plugin.getNpcManager().registerNpc(npc);
+
+            Section deathConfig = this.plugin.getResources().getConfig().getSection("Death");
+
+            this.deathNpcs.put(npc, new BukkitRunnable() {
+                int ticksActive = 0;
+
+                @Override
+                public void run() {
+                    Location location = npc.getLocation();
+
+                    if (++this.ticksActive >= deathConfig.getInt("Duration")) {
+                        removeDeathNpc(npc);
+
+                        died.getWorld().playSound(location, Sound.WITHER_DEATH, 3, 1.5f);
+                        new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 0, 255).boom(plugin, location, 5, 0.25, 30);
+
+                    } else {
+                        npc.moveRelativeForAll(new Vector(0, deathConfig.getDouble("Velocity"), 0));
+
+                        new ParticleBuilder(EnumParticle.SMOKE_LARGE).show(location.clone().subtract(0, 0.4, 0));
+                        location.getWorld().playSound(location, Sound.FIREWORK_LAUNCH, 2, 2);
+                    }
+                }
+
+            }.runTaskTimer(this.plugin, 1, 0));
         }
 
         died.setVelocity(new Vector(0, 0, 0));

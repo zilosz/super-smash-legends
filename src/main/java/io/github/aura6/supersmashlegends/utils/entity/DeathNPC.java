@@ -1,8 +1,9 @@
-package io.github.aura6.supersmashlegends.utils.effect;
+package io.github.aura6.supersmashlegends.utils.entity;
 
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.event.DamageEvent;
+import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.SkinTrait;

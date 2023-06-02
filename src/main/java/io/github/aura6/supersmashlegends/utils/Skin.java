@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
 import lombok.Getter;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
 import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo;
@@ -35,10 +36,14 @@ public class Skin {
         this.previousSignature = signature;
     }
 
+    public static void updateGameProfile(EntityPlayer nmsPlayer, String texture, String signature) {
+        PropertyMap properties = nmsPlayer.getProfile().getProperties();
+        properties.removeAll("textures");
+        properties.put("textures", new Property("textures", texture, signature));
+    }
+
     private static void showToOthers(Player player, String texture, String signature) {
-        GameProfile profile = NmsUtils.getPlayer(player).getProfile();
-        profile.getProperties().removeAll("textures");
-        profile.getProperties().put("textures", new Property("textures", texture, signature));
+        updateGameProfile(NmsUtils.getPlayer(player), texture, signature);
 
         for (Player other : Bukkit.getOnlinePlayers()) {
             other.hidePlayer(player);

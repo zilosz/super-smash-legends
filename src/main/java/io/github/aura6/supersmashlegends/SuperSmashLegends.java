@@ -21,6 +21,7 @@ import io.github.aura6.supersmashlegends.kit.KitManager;
 import io.github.aura6.supersmashlegends.power.PowerManager;
 import io.github.aura6.supersmashlegends.team.TeamManager;
 import io.github.aura6.supersmashlegends.utils.WorldManager;
+import io.github.aura6.supersmashlegends.utils.entity.NpcManager;
 import io.github.aura6.supersmashlegends.utils.file.FileUtility;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.thatkawaiisam.assemble.Assemble;
@@ -28,25 +29,28 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.IllegalPluginAccessException;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
 import java.io.File;
 
+@Getter
 public class SuperSmashLegends extends JavaPlugin {
-    @Getter private Resources resources;
-    @Getter private Database db;
-    @Getter private KitManager kitManager;
-    @Getter private InventoryManager inventoryManager;
-    @Getter private KitSelector kitSelector;
-    @Getter private ArenaVoter arenaVoter;
-    @Getter private GameManager gameManager;
-    @Getter private ArenaManager arenaManager;
-    @Getter private TeamManager teamManager;
-    @Getter private TeamSelector teamSelector;
-    @Getter private WorldManager worldManager;
-    @Getter private DamageManager damageManager;
-    @Getter private PowerManager powerManager;
+    private Resources resources;
+    private Database db;
+    private KitManager kitManager;
+    private InventoryManager inventoryManager;
+    private KitSelector kitSelector;
+    private ArenaVoter arenaVoter;
+    private GameManager gameManager;
+    private ArenaManager arenaManager;
+    private TeamManager teamManager;
+    private TeamSelector teamSelector;
+    private WorldManager worldManager;
+    private DamageManager damageManager;
+    private PowerManager powerManager;
+    private NpcManager npcManager;
 
     @Override
     public void onLoad() {
@@ -69,6 +73,7 @@ public class SuperSmashLegends extends JavaPlugin {
         kitManager = new KitManager(this);
         gameManager = new GameManager(this);
         powerManager = new PowerManager(this);
+        npcManager = new NpcManager();
 
         Section dbConfig = resources.getConfig().getSection("Database");
 
@@ -76,7 +81,9 @@ public class SuperSmashLegends extends JavaPlugin {
             db.init(dbConfig.getString("Uri"), dbConfig.getString("Database"), dbConfig.getString("Collection"));
         }
 
-        Bukkit.getPluginManager().registerEvents(this.kitManager, this);
+        PluginManager pluginManager = Bukkit.getPluginManager();
+        pluginManager.registerEvents(this.kitManager, this);
+        pluginManager.registerEvents(this.npcManager, this);
 
         Vector pasteVector = YamlReader.vector(resources.getLobby().getString("PasteVector"));
         File schematic = FileUtility.loadSchematic(this, "lobby");

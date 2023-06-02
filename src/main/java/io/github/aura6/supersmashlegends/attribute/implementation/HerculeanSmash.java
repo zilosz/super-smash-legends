@@ -146,6 +146,8 @@ public class HerculeanSmash extends RightClickAbility {
                 .setDamage(damage).setKb(kb).build();
 
         plugin.getDamageManager().attemptAttributeDamage(entityBeingGrasped, smash, this);
+
+        this.entityBeingGrasped = null;
     }
 
     @Override
