@@ -35,11 +35,11 @@ public abstract class Ability extends Attribute implements Nameable {
 
     @Override
     public String getDisplayName() {
-        return MessageUtils.color(this.kit.getColor() + config.getString("Name"));
+        return MessageUtils.colorLines(this.kit.getColor() + config.getString("Name"));
     }
 
     public String getBoldedDisplayName() {
-        return MessageUtils.color(this.kit.getColor() + "&l" + config.getString("Name"));
+        return MessageUtils.colorLines(this.kit.getColor() + "&l" + config.getString("Name"));
     }
 
     public Material getMaterial() {

@@ -101,8 +101,8 @@ public class LobbyState extends GameState {
         holograms.add(hologram);
         HologramLines lines = hologram.getLines();
 
-        lines.appendText(MessageUtils.color(String.format("&5&l%s Leaderboard", titleName)));
-        lines.appendText(MessageUtils.color("&7------------------"));
+        lines.appendText(MessageUtils.colorLines(String.format("&5&l%s Leaderboard", titleName)));
+        lines.appendText(MessageUtils.colorLines("&7------------------"));
 
         int size = plugin.getResources().getConfig().getInt("LeaderboardSizes." + configName);
 
@@ -143,17 +143,17 @@ public class LobbyState extends GameState {
         }
 
         if (players.isEmpty()) {
-            lines.appendText(MessageUtils.color("&fNo data to display..."));
+            lines.appendText(MessageUtils.colorLines("&fNo data to display..."));
 
         } else {
 
             for (int i = 0; i < players.size(); i++) {
                 String line = String.format("&5&l%d. &f%s: &e%d", i + 1, players.get(i), stats.get(i));
-                lines.appendText(MessageUtils.color(line));
+                lines.appendText(MessageUtils.colorLines(line));
             }
         }
 
-        lines.appendText(MessageUtils.color("&7------------------"));
+        lines.appendText(MessageUtils.colorLines("&7------------------"));
     }
 
     private void stopCountdownTask(boolean abrupt) {
@@ -287,7 +287,7 @@ public class LobbyState extends GameState {
         player.teleport(getSpawn());
 
         if (!this.plugin.getGameManager().isSpectator(player)) {
-            ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Returned to the lobby."));
+            ActionBarAPI.sendActionBar(player, MessageUtils.colorLines("&7Returned to the lobby."));
         }
 
         Resources resources = plugin.getResources();

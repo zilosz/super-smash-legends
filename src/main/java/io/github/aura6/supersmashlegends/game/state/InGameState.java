@@ -81,7 +81,7 @@ public class InGameState extends GameState {
             lifeColor = "&a";
         }
 
-        return MessageUtils.color(String.format("%s%s: %s%s", nameColor, player.getName(), lifeColor, lives));
+        return MessageUtils.colorLines(String.format("%s%s: %s%s", nameColor, player.getName(), lifeColor, lives));
     }
 
     @Override
@@ -89,13 +89,13 @@ public class InGameState extends GameState {
 
         List<String> scoreboard = new ArrayList<>(Arrays.asList(
                 "&5&l---------------------",
-                "&fSeconds Left: &e{SEC_LEFT}",
+                "&fSeconds Left: &e{TIME_LEFT}",
                 ""
         ));
 
         int playerIndex = scoreboard.size();
 
-        Replacers replacers = new Replacers().add("SEC_LEFT", String.valueOf(this.secLeft));
+        Replacers replacers = new Replacers().add("TIME_LEFT", MessageUtils.secToMin(this.secLeft));
 
         if (this.plugin.getGameManager().isPlayerAlive(player)) {
             scoreboard.add("");
@@ -181,19 +181,19 @@ public class InGameState extends GameState {
 
                 if (this.plugin.getTeamManager().getTeamSize() > 1) {
                     String color = this.plugin.getTeamManager().getPlayerColor(player);
-                    NametagEdit.getApi().setPrefix(player, MessageUtils.color(color));
+                    NametagEdit.getApi().setPrefix(player, MessageUtils.colorLines(color));
                 }
             }
 
             player.playSound(player.getLocation(), Sound.LEVEL_UP, 2, 0.5f);
-            TitleAPI.sendTitle(player, MessageUtils.color("&7The &5game &7has started!"), "", 5, 30, 5);
+            TitleAPI.sendTitle(player, MessageUtils.colorLines("&7The &5game &7has started!"), "", 5, 30, 5);
         }
     }
 
     private void respawnPlayer(Player player) {
         player.teleport(plugin.getArenaManager().getArena().getFarthestSpawnFromPlayers());
 
-        TitleAPI.sendTitle(player, MessageUtils.color("&7You have &arespawned&7."), MessageUtils.color("&cAvenge &7your death!"), 10, 30, 10);
+        TitleAPI.sendTitle(player, MessageUtils.colorLines("&7You have &arespawned&7."), MessageUtils.colorLines("&cAvenge &7your death!"), 10, 30, 10);
         player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 2);
         player.playSound(player.getLocation(), Sound.LEVEL_UP, 1, 0.8f);
 
@@ -284,8 +284,8 @@ public class InGameState extends GameState {
 
         if (profile.getLives() <= 0) {
             died.playSound(died.getLocation(), Sound.WITHER_DEATH, 2, 1);
-            TitleAPI.sendTitle(died, MessageUtils.color("&7You have been"), MessageUtils.color("&celiminated!"), 7, 25, 7);
-            Chat.DEATH.broadcast(MessageUtils.color(String.format("%s &7has been &celiminated!", diedName)));
+            TitleAPI.sendTitle(died, MessageUtils.colorLines("&7You have been"), MessageUtils.colorLines("&celiminated!"), 7, 25, 7);
+            Chat.DEATH.broadcast(MessageUtils.colorLines(String.format("%s &7has been &celiminated!", diedName)));
 
             Team diedTeam = plugin.getTeamManager().getPlayerTeam(died);
 
@@ -300,7 +300,7 @@ public class InGameState extends GameState {
             return;
         }
 
-        TitleAPI.sendTitle(died, MessageUtils.color("&7You &cdied!"), MessageUtils.color("&7Respawning soon..."), 7, 25, 7);
+        TitleAPI.sendTitle(died, MessageUtils.colorLines("&7You &cdied!"), MessageUtils.colorLines("&7Respawning soon..."), 7, 25, 7);
         died.playSound(died.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 1);
 
         respawnTasks.put(died.getUniqueId(), new BukkitRunnable() {
@@ -318,8 +318,8 @@ public class InGameState extends GameState {
                     return;
                 }
 
-                String title = MessageUtils.color("&7Respawning in...");
-                TitleAPI.sendTitle(died, title, MessageUtils.color("&5&l" + secondsLeft), 4, 12, 4);
+                String title = MessageUtils.colorLines("&7Respawning in...");
+                TitleAPI.sendTitle(died, title, MessageUtils.colorLines("&5&l" + secondsLeft), 4, 12, 4);
                 died.playSound(died.getLocation(), Sound.ENDERDRAGON_HIT, 2, pitch);
 
                 pitch += pitchStep;

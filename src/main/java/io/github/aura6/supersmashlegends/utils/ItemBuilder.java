@@ -45,11 +45,11 @@ public class ItemBuilder<T extends ItemMeta> implements Supplier<ItemStack> {
     }
 
     public ItemBuilder<T> setName(String name) {
-        return applyMeta(meta -> meta.setDisplayName(MessageUtils.color(name)));
+        return applyMeta(meta -> meta.setDisplayName(MessageUtils.colorLines(name)));
     }
 
     public ItemBuilder<T> setLore(List<String> lore) {
-        return applyMeta(meta -> meta.setLore(MessageUtils.color(lore)));
+        return applyMeta(meta -> meta.setLore(MessageUtils.colorLines(lore)));
     }
 
     public ItemBuilder<T> addEnchantment(Enchantment enchantment) {

@@ -21,7 +21,7 @@ public enum KitAccessType {
         }
         @Override
         public String getHologram(Kit kit) {
-            return MessageUtils.color("&dSelected");
+            return MessageUtils.colorLines("&dSelected");
         }
     };
 

@@ -8,18 +8,26 @@ import java.util.stream.Collectors;
 
 public class MessageUtils {
 
-    public static String color(String line) {
+    public static String colorLines(String line) {
         return ChatColor.translateAlternateColorCodes('&', line);
     }
 
-    public static List<String> color(List<String> lines) {
-        return lines.stream().map(MessageUtils::color).collect(Collectors.toList());
+    public static List<String> colorLines(List<String> lines) {
+        return lines.stream().map(MessageUtils::colorLines).collect(Collectors.toList());
     }
 
     public static String progressBar(String fullChar, String emptyChar, String fullColor, String emptyColor, double full, double total, int charCount) {
         int fullCount = (int) Math.ceil((charCount * full / total));
         String fullBars = fullColor + StringUtils.repeat(fullChar, fullCount);
         String emptyBars = emptyColor + StringUtils.repeat(emptyChar, charCount - fullCount);
-        return color(fullBars + emptyBars);
+        return colorLines(fullBars + emptyBars);
+    }
+
+    public static String formatZero(int number) {
+        return number == 0 ? "00" : String.valueOf(number);
+    }
+
+    public static String secToMin(int sec) {
+        return String.format("%s:%s", formatZero(sec / 60), formatZero(sec % 60));
     }
 }

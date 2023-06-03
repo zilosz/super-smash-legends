@@ -75,7 +75,7 @@ public abstract class GameState implements Listener {
         }
 
         Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
-            ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Welcome to &5&lSuper Smash Legends!"), 60);
+            ActionBarAPI.sendActionBar(player, MessageUtils.colorLines("&7Welcome to &5&lSuper Smash Legends!"), 60);
             player.playSound(player.getLocation(), Sound.LEVEL_UP, 2, 1);
         }, 5);
     }
@@ -111,7 +111,7 @@ public abstract class GameState implements Listener {
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent event) {
-        event.setFormat(MessageUtils.color("&9" + event.getPlayer().getDisplayName() + ">> &7" + event.getMessage()));
+        event.setFormat(MessageUtils.colorLines("&9" + event.getPlayer().getDisplayName() + ">> &7" + event.getMessage()));
     }
 
     @EventHandler

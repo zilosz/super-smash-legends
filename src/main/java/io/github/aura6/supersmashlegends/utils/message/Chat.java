@@ -23,7 +23,7 @@ public enum Chat {
     }
 
     public String get(String message) {
-        return MessageUtils.color(prefix + message);
+        return MessageUtils.colorLines(prefix + message);
     }
 
     public void send(Player player, String message) {

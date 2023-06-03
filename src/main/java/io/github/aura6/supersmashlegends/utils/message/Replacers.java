@@ -30,7 +30,7 @@ public class Replacers {
             newLine = newLine.replace(single.getKey(), single.getValue());
         }
 
-        return MessageUtils.color(newLine);
+        return MessageUtils.colorLines(newLine);
     }
 
     public List<String> replaceLines(List<String> lines) {

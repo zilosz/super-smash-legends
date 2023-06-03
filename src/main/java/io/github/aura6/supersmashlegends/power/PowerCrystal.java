@@ -22,7 +22,7 @@ public class PowerCrystal {
         this.powerInfo = powerInfo;
 
         entity = physicalLocation.getWorld().spawn(physicalLocation, EnderCrystal.class);
-        entity.setCustomName(MessageUtils.color(String.format("&5&lPOWER: %s", powerInfo.getName())));
+        entity.setCustomName(MessageUtils.colorLines(String.format("&5&lPOWER: %s", powerInfo.getName())));
         entity.setCustomNameVisible(true);
 
         physicalLocation.getBlock().setType(Material.BEACON);
