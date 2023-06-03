@@ -716,7 +716,7 @@ Tank:
       ConfigName: Earthquake
       Name: "Earthquake"
       Item:
-        Material: IRON_PICKAXE
+        Material: IRON_SPADE
       Description:
         - "&7Stomp on the ground to generate a powerful"
         - "&7earthquake. Enemies a radius will be hit"
@@ -732,6 +732,23 @@ Tank:
       UprootInterval: 3
       UprootDuration: 5
     2:
+      ConfigName: ChainOfSteel
+      Name: "Chain of Steel"
+      Item:
+        Material: GOLD_PICKAXE
+      Description:
+        - "&7Send forth an indestructible steel chain"
+        - "&7that latches onto enemies and surfaces."
+        - "&7Tank deftly pulls himself along the chain"
+        - "&7to close heavy distances. Sneak to cancel."
+      Cooldown: 130
+      AutoStartCooldown: false
+      ChainSpeed: 1.1
+      ChainTicks: 40
+      PullSpeed: 1.1
+      Damage: 5.5
+      HitBox: 1
+    3:
       ConfigName: Slowness
       Name: "Slowness"
       Item:

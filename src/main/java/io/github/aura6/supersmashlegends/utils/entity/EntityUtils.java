@@ -3,6 +3,7 @@ package io.github.aura6.supersmashlegends.utils.entity;
 import net.minecraft.server.v1_8_R3.AxisAlignedBB;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;

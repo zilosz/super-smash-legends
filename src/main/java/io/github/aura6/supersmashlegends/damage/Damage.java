@@ -91,5 +91,9 @@ public class Damage {
                     .setFactorsKb(defaults.getOptionalBoolean("FactorsKb").orElse(true))
                     .setDirection(direction);
         }
+
+        public static Builder fromConfig(Section defaults) {
+            return fromConfig(defaults, null);
+        }
     }
 }

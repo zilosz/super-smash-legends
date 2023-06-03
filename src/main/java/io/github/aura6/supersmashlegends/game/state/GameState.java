@@ -75,7 +75,7 @@ public abstract class GameState implements Listener {
         }
 
         Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
-            ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Welcome to &5&lSuper Smash Legends!"), 90);
+            ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Welcome to &5&lSuper Smash Legends!"), 60);
             player.playSound(player.getLocation(), Sound.LEVEL_UP, 2, 1);
         }, 5);
     }

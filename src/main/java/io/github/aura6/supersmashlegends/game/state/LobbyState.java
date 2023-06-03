@@ -349,7 +349,7 @@ public class LobbyState extends GameState {
 
         this.plugin.getDb().setIfEnabled(player.getUniqueId(), "name", player.getName());
 
-        tryCountdownStart();
+        this.tryCountdownStart();
     }
 
     @EventHandler
