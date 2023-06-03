@@ -185,7 +185,7 @@ public class InGameState extends GameState {
                 }
             }
 
-            player.playSound(player.getLocation(), Sound.WOLF_HOWL, 2, 0.8f);
+            player.playSound(player.getLocation(), Sound.LEVEL_UP, 2, 0.5f);
             TitleAPI.sendTitle(player, MessageUtils.color("&7The &5game &7has started!"), "", 5, 30, 5);
         }
     }
@@ -195,7 +195,7 @@ public class InGameState extends GameState {
 
         TitleAPI.sendTitle(player, MessageUtils.color("&7You have &arespawned&7."), MessageUtils.color("&cAvenge &7your death!"), 10, 30, 10);
         player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 2);
-        player.playSound(player.getLocation(), Sound.LEVEL_UP, 3, 1);
+        player.playSound(player.getLocation(), Sound.LEVEL_UP, 1, 0.8f);
 
         player.setGameMode(GameMode.SURVIVAL);
         player.setHealth(20);

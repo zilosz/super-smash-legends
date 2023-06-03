@@ -42,8 +42,8 @@ Game:
   LobbyCountdown:
     Seconds: 30
     NotifyInterval: 10
-  MaxGameSeconds: 600
-  DeathWaitSeconds: 5
+  MaxGameSeconds: 720
+  DeathWaitSeconds: 3
   StartWaitSeconds: 5
   EndWaitSeconds: 5
   AllowKitSelectionInGame: true
