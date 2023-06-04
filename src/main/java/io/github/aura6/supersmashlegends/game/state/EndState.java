@@ -217,7 +217,7 @@ public class EndState extends GameState {
         }
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            ranking.forEach(line -> player.sendMessage(MessageUtils.colorLines(line)));
+            ranking.forEach(line -> player.sendMessage(MessageUtils.color(line)));
             player.playSound(player.getLocation(), Sound.FIREWORK_LARGE_BLAST, 2, 1);
             player.setAllowFlight(true);
         }
@@ -236,8 +236,8 @@ public class EndState extends GameState {
                 }
 
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    String title = MessageUtils.colorLines("&7Resetting in...");
-                    String subtitle = MessageUtils.colorLines("&5&l" + this.secondsLeft);
+                    String title = MessageUtils.color("&7Resetting in...");
+                    String subtitle = MessageUtils.color("&5&l" + this.secondsLeft);
                     TitleAPI.sendTitle(player, title, subtitle, 4, 12, 4);
                     player.playSound(player.getLocation(), Sound.CLICK, 1, this.pitch);
                 }

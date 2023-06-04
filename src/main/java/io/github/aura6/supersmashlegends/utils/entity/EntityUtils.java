@@ -33,4 +33,8 @@ public class EntityUtils {
         loc.setPitch(0);
         return loc.add(loc.getDirection().multiply(0.42)).add(0, 0.7 - distance, 0);
     }
+
+    public static double getDistance(Entity a, Entity b) {
+        return a.getLocation().distance(b.getLocation());
+    }
 }

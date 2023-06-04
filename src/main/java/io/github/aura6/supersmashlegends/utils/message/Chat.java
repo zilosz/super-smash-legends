@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public enum Chat {
-    ECONOMY("&e&lEconomy» "),
     KIT("&b&lKit» "),
     JOIN("&a&lJoin» "),
     QUIT("&c&lQuit» "),
@@ -14,7 +13,7 @@ public enum Chat {
     GAME("&5&lGame» "),
     DEATH("&4&lDeath» "),
     ABILITY("&d&lAbility» "),
-    POWER("&8&lPower» ");
+    TRACKER("&e&lTracker» ");
 
     private final String prefix;
 
@@ -23,7 +22,7 @@ public enum Chat {
     }
 
     public String get(String message) {
-        return MessageUtils.colorLines(prefix + message);
+        return MessageUtils.color(prefix + message);
     }
 
     public void send(Player player, String message) {

@@ -31,7 +31,7 @@ public class Arena {
     }
 
     public String getName() {
-        return MessageUtils.colorLines(config.getString("Name"));
+        return MessageUtils.color(config.getString("Name"));
     }
 
     public String getAuthors() {

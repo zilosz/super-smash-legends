@@ -42,7 +42,7 @@ public class Replacers {
             newLine = newLine.replace(single.getKey(), single.getValue());
         }
 
-        return MessageUtils.colorLines(newLine);
+        return MessageUtils.color(newLine);
     }
 
     public List<String> replaceLines(List<String> lines) {

@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 public class HotbarItem implements Listener {
     private final Player player;
     @Getter private final ItemStack itemStack;
-    private final int slot;
+    @Getter private final int slot;
     @Setter private Consumer<PlayerInteractEvent> action;
 
     public HotbarItem(Player player, ItemStack itemStack, int slot) {

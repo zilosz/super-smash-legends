@@ -61,7 +61,7 @@ public class DamageIndicator extends BukkitRunnable {
             color = "&a";
         }
 
-        return MessageUtils.colorLines(color + new DecimalFormat("#.#").format(damage));
+        return MessageUtils.color(color + new DecimalFormat("#.#").format(damage));
     }
 
     private static Location relativePosition(LivingEntity entity, double height) {

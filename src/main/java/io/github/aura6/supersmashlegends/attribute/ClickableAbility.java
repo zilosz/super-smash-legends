@@ -107,6 +107,6 @@ public abstract class ClickableAbility extends Ability {
             message = String.format("%s %s &f&l%s", this.getBoldedDisplayName(), bar, label);
         }
 
-        ActionBarAPI.sendActionBar(this.player, MessageUtils.colorLines(message));
+        ActionBarAPI.sendActionBar(this.player, MessageUtils.color(message));
     }
 }

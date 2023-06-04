@@ -1,6 +1,7 @@
 package io.github.aura6.supersmashlegends;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.arena.Arena;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.HotbarItem;
@@ -68,11 +69,12 @@ public class Resources {
         return arenas.getKeys().stream().map(key -> loadArena((String) key)).collect(Collectors.toList());
     }
 
-    public HotbarItem loadAndRegisterHotbarItem(String path, Player player, int slot, Consumer<PlayerInteractEvent> action) {
-        ItemStack stack = YamlReader.stack(items.getSection(path));
-        HotbarItem hotbarItem = new HotbarItem(player, stack, slot);
+    public HotbarItem giveHotbarItem(String path, Player player, Consumer<PlayerInteractEvent> action) {
+        Section config = this.items.getSection(path);
+        ItemStack stack = YamlReader.stack(config);
+        HotbarItem hotbarItem = new HotbarItem(player, stack, config.getInt("Slot"));
         hotbarItem.setAction(action);
-        hotbarItem.register(plugin);
+        hotbarItem.register(this.plugin);
         return hotbarItem;
     }
 }

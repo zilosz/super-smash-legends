@@ -80,11 +80,11 @@ public class Kit {
     }
 
     public String getDisplayName() {
-        return MessageUtils.colorLines(getColor() + config.getString("Name"));
+        return MessageUtils.color(getColor() + config.getString("Name"));
     }
 
     public String getBoldedDisplayName() {
-        return MessageUtils.colorLines(getColor() + "&l" + config.getString("Name"));
+        return MessageUtils.color(getColor() + "&l" + config.getString("Name"));
     }
 
     public double getRegen() {

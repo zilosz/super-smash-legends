@@ -1,15 +1,24 @@
 KitSelector:
+  Slot: 8
   Material: EYE_OF_ENDER
   Name: "&5&lKit Selector"
   Lore:
     - "&7Click to open the kit selector."
 ArenaVoter:
+  Slot: 7
   Material: PAPER
   Name: "&2&lArena Voter"
   Lore:
     - "&7Click to open the arena voter."
 TeamSelector:
+  Slot: 6
   Material: EMERALD
   Name: "&a&lTeam Selector"
   Lore:
     - "&7Click to open the team selector."
+PlayerTracker:
+  Slot: 8
+  Material: COMPASS
+  Name: "&e&lPlayer Tracker"
+  Lore:
+    - "&7Use to track the closest player."

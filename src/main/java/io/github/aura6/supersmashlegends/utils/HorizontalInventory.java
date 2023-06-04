@@ -29,7 +29,7 @@ public abstract class HorizontalInventory<T> implements InventoryProvider {
     public SmartInventory build() {
         return SmartInventory.builder()
                 .provider(this)
-                .title(MessageUtils.colorLines(getTitle()))
+                .title(MessageUtils.color(getTitle()))
                 .size(3, 9)
                 .manager(plugin.getInventoryManager())
                 .type(InventoryType.CHEST)

@@ -35,7 +35,7 @@ public class Team {
     }
 
     public String getName() {
-        return MessageUtils.colorLines(getColor() + this.data.getName());
+        return MessageUtils.color(getColor() + this.data.getName());
     }
 
     public ItemStack getItemStack() {

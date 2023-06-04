@@ -66,7 +66,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
         creature.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, config.getInt("Clone.Speed")));
         creature.setMaxHealth(config.getInt("Clone.Health"));
         creature.getEquipment().setItemInHand(null);
-        creature.setCustomName(MessageUtils.colorLines("&8Shadow Clone"));
+        creature.setCustomName(MessageUtils.color("&8Shadow Clone"));
         creature.setCustomNameVisible(true);
 
         DisguiseAPI.disguiseEntity(creature, new PlayerDisguise(player.getName()));

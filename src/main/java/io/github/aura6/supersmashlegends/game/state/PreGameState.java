@@ -84,7 +84,7 @@ public class PreGameState extends GameState {
                 }
 
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    TitleAPI.sendTitle(player, MessageUtils.colorLines("&7Starting in..."), MessageUtils.colorLines("&5&l" + secondsLeft), 4, 12, 4);
+                    TitleAPI.sendTitle(player, MessageUtils.color("&7Starting in..."), MessageUtils.color("&5&l" + secondsLeft), 4, 12, 4);
                     player.playSound(player.getLocation(), Sound.CLICK, 1, pitch);
                 }
 

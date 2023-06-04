@@ -1,5 +1,6 @@
 package io.github.aura6.supersmashlegends.game.state;
 
+import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import com.connorlinfoot.titleapi.TitleAPI;
 import com.nametagedit.plugin.NametagEdit;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
@@ -10,8 +11,10 @@ import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.team.Team;
 import io.github.aura6.supersmashlegends.team.TeamManager;
 import io.github.aura6.supersmashlegends.utils.CollectionUtils;
+import io.github.aura6.supersmashlegends.utils.HotbarItem;
 import io.github.aura6.supersmashlegends.utils.NmsUtils;
 import io.github.aura6.supersmashlegends.utils.effect.DeathNPC;
+import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
@@ -25,22 +28,33 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class InGameState extends GameState {
     private static final int MAX_SCOREBOARD_SIZE = 15;
+
+    private static final DecimalFormat FORMAT = new DecimalFormat("#.#");
+    private final Map<Player, HotbarItem> trackerItems = new HashMap<>();
+    private final Map<Player, BukkitTask> trackerTasks = new HashMap<>();
+    private final Map<Player, Player> closestTargets = new HashMap<>();
 
     private final Map<UUID, BukkitTask> respawnTasks = new HashMap<>();
     private final Set<BukkitTask> skinRestorers = new HashSet<>();
@@ -81,7 +95,7 @@ public class InGameState extends GameState {
             lifeColor = "&a";
         }
 
-        return MessageUtils.colorLines(String.format("%s%s: %s%s", nameColor, player.getName(), lifeColor, lives));
+        return MessageUtils.color(String.format("%s%s: %s%s", nameColor, player.getName(), lifeColor, lives));
     }
 
     @Override
@@ -149,6 +163,55 @@ public class InGameState extends GameState {
         return replacers.replaceLines(scoreboard);
     }
 
+    private void giveTracker(Player player) {
+
+        this.trackerItems.put(player, this.plugin.getResources().giveHotbarItem("PlayerTracker", player, e -> {
+
+            Optional.ofNullable(this.closestTargets.get(player)).ifPresentOrElse(target -> {
+                String distance = FORMAT.format(EntityUtils.getDistance(player, target));
+                String name = this.plugin.getTeamManager().getPlayerColor(target) + target.getName();
+                Chat.TRACKER.send(player, String.format("%s &7is &e%s &7blocks away.", name, distance));
+            }, () -> {
+                Chat.TRACKER.send(player, "&7There are no players to track.");
+            });
+        }));
+
+        this.trackerTasks.put(player, Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+            List<Player> players = Bukkit.getOnlinePlayers().stream()
+                    .filter(p -> this.plugin.getGameManager().isPlayerAlive(p))
+                    .filter(p -> p != player)
+                    .collect(Collectors.toList());
+
+            String actionBar;
+
+            if (players.isEmpty()) {
+                actionBar = "&7No players to track.";
+                player.setCompassTarget(player.getLocation());
+
+            } else {
+                Comparator<Player> comparator = Comparator.comparingDouble(p -> EntityUtils.getDistance(p, player));
+                Player closest = Collections.min(players, comparator);
+                this.closestTargets.put(player, closest);
+
+                String name =  this.plugin.getTeamManager().getPlayerColor(closest) + closest.getName();
+                String distance = FORMAT.format(EntityUtils.getDistance(player, closest));
+                actionBar = String.format("%s &7is &e%s &7blocks away.", name, distance);
+
+                player.setCompassTarget(closest.getLocation());
+            }
+
+            if (player.getInventory().getHeldItemSlot() == this.trackerItems.get(player).getSlot()) {
+                ActionBarAPI.sendActionBar(player, MessageUtils.color(actionBar));
+            }
+        }, 0, 5));
+    }
+
+    private void removeTracker(Player player) {
+        Optional.ofNullable(this.trackerItems.get(player)).ifPresent(HotbarItem::destroy);
+        Optional.ofNullable(this.trackerTasks.get(player)).ifPresent(BukkitTask::cancel);
+        this.closestTargets.remove(player);
+    }
+
     @Override
     public void start() {
         this.secLeft = this.plugin.getResources().getConfig().getInt("Game.MaxGameSeconds");
@@ -178,19 +241,21 @@ public class InGameState extends GameState {
 
                 if (this.plugin.getTeamManager().getTeamSize() > 1) {
                     String color = this.plugin.getTeamManager().getPlayerColor(player);
-                    NametagEdit.getApi().setPrefix(player, MessageUtils.colorLines(color));
+                    NametagEdit.getApi().setPrefix(player, MessageUtils.color(color));
                 }
+
+                this.giveTracker(player);
             }
 
             player.playSound(player.getLocation(), Sound.LEVEL_UP, 2, 0.5f);
-            TitleAPI.sendTitle(player, MessageUtils.colorLines("&7The &5game &7has started!"), "", 5, 30, 5);
+            TitleAPI.sendTitle(player, MessageUtils.color("&7The &5game &7has started!"), "", 5, 30, 5);
         }
     }
 
     private void respawnPlayer(Player player) {
         player.teleport(plugin.getArenaManager().getArena().getFarthestSpawnFromPlayers());
 
-        TitleAPI.sendTitle(player, MessageUtils.colorLines("&7You have &arespawned&7."), MessageUtils.colorLines("&cAvenge &7your death!"), 10, 30, 10);
+        TitleAPI.sendTitle(player, MessageUtils.color("&7You have &arespawned&7."), MessageUtils.color("&cAvenge &7your death!"), 10, 30, 10);
         player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 2);
         player.playSound(player.getLocation(), Sound.LEVEL_UP, 1, 0.8f);
 
@@ -217,6 +282,7 @@ public class InGameState extends GameState {
         this.respawnTasks.clear();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
+            this.removeTracker(player);
             TitleAPI.clearTitle(player);
 
             if (this.plugin.getGameManager().isPlayerAlive(player)) {
@@ -281,8 +347,8 @@ public class InGameState extends GameState {
 
         if (profile.getLives() <= 0) {
             died.playSound(died.getLocation(), Sound.WITHER_DEATH, 2, 1);
-            TitleAPI.sendTitle(died, MessageUtils.colorLines("&7You have been"), MessageUtils.colorLines("&celiminated!"), 7, 25, 7);
-            Chat.DEATH.broadcast(MessageUtils.colorLines(String.format("%s &7has been &celiminated!", diedName)));
+            TitleAPI.sendTitle(died, MessageUtils.color("&7You have been"), MessageUtils.color("&celiminated!"), 7, 25, 7);
+            Chat.DEATH.broadcast(MessageUtils.color(String.format("%s &7has been &celiminated!", diedName)));
 
             Team diedTeam = plugin.getTeamManager().getPlayerTeam(died);
 
@@ -297,7 +363,7 @@ public class InGameState extends GameState {
             return;
         }
 
-        TitleAPI.sendTitle(died, MessageUtils.colorLines("&7You &cdied!"), MessageUtils.colorLines("&7Respawning soon..."), 7, 25, 7);
+        TitleAPI.sendTitle(died, MessageUtils.color("&7You &cdied!"), MessageUtils.color("&7Respawning soon..."), 7, 25, 7);
         died.playSound(died.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 1);
 
         respawnTasks.put(died.getUniqueId(), new BukkitRunnable() {
@@ -315,8 +381,8 @@ public class InGameState extends GameState {
                     return;
                 }
 
-                String title = MessageUtils.colorLines("&7Respawning in...");
-                TitleAPI.sendTitle(died, title, MessageUtils.colorLines("&5&l" + secondsLeft), 4, 12, 4);
+                String title = MessageUtils.color("&7Respawning in...");
+                TitleAPI.sendTitle(died, title, MessageUtils.color("&5&l" + secondsLeft), 4, 12, 4);
                 died.playSound(died.getLocation(), Sound.ENDERDRAGON_HIT, 2, pitch);
 
                 pitch += pitchStep;
@@ -359,5 +425,10 @@ public class InGameState extends GameState {
         event.getDrops().clear();
         event.setDeathMessage("");
         handleDeath(event.getEntity(), true);
+    }
+
+    @EventHandler
+    public void onQuitInGame(PlayerQuitEvent event) {
+        this.removeTracker(event.getPlayer());
     }
 }
