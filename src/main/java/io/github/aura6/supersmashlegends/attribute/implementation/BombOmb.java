@@ -44,8 +44,17 @@ public class BombOmb extends RightClickAbility {
         } else if (this.bombProjectile.state == BombState.THROWN) {
             this.bombProjectile.solidify();
 
-        } else {
+        } else if (this.bombProjectile.canExplode) {
             this.bombProjectile.explode();
+        }
+    }
+
+    @Override
+    public void deactivate() {
+        super.deactivate();
+
+        if (this.bombProjectile != null) {
+            this.bombProjectile.destroy();
         }
     }
 
@@ -59,7 +68,9 @@ public class BombOmb extends RightClickAbility {
         private BombState state = BombState.INACTIVE;
         private Block bombBlock;
         private BukkitTask soundTask;
+        private BukkitTask explodeTask;
         private boolean hitTarget = false;
+        private boolean canExplode = false;
 
         public BombProjectile(SuperSmashLegends plugin, Ability ability, Section config) {
             super(plugin, ability, config);
@@ -87,7 +98,7 @@ public class BombOmb extends RightClickAbility {
             Vector direction = VectorUtils.fromTo(this.bombBlock.getLocation(), target.getLocation());
             Damage dmg = Damage.Builder.fromConfig(explode, direction).setDamage(damage).setKb(kb).build();
 
-            plugin.getDamageManager().attemptAttributeDamage(target, dmg, this.ability);
+            this.plugin.getDamageManager().attemptAttributeDamage(target, dmg, this.ability);
         }
 
         private void explode() {
@@ -123,11 +134,14 @@ public class BombOmb extends RightClickAbility {
             this.soundTask = Bukkit.getScheduler().runTaskTimer(this.plugin,
                     () -> this.entity.getWorld().playSound(this.bombBlock.getLocation(), Sound.FUSE, 1, 1), 0, 0);
 
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            this.explodeTask = Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 if (this.state == BombState.WAITING) {
                     this.explode();
                 }
             }, this.config.getInt("Explode.Delay"));
+
+            int disableTicks = this.config.getInt("Explode.DisableTicks");
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> this.canExplode = true, disableTicks);
         }
 
         @Override
@@ -141,6 +155,16 @@ public class BombOmb extends RightClickAbility {
         public void onTargetHit(LivingEntity target) {
             this.hitTarget = true;
             this.solidify();
+        }
+
+        private void destroy() {
+            this.remove();
+
+            if (this.explodeTask != null) {
+                this.explodeTask.cancel();
+                this.soundTask.cancel();
+                this.bombBlock.setType(Material.AIR);
+            }
         }
     }
 }

@@ -928,6 +928,7 @@ Moreo:
           MaxKb: 3
           KbY: 1
           Range: 8
+          DisableTicks: 15
           Delay: 140
 MasterBlade:
   ConfigName: MasterBlade
