@@ -16,7 +16,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -33,7 +32,7 @@ public class ChainOfSteel extends RightClickAbility {
     private BukkitTask chainTask;
     private int chainTicks = 0;
 
-    private final List<FloatingEntity> entities = new ArrayList<>();
+    private final List<FloatingEntity<FallingBlock>> entities = new ArrayList<>();
 
     private BukkitTask pullTask;
     private BukkitTask pullSoundTask;
@@ -112,10 +111,10 @@ public class ChainOfSteel extends RightClickAbility {
             }
 
             if (this.chainTicks % 2 == 0) {
-                FloatingEntity entity = new FloatingEntity() {
+                FloatingEntity<FallingBlock> entity = new FloatingEntity<>() {
 
                     @Override
-                    public Entity createEntity(Location location) {
+                    public FallingBlock createEntity(Location location) {
                         FallingBlock entity = location.getWorld().spawnFallingBlock(location, Material.IRON_FENCE, (byte) 0);
                         entity.setHurtEntities(false);
                         entity.setDropItem(false);

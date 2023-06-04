@@ -58,7 +58,7 @@ public class MathUtils {
             startZ = center.getZ() - size + 1;
 
         } else {
-            locations.add(center);
+            locations.add(center.clone());
 
             startX = center.getX() - 0.5 * size + 0.5;
             startY = center.getY() - 0.5 * size + 0.5;

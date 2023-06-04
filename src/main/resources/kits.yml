@@ -689,8 +689,8 @@ Tank:
       Pitch: 1
   Abilities:
     0:
-      ConfigName: BlockToss
-      Name: "Block Toss"
+      ConfigName: GaiaToss
+      Name: "Gaia Toss"
       Item:
         Material: DIAMOND_SWORD
       Description:
@@ -700,19 +700,18 @@ Tank:
         - "&7and consequently power, over time."
       Cooldown: 160
       MinChargeTicks: 10
-      MaxChargeTicks: 85
-      KbY: 1.2
-      MinDamage: 5
+      MaxChargeTicks: 80
+      KbY: 1.1
+      MinDamage: 4
       MaxDamage: 14
-      MinSpeed: 0.6
-      MaxSpeed: 1.45
-      MinKb: 1.7
-      MaxKb: 3.1
-      JumpMultiplier: 0.7
+      MinSpeed: 0.65
+      MaxSpeed: 1.42
+      MinKb: 1.5
+      MaxKb: 3.2
       MinSize: 1
-      Increments: 2
-      SizeIncrement: 1
-      GapAbovePlayer: 1
+      IncrementCount: 2
+      IncrementSize: 1
+      HeightAboveHead: 0.65
     1:
       ConfigName: Earthquake
       Name: "Earthquake"
