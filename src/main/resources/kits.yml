@@ -759,16 +759,15 @@ Tank:
         - "&7Experience a decrease in jump and"
         - "&7movement speed."
 Tool:
-  ConfigName: Tool
-  Name: "Tool"
+  ConfigName: Miner
+  Name: "Miner"
   Color: "&1"
   Item:
     Material: COAL
   Description:
-    - "&7Much like Banos, Tool is a jack"
-    - "&7of all trades. He employs the use"
-    - "&7of various household items and"
-    - "&7machinery to overwhelm enemies."
+    - "&7Miner is a jack of all trades. He"
+    - "&7employs the use of various underground"
+    - "&7techniques to overwhelm enemies."
   Skin: "Lifio13"
   Damage: 5
   Armor: 0.5
@@ -822,10 +821,10 @@ Tool:
       Item:
         Material: IRON_SWORD
       Description:
-        - "&7Tool can turn himself into a human-tornado"
+        - "&7Miner can turn himself into a human-tornado"
         - "&7at will. Know that you don't want to cross"
         - "&7paths with him when he's using this ability!"
-      Cooldown: 180
+      Cooldown: 170
       MaxChargeTicks: 25
       Velocity: 1.1
       HitBox: 1.5
@@ -833,22 +832,6 @@ Tool:
       Kb: 2.4
       KbY: 0.5
       ParticleGap: 0.18
-    2:
-      ConfigName: HealStation
-      Name: "Heal Station"
-      Item:
-        Material: GOLD_PICKAXE
-      Description:
-        - "&7Place a brewing stand on the ground that"
-        - "&7heals you and your teammates upon being"
-        - "&7stood upon."
-      Cooldown: 190
-      AutoStartCooldown: false
-      Duration: 200
-      RegenMultiplier: 2.5
-      Health: 12
-      Radius: 2
-      ParticlesPerLine: 10
 Moreo:
   ConfigName: Moreo
   Name: "Moreo"

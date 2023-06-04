@@ -52,14 +52,14 @@ public class BombOmb extends RightClickAbility {
     public enum BombState {
         INACTIVE,
         THROWN,
-        WAITING,
-        MAKING_BOMB
+        WAITING
     }
 
     public static class BombProjectile extends ItemProjectile {
         private BombState state = BombState.INACTIVE;
         private Block bombBlock;
         private BukkitTask soundTask;
+        private boolean hitTarget = false;
 
         public BombProjectile(SuperSmashLegends plugin, Ability ability, Section config) {
             super(plugin, ability, config);
@@ -76,42 +76,21 @@ public class BombOmb extends RightClickAbility {
             new ParticleBuilder(EnumParticle.SMOKE_LARGE).show(this.entity.getLocation());
         }
 
-        @Override
-        public void onBlockHit(BlockHitResult result) {
-            solidify();
-        }
+        private void attemptExplodeHit(LivingEntity target) {
+            Section explode = this.config.getSection("Explode");
 
-        @Override
-        public void onTargetHit(LivingEntity target) {
-            solidify();
-        }
+            double max = explode.getDouble("Range") * explode.getDouble("Range");
+            double distanceSq = this.bombBlock.getLocation().distanceSquared(target.getLocation());
+            double damage = YamlReader.decLin(explode, "Damage", distanceSq, max);
+            double kb = YamlReader.decLin(explode, "Kb", distanceSq, max);
 
-        private void solidify() {
-            remove();
-            this.state = BombState.MAKING_BOMB;
+            Vector direction = VectorUtils.fromTo(this.bombBlock.getLocation(), target.getLocation());
+            Damage dmg = Damage.Builder.fromConfig(explode, direction).setDamage(damage).setKb(kb).build();
 
-            Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
-                if (this.state != BombState.MAKING_BOMB) return;
-
-                this.state = BombState.WAITING;
-
-                this.bombBlock = this.entity.getLocation().getBlock();
-                this.bombBlock.setType(Material.COAL_BLOCK);
-
-                this.soundTask = Bukkit.getScheduler().runTaskTimer(this.plugin,
-                        () -> this.entity.getWorld().playSound(this.bombBlock.getLocation(), Sound.FUSE, 1, 1), 0, 0);
-
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    if (this.state == BombState.WAITING) {
-                        explode();
-                    }
-                }, this.config.getInt("Explode.Delay"));
-            }, 1);
+            plugin.getDamageManager().attemptAttributeDamage(target, dmg, this.ability);
         }
 
         private void explode() {
-            if (this.bombBlock == null) return;
-
             this.state = BombState.INACTIVE;
             this.bombBlock.setType(Material.AIR);
 
@@ -133,18 +112,35 @@ public class BombOmb extends RightClickAbility {
             }
         }
 
-        private void attemptExplodeHit(LivingEntity target) {
-            Section explode = this.config.getSection("Explode");
+        private void solidify() {
+            this.remove();
 
-            double max = explode.getDouble("Range") * explode.getDouble("Range");
-            double distanceSq = this.bombBlock.getLocation().distanceSquared(target.getLocation());
-            double damage = YamlReader.decLin(explode, "Damage", distanceSq, max);
-            double kb = YamlReader.decLin(explode, "Kb", distanceSq, max);
+            this.state = BombState.WAITING;
 
-            Vector direction = VectorUtils.fromTo(this.bombBlock.getLocation(), target.getLocation());
-            Damage dmg = Damage.Builder.fromConfig(explode, direction).setDamage(damage).setKb(kb).build();
+            this.bombBlock = this.entity.getLocation().getBlock();
+            this.bombBlock.setType(Material.COAL_BLOCK);
 
-            plugin.getDamageManager().attemptAttributeDamage(target, dmg, this.ability);
+            this.soundTask = Bukkit.getScheduler().runTaskTimer(this.plugin,
+                    () -> this.entity.getWorld().playSound(this.bombBlock.getLocation(), Sound.FUSE, 1, 1), 0, 0);
+
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (this.state == BombState.WAITING) {
+                    this.explode();
+                }
+            }, this.config.getInt("Explode.Delay"));
+        }
+
+        @Override
+        public void onBlockHit(BlockHitResult result) {
+            if (!this.hitTarget) {
+                this.solidify();
+            }
+        }
+
+        @Override
+        public void onTargetHit(LivingEntity target) {
+            this.hitTarget = true;
+            this.solidify();
         }
     }
 }
