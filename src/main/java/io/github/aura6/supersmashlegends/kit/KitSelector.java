@@ -60,13 +60,13 @@ public class KitSelector extends HorizontalInventory<Kit> {
 
         Replacers replacers = new Replacers()
                 .add("STATUS", accessType.getLore(kit))
-                .add("REGEN", String.valueOf(kit.getRegen()))
-                .add("ARMOR", String.valueOf(kit.getArmor()))
-                .add("DAMAGE", String.valueOf(kit.getDamage()))
-                .add("KB", String.valueOf(kit.getKb()))
-                .add("JUMP_POWER", String.valueOf(kit.getJumpPower()))
-                .add("JUMP_HEIGHT", String.valueOf(kit.getJumpHeight()))
-                .add("JUMP_COUNT", String.valueOf(kit.getJumpCount()))
+                .add("REGEN", kit.getRegen())
+                .add("ARMOR", kit.getArmor())
+                .add("DAMAGE", kit.getDamage())
+                .add("KB", kit.getKb())
+                .add("JUMP_POWER", kit.getJumpPower())
+                .add("JUMP_HEIGHT", kit.getJumpHeight())
+                .add("JUMP_COUNT", kit.getJumpCount())
                 .add("ABILITIES", abilityUses)
                 .add("DESCRIPTION", kit.getDescription())
                 .add("COLOR", kit.getColor());
@@ -93,7 +93,7 @@ public class KitSelector extends HorizontalInventory<Kit> {
 
         if (kit.getEnergy() > 0) {
             lore.add(10, "&7Energy: {COLOR}{ENERGY}");
-            replacers.add("ENERGY", String.valueOf(kit.getEnergy()));
+            replacers.add("ENERGY", kit.getEnergy());
         }
 
 

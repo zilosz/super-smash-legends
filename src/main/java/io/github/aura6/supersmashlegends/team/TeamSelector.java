@@ -35,8 +35,8 @@ public class TeamSelector extends HorizontalInventory<Team> {
         String players = team.getPlayers().stream().map(Player::getName).collect(Collectors.joining(", "));
 
         Replacers replacers = new Replacers()
-                .add("SIZE", String.valueOf(team.getSize()))
-                .add("CAP", String.valueOf(plugin.getTeamManager().getTeamSize()))
+                .add("SIZE", team.getSize())
+                .add("CAP", this.plugin.getTeamManager().getTeamSize())
                 .add("PLAYERS", team.getSize() > 0 ? players : "&7&oNone");
 
         List<String> lore = replacers.replaceLines(Arrays.asList(

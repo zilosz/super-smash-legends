@@ -73,7 +73,7 @@ public class EndState extends GameState {
         if (this.plugin.getTeamManager().doesPlayerHaveTeam(player)) {
             InGameProfile profile = gameManager.getProfile(player);
 
-            replacers.add("KILLS", String.valueOf(profile.getKills()));
+            replacers.add("KILLS", profile.getKills());
             replacers.add("KIT", profile.getKit().getBoldedDisplayName());
 
             lines.add("");

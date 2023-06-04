@@ -67,8 +67,8 @@ public class LobbyState extends GameState {
     public List<String> getScoreboard(Player player) {
 
         Replacers replacers = new Replacers()
-                .add("CURRENT", String.valueOf(Bukkit.getOnlinePlayers().size()))
-                .add("CAP", String.valueOf(this.plugin.getTeamManager().getPlayerStartCount()));
+                .add("CURRENT", Bukkit.getOnlinePlayers().size())
+                .add("CAP", this.plugin.getTeamManager().getPlayerStartCount());
 
         try {
             replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
@@ -236,8 +236,8 @@ public class LobbyState extends GameState {
             Replacers replacers = new Replacers()
                     .add("RESULT", profile.getGameResult().getHologramString())
                     .add("KIT", profile.getKit().getBoldedDisplayName())
-                    .add("KILLS", String.valueOf(profile.getKills()))
-                    .add("DEATHS", String.valueOf(profile.getDeaths()))
+                    .add("KILLS", profile.getKills())
+                    .add("DEATHS", profile.getDeaths())
                     .add("DAMAGE_TAKEN", format.format(profile.getDamageTaken()))
                     .add("DAMAGE_DEALT", format.format(profile.getDamageDealt()));
 

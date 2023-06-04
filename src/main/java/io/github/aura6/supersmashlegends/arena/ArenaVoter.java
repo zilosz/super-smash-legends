@@ -31,10 +31,7 @@ public class ArenaVoter extends HorizontalInventory<Arena> {
 
     @Override
     public ItemStack getItemStack(Arena arena, Player player) {
-
-        Replacers replacers = new Replacers()
-                .add("AUTHORS", arena.getAuthors())
-                .add("VOTES", String.valueOf(arena.getTotalVotes()));
+        Replacers replacers = new Replacers().add("AUTHORS", arena.getAuthors()).add("VOTES", arena.getTotalVotes());
 
         List<String> lore = replacers.replaceLines(Arrays.asList(
                 "&3&lAuthors: &7{AUTHORS}&7",

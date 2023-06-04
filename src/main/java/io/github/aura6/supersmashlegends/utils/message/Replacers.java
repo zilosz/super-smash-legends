@@ -14,19 +14,31 @@ public class Replacers {
     }
 
     public Replacers add(String placeholder, String replacement) {
-        singles.put(wrap(placeholder), replacement);
+        this.singles.put(wrap(placeholder), replacement);
         return this;
     }
 
+    public Replacers add(String placeholder, int replacement) {
+        return this.add(placeholder, String.valueOf(replacement));
+    }
+
+    public Replacers add(String placeholder, double replacement) {
+        return this.add(placeholder, String.valueOf(replacement));
+    }
+
+    public Replacers add(String placeholder, float replacement) {
+        return this.add(placeholder, String.valueOf(replacement));
+    }
+
     public Replacers add(String placeholder, List<String> replacements) {
-        multiples.put(wrap(placeholder), replacements);
+        this.multiples.put(wrap(placeholder), replacements);
         return this;
     }
 
     public String replace(String line) {
         String newLine = line;
 
-        for (Map.Entry<String, String> single : singles.entrySet()) {
+        for (Map.Entry<String, String> single : this.singles.entrySet()) {
             newLine = newLine.replace(single.getKey(), single.getValue());
         }
 
@@ -39,7 +51,7 @@ public class Replacers {
         for (String line : lines) {
             boolean found = false;
 
-            for (Map.Entry<String, List<String>> multiple : multiples.entrySet()) {
+            for (Map.Entry<String, List<String>> multiple : this.multiples.entrySet()) {
 
                 if (line.contains(multiple.getKey())) {
                     newLines.addAll(multiple.getValue());

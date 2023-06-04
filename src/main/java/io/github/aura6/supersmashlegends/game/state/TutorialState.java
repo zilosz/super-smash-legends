@@ -135,7 +135,7 @@ public class TutorialState extends GameState {
         int delay = plugin.getResources().getConfig().getInt("Game.Tutorial.DelayTicks");
 
         List<String> rules = new Replacers()
-                .add("LIVES", String.valueOf(plugin.getResources().getConfig().getInt("Game.Lives")))
+                .add("LIVES", plugin.getResources().getConfig().getInt("Game.Lives"))
                 .replaceLines(plugin.getResources().getConfig().getStringList("Rules"));
 
         for (Player player : players) {
