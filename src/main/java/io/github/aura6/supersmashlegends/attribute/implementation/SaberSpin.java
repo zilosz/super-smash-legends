@@ -7,7 +7,7 @@ import io.github.aura6.supersmashlegends.damage.Damage;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
-import io.github.aura6.supersmashlegends.utils.entity.finder.range.HitBoxSelector;
+import io.github.aura6.supersmashlegends.utils.entity.finder.selector.HitBoxSelector;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Sound;

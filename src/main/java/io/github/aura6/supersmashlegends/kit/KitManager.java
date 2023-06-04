@@ -12,6 +12,7 @@ import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.NPCLeftClickEvent;
 import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.trait.LookClose;
 import net.citizensnpcs.trait.SkinTrait;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -42,7 +43,6 @@ public class KitManager implements Listener {
         this.plugin = plugin;
     }
 
-    @SuppressWarnings("deprecation")
     private void setupKit(Kit kit) {
         kitsByName.put(kit.getConfigName(), kit);
 
@@ -51,9 +51,11 @@ public class KitManager implements Listener {
 
         NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, kit.getSkinName());
         npc.setName(kit.getBoldedDisplayName());
+
         SkinTrait skinTrait = npc.getTrait(SkinTrait.class);
         skinTrait.setSkinName(kit.getSkinName());
         npc.addTrait(skinTrait);
+
         npc.spawn(location);
 
         kitsByNpc.put(npc.getUniqueId(), kit);

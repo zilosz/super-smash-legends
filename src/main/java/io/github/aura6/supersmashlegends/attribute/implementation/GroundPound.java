@@ -10,7 +10,7 @@ import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
-import io.github.aura6.supersmashlegends.utils.entity.finder.range.HitBoxSelector;
+import io.github.aura6.supersmashlegends.utils.entity.finder.selector.HitBoxSelector;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;

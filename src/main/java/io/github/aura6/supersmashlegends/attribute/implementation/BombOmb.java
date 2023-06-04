@@ -13,7 +13,7 @@ import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
 import io.github.aura6.supersmashlegends.team.TeamPreference;
-import io.github.aura6.supersmashlegends.utils.entity.finder.range.DistanceSelector;
+import io.github.aura6.supersmashlegends.utils.entity.finder.selector.DistanceSelector;
 import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;

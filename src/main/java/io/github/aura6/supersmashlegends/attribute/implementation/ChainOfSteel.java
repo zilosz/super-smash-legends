@@ -9,8 +9,8 @@ import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.entity.FloatingEntity;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
-import io.github.aura6.supersmashlegends.utils.entity.finder.range.HitBoxSelector;
-import io.github.aura6.supersmashlegends.utils.entity.finder.range.RangeSelector;
+import io.github.aura6.supersmashlegends.utils.entity.finder.selector.HitBoxSelector;
+import io.github.aura6.supersmashlegends.utils.entity.finder.selector.EntitySelector;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -48,9 +48,7 @@ public class ChainOfSteel extends RightClickAbility {
         return super.invalidate(event) || this.chainTicks > 0;
     }
 
-    private void reset() {
-        if (this.chainTask == null) return;
-
+    private void reset(boolean cooldown) {
         this.chainTicks = 0;
         this.chainTask.cancel();
 
@@ -61,6 +59,10 @@ public class ChainOfSteel extends RightClickAbility {
             this.pullTask.cancel();
             this.pullSoundTask.cancel();
             this.effectRemoveTask.cancel();
+        }
+
+        if (cooldown) {
+            this.startCooldown();
         }
     }
 
@@ -82,8 +84,7 @@ public class ChainOfSteel extends RightClickAbility {
         this.effectRemoveTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
 
             if (this.entities.isEmpty()) {
-                this.reset();
-                this.startCooldown();
+                this.reset(true);
 
             } else {
                 this.entities.remove(this.entities.size() - 1).destroy();
@@ -99,13 +100,14 @@ public class ChainOfSteel extends RightClickAbility {
         this.direction = this.player.getEyeLocation().getDirection();
         Vector step = direction.clone().multiply(this.config.getDouble("ChainSpeed"));
 
+        EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
+
         this.chainTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
             this.player.setVelocity(new Vector(0, 0.05, 0));
             currLocation.add(step);
 
-            if (this.chainTicks++ >= this.config.getInt("ChainTicks")) {
-                this.reset();
-                this.startCooldown();
+            if (this.chainTicks >= this.config.getInt("ChainTicks")) {
+                this.reset(true);
                 return;
             }
 
@@ -131,7 +133,6 @@ public class ChainOfSteel extends RightClickAbility {
                 this.pullTowardsLocation(currLocation);
 
             } else {
-                RangeSelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
                 new EntityFinder(this.plugin, selector).findClosest(this.player, currLocation).ifPresent(target -> {
                     Damage damageObj = Damage.Builder.fromConfig(this.config).build();
@@ -144,20 +145,24 @@ public class ChainOfSteel extends RightClickAbility {
                     }
                 });
             }
+
+            this.chainTicks++;
         }, 0, 0);
     }
 
     @Override
     public void deactivate() {
         super.deactivate();
-        this.reset();
+
+        if (this.chainTicks > 0) {
+            this.reset(false);
+        }
     }
 
     @EventHandler
     public void onSneak(PlayerToggleSneakEvent event) {
-        if (event.getPlayer() == this.player) {
-            this.reset();
-            this.startCooldown();
+        if (event.getPlayer() == this.player && this.chainTicks > 0) {
+            this.reset(true);
             this.player.playSound(this.player.getLocation(), Sound.IRONGOLEM_DEATH, 1, 2);
         }
     }

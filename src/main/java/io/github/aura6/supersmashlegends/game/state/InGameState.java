@@ -89,7 +89,7 @@ public class InGameState extends GameState {
 
         List<String> scoreboard = new ArrayList<>(Arrays.asList(
                 "&5&l---------------------",
-                "&fSeconds Left: &e{TIME_LEFT}",
+                "&fTime Left: &e{TIME_LEFT}",
                 ""
         ));
 

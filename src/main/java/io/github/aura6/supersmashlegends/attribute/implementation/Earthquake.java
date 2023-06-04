@@ -9,8 +9,8 @@ import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.block.BlockUtils;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
-import io.github.aura6.supersmashlegends.utils.entity.finder.range.HitBoxSelector;
-import io.github.aura6.supersmashlegends.utils.entity.finder.range.RangeSelector;
+import io.github.aura6.supersmashlegends.utils.entity.finder.selector.HitBoxSelector;
+import io.github.aura6.supersmashlegends.utils.entity.finder.selector.EntitySelector;
 import io.github.aura6.supersmashlegends.utils.math.MathUtils;
 import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
 import net.minecraft.server.v1_8_R3.EnumParticle;
@@ -50,7 +50,7 @@ public class Earthquake extends RightClickAbility {
             new ParticleBuilder(EnumParticle.REDSTONE).setRgb(139, 69, 19).ring(location, 90, 0, 1.5, 30);
             new ParticleBuilder(EnumParticle.REDSTONE).setRgb(160, 82, 45).ring(location, 90, 0, 0.75, 15);
 
-            RangeSelector selector = new HitBoxSelector(horizontal, vertical, horizontal);
+            EntitySelector selector = new HitBoxSelector(horizontal, vertical, horizontal);
 
             new EntityFinder(this.plugin, selector).findAll(this.player).forEach(target -> {
                 if (!target.isOnGround()) return;

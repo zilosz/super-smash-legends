@@ -2,7 +2,7 @@ package io.github.aura6.supersmashlegends.utils.entity.finder;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.team.TeamPreference;
-import io.github.aura6.supersmashlegends.utils.entity.finder.range.RangeSelector;
+import io.github.aura6.supersmashlegends.utils.entity.finder.selector.EntitySelector;
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -23,13 +23,13 @@ import java.util.stream.Stream;
 
 public class EntityFinder {
     private final SuperSmashLegends plugin;
-    private final RangeSelector rangeSelector;
+    private final EntitySelector rangeSelector;
     private TeamPreference teamPreference = TeamPreference.ENEMY;
     private boolean avoidsUser = true;
     private EntityType entityType;
     private final List<UUID> toAvoid = new ArrayList<>();
 
-    public EntityFinder(SuperSmashLegends plugin, RangeSelector rangeSelector) {
+    public EntityFinder(SuperSmashLegends plugin, EntitySelector rangeSelector) {
         this.plugin = plugin;
         this.rangeSelector = rangeSelector;
     }

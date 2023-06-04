@@ -14,7 +14,7 @@ import io.github.aura6.supersmashlegends.utils.NmsUtils;
 import io.github.aura6.supersmashlegends.utils.block.BlockUtils;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
-import io.github.aura6.supersmashlegends.utils.entity.finder.range.DistanceSelector;
+import io.github.aura6.supersmashlegends.utils.entity.finder.selector.DistanceSelector;
 import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import me.libraryaddict.disguise.DisguiseAPI;

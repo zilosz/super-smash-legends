@@ -676,7 +676,7 @@ Tank:
     - "&7the terrain around him to his advantage."
   Skin: "zzz0www"
   Damage: 6
-  Armor: 0.4
+  Armor: 0.45
   Kb: 1
   Regen: 0.22
   Jump:
@@ -1038,17 +1038,17 @@ Pikachew:
     - "&7of his cheeks. He also has beautiful shoes"
     - "&7that allow him to scamper at high speeds!"
   Skin: "bink10"
-  Damage: 4.5
-  Armor: 0.75
+  Damage: 5
+  Armor: 0.7
   Kb: 1.85
   Regen: 0.325
   Jump:
-    Power: 1.4
+    Power: 1.35
     Height: 0.95
     Sound:
       Type: FIREWORK_LAUNCH
       Volume: 1
-      Pitch: 0.5
+      Pitch: 1.1
   Abilities:
     0:
       ConfigName: Thunderbolt
@@ -1071,10 +1071,45 @@ Pikachew:
       MaxRange: 40
       HitBox: 1.5
     1:
+      ConfigName: VoltTackle
+      Name: "Volt Tackle"
+      Item:
+        Material: GOLD_AXE
+      Description:
+        - "&7Use your powerful hind legs and stored"
+        - "&7electricity to charge forwards at a"
+        - "&7blinding pace. Pikachew's immense speed"
+        - "&7means he struggles to change direction."
+        - "&7Taking projectile damage cancels the"
+        - "&7charge, but colliding with enemies deals"
+        - "&7great damage and recoil. Sneak to cancel."
+      Cooldown: 160
+      AutoStartCooldown: false
+      MinVelocity: 0.1
+      MaxVelocity: 1.7
+      MaxVelocityY: 0.25
+      DurationTicks: 50
+      MinDamage: 1
+      MaxDamage: 8.5
+      MinKb: 0.8
+      MaxKb: 2.6
+      KbY: 0.8
+      HitBox: 1.6
+      ParticlesPerTick: 6
+      ParticleDuration: 5
+      ParticleSpeed: 0.4
+      ImmunityTicks: 0
+      Recoil:
+        MinDamage: 0.3
+        MaxDamage: 3
+        MinKb: 0.8
+        MaxKb: 2.1
+        KbY: 0.8
+    2:
       ConfigName: ElectrostaticLeap
       Name: "Electrostatic Leap"
       Item:
-        Material: IRON_AXE
+        Material: IRON_SPADE
       Description:
         - "&7Pikachew possesses strong hind legs that allow"
         - "&7him to leap upwards. The liftoff power is"

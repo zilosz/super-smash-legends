@@ -11,7 +11,7 @@ import io.github.aura6.supersmashlegends.utils.Reflector;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
-import io.github.aura6.supersmashlegends.utils.entity.finder.range.HitBoxSelector;
+import io.github.aura6.supersmashlegends.utils.entity.finder.selector.HitBoxSelector;
 import io.github.aura6.supersmashlegends.utils.math.MathUtils;
 import lombok.Getter;
 import lombok.Setter;

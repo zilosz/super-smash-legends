@@ -9,7 +9,7 @@ import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.effect.Effects;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
-import io.github.aura6.supersmashlegends.utils.entity.finder.range.DistanceSelector;
+import io.github.aura6.supersmashlegends.utils.entity.finder.selector.DistanceSelector;
 import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;

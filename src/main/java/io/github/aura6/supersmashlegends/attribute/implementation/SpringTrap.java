@@ -10,7 +10,7 @@ import io.github.aura6.supersmashlegends.projectile.BlockProjectile;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
-import io.github.aura6.supersmashlegends.utils.entity.finder.range.DistanceSelector;
+import io.github.aura6.supersmashlegends.utils.entity.finder.selector.DistanceSelector;
 import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.entity.LivingEntity;

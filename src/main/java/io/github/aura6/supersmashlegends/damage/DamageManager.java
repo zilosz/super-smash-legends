@@ -117,7 +117,7 @@ public class DamageManager {
 
         Optional.ofNullable(damage.getDirection()).ifPresent(direction -> {
             Vector kb = new Vector(damage.getKb(), 1, damage.getKb());
-            victim.setVelocity(direction.clone().normalize().multiply(kb).setY(damage.getKbY()));
+            victim.setVelocity(direction.clone().setY(0).normalize().multiply(kb).setY(damage.getKbY()));
         });
 
         updateIndicator(victim, damage.getDamage());

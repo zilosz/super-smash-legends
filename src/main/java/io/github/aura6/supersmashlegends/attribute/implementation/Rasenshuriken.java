@@ -13,8 +13,8 @@ import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
-import io.github.aura6.supersmashlegends.utils.entity.finder.range.DistanceSelector;
-import io.github.aura6.supersmashlegends.utils.entity.finder.range.RangeSelector;
+import io.github.aura6.supersmashlegends.utils.entity.finder.selector.DistanceSelector;
+import io.github.aura6.supersmashlegends.utils.entity.finder.selector.EntitySelector;
 import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
 import lombok.Getter;
 import net.minecraft.server.v1_8_R3.EnumParticle;
@@ -163,7 +163,7 @@ public class Rasenshuriken extends RightClickAbility {
             new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).solidSphere(loc, config.getDouble("Radius"), 40, 0.1);
 
             double radius = config.getDouble("Radius");
-            RangeSelector selector = new DistanceSelector(radius);
+            EntitySelector selector = new DistanceSelector(radius);
 
             new EntityFinder(plugin, selector).findAll(this.launcher, loc).forEach(target -> {
                 if (target == avoid) return;
