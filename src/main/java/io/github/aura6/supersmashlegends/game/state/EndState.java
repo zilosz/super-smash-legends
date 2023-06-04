@@ -222,8 +222,6 @@ public class EndState extends GameState {
             player.setAllowFlight(true);
         }
 
-        this.plugin.getPowerManager().stop();
-
         this.endCountdown = new BukkitRunnable() {
             int secondsLeft = plugin.getResources().getConfig().getInt("Game.EndWaitSeconds");
             float pitch = 0.5f;

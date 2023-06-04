@@ -20,7 +20,6 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
 public class Kit {
@@ -151,37 +150,5 @@ public class Kit {
 
     public void destroy() {
         attributes.forEach(Attribute::destroy);
-    }
-
-    public OptionalInt findOpenSlot() {
-        List<Integer> slots = new ArrayList<>();
-
-        for (int i = 0; i < 9; i++) {
-            slots.add(i);
-        }
-
-        for (Attribute attr : attributes) {
-
-            if (attr instanceof Ability) {
-                slots.remove(Integer.valueOf(((Ability) attr).getSlot()));
-            }
-        }
-
-        return slots.isEmpty() ? OptionalInt.empty() : OptionalInt.of(slots.get(0));
-    }
-
-    public void addAbility(Ability ability, int slot) {
-        ability.setSlot(slot);
-        addAttribute(ability);
-    }
-
-    public void addAttribute(Attribute attribute) {
-        attribute.equip();
-        attribute.activate();
-        attributes.add(attribute);
-    }
-
-    public void removeAttribute(Attribute attribute) {
-        attributes.remove(attribute);
     }
 }

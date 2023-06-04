@@ -151,9 +151,6 @@ public class InGameState extends GameState {
 
     @Override
     public void start() {
-        Bukkit.getPluginManager().registerEvents(this.plugin.getPowerManager(), this.plugin);
-        this.plugin.getPowerManager().startPowerTimer();
-
         this.secLeft = this.plugin.getResources().getConfig().getInt("Game.MaxGameSeconds");
 
         this.gameTimer = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {

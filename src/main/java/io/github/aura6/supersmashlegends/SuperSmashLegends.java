@@ -18,7 +18,6 @@ import io.github.aura6.supersmashlegends.arena.ArenaVoter;
 import io.github.aura6.supersmashlegends.kit.KitSelector;
 import io.github.aura6.supersmashlegends.team.TeamSelector;
 import io.github.aura6.supersmashlegends.kit.KitManager;
-import io.github.aura6.supersmashlegends.power.PowerManager;
 import io.github.aura6.supersmashlegends.team.TeamManager;
 import io.github.aura6.supersmashlegends.utils.WorldManager;
 import io.github.aura6.supersmashlegends.utils.file.FileUtility;
@@ -46,7 +45,6 @@ public class SuperSmashLegends extends JavaPlugin {
     @Getter private TeamSelector teamSelector;
     @Getter private WorldManager worldManager;
     @Getter private DamageManager damageManager;
-    @Getter private PowerManager powerManager;
 
     @Override
     public void onLoad() {
@@ -68,7 +66,6 @@ public class SuperSmashLegends extends JavaPlugin {
         db = new Database();
         kitManager = new KitManager(this);
         gameManager = new GameManager(this);
-        powerManager = new PowerManager(this);
 
         Section dbConfig = resources.getConfig().getSection("Database");
 

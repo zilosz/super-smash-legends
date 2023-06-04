@@ -63,36 +63,3 @@ Damage:
   KbHealthMultiplier:
     Min: 1
     Max: 2
-Power:
-  Frequency: 3600
-  Height: 100
-  DropSpeed: 0.45
-  DetectionRadiusSquared: 4.5
-  Powers:
-    Droid:
-      Name: "&8Droid"
-      Item:
-        Material: IRON_BLOCK
-      Description:
-        - "&7Command a legion of fast, hungry droids."
-        - "&7With an advanced, built-in homing system,"
-        - "&7they're able to hunt down prey at an "
-        - "&7unparalleled success rate."
-      Rarity: 10
-      Uses: 3
-      Side:
-        HitBox: 0
-        Block:
-          Material: IRON_FENCE
-      Main:
-        Speed: 0.75
-        HomingSpeed: 1.75
-        Vision: 25
-        Damage: 7.5
-        ImmunityTicks: 0
-        Kb: 2.75
-        KbY: 1
-        HitBox: 2
-        HasGravity: false
-        Block:
-          Material: IRON_BLOCK
