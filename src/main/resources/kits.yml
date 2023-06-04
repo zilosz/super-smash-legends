@@ -444,12 +444,13 @@ Drakula:
       RemoveOnBlockHit: false
       RemoveOnEntityHit: false
       BatCount: 20
-      Speed: 0.65
+      Speed: 0.5
       HitBox: 0.6
       Kb: 1.2
       Damage: 2.5
-      Spread: 8
-      Lifespan: 80
+      Width: 4
+      Height: 4
+      Lifespan: 90
       HitsMultiple: true
       HasGravity: false
       TargetHitSound:

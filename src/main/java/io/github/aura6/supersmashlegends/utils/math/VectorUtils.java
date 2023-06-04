@@ -8,10 +8,34 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class VectorUtils {
 
-    public static Vector perp(Vector vector) {
-        return vector.getCrossProduct(new Vector(0, 1, 0).normalize());
+    public static Set<Location> getRectSpread(Location center, Vector alternative, double width, double height, int count) {
+        Vector direction = center.getDirection();
+
+        if (direction.getX() == 0 && direction.getZ() == 0) {
+            direction = alternative;
+        }
+
+        Vector unitHorizontal = direction.getCrossProduct(new Vector(0, 1, 0)).normalize();
+        Vector unitVertical = direction.getCrossProduct(unitHorizontal).normalize();
+
+        Set<Location> locations = new HashSet<>();
+
+        for (int i = 0; i < count; i++) {
+            double w = MathUtils.randRange(-width / 2, width / 2);
+            double h = MathUtils.randRange(-height / 2, height / 2);
+
+            Vector horizontal = unitHorizontal.clone().multiply(w);
+            Vector vertical = unitVertical.clone().multiply(h);
+
+            locations.add(center.clone().add(horizontal).add(vertical));
+        }
+
+        return locations;
     }
 
     public static Vector fromTo(Location from, Location to) {
