@@ -137,7 +137,7 @@ public class VoltTackle extends RightClickAbility {
 
     @EventHandler
     public void onDamage(AttributeDamageEvent event) {
-        if (event.getVictim() == this.player && this.isActive()) {
+        if (event.getVictim() == this.player && this.isActive() && !(event.getAttribute() instanceof Melee)) {
             this.reset(true, true);
         }
     }
