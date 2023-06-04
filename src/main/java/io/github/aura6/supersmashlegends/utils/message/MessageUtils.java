@@ -24,7 +24,9 @@ public class MessageUtils {
     }
 
     public static String formatZero(int number) {
-        return number == 0 ? "00" : String.valueOf(number);
+        if (number == 0) return "00";
+        if (Math.abs(number) < 10) return "0" + number;
+        return String.valueOf(number);
     }
 
     public static String secToMin(int sec) {
