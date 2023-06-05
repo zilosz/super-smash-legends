@@ -1307,6 +1307,7 @@ Webman:
   Armor: 0.7
   Kb: 1.8
   Regen: 0.28
+  Energy: 0.2
   Jump:
     Power: 1.2
     Height: 0.95
@@ -1324,15 +1325,14 @@ Webman:
         - "&7Web Grapple"
       Cooldown: 75
       Projectile:
-        Speed: 2.5
+        Speed: 2.4
         PullSpeed: 2
         Damage: 5
         Kb: 1.5
         KbY: 0.75
         Lifespan: 80
         ExtraY: 0.4
-        Item:
-          Material: WEB
+
     1:
       ConfigName: WebbedSnare
       Name: "Webbed Snare"
@@ -1342,7 +1342,7 @@ Webman:
         - "&7Webbed Snare"
       Cooldown: 130
       WebCount: 15
-      Velocity: 1.4
+      Velocity: 1.6
       Projectile:
         Spread: 15
         Speed: 1.7

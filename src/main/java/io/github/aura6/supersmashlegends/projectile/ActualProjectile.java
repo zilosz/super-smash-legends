@@ -36,7 +36,6 @@ public abstract class ActualProjectile<T extends Projectile> extends CustomProje
 
         if (event.getEntity() != this.launcher) {
             this.handleTargetHit((LivingEntity) event.getEntity());
-            this.remove();
         }
     }
 

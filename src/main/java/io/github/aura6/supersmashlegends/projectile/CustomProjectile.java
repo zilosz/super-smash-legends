@@ -183,17 +183,17 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     public void onTargetHit(LivingEntity target) {}
 
     protected void handleTargetHit(LivingEntity target) {
-        damage.setDirection(this.entity.getVelocity());
+        this.damage.setDirection(this.entity.getVelocity());
 
-        if (!plugin.getDamageManager().attemptAttributeDamage(target, damage, ability)) return;
+        if (!this.plugin.getDamageManager().attemptAttributeDamage(target, this.damage, this.ability)) return;
 
-        launcher.playSound(launcher.getLocation(), Sound.SUCCESSFUL_HIT, 2, 1);
-        config.getOptionalSection("TargetHitSound").ifPresent(sound -> YamlReader.noise(sound).playForAll(entity.getLocation()));
+        this.launcher.playSound(this.launcher.getLocation(), Sound.SUCCESSFUL_HIT, 2, 1);
+        this.config.getOptionalSection("TargetHitSound").ifPresent(sound -> YamlReader.noise(sound).playForAll(this.entity.getLocation()));
 
-        onTargetHit(target);
+        this.onTargetHit(target);
 
-        if (removeOnEntityHit) {
-            remove();
+        if (this.removeOnEntityHit) {
+            this.remove();
         }
     }
 

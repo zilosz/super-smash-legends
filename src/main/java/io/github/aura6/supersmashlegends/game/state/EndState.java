@@ -206,7 +206,7 @@ public class EndState extends GameState {
             InGameProfile profile = gameManager.getProfile(player);
             Database db = this.plugin.getDb();
 
-            if (altsUsed < 2) {
+            if (playerRanks.size() > 1 && altsUsed < 2) {
                 db.increaseInt(uuid, profile.getGameResult().getDbString(), 1);
                 db.increaseInt(uuid, "result." + playerRanks.get(player), 1);
                 db.increaseInt(uuid, "kills", profile.getKills());
