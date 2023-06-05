@@ -4,6 +4,7 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
+import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
@@ -16,10 +17,15 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class WebbedSnare extends RightClickAbility {
+    private Set<LivingEntity> hitEntities;
 
     public WebbedSnare(SuperSmashLegends plugin, Section config, Kit kit) {
         super(plugin, config, kit);
@@ -44,11 +50,24 @@ public class WebbedSnare extends RightClickAbility {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SPIDER_DEATH, 2, 2);
         this.player.setVelocity(this.player.getEyeLocation().getDirection().multiply(this.config.getDouble("Velocity")));
 
+        this.hitEntities = new HashSet<>();
+
         this.launch(true);
 
         for (int i = 1; i < this.config.getInt("WebCount"); i++) {
             this.launch(false);
         }
+    }
+
+    @EventHandler
+    public void onHitEntity(AttributeDamageEvent event) {
+        if (event.getAttribute() != this) return;
+
+        if (this.hitEntities.contains(event.getVictim())) {
+            event.setCancelled(true);
+        }
+
+        this.hitEntities.add(event.getVictim());
     }
 
     private static class SnareProjectile extends ItemProjectile {
@@ -60,7 +79,11 @@ public class WebbedSnare extends RightClickAbility {
 
         @Override
         public void onTick() {
-            if (this.ticksAlive % 3 == 0) {
+
+            if (this.entity.getLocation().getBlock().getType() == Material.WEB) {
+                this.remove();
+
+            } else if (this.ticksAlive % 2 == 0) {
                 new ParticleBuilder(EnumParticle.SNOWBALL).show(this.entity.getLocation());
             }
         }

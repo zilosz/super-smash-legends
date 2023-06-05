@@ -10,14 +10,13 @@ import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.event.DamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
-import io.github.aura6.supersmashlegends.projectile.ArrowProjectile;
+import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
 import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Bat;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -72,7 +71,7 @@ public class WebGrapple extends RightClickAbility {
         }
     }
 
-    private static class GrappleProjectile extends ArrowProjectile {
+    private static class GrappleProjectile extends ItemProjectile {
         private Bat bat;
 
         public GrappleProjectile(SuperSmashLegends plugin, Ability ability, Section config) {
@@ -80,13 +79,13 @@ public class WebGrapple extends RightClickAbility {
         }
 
         @Override
-        public Arrow createEntity(Location location) {
-            Arrow arrow = super.createEntity(location);
+        public Item createEntity(Location location) {
+            Item item = super.createEntity(location);
             this.bat = location.getWorld().spawn(this.launcher.getEyeLocation(), Bat.class);
             this.bat.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 10_000, 1));
-            this.bat.setLeashHolder(arrow);
+            this.bat.setLeashHolder(item);
             this.launcher.setPassenger(this.bat);
-            return arrow;
+            return item;
         }
 
         private void pull() {
@@ -122,7 +121,6 @@ public class WebGrapple extends RightClickAbility {
         public void onCustomBatDamage(DamageEvent event) {
             if (event.getVictim() == this.bat) {
                 event.setCancelled(true);
-                Bukkit.broadcastMessage("hit bat");
             }
         }
 
@@ -130,6 +128,7 @@ public class WebGrapple extends RightClickAbility {
         public void onDeath(EntityDeathEvent event) {
             if (event.getEntity() == this.bat) {
                 this.remove();
+
             }
         }
     }

@@ -1332,6 +1332,8 @@ Webman:
         KbY: 0.75
         Lifespan: 80
         ExtraY: 0.4
+        Item:
+          Material: WEB
 
     1:
       ConfigName: WebbedSnare
