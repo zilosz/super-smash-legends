@@ -3,7 +3,6 @@ package io.github.aura6.supersmashlegends.game.state;
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.game.GameManager;
-import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import org.bukkit.Bukkit;
@@ -89,9 +88,7 @@ public abstract class GameState implements Listener {
             String color = this.plugin.getTeamManager().getPlayerColor(player);
             event.setQuitMessage(Chat.QUIT.get(String.format("%s &7has quit mid-game.", color + player.getName())));
 
-            InGameProfile profile = gameManager.getProfile(player);
-            profile.setDeaths(this.plugin.getResources().getConfig().getInt("Game.Lives"));
-            profile.setLives(0);
+            gameManager.getProfile(player).setLives(0);
 
             if (!(this instanceof EndState)) {
                 this.plugin.getTeamManager().getPlayerTeam(player).setLifespan(gameManager.getTicksActive());
