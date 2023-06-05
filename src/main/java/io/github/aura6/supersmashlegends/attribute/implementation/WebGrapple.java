@@ -20,6 +20,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -120,6 +121,13 @@ public class WebGrapple extends RightClickAbility {
         public void onCustomBatDamage(DamageEvent event) {
             if (event.getVictim() == this.bat) {
                 event.setCancelled(true);
+            }
+        }
+
+        @EventHandler
+        public void onDeath(EntityDeathEvent event) {
+            if (event.getEntity() == this.bat) {
+                this.remove();
             }
         }
     }

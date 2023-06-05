@@ -1302,7 +1302,7 @@ Webman:
   Description:
     - "&7Webman"
   Skin: "allsilver"
-  Damage: 5
+  Damage: 5.5
   Armor: 0.7
   Kb: 1.8
   Regen: 0.28
@@ -1324,11 +1324,29 @@ Webman:
       Cooldown: 90
       Projectile:
         Speed: 2.5
-        PullSpeed: 2.1
+        PullSpeed: 2
         Damage: 5
         Kb: 1.5
         KbY: 0.75
         Lifespan: 80
         ExtraY: 0.4
+        Item:
+          Material: WEB
+    1:
+      ConfigName: WebbedSnare
+      Name: "Webbed Snare"
+      Item:
+        Material: GOLD_SPADE
+      Description:
+        - "&7Webbed Snare"
+      Cooldown: 130
+      WebCount: 15
+      Velocity: 1.5
+      Projectile:
+        Spread: 15
+        Speed: 1.7
+        Damage: 4
+        WebDuration: 40
+        KbY: 0
         Item:
           Material: WEB
