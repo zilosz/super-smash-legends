@@ -15,7 +15,7 @@ public class ItemProjectile extends EmulatedProjectile<Item> {
     }
 
     public ItemStack getStack() {
-        return YamlReader.stack(config.getSection("Item"));
+        return YamlReader.stack(this.config.getSection("Item"));
     }
 
     @Override

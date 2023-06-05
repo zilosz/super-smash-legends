@@ -1293,3 +1293,42 @@ Shinoby:
           KbY: 0.45
           FactorsKb: false
           FactorsHealth: false
+Webman:
+  ConfigName: Webman
+  Name: "Webman"
+  Color: "&8"
+  Item:
+    Material: WEB
+  Description:
+    - "&7Webman"
+  Skin: "allsilver"
+  Damage: 5
+  Armor: 0.7
+  Kb: 1.8
+  Regen: 0.28
+  Jump:
+    Power: 1.2
+    Height: 0.95
+    Sound:
+      Type: SPIDER_IDLE
+      Volume: 1
+      Pitch: 2
+  Abilities:
+    0:
+      ConfigName: WebGrapple
+      Name: "Web Grapple"
+      Item:
+        Material: DIAMOND_AXE
+      Description:
+        - "&7Web Grapple"
+      Cooldown: 90
+      Projectile:
+        Speed: 2.5
+        PullSpeed: 2.1
+        Damage: 5
+        Kb: 1.5
+        KbY: 0.75
+        Lifespan: 80
+        ExtraY: 0.4
+        Item:
+          Material: WEB
