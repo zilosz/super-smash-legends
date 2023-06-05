@@ -5,15 +5,17 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.util.Vector;
 
+@Getter @Setter
 public class Damage {
-    @Getter @Setter private double damage;
-    @Getter @Setter private boolean factorsArmor;
-    @Getter @Setter private int immunityTicks;
-    @Getter @Setter private Vector direction;
-    @Getter @Setter private double kb;
-    @Getter @Setter private double kbY;
-    @Getter @Setter private boolean factorsHealth;
-    @Getter @Setter private boolean factorsKb;
+    private double damage;
+    private boolean factorsArmor;
+    private int immunityTicks;
+    private Vector direction;
+    private double kb;
+    private double kbY;
+    private boolean factorsHealth;
+    private boolean factorsKb;
+    private boolean linearKb;
 
     private Damage(Builder builder) {
         this.damage = builder.damage;
@@ -24,6 +26,7 @@ public class Damage {
         this.kbY = builder.kbY;
         this.factorsHealth = builder.factorsHealth;
         this.factorsKb = builder.factorsKb;
+        this.linearKb = builder.linearKb;
     }
 
     public static class Builder {
@@ -35,6 +38,7 @@ public class Damage {
         private double kbY;
         private boolean factorsHealth;
         private boolean factorsKb;
+        private boolean linearKb;
 
         public Builder setDamage(double damage) {
             this.damage = damage;
@@ -76,6 +80,11 @@ public class Damage {
             return this;
         }
 
+        public Builder setLinearKb(boolean linearKb) {
+            this.linearKb = linearKb;
+            return this;
+        }
+
         public Damage build() {
             return new Damage(this);
         }
@@ -89,6 +98,7 @@ public class Damage {
                     .setImmunityTicks(defaults.getOptionalInt("ImmunityTicks").orElse(10))
                     .setFactorsHealth(defaults.getOptionalBoolean("FactorsHealth").orElse(true))
                     .setFactorsKb(defaults.getOptionalBoolean("FactorsKb").orElse(true))
+                    .setLinearKb(defaults.getOptionalBoolean("LinearKb").orElse(false))
                     .setDirection(direction);
         }
 

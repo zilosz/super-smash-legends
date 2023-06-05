@@ -14,7 +14,6 @@ import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -68,9 +67,13 @@ public class DamageManager {
         Optional.ofNullable(this.damageSourceRemovers.get(entity.getUniqueId())).ifPresent(BukkitTask::cancel);
     }
 
+    private void destroyImmunityRemover(Attribute attribute) {
+        Optional.ofNullable(this.immunityRemovers.remove(attribute)).ifPresent(BukkitTask::cancel);
+    }
+
     public void removeDamageSource(LivingEntity entity) {
         this.lastDamagingAttributes.remove(entity.getUniqueId());
-        cancelDamageSourceRemover(entity);
+        this.cancelDamageSourceRemover(entity);
     }
 
     public boolean attemptAttributeDamage(LivingEntity victim, Damage damage, Attribute attribute) {
@@ -85,7 +88,7 @@ public class DamageManager {
 
         this.lastDamagingAttributes.put(victimUuid, attribute);
 
-        cancelDamageSourceRemover(victim);
+        this.cancelDamageSourceRemover(victim);
         int damageLifetime = this.plugin.getResources().getConfig().getInt("Damage.Lifetime");
         this.damageSourceRemovers.put(victimUuid, Bukkit.getScheduler().runTaskLater(this.plugin, () -> removeDamageSource(victim), damageLifetime));
 
@@ -117,17 +120,19 @@ public class DamageManager {
 
         Optional.ofNullable(damage.getDirection()).ifPresent(direction -> {
             Vector kb = new Vector(damage.getKb(), 1, damage.getKb());
-            victim.setVelocity(direction.clone().setY(0).normalize().multiply(kb).setY(damage.getKbY()));
+            Vector velocity = direction.clone().setY(0).normalize().multiply(kb);
+            velocity.setY(damage.isLinearKb() ? direction.getY() : damage.getKbY());
+            victim.setVelocity(velocity);
         });
 
-        updateIndicator(victim, damage.getDamage());
+        this.updateIndicator(victim, damage.getDamage());
 
         InGameProfile damagerProfile = this.plugin.getGameManager().getProfile(attribute.getPlayer());
         damagerProfile.setDamageDealt(damagerProfile.getDamageDealt() + damage.getDamage());
 
         this.immunityRemovers.put(attribute, Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
             this.immunities.get(victimUuid).remove(attribute);
-            Optional.ofNullable(this.immunityRemovers.remove(attribute)).ifPresent(BukkitTask::cancel);
+            this.destroyImmunityRemover(attribute);
         }, damage.getImmunityTicks()));
 
         return true;
@@ -135,9 +140,7 @@ public class DamageManager {
 
     public void clearImmunities(LivingEntity entity) {
         Optional.ofNullable(this.immunities.get(entity.getUniqueId())).ifPresent(immunities -> {
-            for (Attribute attribute : immunities) {
-                Optional.ofNullable(this.immunityRemovers.remove(attribute)).ifPresent(BukkitTask::cancel);
-            }
+            immunities.forEach(this::destroyImmunityRemover);
             immunities.clear();
         });
     }

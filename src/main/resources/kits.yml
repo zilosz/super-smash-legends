@@ -549,6 +549,7 @@ Cryomancer:
       ParticleDensity: 20
       Kb: 1.8
       KbY: 0.45
+      LinearKb: true
     2:
       ConfigName: FrostedTwirl
       Name: "Frosted Twirl"
