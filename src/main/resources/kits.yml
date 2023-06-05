@@ -1321,7 +1321,7 @@ Webman:
         Material: DIAMOND_AXE
       Description:
         - "&7Web Grapple"
-      Cooldown: 90
+      Cooldown: 75
       Projectile:
         Speed: 2.5
         PullSpeed: 2
@@ -1341,7 +1341,7 @@ Webman:
         - "&7Webbed Snare"
       Cooldown: 130
       WebCount: 15
-      Velocity: 1.5
+      Velocity: 1.4
       Projectile:
         Spread: 15
         Speed: 1.7
