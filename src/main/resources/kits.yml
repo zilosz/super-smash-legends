@@ -139,9 +139,9 @@ Globby:
         - "&7bounce off obstacles."
       EnergyCost: 0.32
       Speed: 1.2
-      Damage: 3
+      Damage: 3.5
       Kb: 1.1
-      KbY: 0.45
+      KbY: 0.6
       HasGravity: false
       MaxBounces: 5
       HitBox: 1
@@ -170,15 +170,14 @@ Globby:
         - "&7slime, bloated to no avail. In a brief"
         - "&7display of strength, Globby flings his new"
         - "&7body forward, striking enemies."
-      Cooldown: 170
+      Cooldown: 140
       AutoStartCooldown: false
-      Velocity: 1.2
-      VelocityY: 1.35
-      SlimeSize: 3
-      HitBox: 2.5
+      Velocity: 2
+      SlimeSize: 2
+      HitBox: 2.1
       Damage: 6
       Kb: 2.1
-      KbY: 0.65
+      KbY: 0.85
     2:
       ConfigName: StickySituation
       Name: "Sticky Situation"

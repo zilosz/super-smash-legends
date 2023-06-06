@@ -44,7 +44,7 @@ public class IncarnationSlam extends RightClickAbility {
         DisguiseAPI.disguiseToAll(player, DisguiseUtils.applyDisguiseParams(player, disguise));
 
         Vector direction = player.getEyeLocation().getDirection();
-        player.setVelocity(direction.multiply(config.getDouble("Velocity")).setY(config.getDouble("VelocityY")));
+        player.setVelocity(direction.multiply(config.getDouble("Velocity")));
 
         player.getWorld().playSound(player.getLocation(), Sound.SLIME_WALK, 3, 0.75f);
 
@@ -71,6 +71,7 @@ public class IncarnationSlam extends RightClickAbility {
     public void reset() {
         active = false;
         task.cancel();
+        DisguiseAPI.undisguiseToAll(this.player);
     }
 
     @Override
