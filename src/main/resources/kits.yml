@@ -549,6 +549,7 @@ Cryomancer:
       ParticleDensity: 20
       Kb: 1.8
       KbY: 0.45
+      LinearKb: true
     2:
       ConfigName: FrostedTwirl
       Name: "Frosted Twirl"
@@ -1293,3 +1294,88 @@ Shinoby:
           KbY: 0.45
           FactorsKb: false
           FactorsHealth: false
+Webman:
+  ConfigName: Webman
+  Name: "Webman"
+  Color: "&8"
+  Item:
+    Material: WEB
+  Description:
+    - "&7Webman is not just another Spiderman"
+    - "7counterpart in the Multiverse. His"
+    - "&7advanced mobility and web-like powers"
+    - "&7have translated to Super Smash Legends,"
+    - "&7where Webman uses his spider abilities"
+    - "&7to annihilate and overwhelm foes."
+  Skin: "allsilver"
+  Damage: 5
+  Armor: 0.625
+  Kb: 1.8
+  Regen: 0.28
+  Energy: 0.2
+  Jump:
+    Power: 1.2
+    Height: 0.95
+    Sound:
+      Type: SPIDER_IDLE
+      Volume: 1
+      Pitch: 2
+  Abilities:
+    0:
+      ConfigName: WebGrapple
+      Name: "Web Grapple"
+      Item:
+        Material: DIAMOND_AXE
+      Description:
+        - "&7Webman can shoot webbing forwards that"
+        - "&7functions as a grappling hook. The webs"
+        - "&7stick to solid surfaces to propel Webman"
+        - "&7forwards at a rapid pace and hurt any"
+        - "&7enemies that they hit."
+      Cooldown: 70
+      Projectile:
+        Speed: 2.4
+        PullSpeed: 2
+        Damage: 5
+        Kb: 1.5
+        KbY: 0.75
+        Lifespan: 80
+        ExtraY: 0.4
+        Item:
+          Material: WEB
+    1:
+      ConfigName: WebbedSnare
+      Name: "Webbed Snare"
+      Item:
+        Material: GOLD_SPADE
+      Description:
+        - "&7Given Webman's spider origins, he can"
+        - "&7shoot webbing backwards that latches onto"
+        - "&7enemies for a period of time. The exerted"
+        - "&7power propels Webman in the opposite"
+        - "&7direction."
+      Cooldown: 140
+      WebCount: 15
+      Velocity: 1.6
+      Projectile:
+        Spread: 15
+        Speed: 1.7
+        Damage: 4
+        WebDuration: 40
+        KbY: 0
+        Item:
+          Material: WEB
+    2:
+      ConfigName: BlindingFists
+      Name: "Blinding Fists"
+      Item:
+        Material: FERMENTED_SPIDER_EYE
+      Description:
+        - "&7Consecutive, unanswered melee attacks"
+        - "&7rack up additional knock-back and damage."
+        - "&7The added power breaks webs, however."
+      MaxChain: 5
+      ChainDuration: 80
+      MaxDamageMultiplier: 1.5
+      MaxKbMultiplier: 2.5
+      MaxKbYMultiplier: 2.5

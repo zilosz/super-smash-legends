@@ -29,7 +29,7 @@ LeaderboardSizes:
 Collision:
   CheckRange: 2
   CheckStep: 0.2
-  FaceAccuracy: 0.05
+  FaceAccuracy: 0.1
   MaxStuckDuration: 10
 Game:
   Lives: 4
@@ -51,7 +51,7 @@ Damage:
   DefaultImmunityTicks: 10
   Lifetime: 240
   Indicator:
-    ComboDuration: 70
+    ComboDuration: 80
     Height:
       Entity: 0.7
       Player: 1.5

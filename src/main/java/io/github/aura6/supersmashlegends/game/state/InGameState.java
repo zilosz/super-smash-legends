@@ -179,6 +179,7 @@ public class InGameState extends GameState {
         this.trackerTasks.put(player, Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
             List<Player> players = Bukkit.getOnlinePlayers().stream()
                     .filter(p -> this.plugin.getGameManager().isPlayerAlive(p))
+                    .filter(p -> p.getGameMode() == GameMode.SURVIVAL)
                     .filter(p -> p != player)
                     .collect(Collectors.toList());
 
