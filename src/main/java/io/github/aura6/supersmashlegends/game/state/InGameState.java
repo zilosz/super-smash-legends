@@ -25,6 +25,7 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -408,7 +409,7 @@ public class InGameState extends GameState {
         profile.setDamageTaken(profile.getDamageTaken() + damage);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onRegularDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
 

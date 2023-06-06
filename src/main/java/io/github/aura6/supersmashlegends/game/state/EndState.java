@@ -211,6 +211,7 @@ public class EndState extends GameState {
 
         for (Player player : playerRanks.keySet()) {
             gameManager.getProfile(player).getKit().destroy();
+            System.out.println("destroyed kit for " + player.getName());
 
             UUID uuid = player.getUniqueId();
             InGameProfile profile = gameManager.getProfile(player);

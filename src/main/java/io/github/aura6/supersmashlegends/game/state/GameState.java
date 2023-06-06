@@ -66,7 +66,7 @@ public abstract class GameState implements Listener {
     public void onGeneralJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        if (isInArena()) {
+        if (this.isInArena()) {
             event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined mid-game.", player.getName())));
             Chat.GAME.send(player, "&7The game you joined is in progress.");
             this.plugin.getGameManager().addSpectator(event.getPlayer());

@@ -142,10 +142,12 @@ public class Kit {
 
     public void activate() {
         attributes.forEach(Attribute::activate);
+        System.out.println("activated kit for " + this.player.getName());
     }
 
     public void deactivate() {
         attributes.forEach(Attribute::deactivate);
+        System.out.println("deactivated kit for " + this.player.getName());
     }
 
     public void destroy() {
