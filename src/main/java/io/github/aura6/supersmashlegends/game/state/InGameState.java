@@ -25,7 +25,6 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -398,7 +397,7 @@ public class InGameState extends GameState {
         profile.setDamageTaken(profile.getDamageTaken() + damage);
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler
     public void onRegularDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
 
@@ -412,12 +411,13 @@ public class InGameState extends GameState {
                 player.teleport(this.plugin.getArenaManager().getArena().getWaitLocation());
 
             } else if (player.getHealth() - event.getFinalDamage() > 0) {
-                handleDeath(player, false);
-                registerDamageTaken(player, player.getHealth());
+                event.setCancelled(true);
+                this.handleDeath(player, false);
+                this.registerDamageTaken(player, player.getHealth());
             }
 
         } else if (event.getCause() != EntityDamageEvent.DamageCause.FALL) {
-            registerDamageTaken(player, event.getFinalDamage());
+            this.registerDamageTaken(player, event.getFinalDamage());
         }
     }
 
