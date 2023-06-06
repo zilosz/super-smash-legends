@@ -2,6 +2,7 @@ package io.github.aura6.supersmashlegends.kit;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.game.GameManager;
+import io.github.aura6.supersmashlegends.game.state.GameState;
 import io.github.aura6.supersmashlegends.game.state.InGameState;
 import io.github.aura6.supersmashlegends.utils.Skin;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
@@ -12,7 +13,6 @@ import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.NPCLeftClickEvent;
 import net.citizensnpcs.api.npc.NPC;
-import net.citizensnpcs.trait.LookClose;
 import net.citizensnpcs.trait.SkinTrait;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -130,6 +130,7 @@ public class KitManager implements Listener {
 
     public void setKit(Player player, Kit kit) {
         GameManager gameManager = this.plugin.getGameManager();
+        GameState state = gameManager.getState();
 
         UUID uuid = player.getUniqueId();
         Kit newKit = kit.copy();
@@ -138,20 +139,22 @@ public class KitManager implements Listener {
             oldKit.destroy();
             updateAccessHologram(this.kitHolograms.get(uuid).get(oldKit.getConfigName()), KitAccessType.ACCESS, oldKit);
 
-            if (gameManager.getState() instanceof InGameState) {
+            if (state.allowKitSelection() && state.isInArena()) {
+                gameManager.getProfile(player).setKit(newKit);
+            }
+
+            if (state.updatesKitSkins()) {
                 Skin oldSkin = oldKit.getSkin();
                 Skin newSkin = newKit.getSkin();
 
                 newSkin.updatePrevious(oldSkin.getPreviousTexture(), oldSkin.getPreviousSignature());
                 Skin.apply(this.plugin, player, newSkin.getTexture(), newSkin.getSignature());
-
-                gameManager.getProfile(player).setKit(newKit);
             }
         });
 
         newKit.equip(player);
 
-        if (gameManager.getState() instanceof InGameState) {
+        if (state instanceof InGameState) {
             newKit.activate();
         }
 

@@ -41,6 +41,10 @@ public abstract class GameState implements Listener {
 
     public abstract boolean isInArena();
 
+    public abstract boolean allowKitSelection();
+
+    public abstract boolean updatesKitSkins();
+
     public abstract List<String> getScoreboard(Player player);
 
     public abstract void start();

@@ -50,6 +50,16 @@ public class TutorialState extends GameState {
     }
 
     @Override
+    public boolean allowKitSelection() {
+        return false;
+    }
+
+    @Override
+    public boolean updatesKitSkins() {
+        return false;
+    }
+
+    @Override
     public List<String> getScoreboard(Player player) {
         Arena arena = plugin.getArenaManager().getArena();
 

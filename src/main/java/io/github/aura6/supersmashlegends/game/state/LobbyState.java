@@ -66,6 +66,16 @@ public class LobbyState extends GameState {
     }
 
     @Override
+    public boolean allowKitSelection() {
+        return true;
+    }
+
+    @Override
+    public boolean updatesKitSkins() {
+        return false;
+    }
+
+    @Override
     public List<String> getScoreboard(Player player) {
 
         Replacers replacers = new Replacers()

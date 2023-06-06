@@ -50,6 +50,16 @@ public class EndState extends GameState {
     }
 
     @Override
+    public boolean allowKitSelection() {
+        return false;
+    }
+
+    @Override
+    public boolean updatesKitSkins() {
+        return false;
+    }
+
+    @Override
     public List<String> getScoreboard(Player player) {
 
         List<String> lines = new ArrayList<>(Arrays.asList(

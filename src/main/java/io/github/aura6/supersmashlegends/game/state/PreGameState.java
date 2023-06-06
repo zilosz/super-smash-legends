@@ -35,6 +35,16 @@ public class PreGameState extends GameState {
     }
 
     @Override
+    public boolean allowKitSelection() {
+        return true;
+    }
+
+    @Override
+    public boolean updatesKitSkins() {
+        return true;
+    }
+
+    @Override
     public List<String> getScoreboard(Player player) {
         Arena arena = plugin.getArenaManager().getArena();
 

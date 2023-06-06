@@ -1,9 +1,6 @@
 package io.github.aura6.supersmashlegends.command;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import io.github.aura6.supersmashlegends.game.state.GameState;
-import io.github.aura6.supersmashlegends.game.state.InGameState;
-import io.github.aura6.supersmashlegends.game.state.LobbyState;
 import io.github.aura6.supersmashlegends.kit.KitManager;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import org.apache.commons.lang.StringUtils;
@@ -24,11 +21,8 @@ public class KitCommand implements CommandExecutor {
         if (!(commandSender instanceof Player)) return false;
 
         Player player = (Player) commandSender;
-        GameState state = this.plugin.getGameManager().getState();
 
-        boolean canChangeInGame = this.plugin.getResources().getConfig().getBoolean("Game.AllowKitSelectionInGame");
-
-        if (state instanceof LobbyState || state instanceof InGameState && canChangeInGame) {
+        if (this.plugin.getGameManager().getState().allowKitSelection()) {
 
             if (strings.length == 0) {
                 this.plugin.getKitSelector().build().open(player);
@@ -36,7 +30,10 @@ public class KitCommand implements CommandExecutor {
             } else {
                 KitManager kitManager = this.plugin.getKitManager();
                 String name = StringUtils.capitalize(strings[0].toLowerCase());
-                kitManager.getKitByName(name).ifPresent(kit -> kitManager.handleKitSelection(player, kit));
+
+                kitManager.getKitByName(name).ifPresentOrElse(
+                        kit -> kitManager.handleKitSelection(player, kit),
+                        () -> Chat.KIT.send(player, String.format("\"%s\" &7is not a valid kit.", name)));
             }
 
         } else {
