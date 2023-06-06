@@ -25,7 +25,7 @@ public class Bloodlust extends PassiveAbility {
 
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent event) {
-        if (event.getDamager() != this.player || this.player.getHealth() >= 20) return;
+        if (event.getDamager() != this.player) return;
         if (!RegenEvent.attempt(this.player, this.config.getDouble("Regen"))) return;
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_UNFECT, 1, 2);
