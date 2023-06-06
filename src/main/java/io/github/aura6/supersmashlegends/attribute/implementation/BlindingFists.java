@@ -18,6 +18,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
@@ -41,14 +43,20 @@ public class BlindingFists extends PassiveAbility {
     public void deactivate() {
         super.deactivate();
         this.chainCounts.clear();
+        this.player.removePotionEffect(PotionEffectType.SPEED);
         this.chainResetters.values().forEach(BukkitTask::cancel);
         this.chainResetters.clear();
+    }
+
+    private void resetChain(LivingEntity entity) {
+        this.chainCounts.remove(entity);
+        this.player.removePotionEffect(PotionEffectType.SPEED);
     }
 
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent event) {
         if (event.getEntity() == this.player && event.getDamager() instanceof LivingEntity) {
-            this.chainCounts.remove((LivingEntity) event.getDamager());
+            this.resetChain((LivingEntity) event.getDamager());
         }
     }
 
@@ -58,7 +66,7 @@ public class BlindingFists extends PassiveAbility {
         Player damager = event.getAttribute().getPlayer();
 
         if (victim == this.player) {
-            this.chainCounts.remove(damager);
+            this.resetChain(damager);
             return;
         }
 
@@ -90,6 +98,10 @@ public class BlindingFists extends PassiveAbility {
                     }
                 }
             }
+
+            if (currChain == 1) {
+                this.player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10_000, 1));
+            }
         }
 
         double maxDamageMul = this.config.getDouble("MaxDamageMultiplier");
@@ -108,8 +120,9 @@ public class BlindingFists extends PassiveAbility {
 
         Optional.ofNullable(this.chainResetters.remove(victim)).ifPresent(BukkitTask::cancel);
 
-        this.chainResetters.put(victim, Bukkit.getScheduler()
-                .runTaskLater(this.plugin, () -> this.chainCounts.remove(victim), this.config.getInt("ChainDuration")));
+        this.chainResetters.put(victim, Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+            this.resetChain(victim);
+        }, this.config.getInt("ChainDuration")));
 
         if (currChain < maxChain - 1) {
             this.chainCounts.put(victim, this.chainCounts.get(victim) + 1);

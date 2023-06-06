@@ -1373,8 +1373,11 @@ Webman:
         - "&7Consecutive, unanswered melee attacks"
         - "&7rack up additional knock-back and damage."
         - "&7The added power breaks webs, however."
+        - "&7The player is given speed when a chain"
+        - "&7begins."
       MaxChain: 5
       ChainDuration: 80
       MaxDamageMultiplier: 1.5
       MaxKbMultiplier: 2.5
       MaxKbYMultiplier: 2.5
+      Speed: 1
