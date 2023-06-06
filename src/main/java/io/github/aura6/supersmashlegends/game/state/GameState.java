@@ -108,7 +108,7 @@ public abstract class GameState implements Listener {
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent event) {
-        event.setFormat(MessageUtils.color("&9" + event.getPlayer().getDisplayName() + ">> &7" + event.getMessage()));
+        event.setFormat(MessageUtils.color("&9%s" + "» &7%s"));
     }
 
     @EventHandler

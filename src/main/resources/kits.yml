@@ -443,13 +443,13 @@ Drakula:
       RemoveOnBlockHit: false
       RemoveOnEntityHit: false
       BatCount: 20
-      Speed: 0.5
+      Speed: 0.6
       HitBox: 0.6
       Kb: 1.2
       Damage: 2.5
       Width: 4
       Height: 4
-      Lifespan: 160
+      Lifespan: 110
       HitsMultiple: true
       HasGravity: false
       TargetHitSound:
@@ -1045,7 +1045,7 @@ Pikachew:
         - "&7facing once you stop charging."
       Cooldown: 160
       MinChargeTicks: 10
-      MaxChargeTicks: 35
+      MaxChargeTicks: 40
       KbY: 0.7
       MinDamage: 2
       MaxDamage: 7.5
@@ -1053,7 +1053,7 @@ Pikachew:
       MaxKb: 2.5
       MinRange: 5
       MaxRange: 40
-      HitBox: 1.5
+      HitBox: 0.75
     1:
       ConfigName: VoltTackle
       Name: "Volt Tackle"
@@ -1078,7 +1078,7 @@ Pikachew:
       MinKb: 0.8
       MaxKb: 2.6
       KbY: 0.8
-      HitBox: 1.6
+      HitBox: 1.5
       ParticlesPerTick: 6
       ParticleDuration: 5
       ParticleSpeed: 0.4
@@ -1377,7 +1377,7 @@ Webman:
         - "&7The player is given speed when a chain"
         - "&7begins."
       MaxChain: 5
-      ChainDuration: 80
+      ChainDuration: 100
       MaxDamageMultiplier: 1.5
       MaxKbMultiplier: 2.5
       MaxKbYMultiplier: 2.5
