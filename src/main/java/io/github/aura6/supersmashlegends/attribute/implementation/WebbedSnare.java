@@ -92,7 +92,12 @@ public class WebbedSnare extends RightClickAbility {
             this.webBlock = this.entity.getLocation().getBlock();
             this.webBlock.setType(Material.WEB);
             int duration = this.config.getInt("WebDuration");
-            Bukkit.getScheduler().runTaskLater(this.plugin, () -> this.webBlock.setType(Material.AIR), duration);
+
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+                if (this.webBlock.getType() == Material.WEB) {
+                    this.webBlock.setType(Material.AIR);
+                }
+            }, duration);
         }
 
         @Override

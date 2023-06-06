@@ -51,7 +51,7 @@ Damage:
   DefaultImmunityTicks: 10
   Lifetime: 240
   Indicator:
-    ComboDuration: 70
+    ComboDuration: 80
     Height:
       Entity: 0.7
       Player: 1.5

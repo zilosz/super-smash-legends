@@ -1301,10 +1301,15 @@ Webman:
   Item:
     Material: WEB
   Description:
-    - "&7Webman"
+    - "&7Webman is not just another Spiderman"
+    - "7counterpart in the Multiverse. His"
+    - "&7advanced mobility and web-like powers"
+    - "&7have translated to Super Smash Legends,"
+    - "&7where Webman uses his spider abilities"
+    - "&7to annihilate and overwhelm foes."
   Skin: "allsilver"
-  Damage: 5.5
-  Armor: 0.7
+  Damage: 5
+  Armor: 0.625
   Kb: 1.8
   Regen: 0.28
   Energy: 0.2
@@ -1322,8 +1327,12 @@ Webman:
       Item:
         Material: DIAMOND_AXE
       Description:
-        - "&7Web Grapple"
-      Cooldown: 75
+        - "&7Webman can shoot webbing forwards that"
+        - "&7functions as a grappling hook. The webs"
+        - "&7stick to solid surfaces to propel Webman"
+        - "&7forwards at a rapid pace and hurt any"
+        - "&7enemies that they hit."
+      Cooldown: 70
       Projectile:
         Speed: 2.4
         PullSpeed: 2
@@ -1334,15 +1343,18 @@ Webman:
         ExtraY: 0.4
         Item:
           Material: WEB
-
     1:
       ConfigName: WebbedSnare
       Name: "Webbed Snare"
       Item:
         Material: GOLD_SPADE
       Description:
-        - "&7Webbed Snare"
-      Cooldown: 130
+        - "&7Given Webman's spider origins, he can"
+        - "&7shoot webbing backwards that latches onto"
+        - "&7enemies for a period of time. The exerted"
+        - "&7power propels Webman in the opposite"
+        - "&7direction."
+      Cooldown: 140
       WebCount: 15
       Velocity: 1.6
       Projectile:
@@ -1353,3 +1365,17 @@ Webman:
         KbY: 0
         Item:
           Material: WEB
+    2:
+      ConfigName: BlindingFists
+      Name: "Blinding Fists"
+      Item:
+        Material: FERMENTED_SPIDER_EYE
+      Description:
+        - "&7Consecutive, unanswered melee attacks"
+        - "&7rack up additional knock-back and damage."
+        - "&7The added power breaks webs, however."
+      MaxChain: 5
+      ChainDuration: 80
+      MaxDamageMultiplier: 1.5
+      MaxKbMultiplier: 2.5
+      MaxKbYMultiplier: 2.5
