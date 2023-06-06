@@ -95,8 +95,6 @@ public class BlindingFists extends PassiveAbility {
         double maxDamageMul = this.config.getDouble("MaxDamageMultiplier");
         double damageMul = MathUtils.increasingLinear(1, maxDamageMul, maxChain - 1, currChain);
 
-        Bukkit.broadcastMessage(String.format("chain: %d, damage: %f", currChain, damageMul));
-
         double maxKbMul = this.config.getDouble("MaxKbMultiplier");
         double kbMul = MathUtils.increasingLinear(1, maxKbMul, maxChain - 1, currChain);
 
