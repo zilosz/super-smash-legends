@@ -26,14 +26,14 @@ public abstract class Bow extends PassiveAbility {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-        if (event.getPlayer() != player) return;
+        if (event.getPlayer() != this.player) return;
         if (!event.hasItem() || event.getItem().getType() != Material.BOW) return;
         if (!event.getPlayer().getInventory().contains(Material.ARROW)) return;
         if (!event.getAction().name().contains("RIGHT")) return;
 
-        ticksCharging = 1;
-        bowSlot = event.getPlayer().getInventory().getHeldItemSlot();
-        onStart();
+        this.ticksCharging = 1;
+        this.bowSlot = event.getPlayer().getInventory().getHeldItemSlot();
+        this.onStart();
     }
 
     public void onChargeTick() {}
@@ -42,34 +42,34 @@ public abstract class Bow extends PassiveAbility {
     public void run() {
         super.run();
 
-        if (ticksCharging > 0) {
-            onChargeTick();
-            ticksCharging++;
+        if (this.ticksCharging > 0) {
+            this.onChargeTick();
+            this.ticksCharging++;
         }
     }
 
     public void onFinish() {}
 
     public void finish() {
-        ticksCharging = 0;
-        onFinish();
+        this.ticksCharging = 0;
+        this.onFinish();
     }
 
     public void onShot(double force) {}
 
     @EventHandler
     public void onShoot(EntityShootBowEvent event) {
-        if (event.getEntity() != player) return;
+        if (event.getEntity() != this.player) return;
 
         event.getProjectile().remove();
-        onShot(event.getForce());
-        finish();
+        this.onShot(event.getForce());
+        this.finish();
     }
 
     @EventHandler
     public void onSwitchItemSlot(PlayerItemHeldEvent event) {
-        if (ticksCharging > 0 && event.getPreviousSlot() == bowSlot) {
-            finish();
+        if (event.getPlayer() == this.player && this.ticksCharging > 0 && event.getPreviousSlot() == this.bowSlot) {
+            this.finish();
         }
     }
 }

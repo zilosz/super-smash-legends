@@ -47,7 +47,9 @@ public class RopedArrow extends LeftClickAbility {
 
         @Override
         public void onTargetHit(LivingEntity target) {
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(200, 200, 200).boom(this.plugin, this.entity.getLocation(), 1.2, 0.3, 10);
+            new ParticleBuilder(EnumParticle.REDSTONE)
+                    .setRgb(200, 200, 200)
+                    .boom(this.plugin, this.entity.getLocation(), 1.2, 0.4, 6);
         }
     }
 }

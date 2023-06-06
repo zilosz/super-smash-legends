@@ -8,41 +8,45 @@ import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
 import io.github.aura6.supersmashlegends.utils.RunnableUtils;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
+import io.github.aura6.supersmashlegends.utils.math.MathUtils;
 import net.minecraft.server.v1_8_R3.EnumParticle;
+import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.scheduler.BukkitTask;
 
 public class Barrage extends Bow {
-    private int stage;
-    private float pitch;
+    private int stage = 1;
+    private BukkitTask stageTask;
 
     public Barrage(SuperSmashLegends plugin, Section config, Kit kit) {
         super(plugin, config, kit);
     }
 
-    @Override
-    public void onStart() {
-        stage = 1;
-        pitch = 0.5f;
+    private int getStages() {
+        return this.config.getInt("Stages");
     }
 
     @Override
-    public void onChargeTick() {
-        if (stage >= config.getInt("MaxStage")) return;
+    public void onStart() {
 
-        if (ticksCharging % config.getInt("StageDuration") == 0) {
-            player.playSound(player.getLocation(), Sound.ITEM_PICKUP, 2, pitch);
-            pitch += 1.5 / config.getInt("MaxStage");
+        this.stageTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+            if (this.stage > this.getStages()) return;
 
-            if (++stage == config.getInt("MaxStage")) {
-                player.getWorld().playSound(player.getLocation(), Sound.ZOMBIE_PIG_DEATH, 3, 2);
+            float pitch = (float) MathUtils.increasingLinear(0.5, 2, this.config.getInt("Stages"), this.stage - 1);
+            this.player.playSound(this.player.getLocation(), Sound.ITEM_PICKUP, 2, pitch);
+
+            if (this.stage == this.getStages()) {
+                this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_PIG_DEATH, 3, 2);
             }
-        }
+
+            this.stage++;
+        }, this.config.getInt("StageTicks"), this.config.getInt("StageTicks"));
     }
 
     private void launch(double force, boolean first) {
-        BarrageArrow arrow = new BarrageArrow(plugin, this, config.getSection("Projectile"));
-        arrow.setSpeed(force * config.getDouble("MaxSpeed"));
+        BarrageArrow arrow = new BarrageArrow(this.plugin, this, this.config.getSection("Projectile"));
+        arrow.setSpeed(force * this.config.getDouble("MaxSpeed"));
 
         if (first) {
             arrow.setSpread(0);
@@ -53,9 +57,26 @@ public class Barrage extends Bow {
 
     @Override
     public void onShot(double force) {
-        launch(force, true);
-        int amount = (int) (stage * config.getDouble("ArrowsPerStage")) - 1;
-        RunnableUtils.runTaskWithIntervals(plugin, amount, config.getInt("ShotInterval"), () -> launch(force, false));
+        this.launch(force, true);
+        int arrowCount = this.config.getInt("MaxArrowCount");
+        int amount = (int) MathUtils.increasingLinear(1, arrowCount, this.getStages(), this.stage - 1);
+        int interval = this.config.getInt("TicksBetweenShot");
+        RunnableUtils.runTaskWithIntervals(this.plugin, amount - 1, interval, () -> this.launch(force, false));
+    }
+
+    @Override
+    public void onFinish() {
+        this.stage = 1;
+
+        if (this.stageTask != null) {
+            this.stageTask.cancel();
+        }
+    }
+
+    @Override
+    public void deactivate() {
+        super.deactivate();
+        this.onFinish();
     }
 
     public static class BarrageArrow extends ItemProjectile {
@@ -77,7 +98,8 @@ public class Barrage extends Bow {
         @Override
         public void onTargetHit(LivingEntity target) {
             new ParticleBuilder(EnumParticle.REDSTONE)
-                    .setRgb(200, 200, 200).boom(this.plugin, this.entity.getLocation(), 1.5, 0.25, 12);
+                    .setRgb(200, 200, 200)
+                    .boom(this.plugin, this.entity.getLocation(), 1.2, 0.4, 6);
         }
     }
 }

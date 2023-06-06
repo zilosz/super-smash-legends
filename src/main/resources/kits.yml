@@ -1176,7 +1176,7 @@ Skellington:
         - "&7powerful, ranged weapons."
       AmountAtOnce: 1
       MaxAmount: 3
-      TicksPerItem: 80
+      TicksPerItem: 90
     3:
       ConfigName: Barrage
       Name: "Barrage"
@@ -1185,15 +1185,16 @@ Skellington:
       Description:
         - "&7Any arrows fired by Skellington become"
         - "&7deadly onslaughts of barrage fire."
-      MaxStage: 6
-      StageDuration: 7
-      ArrowsPerStage: 1
-      ShotInterval: 1
-      MaxSpeed: 2.5
+      Stages: 5
+      StageTicks: 7
+      MaxArrowCount: 6
+      TicksBetweenShot: 1
+      MaxSpeed: 2.15
       Projectile:
-        Spread: 4.5
+        HitBox: 0.5
+        Spread: 5.5
         Damage: 6
-        Kb: 1.7
+        Kb: 1
         KbY: 0.75
         Item:
           Material: BONE
