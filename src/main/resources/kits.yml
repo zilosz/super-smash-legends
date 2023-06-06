@@ -1161,9 +1161,9 @@ Skellington:
       Cooldown: 95
       PullStrength: 1.6
       ExtraY: 0.4
-      Speed: 2.1
+      Speed: 2.15
       Damage: 6
-      Kb: 1.6
+      Kb: 1
       KbY: 0.75
     2:
       ConfigName: BoneTippedArrow
