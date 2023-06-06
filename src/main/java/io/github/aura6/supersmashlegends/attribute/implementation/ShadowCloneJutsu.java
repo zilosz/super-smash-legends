@@ -5,7 +5,7 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.damage.Damage;
 import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
-import io.github.aura6.supersmashlegends.event.ProjectileLaunchEvent;
+import io.github.aura6.supersmashlegends.event.projectile.ProjectileLaunchEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.team.Team;
 import io.github.aura6.supersmashlegends.team.TeamPreference;

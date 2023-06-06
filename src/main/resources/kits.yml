@@ -449,7 +449,7 @@ Drakula:
       Damage: 2.5
       Width: 4
       Height: 4
-      Lifespan: 90
+      Lifespan: 160
       HitsMultiple: true
       HasGravity: false
       TargetHitSound:

@@ -11,6 +11,7 @@ import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.event.DamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
+import io.github.aura6.supersmashlegends.projectile.ProjectileRemoveReason;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
 import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
 import org.bukkit.Location;
@@ -127,7 +128,7 @@ public class WebGrapple extends RightClickAbility {
         @EventHandler
         public void onDeath(EntityDeathEvent event) {
             if (event.getEntity() == this.bat) {
-                this.remove();
+                this.remove(ProjectileRemoveReason.ENTITY_DEATH);
 
             }
         }

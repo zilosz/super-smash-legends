@@ -87,7 +87,7 @@ public class HatThrow extends RightClickAbility {
         @Override
         public void onTick() {
             this.entity.getWorld().playSound(this.entity.getLocation(), Sound.ITEM_PICKUP, 1, 1);
-            this.entity.setVelocity(this.constantVelocity.clone().multiply(speedFunction(this.ticksAlive)));
+            this.entity.setVelocity(this.launchVelocity.clone().multiply(speedFunction(this.ticksAlive)));
             this.entity.setRightArmPose(new EulerAngle(0, this.ticksAlive * this.config.getDouble("RotationPerTick"), 0));
         }
 

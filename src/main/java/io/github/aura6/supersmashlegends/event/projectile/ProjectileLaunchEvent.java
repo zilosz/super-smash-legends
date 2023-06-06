@@ -1,4 +1,4 @@
-package io.github.aura6.supersmashlegends.event;
+package io.github.aura6.supersmashlegends.event.projectile;
 
 import io.github.aura6.supersmashlegends.projectile.CustomProjectile;
 import lombok.Getter;

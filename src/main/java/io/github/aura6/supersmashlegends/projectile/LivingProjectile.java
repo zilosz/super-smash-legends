@@ -50,7 +50,7 @@ public abstract class LivingProjectile<T extends LivingEntity> extends EmulatedP
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
         if (event.getEntity() == entity) {
-            remove();
+            remove(ProjectileRemoveReason.ENTITY_DEATH);
         }
     }
 }

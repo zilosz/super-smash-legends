@@ -4,7 +4,8 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.ProjectileLaunchEvent;
+import io.github.aura6.supersmashlegends.event.projectile.ProjectileLaunchEvent;
+import io.github.aura6.supersmashlegends.event.projectile.ProjectileRemoveEvent;
 import io.github.aura6.supersmashlegends.game.state.InGameState;
 import io.github.aura6.supersmashlegends.utils.NmsUtils;
 import io.github.aura6.supersmashlegends.utils.Reflector;
@@ -52,7 +53,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     @Getter protected Damage damage;
 
     @Getter protected int ticksAlive = 0;
-    protected Vector constantVelocity;
+    protected Vector launchVelocity;
     @Getter protected double launchSpeed;
     protected int timesBounced = 0;
 
@@ -74,6 +75,10 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         removeOnBlockHit = config.getOptionalBoolean("RemoveOnBlockHit").orElse(true);
         distanceFromEye = config.getOptionalDouble("DistanceFromEye").orElse(1.0);
         invisible = config.getBoolean("Invisible");
+    }
+
+    public Vector getLaunchVelocity() {
+        return this.launchVelocity.clone();
     }
 
     @SuppressWarnings("unchecked")
@@ -112,11 +117,11 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         location.add(location.getDirection().multiply(distanceFromEye));
 
         launchSpeed = projectileLaunchEvent.getSpeed();
-        constantVelocity = location.getDirection().multiply(launchSpeed);
+        launchVelocity = location.getDirection().multiply(launchSpeed);
 
         entity = createEntity(location);
         applyEntityParams();
-        entity.setVelocity(constantVelocity);
+        entity.setVelocity(launchVelocity);
 
         config.getOptionalSection("LaunchSound").ifPresent(soundConfig -> YamlReader.noise(soundConfig).playForAll(location));
 
@@ -126,11 +131,16 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
 
     public void onRemove() {}
 
-    public void remove() {
-        entity.remove();
-        cancel();
-        HandlerList.unregisterAll(this);
-        onRemove();
+    public void remove(ProjectileRemoveReason reason) {
+        ProjectileRemoveEvent event = new ProjectileRemoveEvent(this, reason);
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (!event.isCancelled()) {
+            HandlerList.unregisterAll(this);
+            this.entity.remove();
+            this.cancel();
+            this.onRemove();
+        }
     }
 
     public void onBlockHit(BlockHitResult result) {}
@@ -146,13 +156,13 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         if (++timesBounced > maxBounces) {
 
             if (removeOnBlockHit) {
-                remove();
+                remove(ProjectileRemoveReason.HIT_BLOCK);
             }
 
             return;
         }
 
-        Vector velocity = hasGravity ? constantVelocity : entity.getVelocity();
+        Vector velocity = hasGravity ? launchVelocity : entity.getVelocity();
 
         switch (result.getFace()) {
 
@@ -193,7 +203,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         this.onTargetHit(target);
 
         if (this.removeOnEntityHit) {
-            this.remove();
+            this.remove(ProjectileRemoveReason.HIT_ENTITY);
         }
     }
 
@@ -214,28 +224,43 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
 
     @Override
     public void run() {
+        this.ticksAlive++;
+        ProjectileRemoveReason reason = null;
 
-        if (!entity.isValid() || this.ability.getPlayer().getGameMode() == GameMode.SPECTATOR || !(this.plugin.getGameManager().getState() instanceof InGameState) || ticksAlive++ >= lifespan) {
-            remove();
+        if (!this.entity.isValid()) {
+            reason = ProjectileRemoveReason.ENTITY_DEATH;
+
+        } else if (this.ability.getPlayer().getGameMode() == GameMode.SPECTATOR) {
+            reason = ProjectileRemoveReason.DEACTIVATION;
+
+        } else if (!(this.plugin.getGameManager().getState() instanceof InGameState)) {
+            reason = ProjectileRemoveReason.DEACTIVATION;
+
+        } else if (this.ticksAlive >= lifespan) {
+            reason = ProjectileRemoveReason.LIFESPAN;
+        }
+
+        if (reason != null) {
+            this.remove(reason);
             return;
         }
 
-        if (!(this instanceof ActualProjectile) || config.isNumber("HitBox")) {
-            searchForHit();
+        if (!(this instanceof ActualProjectile) || this.config.isNumber("HitBox")) {
+            this.searchForHit();
         }
 
-        if (!hasGravity) {
-            entity.setVelocity(constantVelocity);
+        if (!this.hasGravity) {
+            this.entity.setVelocity(this.launchVelocity);
         }
 
-        onTick();
+        this.onTick();
     }
 
     public void setVelocity(Vector velocity) {
         if (hasGravity) {
             entity.setVelocity(velocity);
         } else {
-            constantVelocity = velocity;
+            launchVelocity = velocity;
         }
     }
 }

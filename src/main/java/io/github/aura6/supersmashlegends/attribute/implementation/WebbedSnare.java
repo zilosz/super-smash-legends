@@ -7,6 +7,7 @@ import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
+import io.github.aura6.supersmashlegends.projectile.ProjectileRemoveReason;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
@@ -81,7 +82,7 @@ public class WebbedSnare extends RightClickAbility {
         public void onTick() {
 
             if (this.entity.getLocation().getBlock().getType() == Material.WEB) {
-                this.remove();
+                this.remove(ProjectileRemoveReason.CUSTOM);
 
             } else if (this.ticksAlive % 2 == 0) {
                 new ParticleBuilder(EnumParticle.SNOWBALL).show(this.entity.getLocation());

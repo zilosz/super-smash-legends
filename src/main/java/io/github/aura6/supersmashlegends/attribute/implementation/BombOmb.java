@@ -8,6 +8,7 @@ import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.damage.Damage;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
+import io.github.aura6.supersmashlegends.projectile.ProjectileRemoveReason;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
@@ -124,7 +125,7 @@ public class BombOmb extends RightClickAbility {
         }
 
         private void solidify() {
-            this.remove();
+            this.remove(ProjectileRemoveReason.CUSTOM);
 
             this.state = BombState.WAITING;
 
@@ -158,7 +159,7 @@ public class BombOmb extends RightClickAbility {
         }
 
         private void destroy() {
-            this.remove();
+            this.remove(ProjectileRemoveReason.DEACTIVATION);
 
             if (this.explodeTask != null) {
                 this.explodeTask.cancel();

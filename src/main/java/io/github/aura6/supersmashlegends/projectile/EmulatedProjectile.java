@@ -36,7 +36,7 @@ public abstract class EmulatedProjectile<T extends Entity> extends CustomProject
             int maxStuckDuration = plugin.getResources().getConfig().getInt("Collision.MaxStuckDuration");
 
             if (++sameHitDuration >= maxStuckDuration && removeOnLongCollision) {
-                remove();
+                remove(ProjectileRemoveReason.HIT_BLOCK);
             }
 
         } else {
