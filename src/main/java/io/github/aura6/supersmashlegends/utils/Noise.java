@@ -5,10 +5,11 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
+@Setter
 public class Noise {
-    @Setter private Sound sound;
-    @Setter private float volume;
-    @Setter private float pitch;
+    private Sound sound;
+    private float volume;
+    private float pitch;
 
     public Noise(Sound sound, float volume, float pitch) {
         this.sound = sound;
@@ -17,14 +18,14 @@ public class Noise {
     }
 
     public void playForPlayer(Player player, Location location) {
-        player.playSound(location, sound, volume, pitch);
+        player.playSound(location, this.sound, this.volume, this.pitch);
     }
 
     public void playForPlayer(Player player) {
-        playForPlayer(player, player.getLocation());
+        this.playForPlayer(player, player.getLocation());
     }
 
     public void playForAll(Location location) {
-        location.getWorld().playSound(location, sound, volume, pitch);
+        location.getWorld().playSound(location, this.sound, this.volume, this.pitch);
     }
 }

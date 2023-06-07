@@ -10,8 +10,8 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 public class Jump extends Attribute {
     @Getter @Setter private int count;
@@ -26,59 +26,63 @@ public class Jump extends Attribute {
     public void activate() {
         super.activate();
 
-        player.setFlying(false);
-        player.setAllowFlight(true);
+        this.player.setFlying(false);
+        this.player.setAllowFlight(true);
 
-        count = kit.getJumpCount();
-        amountLeft = kit.getJumpCount();
+        this.count = this.kit.getJumpCount();
+        this.amountLeft = this.kit.getJumpCount();
     }
 
     @Override
     public void deactivate() {
         super.deactivate();
-        player.setFlying(false);
-        player.setAllowFlight(false);
+        this.player.setFlying(false);
+        this.player.setAllowFlight(false);
     }
 
     public void giveExtraJumps(int count) {
-        if (amountLeft + count <= this.count) {
-            amountLeft += count;
-            player.setAllowFlight(true);
+        if (this.amountLeft + count <= this.count) {
+            this.amountLeft += count;
+            this.player.setAllowFlight(true);
+        }
+    }
+
+    public void replenish() {
+        this.amountLeft = this.count;
+        this.player.setAllowFlight(true);
+
+        if (this.hitGroundTask != null) {
+            this.hitGroundTask.cancel();
+            this.hitGroundTask = null;
         }
     }
     
     @EventHandler
     public void onToggleFlight(PlayerToggleFlightEvent event) {
-        if (event.getPlayer() != player) return;
+        if (event.getPlayer() != this.player) return;
 
         event.setCancelled(true);
 
-        JumpEvent jumpEvent = new JumpEvent(player, kit.getJumpPower(), kit.getJumpHeight(), kit.getJumpNoise());
+        JumpEvent jumpEvent = new JumpEvent(this.player, this.kit.getJumpPower(), this.kit.getJumpHeight(), this.kit.getJumpNoise());
         Bukkit.getPluginManager().callEvent(jumpEvent);
 
         if (jumpEvent.isCancelled()) return;
 
-        player.setVelocity(player.getLocation().getDirection().multiply(jumpEvent.getPower()).setY(jumpEvent.getHeight()));
+        Vector direction = this.player.getLocation().getDirection();
+        this.player.setVelocity(direction.multiply(jumpEvent.getPower()).setY(jumpEvent.getHeight()));
+
         jumpEvent.getNoise().playForAll(player.getLocation());
         
-        if (--amountLeft == 0) {
-            player.setAllowFlight(false);
+        if (--this.amountLeft == 0) {
+            this.player.setAllowFlight(false);
         }
 
-        if (hitGroundTask == null) {
-            hitGroundTask = new BukkitRunnable() {
-
-                @Override
-                public void run() {
-                    if (EntityUtils.isPlayerGrounded(player)) {
-                        amountLeft = count;
-                        player.setAllowFlight(true);
-                        hitGroundTask = null;
-                        cancel();
-                    }
+        if (this.hitGroundTask == null) {
+            this.hitGroundTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+                if (EntityUtils.isPlayerGrounded(this.player)) {
+                    this.replenish();
                 }
-
-            }.runTaskTimer(plugin, 0, 0);
+            }, 0, 0);
         }
     }
 }

@@ -18,7 +18,6 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityDestroy;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
@@ -229,9 +228,6 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
 
         if (!this.entity.isValid()) {
             reason = ProjectileRemoveReason.ENTITY_DEATH;
-
-        } else if (this.ability.getPlayer().getGameMode() == GameMode.SPECTATOR) {
-            reason = ProjectileRemoveReason.DEACTIVATION;
 
         } else if (!(this.plugin.getGameManager().getState() instanceof InGameState)) {
             reason = ProjectileRemoveReason.DEACTIVATION;

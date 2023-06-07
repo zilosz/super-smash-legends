@@ -757,7 +757,7 @@ Tank:
         - "&7Your immense power comes at a cost!"
         - "&7Experience a decrease in jump and"
         - "&7movement speed."
-Tool:
+Miner:
   ConfigName: Miner
   Name: "Miner"
   Color: "&1"
@@ -772,6 +772,7 @@ Tool:
   Armor: 0.5
   Kb: 1.15
   Regen: 0.25
+  Energy: 0.1
   Jump:
     Power: 1.15
     Height: 1
@@ -823,7 +824,7 @@ Tool:
         - "&7Miner can turn himself into a human-tornado"
         - "&7at will. Know that you don't want to cross"
         - "&7paths with him when he's using this ability!"
-      Cooldown: 170
+      Cooldown: 160
       MaxChargeTicks: 25
       Velocity: 1.1
       HitBox: 1.5
@@ -831,6 +832,51 @@ Tool:
       Kb: 2.4
       KbY: 0.5
       ParticleGap: 0.18
+      ShowExp: false
+    2:
+      ConfigName: GoldRush
+      Name: "Gold Rush"
+      Item:
+        Material: DIRT
+      Description:
+        - "&7Miner tunnels underground in search of"
+        - "&7precious gold when the user sneaks. You"
+        - "&7travel in the direction you're facing"
+        - "&7along semi-flat ground and can sneak"
+        - "&7once more to emerge onto the surface."
+      Velocity: 0.4
+      MaxTicks: 90
+      Depth: 1.6
+      DropVelocity: 1.4
+      MaxDropTicks: 40
+      TicksPerParticle: 20
+      Blindness: 1
+      PassableMaterials:
+        - AIR
+        - WEB
+        - LONG_GRASS
+        - DEAD_BUSH
+        - YELLOW_FLOWER
+        - RED_ROSE
+        - BROWN_MUSHROOM
+        - RED_MUSHROOM
+        - FIRE
+        - CROPS
+        - SIGN_POST
+        - LADDER
+        - SNOW
+        - SUGAR_CANE
+        - PUMPKIN_STEM
+        - MELON_STEM
+        - VINE
+        - WATER_LILY
+        - NETHER_WARTS
+        - CARROT
+        - POTATO
+        - FLOWER_POT
+        - SKULL
+        - CARPET
+        - DOUBLE_PLANT
 Moreo:
   ConfigName: Moreo
   Name: "Moreo"
@@ -1312,7 +1358,6 @@ Webman:
   Armor: 0.625
   Kb: 1.8
   Regen: 0.28
-  Energy: 0.2
   Jump:
     Power: 1.2
     Height: 0.95

@@ -32,19 +32,22 @@ import org.bukkit.util.Vector;
 
 import java.io.File;
 
+@Getter
 public class SuperSmashLegends extends JavaPlugin {
-    @Getter private Resources resources;
-    @Getter private Database db;
-    @Getter private KitManager kitManager;
-    @Getter private InventoryManager inventoryManager;
-    @Getter private KitSelector kitSelector;
-    @Getter private ArenaVoter arenaVoter;
-    @Getter private GameManager gameManager;
-    @Getter private ArenaManager arenaManager;
-    @Getter private TeamManager teamManager;
-    @Getter private TeamSelector teamSelector;
-    @Getter private WorldManager worldManager;
-    @Getter private DamageManager damageManager;
+    private static SuperSmashLegends instance;
+
+    private Resources resources;
+    private Database db;
+    private KitManager kitManager;
+    private InventoryManager inventoryManager;
+    private KitSelector kitSelector;
+    private ArenaVoter arenaVoter;
+    private GameManager gameManager;
+    private ArenaManager arenaManager;
+    private TeamManager teamManager;
+    private TeamSelector teamSelector;
+    private WorldManager worldManager;
+    private DamageManager damageManager;
 
     @Override
     public void onLoad() {
@@ -54,40 +57,42 @@ public class SuperSmashLegends extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        resources = new Resources(this);
-        damageManager = new DamageManager(this);
-        worldManager = new WorldManager();
-        inventoryManager = new InventoryManager(this);
-        teamManager = new TeamManager(this);
-        teamSelector = new TeamSelector(this);
-        arenaManager = new ArenaManager(this);
-        kitSelector = new KitSelector(this);
-        arenaVoter = new ArenaVoter(this);
-        db = new Database();
-        kitManager = new KitManager(this);
-        gameManager = new GameManager(this);
+        instance = this;
 
-        Section dbConfig = resources.getConfig().getSection("Database");
+        this.resources = new Resources(this);
+        this.damageManager = new DamageManager(this);
+        this.worldManager = new WorldManager();
+        this.inventoryManager = new InventoryManager(this);
+        this.teamManager = new TeamManager(this);
+        this.teamSelector = new TeamSelector(this);
+        this.arenaManager = new ArenaManager(this);
+        this.kitSelector = new KitSelector(this);
+        this.arenaVoter = new ArenaVoter(this);
+        this.db = new Database();
+        this.kitManager = new KitManager(this);
+        this.gameManager = new GameManager(this);
+
+        Section dbConfig = this.resources.getConfig().getSection("Database");
 
         if (dbConfig.getBoolean("Enabled")) {
-            db.init(dbConfig.getString("Uri"), dbConfig.getString("Database"), dbConfig.getString("Collection"));
+            this.db.init(dbConfig.getString("Uri"), dbConfig.getString("Database"), dbConfig.getString("Collection"));
         }
 
         Bukkit.getPluginManager().registerEvents(this.kitManager, this);
 
-        Vector pasteVector = YamlReader.vector(resources.getLobby().getString("PasteVector"));
+        Vector pasteVector = YamlReader.vector(this.resources.getLobby().getString("PasteVector"));
         File schematic = FileUtility.loadSchematic(this, "lobby");
-        worldManager.createWorld("lobby", schematic, pasteVector);
+        this.worldManager.createWorld("lobby", schematic, pasteVector);
 
-        inventoryManager.init();
-        kitManager.setupKits();
-        gameManager.activateState();
+        this.inventoryManager.init();
+        this.kitManager.setupKits();
+        this.gameManager.activateState();
 
         Assemble scoreboard = new Assemble(this, new GameScoreboard(this));
         scoreboard.setTicks(5);
 
         getCommand("kit").setExecutor(new KitCommand(this));
-        getCommand("reloadconfig").setExecutor(new ReloadConfigCommand(resources));
+        getCommand("reloadconfig").setExecutor(new ReloadConfigCommand(this.resources));
         getCommand("start").setExecutor(new StartCommand(this));
         getCommand("end").setExecutor(new EndCommand(this));
         getCommand("skip").setExecutor(new SkipCommand(this));
