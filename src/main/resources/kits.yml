@@ -845,7 +845,7 @@ Miner:
         - "&7along semi-flat ground and can sneak"
         - "&7once more to emerge onto the surface."
       Velocity: 0.4
-      MaxTicks: 90
+      MaxTicks: 75
       Depth: 1.6
       DropVelocity: 1.4
       MaxDropTicks: 40
