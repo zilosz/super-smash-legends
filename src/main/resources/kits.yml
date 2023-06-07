@@ -1010,8 +1010,8 @@ MasterBlade:
       Cooldown: 140
       AutoStartCooldown: false
       MinChargeTicks: 12
-      MinSpeed: 0.6
-      MaxSpeed: 2
+      MinSpeed: 0.5
+      MaxSpeed: 1.85
       MinKb: 1
       MaxKb: 2.9
       MinDamage: 2
@@ -1032,12 +1032,12 @@ MasterBlade:
         - "&7wielding a cluster of sharp, deadly swords."
         - "&7Any unfortunate victims are badly hurt and"
         - "&7receive great knock-back."
-      Cooldown: 120
+      Cooldown: 140
       MaxChargeTicks: 20
       ChargeSpeed: 1
       Radius: 2
-      HitBox: 1.75
-      Damage: 6.5
+      HitBox: 1.2
+      Damage: 6
       Kb: 2.2
       KbY: 0.4
       ImmunityTicks: 13
@@ -1051,9 +1051,9 @@ MasterBlade:
         - "&7enemies towards you. Within the right"
         - "&7range, the grip is virtually inescapable."
       Cooldown: 120
-      Range: 14
-      Damage: 6
-      Kb: -1.15
+      Range: 12
+      Damage: 5
+      Kb: -0.9
       ExtraKbY: 0.4
       HitBox: 1.5
 Pikachew:
