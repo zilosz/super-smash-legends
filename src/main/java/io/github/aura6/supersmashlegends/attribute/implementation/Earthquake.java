@@ -87,12 +87,7 @@ public class Earthquake extends RightClickAbility {
             }
         }, 0, this.config.getInt("UprootInterval"));
 
-        this.stopTask = Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
-            if (this.tryReset()) {
-                this.startCooldown();
-                this.player.getWorld().playSound(this.player.getLocation(), Sound.IRONGOLEM_DEATH, 1, 1);
-            }
-        }, this.config.getInt("Duration"));
+        this.stopTask = Bukkit.getScheduler().runTaskLater(this.plugin, this::reset, this.config.getInt("Duration"));
     }
 
     private void uproot(Location loc) {
@@ -106,20 +101,22 @@ public class Earthquake extends RightClickAbility {
         Bukkit.getScheduler().runTaskLater(this.plugin, () -> BlockUtils.setBlockFast(loc, id, (byte) 2), duration);
     }
 
-    private boolean tryReset() {
-        if (this.stopTask == null) return false;
+    private void reset() {
+        if (this.stopTask == null) return;
 
         this.stopTask.cancel();
         this.stopTask = null;
+
         this.quakeTask.cancel();
         this.uprootTask.cancel();
 
-        return true;
+        this.startCooldown();
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.IRONGOLEM_DEATH, 1, 1);
     }
 
     @Override
     public void deactivate() {
+        this.reset();
         super.deactivate();
-        this.tryReset();
     }
 }
