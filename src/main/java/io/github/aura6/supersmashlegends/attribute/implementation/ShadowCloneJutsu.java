@@ -116,6 +116,8 @@ public class ShadowCloneJutsu extends RightClickAbility {
         }
 
         private void destroy() {
+            this.cancel();
+
             this.clones.remove(this);
             this.creature.remove();
 
