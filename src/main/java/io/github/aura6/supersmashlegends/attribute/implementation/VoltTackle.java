@@ -126,8 +126,8 @@ public class VoltTackle extends RightClickAbility {
 
     @Override
     public void deactivate() {
-        super.deactivate();
         this.reset(false, false);
+        super.deactivate();
     }
 
     @EventHandler
