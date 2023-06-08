@@ -37,16 +37,14 @@ public class VoltTackle extends RightClickAbility {
         super(plugin, config, kit);
     }
 
-    private boolean isActive() {
-        return this.ticksMoving > -1;
-    }
-
     @Override
     public boolean invalidate(PlayerInteractEvent event) {
-        return super.invalidate(event) || this.isActive();
+        return super.invalidate(event) || this.ticksMoving > -1;
     }
 
     private void reset(boolean cooldown, boolean sound) {
+        if (this.ticksMoving == -1) return;
+
         this.moveTask.cancel();
         this.ticksMoving = -1;
 
@@ -129,22 +127,19 @@ public class VoltTackle extends RightClickAbility {
     @Override
     public void deactivate() {
         super.deactivate();
-
-        if (this.isActive()) {
-            this.reset(false, false);
-        }
+        this.reset(false, false);
     }
 
     @EventHandler
     public void onDamage(AttributeDamageEvent event) {
-        if (event.getVictim() == this.player && this.isActive() && !(event.getAttribute() instanceof Melee)) {
+        if (event.getVictim() == this.player && !(event.getAttribute() instanceof Melee)) {
             this.reset(true, true);
         }
     }
 
     @EventHandler
     public void onSneak(PlayerToggleSneakEvent event) {
-        if (event.getPlayer() == this.player && this.isActive()) {
+        if (event.getPlayer() == this.player && !this.player.isSneaking()) {
             this.reset(true, true);
         }
     }
