@@ -80,7 +80,7 @@ public class LobbyState extends GameState {
 
         Replacers replacers = new Replacers()
                 .add("CURRENT", Bukkit.getOnlinePlayers().size())
-                .add("CAP", this.plugin.getTeamManager().getPlayerStartCount());
+                .add("CAP", this.plugin.getResources().getConfig().getInt("Game.MinPlayersToStart"));
 
         try {
             replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
@@ -180,7 +180,9 @@ public class LobbyState extends GameState {
     }
 
     private void tryCountdownStart() {
-        if (Bukkit.getOnlinePlayers().size() < this.plugin.getTeamManager().getPlayerStartCount()) return;
+        int minPlayersNeeded = this.plugin.getResources().getConfig().getInt("Game.MinPlayersToStart");
+
+        if (Bukkit.getOnlinePlayers().size() < minPlayersNeeded) return;
 
         int notifyInterval = this.plugin.getResources().getConfig().getInt("Game.LobbyCountdown.NotifyInterval");
         int totalSec = this.plugin.getResources().getConfig().getInt("Game.LobbyCountdown.Seconds");
