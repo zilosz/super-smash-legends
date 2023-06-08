@@ -219,8 +219,8 @@ public class InGameState extends GameState {
     }
 
     private void removeTracker(Player player) {
-        Optional.ofNullable(this.trackerItems.get(player)).ifPresent(HotbarItem::destroy);
-        Optional.ofNullable(this.trackerTasks.get(player)).ifPresent(BukkitTask::cancel);
+        Optional.ofNullable(this.trackerItems.remove(player)).ifPresent(HotbarItem::destroy);
+        Optional.ofNullable(this.trackerTasks.remove(player)).ifPresent(BukkitTask::cancel);
         this.closestTargets.remove(player);
     }
 
