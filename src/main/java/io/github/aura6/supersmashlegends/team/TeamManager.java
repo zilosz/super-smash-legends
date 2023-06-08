@@ -1,6 +1,5 @@
 package io.github.aura6.supersmashlegends.team;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -32,36 +31,25 @@ public class TeamManager {
     );
 
     private final SuperSmashLegends plugin;
+
     private final List<Team> teamList = new ArrayList<>();
     private final Map<UUID, Team> teamsByEntity = new HashMap<>();
 
     public TeamManager(SuperSmashLegends plugin) {
         this.plugin = plugin;
-        grabTeams();
+        this.grabTeams();
     }
 
     private void grabTeams() {
-        TEAM_COLORS.subList(0, getTeamCount()).forEach(colors -> teamList.add(new Team(plugin, colors)));
-    }
-
-    private Section getTeamConfig() {
-        return plugin.getResources().getConfig().getSection("Game.Team");
+        TEAM_COLORS.forEach(colors -> this.teamList.add(new Team(this.plugin, colors)));
     }
 
     public int getTeamSize() {
-        return getTeamConfig().getInt("Size");
-    }
-
-    public int getTeamCount() {
-        return Math.min(getTeamConfig().getInt("Count"), TEAM_COLORS.size());
-    }
-
-    public int getPlayerStartCount() {
-        return getTeamCount() * getTeamSize();
+        return this.plugin.getResources().getConfig().getInt("Game.TeamSize");
     }
 
     public int getAbsolutePlayerCap() {
-        return TEAM_COLORS.size() * getTeamSize();
+        return TEAM_COLORS.size() * this.getTeamSize();
     }
 
     public List<Team> getTeamList() {
@@ -81,10 +69,14 @@ public class TeamManager {
     }
 
     public String getPlayerColor(Player player) {
-        return getTeamSize() == 1 ? this.plugin.getGameManager().getProfile(player).getKit().getColor() : getPlayerTeam(player).getColor();
+        if (this.getTeamSize() == 1) {
+            return this.plugin.getGameManager().getProfile(player).getKit().getColor();
+        }
+        return this.getPlayerTeam(player).getColor();
     }
 
     public void assignPlayer(Player player) {
+        boolean assigned = false;
 
         for (Team team : this.teamList) {
 
@@ -93,10 +85,15 @@ public class TeamManager {
 
                 if (team.canJoin(player)) {
                     team.addPlayer(player);
+                    assigned = true;
                 }
 
                 break;
             }
+        }
+
+        if (!assigned) {
+            this.teamList.get(0).addPlayer(player);
         }
     }
 
@@ -121,8 +118,8 @@ public class TeamManager {
     }
 
     public void reset() {
-        this.teamList.clear();
         this.teamsByEntity.clear();
-        grabTeams();
+        this.teamList.clear();
+        this.grabTeams();
     }
 }

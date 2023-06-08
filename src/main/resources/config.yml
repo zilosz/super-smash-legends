@@ -33,9 +33,8 @@ Collision:
   MaxStuckDuration: 10
 Game:
   Lives: 4
-  Team:
-    Size: 1
-    Count: 4
+  TeamSize: 1
+  MinPlayersToStart: 2
   Tutorial:
     DurationTicks: 200
     DelayTicks: 55
