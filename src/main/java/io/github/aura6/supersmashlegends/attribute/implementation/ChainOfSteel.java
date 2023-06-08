@@ -86,7 +86,7 @@ public class ChainOfSteel extends RightClickAbility {
                 this.reset(true);
 
             } else {
-                this.entities.remove(this.entities.size() - 1).destroy();
+                this.entities.remove(0).destroy();
             }
         }, ticksPerRemoval, ticksPerRemoval);
     }
