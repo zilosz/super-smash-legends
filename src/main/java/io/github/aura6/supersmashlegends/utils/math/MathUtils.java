@@ -45,6 +45,10 @@ public class MathUtils {
         return center.clone().add(displacement);
     }
 
+    public static double degToRad(double degrees) {
+        return degrees * Math.PI / 180;
+    }
+
     public static List<Location> getLocationCube(Location center, int size) {
         List<Location> locations = new ArrayList<>();
 

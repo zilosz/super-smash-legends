@@ -34,7 +34,7 @@ import java.io.File;
 
 @Getter
 public class SuperSmashLegends extends JavaPlugin {
-    private static SuperSmashLegends instance;
+    @Getter private static SuperSmashLegends instance;
 
     private Resources resources;
     private Database db;

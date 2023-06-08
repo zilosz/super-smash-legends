@@ -1,5 +1,9 @@
 package io.github.aura6.supersmashlegends.utils.math;
 
+import io.github.aura6.supersmashlegends.SuperSmashLegends;
+import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
+import net.minecraft.server.v1_8_R3.EnumParticle;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -36,6 +40,21 @@ public class VectorUtils {
         }
 
         return locations;
+    }
+
+    public static Vector getRandomVectorInDirection(Location source, double maxAngle) {
+        double angle = MathUtils.randRange(0, maxAngle);
+        double radians = MathUtils.randRange(0, 2 * Math.PI);
+        double length = Math.tan(MathUtils.degToRad(angle));
+
+        Location ringCenter = source.clone().add(source.getDirection());
+        Location ringPoint = MathUtils.ringPoint(ringCenter, source.getPitch(), source.getYaw(), length, radians);
+
+        Bukkit.getScheduler().runTaskTimer(SuperSmashLegends.getInstance(), () -> {
+            new ParticleBuilder(EnumParticle.REDSTONE).ring(ringCenter, length, 5);
+        }, 0, 0);
+
+        return fromTo(source, ringPoint).normalize();
     }
 
     public static Vector fromTo(Location from, Location to) {

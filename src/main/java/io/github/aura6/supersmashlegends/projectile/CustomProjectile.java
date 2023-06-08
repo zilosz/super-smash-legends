@@ -13,7 +13,7 @@ import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
 import io.github.aura6.supersmashlegends.utils.entity.finder.selector.HitBoxSelector;
-import io.github.aura6.supersmashlegends.utils.math.MathUtils;
+import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityDestroy;
@@ -110,8 +110,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         Bukkit.getPluginManager().registerEvents(this, plugin);
 
         Location location = overrideLocation == null ? ability.getPlayer().getEyeLocation() : overrideLocation.clone();
-        location.setYaw((float) MathUtils.randSpread(location.getYaw(), spread));
-        location.setPitch((float) MathUtils.randSpread(location.getPitch(), spread));
+        location.setDirection(VectorUtils.getRandomVectorInDirection(location, this.spread));
 
         location.add(location.getDirection().multiply(distanceFromEye));
 
