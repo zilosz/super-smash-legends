@@ -1,8 +1,8 @@
 package io.github.aura6.supersmashlegends.utils.entity;
 
+import io.github.aura6.supersmashlegends.utils.NmsUtils;
 import net.minecraft.server.v1_8_R3.AxisAlignedBB;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -19,12 +19,12 @@ public class EntityUtils {
     }
 
     public static double height(Entity entity) {
-        AxisAlignedBB bb = ((CraftEntity) entity).getHandle().getBoundingBox();
+        AxisAlignedBB bb = NmsUtils.getEntity(entity).getBoundingBox();
         return bb.e - bb.b;
     }
 
     public static Location center(Entity entity) {
-        AxisAlignedBB bb = ((CraftEntity) entity).getHandle().getBoundingBox();
+        AxisAlignedBB bb = NmsUtils.getEntity(entity).getBoundingBox();
         return new Location(entity.getWorld(), (bb.d + bb.a) / 2, (bb.e + bb.b) / 2, (bb.f + bb.c) / 2);
     }
 

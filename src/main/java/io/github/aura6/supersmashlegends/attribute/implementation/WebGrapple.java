@@ -29,6 +29,7 @@ import org.bukkit.util.Vector;
 
 public class WebGrapple extends RightClickAbility {
     private PacketAdapter packetAdapter;
+    private GrappleProjectile grappleProjectile;
 
     public WebGrapple(SuperSmashLegends plugin, Section config, Kit kit) {
         super(plugin, config, kit);
@@ -36,7 +37,9 @@ public class WebGrapple extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new GrappleProjectile(this.plugin, this, this.config.getSection("Projectile")).launch();
+        this.grappleProjectile = new GrappleProjectile(this.plugin, this, this.config.getSection("Projectile"));
+        this.grappleProjectile.launch();
+
         this.player.getWorld().playSound(this.player.getLocation(), Sound.MAGMACUBE_JUMP, 1, 1);
     }
 
@@ -69,6 +72,10 @@ public class WebGrapple extends RightClickAbility {
 
         if (this.packetAdapter != null) {
             ProtocolLibrary.getProtocolManager().removePacketListener(this.packetAdapter);
+        }
+
+        if (this.grappleProjectile != null) {
+            this.grappleProjectile.remove(ProjectileRemoveReason.DEACTIVATION);
         }
     }
 
@@ -129,7 +136,6 @@ public class WebGrapple extends RightClickAbility {
         public void onDeath(EntityDeathEvent event) {
             if (event.getEntity() == this.bat) {
                 this.remove(ProjectileRemoveReason.ENTITY_DEATH);
-
             }
         }
     }
