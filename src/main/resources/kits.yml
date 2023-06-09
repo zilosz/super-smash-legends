@@ -282,10 +282,8 @@ Mechon:
       Item:
         Material: IRON_BOOTS
       Description:
-        - "&7Yes, you read that right. Another of"
-        - "&7Mechon's gadget is an actual JETPACK."
-        - "&7Phew. Sneak to generate forward"
-        - "&7momentum, taking enemies by surprise."
+        - "&7Sneak to generate forward momentum,"
+        - "&7taking enemies by surprise."
       Velocity: 0.8
       VelocityY: 0.45
       StreamFeetDistance: 0.5
@@ -1427,3 +1425,24 @@ Webman:
       MaxKbMultiplier: 2.5
       MaxKbYMultiplier: 2.5
       Speed: 1
+Mermaid:
+  ConfigName: Mermaid
+  Name: "Mermaid"
+  Color: "&3"
+  Item:
+    Material: RAW_FISH
+    Data: 3
+  Description:
+    - "&7Description"
+  Skin: "thesaferoom"
+  Damage: 5
+  Armor: 0.65
+  Kb: 1.6
+  Regen: 0.3
+  Jump:
+    Power: 1.15
+    Height: 1
+    Sound:
+      Type: SPLASH
+      Volume: 0.5
+      Pitch: 2

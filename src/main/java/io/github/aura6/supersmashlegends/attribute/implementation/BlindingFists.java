@@ -82,7 +82,7 @@ public class BlindingFists extends PassiveAbility {
             this.player.playSound(this.player.getLocation(), Sound.ZOMBIE_REMEDY, 0.5f, (float) pitch);
 
             Location center = EntityUtils.center(event.getVictim());
-            new ParticleBuilder(EnumParticle.REDSTONE).boom(this.plugin, center, 1.5, 0.375, 8);
+            new ParticleBuilder(EnumParticle.REDSTONE).boom(this.plugin, center, 1.5, 0.375, 5);
 
             for (int x = -1; x <= 1; x++) {
 
