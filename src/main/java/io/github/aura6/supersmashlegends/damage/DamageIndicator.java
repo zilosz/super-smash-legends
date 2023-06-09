@@ -42,6 +42,10 @@ public class DamageIndicator extends BukkitRunnable {
     @Override
     public void run() {
         hologram.setPosition(relativePosition(entity, height));
+
+        if (!this.entity.isValid()) {
+            this.destroy();
+        }
     }
 
     private static String damageFormat(LivingEntity entity, double damage) {

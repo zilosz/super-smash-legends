@@ -97,7 +97,7 @@ public class ChainOfSteel extends RightClickAbility {
     public void onClick(PlayerInteractEvent event) {
         Location currLocation = EntityUtils.center(this.player);
         this.direction = this.player.getEyeLocation().getDirection();
-        Vector step = direction.clone().multiply(this.config.getDouble("ChainSpeed"));
+        Vector step = this.direction.clone().multiply(this.config.getDouble("ChainSpeed"));
 
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
