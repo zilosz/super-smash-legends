@@ -187,6 +187,8 @@ public class InGameState extends GameState {
         }));
 
         this.trackerTasks.put(player, Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+            if (!player.getWorld().getName().equals("arena")) return;
+
             List<Player> players = Bukkit.getOnlinePlayers().stream()
                     .filter(p -> p.getWorld().getName().equals("arena"))
                     .filter(p -> this.plugin.getGameManager().isPlayerAlive(p))
@@ -437,7 +439,7 @@ public class InGameState extends GameState {
     public void onPlayerDeath(PlayerDeathEvent event) {
         event.getDrops().clear();
         event.setDeathMessage("");
-        handleDeath(event.getEntity(), true);
+        this.handleDeath(event.getEntity(), true);
     }
 
     @EventHandler
