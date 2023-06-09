@@ -18,6 +18,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.scheduler.BukkitTask;
@@ -102,7 +103,7 @@ public class ChainOfSteel extends RightClickAbility {
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
         this.chainTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
-            this.player.setVelocity(new Vector(0, 0.05, 0));
+            this.player.setVelocity(new Vector(0, 0.04, 0));
             currLocation.add(step);
 
             if (this.chainTicks >= this.config.getInt("ChainTicks")) {
@@ -163,6 +164,13 @@ public class ChainOfSteel extends RightClickAbility {
         if (event.getPlayer() == this.player && this.chainTicks > 0) {
             this.reset(true);
             this.player.playSound(this.player.getLocation(), Sound.IRONGOLEM_DEATH, 1, 2);
+        }
+    }
+
+    @EventHandler
+    public void onEntityBlockChange(EntityChangeBlockEvent event) {
+        if (this.entities.stream().anyMatch(floating -> floating.getEntity() == event.getEntity())) {
+            event.setCancelled(true);
         }
     }
 }
