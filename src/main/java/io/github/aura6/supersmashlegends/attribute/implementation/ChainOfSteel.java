@@ -103,7 +103,7 @@ public class ChainOfSteel extends RightClickAbility {
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
         this.chainTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
-            this.player.setVelocity(new Vector(0, 0.04, 0));
+            this.player.setVelocity(new Vector(0, 0.03, 0));
             currLocation.add(step);
 
             if (this.chainTicks >= this.config.getInt("ChainTicks")) {
