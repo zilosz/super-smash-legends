@@ -823,7 +823,7 @@ Miner:
         - "&7at will. Know that you don't want to cross"
         - "&7paths with him when he's using this ability!"
       Cooldown: 160
-      MaxChargeTicks: 25
+      MaxChargeTicks: 20
       Velocity: 1.1
       HitBox: 1.5
       Damage: 5.5
