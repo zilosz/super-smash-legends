@@ -14,7 +14,6 @@ import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
 import io.github.aura6.supersmashlegends.utils.entity.finder.selector.DistanceSelector;
-import io.github.aura6.supersmashlegends.utils.entity.finder.selector.EntitySelector;
 import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
 import lombok.Getter;
 import net.minecraft.server.v1_8_R3.EnumParticle;
@@ -26,85 +25,80 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 public class Rasenshuriken extends RightClickAbility {
     private BukkitTask task;
     private Location lastLocation;
+    private int ticksCharged = -1;
 
     public Rasenshuriken(SuperSmashLegends plugin, Section config, Kit kit) {
         super(plugin, config, kit);
     }
 
+    private void reset(boolean cooldown) {
+        if (this.ticksCharged == -1) return;
+
+        this.ticksCharged = -1;
+        this.task.cancel();
+        this.hotbarItem.show();
+
+        if (cooldown) {
+            this.startCooldown();
+        }
+
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.FIRE_IGNITE, 3, 2);
+    }
+
     @Override
     public void onClick(PlayerInteractEvent event) {
-        player.getWorld().playSound(player.getLocation(), Sound.FIREWORK_LAUNCH, 1, 1);
-        hotbarItem.hide();
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.FIREWORK_LAUNCH, 1, 1);
+        this.hotbarItem.hide();
 
-        Rasenshuriken instance = this;
+        this.task = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
 
-        task = new BukkitRunnable() {
-            int ticksCharged = 0;
-
-            @Override
-            public void run() {
-
-                if (++ticksCharged >= config.getInt("Lifespan")) {
-                    reset();
-                    return;
-                }
-
-                double y = config.getDouble("Height") + config.getDouble("ParticleRadius");
-                lastLocation = EntityUtils.top(player).add(0, y, 0);
-
-                if (ticksCharged % 2 == 0) {
-                    display(lastLocation, false, config.getSection("Projectile"));
-                }
-
-                Bukkit.getPluginManager().callEvent(new RasenshurikenDisplayEvent(instance));
-
-                if (ticksCharged % 7 == 0) {
-                    player.getWorld().playSound(player.getLocation(), Sound.FUSE, 1, 1);
-                }
+            if (++this.ticksCharged >= this.config.getInt("Lifespan")) {
+                this.reset(true);
+                return;
             }
 
-        }.runTaskTimer(plugin, 0, 0);
+            double y = this.config.getDouble("Height") + this.config.getDouble("ParticleRadius");
+            this.lastLocation = EntityUtils.top(this.player).add(0, y, 0);
+
+            if (this.ticksCharged % 2 == 0) {
+                display(this.lastLocation, false, this.config.getSection("Projectile"));
+            }
+
+            Bukkit.getPluginManager().callEvent(new RasenshurikenDisplayEvent(this));
+
+            if (this.ticksCharged % 7 == 0) {
+                this.player.getWorld().playSound(this.player.getLocation(), Sound.FUSE, 1, 1);
+            }
+        }, 0, 0);
     }
 
     @EventHandler
     public void onPlayerAnimation(PlayerAnimationEvent event) {
-        if (event.getPlayer() != player || task == null) return;
+        if (event.getPlayer() != this.player || this.ticksCharged == -1) return;
 
-        Shuriken shuriken = new Shuriken(plugin, this, config.getSection("Projectile"));
-        lastLocation.setDirection(player.getEyeLocation().getDirection());
-        shuriken.setOverrideLocation(lastLocation);
+        Shuriken shuriken = new Shuriken(this.plugin, this, this.config.getSection("Projectile"));
+        this.lastLocation.setDirection(this.player.getEyeLocation().getDirection());
+        shuriken.setOverrideLocation(this.lastLocation);
         shuriken.launch();
 
-        reset();
-        startCooldown();
-    }
-
-    private void reset() {
-        if (task == null) return;
-
-        task.cancel();
-        task = null;
-        hotbarItem.show();
-
-        player.getWorld().playSound(player.getLocation(), Sound.FIRE_IGNITE, 3, 2);
+        this.reset(true);
     }
 
     @Override
     public void deactivate() {
         super.deactivate();
-        reset();
+        this.reset(false);
     }
 
     @EventHandler
     public void onHandSwitch(PlayerItemHeldEvent event) {
-        if (event.getPlayer() == player && event.getNewSlot() != slot && task != null) {
-            reset();
+        if (event.getPlayer() == this.player && event.getNewSlot() != this.slot && this.ticksCharged > -1) {
+            this.reset(true);
         }
     }
 
@@ -121,15 +115,17 @@ public class Rasenshuriken extends RightClickAbility {
             new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 255, 255).ring(loc, pitch, yaw, radius, 7.5);
         }
 
-        new ParticleBuilder(EnumParticle.REDSTONE).setRgb(173, 216, 230).solidSphere(loc, config.getDouble("ParticleRadius"), 7, 0.1);
+        double radius = config.getDouble("ParticleRadius");
+        new ParticleBuilder(EnumParticle.REDSTONE).setRgb(173, 216, 230).solidSphere(loc, radius, 7, 0.1);
     }
 
     public static class Shuriken extends ItemProjectile {
 
         public Shuriken(SuperSmashLegends plugin, Ability ability, Section config) {
             super(plugin, ability, config);
-            getDamage().setDamage(config.getDouble("MaxDamage"));
-            getDamage().setKb(config.getDouble("MaxKb"));
+
+            this.getDamage().setDamage(config.getDouble("MaxDamage"));
+            this.getDamage().setKb(config.getDouble("MaxKb"));
         }
 
         @Override
@@ -148,41 +144,41 @@ public class Rasenshuriken extends RightClickAbility {
 
         @Override
         public void onTargetHit(LivingEntity target) {
-            onHit(target);
+            this.onHit(target);
         }
 
         @Override
         public void onBlockHit(BlockHitResult result) {
-            onHit(null);
+            this.onHit(null);
         }
 
         private void onHit(LivingEntity avoid) {
             Location loc = this.entity.getLocation();
 
-            entity.getWorld().playSound(loc, Sound.EXPLODE, 1.5f, 1);
-            new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).solidSphere(loc, config.getDouble("Radius"), 40, 0.1);
+            double radius = this.config.getDouble("Radius");
 
-            double radius = config.getDouble("Radius");
-            EntitySelector selector = new DistanceSelector(radius);
+            this.entity.getWorld().playSound(loc, Sound.EXPLODE, 1.5f, 1);
+            new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).solidSphere(loc, radius / 2, 40, 0.1);
 
-            new EntityFinder(plugin, selector).findAll(this.launcher, loc).forEach(target -> {
+            new EntityFinder(this.plugin, new DistanceSelector(radius)).findAll(this.launcher, loc).forEach(target -> {
                 if (target == avoid) return;
 
                 double distanceSq = target.getLocation().distanceSquared(loc);
-                double damage = YamlReader.decLin(config, "Damage", distanceSq, radius * radius);
-                double kb = YamlReader.decLin(config, "Kb", distanceSq, radius * radius);
+                double damage = YamlReader.decLin(this.config, "Damage", distanceSq, radius * radius);
+                double kb = YamlReader.decLin(this.config, "Kb", distanceSq, radius * radius);
 
-                Damage dmg = Damage.Builder.fromConfig(config, VectorUtils.fromTo(entity, target)).build();
+                Damage dmg = Damage.Builder.fromConfig(this.config, VectorUtils.fromTo(this.entity, target)).build();
                 dmg.setDamage(damage);
                 dmg.setKb(kb);
 
-                plugin.getDamageManager().attemptAttributeDamage(target, dmg, this.ability);
+                this.plugin.getDamageManager().attemptAttributeDamage(target, dmg, this.ability);
             });
         }
     }
 
+    @Getter
     public static class RasenshurikenDisplayEvent extends CustomEvent {
-        @Getter private final Rasenshuriken rasenshuriken;
+        private final Rasenshuriken rasenshuriken;
 
         protected RasenshurikenDisplayEvent(Rasenshuriken rasenshuriken) {
             this.rasenshuriken = rasenshuriken;
