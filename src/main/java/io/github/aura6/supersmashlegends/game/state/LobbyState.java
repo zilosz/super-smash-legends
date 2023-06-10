@@ -50,6 +50,7 @@ public class LobbyState extends GameState {
 
     private BukkitTask countdownTask;
     private int secUntilStart;
+    private boolean isCounting = false;
 
     public LobbyState(SuperSmashLegends plugin) {
         super(plugin);
@@ -169,7 +170,9 @@ public class LobbyState extends GameState {
     }
 
     private void stopCountdownTask(boolean abrupt) {
-        if (this.countdownTask == null) return;
+        if (!this.isCounting) return;
+
+        this.isCounting = false;
 
         this.countdownTask.cancel();
         this.countdownTask = null;
@@ -182,11 +185,13 @@ public class LobbyState extends GameState {
     private void tryCountdownStart() {
         int minPlayersNeeded = this.plugin.getResources().getConfig().getInt("Game.MinPlayersToStart");
 
-        if (Bukkit.getOnlinePlayers().size() < minPlayersNeeded) return;
+        if (this.isCounting || Bukkit.getOnlinePlayers().size() < minPlayersNeeded) return;
 
         int notifyInterval = this.plugin.getResources().getConfig().getInt("Game.LobbyCountdown.NotifyInterval");
         int totalSec = this.plugin.getResources().getConfig().getInt("Game.LobbyCountdown.Seconds");
         this.secUntilStart = totalSec + 1;
+
+        this.isCounting = true;
 
         this.countdownTask = new BukkitRunnable() {
             float pitch = 0.5f;
@@ -287,7 +292,7 @@ public class LobbyState extends GameState {
         createLeaderboard("Kill", "kills", "Kills");
 
         gameManager.reset();
-        tryCountdownStart();
+        this.tryCountdownStart();
     }
 
     private Location getSpawn() {
