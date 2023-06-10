@@ -1427,7 +1427,7 @@ Webman:
       Speed: 1
 Mermaid:
   ConfigName: Mermaid
-  Name: "Mermaid"
+  Name: "Mermaid (UNFINISHED)"
   Color: "&3"
   Item:
     Material: RAW_FISH
@@ -1443,6 +1443,34 @@ Mermaid:
     Power: 1.15
     Height: 1
     Sound:
-      Type: SPLASH
+      Type: SPLASH2
       Volume: 0.5
       Pitch: 2
+  Abilities:
+    0:
+      ConfigName: SquidDash
+      Name: "Squid Dash"
+      Item:
+        Material: DIAMOND_SPADE
+      Description:
+        - "&7Summon a squid from the water's depths"
+        - "&7that you can ride. You travel in a flat,"
+        - "&7straight path. Clicking a second time"
+        - "&7dismounts you from the squid, also"
+        - "&7generating an inky explosion that hurts"
+        - "&7enemies and grants temporary invisibility."
+      Cooldown: 140
+      AutoStartCooldown: false
+      AutoSendUseMessage: false
+      Velocity: 1.3
+      MinDamage: 1.5
+      MaxDamage: 7
+      MinKb: 0.7
+      MaxKb: 2
+      KbY: 0.6
+      MaxTicks: 30
+      MinInvisibilityTicks: 0
+      MaxInvisibilityTicks: 40
+      HitBox: 2.5
+      ParticleDuration: 20
+      TicksPerParticle: 2
