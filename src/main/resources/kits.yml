@@ -1471,9 +1471,9 @@ Mermaid:
       MaxTicks: 30
       MinInvisibilityTicks: 0
       MaxInvisibilityTicks: 40
-      HitBox: 3
+      HitBox: 2.5
       Particle:
         Duration: 10
-        Speed: 0.45
-        CountPerTick: 3
-        Spread: 20
+        Speed: 0.65
+        CountPerTick: 2
+        Spread: 15

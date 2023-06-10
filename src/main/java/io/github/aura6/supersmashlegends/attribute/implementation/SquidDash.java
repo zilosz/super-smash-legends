@@ -142,19 +142,22 @@ public class SquidDash extends RightClickAbility {
 
             Section particleConfig = this.config.getSection("Particle");
 
+            Vector particleDirection = this.velocity.clone().normalize();
+            Location particleLoc = EntityUtils.center(this.player).subtract(particleDirection);
+            particleLoc.setDirection(particleDirection);
+
+            double spread = particleConfig.getDouble("Spread");
+            double speed = particleConfig.getDouble("Speed");
+
+            int duration = particleConfig.getInt("Duration");
+
             for (int i = 0; i < particleConfig.getInt("CountPerTick"); i++) {
-                Item particle = this.player.getWorld().dropItem(loc, new ItemStack(Material.INK_SACK));
+                Item particle = this.player.getWorld().dropItem(particleLoc, new ItemStack(Material.INK_SACK));
                 particle.setPickupDelay(Integer.MAX_VALUE);
 
-                Vector particleDirection = this.velocity.clone().normalize();
-                loc.subtract(particleDirection.clone()).setDirection(particleDirection.multiply(-1));
-                double spread = particleConfig.getDouble("Spread");
-                double speed = particleConfig.getDouble("Speed");
-                particle.setVelocity(VectorUtils.getRandomVectorInDirection(loc, spread).multiply(speed));
+                particle.setVelocity(VectorUtils.getRandomVectorInDirection(particleLoc, spread).multiply(speed));
 
-                int duration = particleConfig.getInt("Duration");
                 Bukkit.getScheduler().runTaskLater(this.plugin, particle::remove, duration);
-
                 this.particles.add(particle);
             }
         }, 0, 0);
