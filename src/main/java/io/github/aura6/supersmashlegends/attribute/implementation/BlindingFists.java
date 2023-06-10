@@ -15,7 +15,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
@@ -48,29 +47,29 @@ public class BlindingFists extends PassiveAbility {
         this.chainResetters.clear();
     }
 
-    private void resetChain(LivingEntity entity) {
-        this.chainCounts.remove(entity);
+    private void resetChains() {
+        this.chainCounts.clear();
         this.player.removePotionEffect(PotionEffectType.SPEED);
     }
 
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent event) {
         if (event.getEntity() == this.player && event.getDamager() instanceof LivingEntity) {
-            this.resetChain((LivingEntity) event.getDamager());
+            this.resetChains();
         }
     }
 
     @EventHandler
     public void onCustomDamage(AttributeDamageEvent event) {
         LivingEntity victim = event.getVictim();
-        Player damager = event.getAttribute().getPlayer();
 
         if (victim == this.player) {
-            this.resetChain(damager);
+            this.resetChains();
             return;
         }
 
-        if (damager != this.player || !(event.getAttribute() instanceof Melee)) return;
+        if (event.getAttribute().getPlayer() != this.player) return;
+        if (!(event.getAttribute() instanceof Melee)) return;
 
         int maxChain = this.config.getInt("MaxChain");
 
@@ -121,7 +120,8 @@ public class BlindingFists extends PassiveAbility {
         Optional.ofNullable(this.chainResetters.remove(victim)).ifPresent(BukkitTask::cancel);
 
         this.chainResetters.put(victim, Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
-            this.resetChain(victim);
+            this.chainCounts.remove(victim);
+            this.player.removePotionEffect(PotionEffectType.SPEED);
         }, this.config.getInt("ChainDuration")));
 
         if (currChain < maxChain - 1) {
