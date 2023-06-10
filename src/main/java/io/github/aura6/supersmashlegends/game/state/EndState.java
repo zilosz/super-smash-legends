@@ -101,7 +101,9 @@ public class EndState extends GameState {
 
         teamManager.getAliveTeams().forEach(team -> team.setLifespan(gameManager.getTicksActive() + 1));
         Comparator<Team> comp = Comparator.comparingInt(Team::getLifespan).reversed();
-        List<List<Team>> rankedTeams = CollectionUtils.getRankedGroups(teamManager.getTeamList(), comp);
+
+        List<Team> teams = teamManager.getTeamList();
+        List<List<Team>> rankedTeams = CollectionUtils.getRankedGroups(teams, comp);
 
         List<String> ranking = new ArrayList<>(Arrays.asList(
                 "&5--------------------------",
@@ -166,15 +168,18 @@ public class EndState extends GameState {
                 this.winnerString = winningTeam.getColor() + winningTeam.getName();
             }
 
-            for (Player player : playerRanks.keySet()) {
+            for (Team team : teams) {
 
-                if (winningSet.contains(player)) {
-                    gameManager.getProfile(player).setGameResult(GameResult.WIN);
-                    Chat.GAME.send(player, "&7You have &a&lwon!");
+                for (Player player : team.getPlayers()) {
 
-                } else {
-                    gameManager.getProfile(player).setGameResult(GameResult.LOSE);
-                    Chat.GAME.send(player, String.format("%s &7has &awon!", this.winnerString));
+                    if (winningSet.contains(player)) {
+                        gameManager.getProfile(player).setGameResult(GameResult.WIN);
+                        Chat.GAME.send(player, "&7You have &a&lwon!");
+
+                    } else {
+                        gameManager.getProfile(player).setGameResult(GameResult.LOSE);
+                        Chat.GAME.send(player, String.format("%s &7has &awon!", this.winnerString));
+                    }
                 }
             }
 
@@ -182,27 +187,30 @@ public class EndState extends GameState {
             Set<Player> tiedPlayers = rankedTeams.get(0).stream()
                     .flatMap(team -> team.getPlayers().stream()).collect(Collectors.toSet());
 
-            for (Player player : playerRanks.keySet()) {
-                String tieString;
-                GameResult result;
+            for (Team team : teams) {
 
-                if (tiedPlayers.contains(player)) {
-                    result = GameResult.TIE;
-                    tieString = "&7You have &e&ltied.";
+                for (Player player : team.getPlayers()) {
+                    String tieString;
+                    GameResult result;
 
-                } else {
-                    result = GameResult.LOSE;
-
-                    if (teamManager.getTeamSize() == 1) {
-                        tieString = "&7There has been a &etie.";
+                    if (tiedPlayers.contains(player)) {
+                        result = GameResult.TIE;
+                        tieString = "&7You have &e&ltied.";
 
                     } else {
-                        tieString = "&7There has been a &etie &7between teams.";
-                    }
-                }
+                        result = GameResult.LOSE;
 
-                Chat.GAME.send(player, tieString);
-                gameManager.getProfile(player).setGameResult(result);
+                        if (teamManager.getTeamSize() == 1) {
+                            tieString = "&7There has been a &etie.";
+
+                        } else {
+                            tieString = "&7There has been a &etie &7between teams.";
+                        }
+                    }
+
+                    Chat.GAME.send(player, tieString);
+                    gameManager.getProfile(player).setGameResult(result);
+                }
             }
         }
 
@@ -211,7 +219,6 @@ public class EndState extends GameState {
 
         for (Player player : playerRanks.keySet()) {
             gameManager.getProfile(player).getKit().destroy();
-            System.out.println("destroyed kit for " + player.getName());
 
             UUID uuid = player.getUniqueId();
             InGameProfile profile = gameManager.getProfile(player);

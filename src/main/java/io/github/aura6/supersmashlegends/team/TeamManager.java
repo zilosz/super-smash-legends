@@ -53,7 +53,7 @@ public class TeamManager {
     }
 
     public List<Team> getTeamList() {
-        return Collections.unmodifiableList(teamList);
+        return Collections.unmodifiableList(this.teamList);
     }
 
     public Team getPlayerTeam(Player player) {
@@ -82,10 +82,10 @@ public class TeamManager {
 
             if (team.hasPlayer(player) || team.canJoin(player)) {
                 this.teamsByEntity.put(player.getUniqueId(), team);
+                assigned = true;
 
                 if (team.canJoin(player)) {
                     team.addPlayer(player);
-                    assigned = true;
                 }
 
                 break;

@@ -253,8 +253,8 @@ public class LobbyState extends GameState {
             DecimalFormat format = new DecimalFormat("#.#");
 
             Replacers replacers = new Replacers()
-                    .add("RESULT", profile.getGameResult().getHologramString())
                     .add("KIT", profile.getKit().getBoldedDisplayName())
+                    .add("RESULT", profile.getGameResult().getHologramString())
                     .add("KILLS", profile.getKills())
                     .add("DEATHS", profile.getDeaths())
                     .add("DAMAGE_TAKEN", format.format(profile.getDamageTaken()))
@@ -292,6 +292,8 @@ public class LobbyState extends GameState {
         createLeaderboard("Kill", "kills", "Kills");
 
         gameManager.reset();
+
+        this.isCounting = false;
         this.tryCountdownStart();
     }
 
@@ -378,7 +380,7 @@ public class LobbyState extends GameState {
         this.plugin.getArenaManager().wipePlayer(player);
         this.plugin.getTeamManager().wipePlayer(player);
 
-        stopCountdownTask(true);
+        this.stopCountdownTask(true);
     }
 
     @EventHandler

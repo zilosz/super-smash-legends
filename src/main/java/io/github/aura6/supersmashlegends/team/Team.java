@@ -87,6 +87,6 @@ public class Team {
     }
 
     public boolean canJoin(Player player) {
-        return !hasPlayer(player) && this.players.size() < this.plugin.getTeamManager().getTeamSize();
+        return !this.hasPlayer(player) && this.getSize() < this.plugin.getTeamManager().getTeamSize();
     }
 }
