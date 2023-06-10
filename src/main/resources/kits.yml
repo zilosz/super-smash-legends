@@ -1468,7 +1468,7 @@ Mermaid:
       MinKb: 0.7
       MaxKb: 2
       KbY: 0.6
-      MaxTicks: 30
+      MaxTicks: 25
       MinInvisibilityTicks: 0
       MaxInvisibilityTicks: 40
       HitBox: 2.5
@@ -1477,5 +1477,3 @@ Mermaid:
         Speed: 0.65
         CountPerTick: 2
         Spread: 15
-    1:
-      
