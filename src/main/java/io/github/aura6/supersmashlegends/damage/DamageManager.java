@@ -28,7 +28,7 @@ public class DamageManager {
     private final Map<LivingEntity, BukkitTask> damageSourceRemovers = new HashMap<>();
 
     private final Map<LivingEntity, Set<Attribute>> immunities = new HashMap<>();
-    private final Map<Attribute, BukkitTask> immunityRemovers = new HashMap<>();
+    private final Map<LivingEntity, Map<Attribute, BukkitTask>> immunityRemovers = new HashMap<>();
 
     public DamageManager(SuperSmashLegends plugin) {
         this.plugin = plugin;
@@ -65,8 +65,10 @@ public class DamageManager {
         Optional.ofNullable(this.damageSourceRemovers.get(entity)).ifPresent(BukkitTask::cancel);
     }
 
-    private void destroyImmunityRemover(Attribute attribute) {
-        Optional.ofNullable(this.immunityRemovers.remove(attribute)).ifPresent(BukkitTask::cancel);
+    private void destroyImmunityRemover(LivingEntity entity, Attribute attribute) {
+        Optional.ofNullable(this.immunityRemovers.get(entity))
+                .flatMap(removersByAttribute -> Optional.ofNullable(removersByAttribute.remove(attribute)))
+                .ifPresent(BukkitTask::cancel);
     }
 
     public void removeDamageSource(LivingEntity entity) {
@@ -86,10 +88,9 @@ public class DamageManager {
 
         this.cancelDamageSourceRemover(victim);
         int damageLifetime = this.plugin.getResources().getConfig().getInt("Damage.Lifetime");
-        this.damageSourceRemovers.put(victim, Bukkit.getScheduler().runTaskLater(this.plugin, () -> removeDamageSource(victim), damageLifetime));
 
-        this.immunities.putIfAbsent(victim, new HashSet<>());
-        this.immunities.get(victim).add(attribute);
+        this.damageSourceRemovers.put(victim, Bukkit.getScheduler()
+                .runTaskLater(this.plugin, () -> removeDamageSource(victim), damageLifetime));
 
         if (victim instanceof Player) {
             Player player = (Player) victim;
@@ -126,18 +127,24 @@ public class DamageManager {
         InGameProfile damagerProfile = this.plugin.getGameManager().getProfile(attribute.getPlayer());
         damagerProfile.setDamageDealt(damagerProfile.getDamageDealt() + damage.getDamage());
 
-        this.immunityRemovers.put(attribute, Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+        this.immunityRemovers.putIfAbsent(victim, new HashMap<>());
+        this.destroyImmunityRemover(victim, attribute);
+
+        this.immunities.putIfAbsent(victim, new HashSet<>());
+        this.immunities.get(victim).add(attribute);
+
+        this.immunityRemovers.get(victim).put(attribute, Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+            this.destroyImmunityRemover(victim, attribute);
             this.immunities.get(victim).remove(attribute);
-            this.destroyImmunityRemover(attribute);
         }, damage.getImmunityTicks()));
 
         return true;
     }
 
     public void clearImmunities(LivingEntity entity) {
-        Optional.ofNullable(this.immunities.get(entity)).ifPresent(immunities -> {
-            immunities.forEach(this::destroyImmunityRemover);
-            immunities.clear();
-        });
+        if (this.immunities.containsKey(entity)) {
+            this.immunities.get(entity).forEach(attribute -> this.destroyImmunityRemover(entity, attribute));
+            this.immunities.get(entity).clear();
+        }
     }
 }

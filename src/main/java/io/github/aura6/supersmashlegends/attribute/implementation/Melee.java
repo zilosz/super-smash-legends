@@ -7,7 +7,6 @@ import io.github.aura6.supersmashlegends.attribute.Nameable;
 import io.github.aura6.supersmashlegends.damage.Damage;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.team.TeamPreference;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
@@ -33,7 +32,6 @@ public class Melee extends Attribute implements Nameable {
         LivingEntity entity = (LivingEntity) event.getEntity();
 
         if (TeamPreference.ENEMY.validate(this.plugin.getTeamManager().getPlayerTeam(this.player), entity)) {
-            Bukkit.broadcastMessage("enemy");
             Section config = this.plugin.getResources().getConfig().getSection("Damage.Melee");
 
             Location loc = this.player.getEyeLocation();
@@ -41,9 +39,6 @@ public class Melee extends Attribute implements Nameable {
 
             Damage damage = Damage.Builder.fromConfig(config, loc.getDirection()).setDamage(this.kit.getDamage()).build();
             this.plugin.getDamageManager().attemptAttributeDamage(entity, damage, this);
-
-        } else {
-            Bukkit.broadcastMessage("not enemy");
         }
     }
 }

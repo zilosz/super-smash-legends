@@ -1,6 +1,7 @@
 package io.github.aura6.supersmashlegends.damage;
 
 import dev.dejvokep.boostedyaml.block.implementation.Section;
+import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.util.Vector;
@@ -90,12 +91,14 @@ public class Damage {
         }
 
         public static Builder fromConfig(Section defaults, Vector direction) {
+            int defaultImmunity = SuperSmashLegends.getInstance().getResources().getConfig().getInt("Damage.DefaultImmunityTicks");
+
             return new Builder()
                     .setDamage(defaults.getDouble("Damage"))
                     .setKb(defaults.getDouble("Kb"))
                     .setKbY(defaults.getDouble("KbY"))
                     .setFactorsArmor(defaults.getOptionalBoolean("FactorsArmor").orElse(true))
-                    .setImmunityTicks(defaults.getOptionalInt("ImmunityTicks").orElse(10))
+                    .setImmunityTicks(defaults.getOptionalInt("ImmunityTicks").orElse(defaultImmunity))
                     .setFactorsHealth(defaults.getOptionalBoolean("FactorsHealth").orElse(true))
                     .setFactorsKb(defaults.getOptionalBoolean("FactorsKb").orElse(true))
                     .setLinearKb(defaults.getOptionalBoolean("LinearKb").orElse(false))
