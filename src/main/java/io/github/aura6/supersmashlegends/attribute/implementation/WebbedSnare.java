@@ -82,15 +82,22 @@ public class WebbedSnare extends RightClickAbility {
         public void onTick() {
 
             if (this.entity.getLocation().getBlock().getType() == Material.WEB) {
-                this.remove(ProjectileRemoveReason.CUSTOM);
+                this.remove(ProjectileRemoveReason.HIT_BLOCK);
 
             } else if (this.ticksAlive % 2 == 0) {
                 new ParticleBuilder(EnumParticle.SNOWBALL).show(this.entity.getLocation());
             }
         }
 
-        private void turnIntoWeb() {
-            this.webBlock = this.entity.getLocation().getBlock();
+        private void turnIntoWeb(LivingEntity target) {
+
+            if (target == null) {
+                this.webBlock = this.entity.getLocation().getBlock();
+
+            } else {
+                this.webBlock = target.getLocation().getBlock();
+            }
+
             this.webBlock.setType(Material.WEB);
             int duration = this.config.getInt("WebDuration");
 
@@ -103,13 +110,13 @@ public class WebbedSnare extends RightClickAbility {
 
         @Override
         public void onTargetHit(LivingEntity target) {
-            this.turnIntoWeb();
+            this.turnIntoWeb(target);
             target.setVelocity(new Vector(0, 0, 0));
         }
 
         @Override
         public void onBlockHit(BlockHitResult result) {
-            this.turnIntoWeb();
+            this.turnIntoWeb(null);
         }
     }
 }
