@@ -34,7 +34,7 @@ Collision:
 Game:
   Lives: 4
   TeamSize: 1
-  MinPlayersToStart: 1
+  MinPlayersToStart: 4
   Tutorial:
     DurationTicks: 200
     DelayTicks: 55
