@@ -173,9 +173,7 @@ public class LobbyState extends GameState {
         if (!this.isCounting) return;
 
         this.isCounting = false;
-
         this.countdownTask.cancel();
-        this.countdownTask = null;
 
         if (abrupt) {
             Chat.GAME.broadcast("&7Not enough players to start.");
@@ -202,7 +200,6 @@ public class LobbyState extends GameState {
 
                 if (secUntilStart == 0) {
                     plugin.getGameManager().advanceState();
-                    stopCountdownTask(false);
                     return;
                 }
 
@@ -298,7 +295,7 @@ public class LobbyState extends GameState {
     }
 
     private Location getSpawn() {
-        return YamlReader.location("lobby", plugin.getResources().getLobby().getString("Spawn"));
+        return YamlReader.location("lobby", this.plugin.getResources().getLobby().getString("Spawn"));
     }
 
     private void initializePlayer(Player player) {
@@ -330,7 +327,7 @@ public class LobbyState extends GameState {
         this.holograms.forEach(Hologram::delete);
         this.holograms.clear();
 
-        stopCountdownTask(false);
+        this.stopCountdownTask(false);
 
         Chat.GAME.broadcast("&7The game is starting...");
         this.plugin.getGameManager().startTicks();
@@ -361,7 +358,7 @@ public class LobbyState extends GameState {
     @EventHandler
     public void onLobbyJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        initializePlayer(player);
+        this.initializePlayer(player);
 
         KitManager kitManager = this.plugin.getKitManager();
         kitManager.createHolograms(player);
