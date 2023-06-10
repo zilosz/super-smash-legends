@@ -136,7 +136,10 @@ public class SquidDash extends RightClickAbility {
         if (event.getVictim() != this.player) return;
 
         if (event.getAttribute() instanceof Melee) {
-            event.setCancelled(true);
+
+            if (this.ticksDashing > -1) {
+                event.setCancelled(true);
+            }
 
         } else {
             this.reset();
