@@ -142,9 +142,8 @@ public class SquidDash extends RightClickAbility {
 
             Section particleConfig = this.config.getSection("Particle");
 
-            Vector particleDirection = this.velocity.clone().normalize();
-            Location particleLoc = EntityUtils.center(this.player).subtract(particleDirection);
-            particleLoc.setDirection(particleDirection);
+            Location particleLoc = EntityUtils.center(this.player);
+            particleLoc.setDirection(this.velocity.clone().normalize());
 
             double spread = particleConfig.getDouble("Spread");
             double speed = particleConfig.getDouble("Speed");
