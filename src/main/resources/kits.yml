@@ -1453,12 +1453,12 @@ Mermaid:
       Item:
         Material: DIAMOND_SPADE
       Description:
-        - "&7Summon a squid from the water's depths"
-        - "&7that you can ride. You travel in a flat,"
-        - "&7straight path. Clicking a second time"
-        - "&7dismounts you from the squid, also"
-        - "&7generating an inky explosion that hurts"
-        - "&7enemies and grants temporary invisibility."
+        - "&7Shape-shift into a squid from the water's"
+        - "&7depths. You travel in a flat, straight"
+        - "&7path. Clicking a second time reverts you"
+        - "&7back into mermaid form and generates an"
+        - "&7inky explosion that hurts enemies and"
+        - "&7temporarily shrouds you with ink."
       Cooldown: 140
       AutoStartCooldown: false
       AutoSendUseMessage: false
@@ -1471,6 +1471,9 @@ Mermaid:
       MaxTicks: 30
       MinInvisibilityTicks: 0
       MaxInvisibilityTicks: 40
-      HitBox: 2.5
-      ParticleDuration: 20
-      TicksPerParticle: 2
+      HitBox: 3
+      Particle:
+        Duration: 10
+        Speed: 0.45
+        CountPerTick: 3
+        Spread: 20

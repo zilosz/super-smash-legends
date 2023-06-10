@@ -5,8 +5,8 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.damage.Damage;
 import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
-import io.github.aura6.supersmashlegends.event.DamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
+import io.github.aura6.supersmashlegends.utils.DisguiseUtils;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
@@ -14,24 +14,36 @@ import io.github.aura6.supersmashlegends.utils.entity.finder.selector.EntitySele
 import io.github.aura6.supersmashlegends.utils.entity.finder.selector.HitBoxSelector;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
+import me.libraryaddict.disguise.DisguiseAPI;
+import me.libraryaddict.disguise.disguisetypes.Disguise;
+import me.libraryaddict.disguise.disguisetypes.DisguiseType;
+import me.libraryaddict.disguise.disguisetypes.MobDisguise;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Squid;
+import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.vehicle.VehicleExitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class SquidDash extends RightClickAbility {
-    private Squid squid;
     private Vector velocity;
+
     private BukkitTask dashTask;
+    private int ticksDashing = -1;
+
     private BukkitTask invisibilityTask;
     private boolean invisible = false;
-    private int ticksDashing = -1;
+
+    private final Set<Item> particles = new HashSet<>();
 
     public SquidDash(SuperSmashLegends plugin, Section config, Kit kit) {
         super(plugin, config, kit);
@@ -45,9 +57,9 @@ public class SquidDash extends RightClickAbility {
         if (this.ticksDashing == -1) return;
 
         this.ticksDashing = -1;
-
-        this.squid.remove();
         this.dashTask.cancel();
+
+        DisguiseAPI.undisguiseToAll(this.player);
     }
 
     private void unHidePlayer() {
@@ -59,12 +71,16 @@ public class SquidDash extends RightClickAbility {
     }
 
     private void reset() {
-        this.resetDash();
 
         if (this.invisible) {
             this.unHidePlayer();
             this.invisibilityTask.cancel();
         }
+
+        this.resetDash();
+
+        this.particles.forEach(Item::remove);
+        this.particles.clear();
     }
 
     @Override
@@ -74,7 +90,10 @@ public class SquidDash extends RightClickAbility {
     }
 
     private void stopDash() {
-        new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(EntityUtils.center(player), 1.5, 7, 0.5);
+        Location center = EntityUtils.center(this.player);
+        new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(center, 1.5, 7, 0.5);
+        new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).setSpread(0.6f, 0.6f, 0.6f).show(center);
+
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SPLASH, 2, 0.5f);
         this.player.getWorld().playSound(this.player.getLocation(), Sound.EXPLODE, 1, 1);
 
@@ -82,9 +101,8 @@ public class SquidDash extends RightClickAbility {
         double kb = YamlReader.incLin(this.config, "Kb", this.ticksDashing, this.getMaxDashTicks());
 
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
-        EntityFinder finder = new EntityFinder(this.plugin, selector).avoid(this.squid);
 
-        finder.findAll(this.player).forEach(target -> {
+        new EntityFinder(this.plugin, selector).findAll(this.player).forEach(target -> {
             Vector direction = VectorUtils.fromTo(this.player, target);
             Damage damageObj = Damage.Builder.fromConfig(this.config, direction).setDamage(damage).setKb(kb).build();
             this.plugin.getDamageManager().attemptAttributeDamage(target, damageObj, this);
@@ -96,7 +114,7 @@ public class SquidDash extends RightClickAbility {
         this.invisibilityTask = Bukkit.getScheduler().runTaskLater(this.plugin, this::unHidePlayer, ticks);
 
         this.resetDash();
-        Bukkit.getScheduler().runTaskLater(this.plugin, () -> this.player.setVelocity(this.velocity), 2);
+        this.player.setVelocity(this.velocity);
 
         this.startCooldown();
     }
@@ -107,8 +125,8 @@ public class SquidDash extends RightClickAbility {
         Vector direction =  this.player.getLocation().getDirection().setY(0);
         this.velocity = direction.multiply(this.config.getDouble("Velocity"));
 
-        this.squid = this.player.getWorld().spawn(this.player.getLocation().setDirection(direction), Squid.class);
-        this.squid.setPassenger(this.player);
+        Disguise disguise = DisguiseUtils.applyDisguiseParams(this.player, new MobDisguise(DisguiseType.SQUID));
+        DisguiseAPI.disguiseToAll(this.player, disguise);
 
         this.dashTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
 
@@ -117,8 +135,28 @@ public class SquidDash extends RightClickAbility {
                 return;
             }
 
-            this.squid.setVelocity(this.velocity);
-            this.player.getWorld().playSound(this.player.getLocation(), Sound.SPLASH2, 1, 1);
+            Location loc = this.player.getLocation();
+
+            this.player.setVelocity(this.velocity);
+            this.player.getWorld().playSound(loc, Sound.SPLASH2, 1, 1);
+
+            Section particleConfig = this.config.getSection("Particle");
+
+            for (int i = 0; i < particleConfig.getInt("CountPerTick"); i++) {
+                Item particle = this.player.getWorld().dropItem(loc, new ItemStack(Material.INK_SACK));
+                particle.setPickupDelay(Integer.MAX_VALUE);
+
+                Vector particleDirection = this.velocity.clone().normalize();
+                loc.subtract(particleDirection.clone()).setDirection(particleDirection.multiply(-1));
+                double spread = particleConfig.getDouble("Spread");
+                double speed = particleConfig.getDouble("Speed");
+                particle.setVelocity(VectorUtils.getRandomVectorInDirection(loc, spread).multiply(speed));
+
+                int duration = particleConfig.getInt("Duration");
+                Bukkit.getScheduler().runTaskLater(this.plugin, particle::remove, duration);
+
+                this.particles.add(particle);
+            }
         }, 0, 0);
     }
 
@@ -140,7 +178,10 @@ public class SquidDash extends RightClickAbility {
         }
 
         if (event.getAttribute() instanceof Melee) {
-            event.setCancelled(this.ticksDashing > -1);
+
+            if (this.ticksDashing > -1) {
+                event.setCancelled(true);
+            }
 
         } else {
             this.reset();
@@ -148,22 +189,12 @@ public class SquidDash extends RightClickAbility {
     }
 
     @EventHandler
-    public void onSquidDamage(DamageEvent event) {
-        if (event.getVictim() == this.squid) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler
     public void onRegDamage(EntityDamageEvent event) {
-        if (event.getEntity() == this.squid || event.getEntity() == this.player && this.ticksDashing > -1 && event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
-            event.setCancelled(true);
-        }
-    }
+        boolean isPlayer = event.getEntity() == this.player;
+        boolean isDashing = this.ticksDashing > -1;
+        boolean isMelee = event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK;
 
-    @EventHandler
-    public void onDismount(VehicleExitEvent event) {
-        if (event.getExited() == this.squid) {
+        if (isPlayer && isDashing && isMelee) {
             event.setCancelled(true);
         }
     }
