@@ -1462,13 +1462,13 @@ Mermaid:
       Cooldown: 140
       AutoStartCooldown: false
       AutoSendUseMessage: false
-      Velocity: 1.3
+      Velocity: 1.35
       MinDamage: 1.5
       MaxDamage: 7
       MinKb: 0.7
       MaxKb: 2
       KbY: 0.6
-      MaxTicks: 25
+      MaxTicks: 28
       MinInvisibilityTicks: 0
       MaxInvisibilityTicks: 40
       HitBox: 2.5

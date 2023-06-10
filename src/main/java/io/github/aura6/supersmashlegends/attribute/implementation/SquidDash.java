@@ -122,7 +122,7 @@ public class SquidDash extends RightClickAbility {
     private void startDash() {
         this.sendUseMessage();
 
-        Vector direction =  this.player.getLocation().getDirection().setY(0);
+        Vector direction =  this.player.getLocation().getDirection().setY(0).normalize();
         this.velocity = direction.multiply(this.config.getDouble("Velocity"));
 
         Disguise disguise = DisguiseUtils.applyDisguiseParams(this.player, new MobDisguise(DisguiseType.SQUID));
