@@ -34,7 +34,7 @@ Barbarian:
         - "&7weapon-wielding powers."
       Cooldown: 60
       Projectile:
-        Speed: 1.85
+        Speed: 1.7
         Damage: 5
         Kb: 1.4
         Item:
@@ -138,8 +138,8 @@ Globby:
         - "&7with its slimy nature, allows it to"
         - "&7bounce off obstacles."
       EnergyCost: 0.32
-      Speed: 1.2
-      Damage: 3.5
+      Speed: 1.3
+      Damage: 4
       Kb: 1.1
       KbY: 0.6
       HasGravity: false
@@ -422,7 +422,7 @@ Drakula:
         - "&7behind the nearest enemy, surprising"
         - "&7and blinding them."
       Cooldown: 130
-      Range: 15
+      Range: 11
       BlindnessDuration: 45
     2:
       ConfigName: BatWave
@@ -703,7 +703,7 @@ Tank:
       MinDamage: 4
       MaxDamage: 14
       MinSpeed: 0.65
-      MaxSpeed: 1.42
+      MaxSpeed: 1.5
       MinKb: 1.5
       MaxKb: 3.2
       MinSize: 1
@@ -721,12 +721,12 @@ Tank:
         - "&7with small fissures."
       Cooldown: 160
       AutoStartCooldown: false
-      HorizontalRange: 8
+      HorizontalRange: 6
       VerticalRange: 4
       Kb: 1.55
       KbY: 1.35
       Damage: 5
-      Duration: 85
+      Duration: 100
       UprootInterval: 3
       UprootDuration: 5
     2:
@@ -741,7 +741,7 @@ Tank:
         - "&7to close heavy distances. Sneak to cancel."
       Cooldown: 130
       AutoStartCooldown: false
-      ChainSpeed: 1.1
+      ChainSpeed: 1.25
       ChainTicks: 40
       PullSpeed: 1.1
       Damage: 5.5
@@ -794,7 +794,7 @@ Miner:
         Speed: 1
         BurnChance: 0.3
         BurnDuration: 50
-        FragmentCount: 14
+        FragmentCount: 18
         MinPitch: -10
         MaxPitch: -35
         Damage: 4.75
@@ -910,7 +910,7 @@ Moreo:
         - "&7the old days to jump downward. Colliding"
         - "&7with an enemy gives upward recoil and an"
         - "&7extra double jump. Can be chained."
-      Cooldown: 140
+      Cooldown: 120
       AutoStartCooldown: false
       MaxFall: 30
       DownwardVelocity: 1.8
@@ -933,7 +933,7 @@ Moreo:
         - "&7display of masculine dominance. Throw"
         - "&7it at your enemies in boomerang-fashion."
         - "&7Click again to mount and dismount."
-      Cooldown: 160
+      Cooldown: 140
       AutoStartCooldown: false
       AutoSendUseMessage: false
       Speed: 1.15
@@ -943,6 +943,7 @@ Moreo:
       HasGravity: false
       Damage: 6
       Kb: 1.4
+      HitBox: 1
       ExtraLifespan: 5
       HatItem:
         Material: IRON_PICKAXE
@@ -971,7 +972,7 @@ Moreo:
           MaxKb: 3
           KbY: 1
           Range: 8
-          DisableTicks: 15
+          DisableTicks: 10
           Delay: 140
 MasterBlade:
   ConfigName: MasterBlade
@@ -1114,7 +1115,7 @@ Pikachew:
       Cooldown: 160
       AutoStartCooldown: false
       MinVelocity: 0.1
-      MaxVelocity: 1.7
+      MaxVelocity: 1.6
       MaxVelocityY: 0.25
       DurationTicks: 50
       MinDamage: 1
@@ -1122,7 +1123,7 @@ Pikachew:
       MinKb: 0.8
       MaxKb: 2.6
       KbY: 0.8
-      HitBox: 1.75
+      HitBox: 1.8
       ParticlesPerTick: 6
       ParticleDuration: 5
       ParticleSpeed: 0.4
@@ -1190,8 +1191,8 @@ Skellington:
       Radius: 6
       MinDamage: 2
       MaxDamage: 7
-      MinKb: 0.9
-      MaxKb: 2.1
+      MinKb: 0.7
+      MaxKb: 1.7
       KbY: 0.8
     1:
       ConfigName: RopedArrow
@@ -1220,7 +1221,7 @@ Skellington:
         - "&7powerful, ranged weapons."
       AmountAtOnce: 1
       MaxAmount: 3
-      TicksPerItem: 90
+      TicksPerItem: 100
     3:
       ConfigName: Barrage
       Name: "Barrage"
@@ -1233,7 +1234,7 @@ Skellington:
       StageTicks: 7
       MaxArrowCount: 6
       TicksBetweenShot: 1
-      MaxSpeed: 2.15
+      MaxSpeed: 2.05
       Projectile:
         HitBox: 0.5
         Spread: 5.5
@@ -1377,7 +1378,7 @@ Webman:
         - "&7enemies that they hit."
       Cooldown: 70
       Projectile:
-        Speed: 2.4
+        Speed: 2.3
         PullSpeed: 2
         Damage: 5
         Kb: 1.5
@@ -1427,11 +1428,10 @@ Webman:
       Speed: 1
 Mermaid:
   ConfigName: Mermaid
-  Name: "Mermaid (UNFINISHED)"
+  Name: "Mermaid (INCOMPLETE)"
   Color: "&3"
   Item:
-    Material: RAW_FISH
-    Data: 3
+    Material: RAW_FIS
   Description:
     - "&7Description"
   Skin: "thesaferoom"
@@ -1470,7 +1470,7 @@ Mermaid:
       KbY: 0.6
       MaxTicks: 28
       MinInvisibilityTicks: 0
-      MaxInvisibilityTicks: 40
+      MaxInvisibilityTicks: 50
       HitBox: 2.5
       Particle:
         Duration: 10

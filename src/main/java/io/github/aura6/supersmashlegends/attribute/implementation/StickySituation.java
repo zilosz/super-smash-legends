@@ -49,6 +49,7 @@ public class StickySituation extends PassiveAbility {
 
         player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, config.getInt("Speed")));
         player.getWorld().playSound(player.getLocation(), Sound.ZOMBIE_PIG_ANGRY, 1, 1);
+
         Effects.launchFirework(player.getEyeLocation(), Color.fromRGB(0, 255, 0), 1);
     }
 
