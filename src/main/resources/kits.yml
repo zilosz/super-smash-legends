@@ -174,7 +174,7 @@ Globby:
       AutoStartCooldown: false
       Velocity: 2
       SlimeSize: 2
-      HitBox: 2.1
+      HitBox: 1.5
       Damage: 6
       Kb: 2.1
       KbY: 0.85
@@ -1122,7 +1122,7 @@ Pikachew:
       MinKb: 0.8
       MaxKb: 2.6
       KbY: 0.8
-      HitBox: 1.5
+      HitBox: 1.75
       ParticlesPerTick: 6
       ParticleDuration: 5
       ParticleSpeed: 0.4
