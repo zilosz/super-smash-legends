@@ -12,6 +12,7 @@ public abstract class ChargedRightClickAbility extends RightClickAbility {
     protected int maxChargeTicks;
     protected boolean endChargeInstantly;
     protected int ticksCharging = 0;
+    protected boolean startCooldownAfterCharge;
 
     public ChargedRightClickAbility(SuperSmashLegends plugin, Section config, Kit kit) {
         super(plugin, config, kit);
@@ -23,6 +24,7 @@ public abstract class ChargedRightClickAbility extends RightClickAbility {
         minChargeTicks = config.getInt("MinChargeTicks");
         maxChargeTicks = config.getOptionalInt("MaxChargeTicks").orElse(Integer.MAX_VALUE);
         endChargeInstantly = config.getOptionalBoolean("EndChargeInstantly").orElse(true);
+        this.startCooldownAfterCharge = config.getOptionalBoolean("StartCooldownAfterCharge").orElse(true);
     }
 
     @Override
@@ -71,7 +73,9 @@ public abstract class ChargedRightClickAbility extends RightClickAbility {
             player.setExp(0);
         }
 
-        startCooldown();
+        if (this.startCooldownAfterCharge) {
+            this.startCooldown();
+        }
     }
 
     @Override
