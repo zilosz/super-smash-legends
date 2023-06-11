@@ -22,7 +22,7 @@ public abstract class LivingProjectile<T extends LivingEntity> extends EmulatedP
     }
 
     @Override
-    public void onRemove() {
+    public void onRemove(ProjectileRemoveReason reason) {
         plugin.getTeamManager().getPlayerTeam(this.launcher).removeEntity(this.entity);
     }
 

@@ -62,7 +62,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         this.config = config;
 
         launcher = ability.getPlayer();
-        damage = Damage.Builder.fromConfig(config, null).setKbY(0.5).build();
+        damage = Damage.Builder.fromConfig(config, null).build();
 
         spread = config.getFloat("Spread");
         lifespan = config.getOptionalInt("Lifespan").orElse(Integer.MAX_VALUE);
@@ -127,7 +127,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         onLaunch();
     }
 
-    public void onRemove() {}
+    public void onRemove(ProjectileRemoveReason reason) {}
 
     public void remove(ProjectileRemoveReason reason) {
         ProjectileRemoveEvent event = new ProjectileRemoveEvent(this, reason);
@@ -137,7 +137,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
             HandlerList.unregisterAll(this);
             this.entity.remove();
             this.cancel();
-            this.onRemove();
+            this.onRemove(reason);
         }
     }
 

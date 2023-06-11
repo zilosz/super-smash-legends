@@ -119,6 +119,11 @@ public class DamageManager {
             Vector kb = new Vector(damage.getKb(), 1, damage.getKb());
             Vector velocity = direction.clone().setY(0).normalize().multiply(kb);
             velocity.setY(damage.isLinearKb() ? direction.getY() : damage.getKbY());
+
+            if (damage.isKbFactorsPreviousVelocity()) {
+                velocity = victim.getVelocity().add(velocity);
+            }
+
             victim.setVelocity(velocity);
         });
 

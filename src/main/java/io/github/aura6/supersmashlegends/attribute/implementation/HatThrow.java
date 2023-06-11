@@ -7,6 +7,7 @@ import io.github.aura6.supersmashlegends.attribute.ClickableAbility;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.EmulatedProjectile;
+import io.github.aura6.supersmashlegends.projectile.ProjectileRemoveReason;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import org.bukkit.Location;
@@ -92,7 +93,7 @@ public class HatThrow extends RightClickAbility {
         }
 
         @Override
-        public void onRemove() {
+        public void onRemove(ProjectileRemoveReason reason) {
             this.state = HatThrowState.INACTIVE;
 
             if (this.ability.isEnabled()) {

@@ -137,8 +137,8 @@ public class BatWave extends RightClickAbility {
         }
 
         @Override
-        public void onRemove() {
-            super.onRemove();
+        public void onRemove(ProjectileRemoveReason reason) {
+            super.onRemove(reason);
             this.unleash();
             this.bat.remove();
         }

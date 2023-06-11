@@ -114,7 +114,7 @@ public class WebGrapple extends RightClickAbility {
         }
 
         @Override
-        public void onRemove() {
+        public void onRemove(ProjectileRemoveReason reason) {
             this.bat.remove();
         }
 

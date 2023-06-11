@@ -17,6 +17,7 @@ public class Damage {
     private boolean factorsHealth;
     private boolean factorsKb;
     private boolean linearKb;
+    private boolean kbFactorsPreviousVelocity;
 
     private Damage(Builder builder) {
         this.damage = builder.damage;
@@ -28,6 +29,7 @@ public class Damage {
         this.factorsHealth = builder.factorsHealth;
         this.factorsKb = builder.factorsKb;
         this.linearKb = builder.linearKb;
+        this.kbFactorsPreviousVelocity = builder.kbFactorsPreviousVelocity;
     }
 
     public static class Builder {
@@ -40,6 +42,7 @@ public class Damage {
         private boolean factorsHealth;
         private boolean factorsKb;
         private boolean linearKb;
+        private boolean kbFactorsPreviousVelocity;
 
         public Builder setDamage(double damage) {
             this.damage = damage;
@@ -86,6 +89,11 @@ public class Damage {
             return this;
         }
 
+        public Builder setKbFactorsPreviousVelocity(boolean kbFactorsPreviousVelocity) {
+            this.kbFactorsPreviousVelocity = kbFactorsPreviousVelocity;
+            return this;
+        }
+
         public Damage build() {
             return new Damage(this);
         }
@@ -102,6 +110,7 @@ public class Damage {
                     .setFactorsHealth(defaults.getOptionalBoolean("FactorsHealth").orElse(true))
                     .setFactorsKb(defaults.getOptionalBoolean("FactorsKb").orElse(true))
                     .setLinearKb(defaults.getOptionalBoolean("LinearKb").orElse(false))
+                    .setKbFactorsPreviousVelocity(defaults.getOptionalBoolean("KbFactorsPreviousVelocity").orElse(false))
                     .setDirection(direction);
         }
 

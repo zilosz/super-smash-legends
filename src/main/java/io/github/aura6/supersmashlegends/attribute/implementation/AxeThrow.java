@@ -6,6 +6,7 @@ import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
+import io.github.aura6.supersmashlegends.projectile.ProjectileRemoveReason;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -34,7 +35,7 @@ public class AxeThrow extends RightClickAbility {
         }
 
         @Override
-        public void onRemove() {
+        public void onRemove(ProjectileRemoveReason reason) {
             if (this.ability.isEnabled()) {
                 this.ability.getHotbarItem().show();
             }
