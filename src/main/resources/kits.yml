@@ -1464,7 +1464,7 @@ Mermaid:
       AutoSendUseMessage: false
       Velocity: 1.35
       MinDamage: 1.5
-      MaxDamage: 7
+      MaxDamage: 8
       MinKb: 0.7
       MaxKb: 2
       KbY: 0.6

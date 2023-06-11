@@ -26,10 +26,10 @@ public enum Chat {
     }
 
     public void send(Player player, String message) {
-        player.sendMessage(get(message));
+        player.sendMessage(this.get(message));
     }
 
     public void broadcast(String message) {
-        Bukkit.getOnlinePlayers().forEach(player -> send(player, message));
+        Bukkit.getOnlinePlayers().forEach(player -> this.send(player, message));
     }
 }

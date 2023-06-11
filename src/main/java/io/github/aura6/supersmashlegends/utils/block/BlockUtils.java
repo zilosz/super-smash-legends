@@ -1,5 +1,6 @@
 package io.github.aura6.supersmashlegends.utils.block;
 
+import io.github.aura6.supersmashlegends.utils.NmsUtils;
 import io.github.aura6.supersmashlegends.utils.math.MathUtils;
 import net.minecraft.server.v1_8_R3.AxisAlignedBB;
 import net.minecraft.server.v1_8_R3.BlockPosition;
@@ -7,11 +8,9 @@ import net.minecraft.server.v1_8_R3.Chunk;
 import net.minecraft.server.v1_8_R3.IBlockData;
 import net.minecraft.server.v1_8_R3.World;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
@@ -44,12 +43,12 @@ public class BlockUtils {
     }
 
     public static BlockHitResult findBlockHitByEntityBox(Entity entity, Location location, double accuracy) {
-        AxisAlignedBB box = ((CraftEntity) entity).getHandle().getBoundingBox();
+        AxisAlignedBB box = NmsUtils.getEntity(entity).getBoundingBox();
         return findBlockHitByBox(location, box.d - box.a, box.e - box.b, box.f - box.c, accuracy);
     }
 
     public static BlockHitResult findBlockHitByEntityBox(Entity entity, double accuracy) {
-        AxisAlignedBB box = ((CraftEntity) entity).getHandle().getBoundingBox();
+        AxisAlignedBB box = NmsUtils.getEntity(entity).getBoundingBox();
 
         if (entity.isOnGround()) {
             return new BlockHitResult(BlockFace.UP, entity.getLocation().subtract(0, 1, 0).getBlock());
@@ -94,14 +93,6 @@ public class BlockUtils {
         IBlockData ibd = net.minecraft.server.v1_8_R3.Block.getByCombinedId(blockId + (data << 12));
         nmsChunk.a(new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), ibd);
         loc.getWorld().refreshChunk(nmsChunk.bukkitChunk.getX(), nmsChunk.bukkitChunk.getZ());
-    }
-
-    public static void setBlockFast(Location loc, Material material, byte data) {
-        setBlockFast(loc, material.getId(), data);
-    }
-
-    public static void setBlockFast(Location loc, Material material) {
-        setBlockFast(loc, material.getId(), (byte) 2);
     }
 
     public static boolean isLocationInsideBox(Location location, AxisAlignedBB box) {

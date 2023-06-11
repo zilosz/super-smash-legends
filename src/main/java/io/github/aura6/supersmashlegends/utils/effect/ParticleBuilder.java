@@ -90,6 +90,7 @@ public class ParticleBuilder {
     }
 
     public void boom(Plugin plugin, Location center, double radius, double radiusStep, int streaks) {
+
         for (int i = 0; i < streaks; i++) {
             Vector step = VectorUtils.randVector(face).multiply(radiusStep);
             Location curr = center.clone();
@@ -100,14 +101,14 @@ public class ParticleBuilder {
                 @Override
                 public void run() {
 
-                    if (stepped > radius) {
-                        cancel();
+                    if (this.stepped > radius) {
+                        this.cancel();
                         return;
                     }
 
                     show(curr);
                     curr.add(step);
-                    stepped += radiusStep;
+                    this.stepped += radiusStep;
                 }
 
             }.runTaskTimer(plugin, 0, 0);
