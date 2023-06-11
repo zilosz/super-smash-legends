@@ -138,17 +138,21 @@ public class Kit {
 
     public void giveItems() {
         attributes.forEach(Attribute::equip);
+        System.out.println("gave items for " + this.player.getName());
     }
 
     public void activate() {
         attributes.forEach(Attribute::activate);
+        System.out.println("activated for " + this.player.getName());
     }
 
     public void deactivate() {
         attributes.forEach(Attribute::deactivate);
+        System.out.println("deactivated for " + this.player.getName());
     }
 
     public void destroy() {
         attributes.forEach(Attribute::destroy);
+        System.out.println("destroyed for " + this.player.getName());
     }
 }
