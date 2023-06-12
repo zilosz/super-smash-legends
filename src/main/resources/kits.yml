@@ -1230,7 +1230,7 @@ Skellington:
         - "&7powerful, ranged weapons."
       AmountAtOnce: 1
       MaxAmount: 3
-      TicksPerItem: 100
+      TicksPerItem: 80
     3:
       ConfigName: Barrage
       Name: "Barrage"
@@ -1326,7 +1326,7 @@ Shinoby:
         Material: IRON_HOE
       Description:
         - ""
-      EnergyCost: 0.5
+      EnergyCost: 0.8
       Recoil: 1.2
       Clone:
         Velocity: 1.4
@@ -1526,7 +1526,7 @@ Mermaid:
         - "&7move for a temporary period of time."
       Cooldown: 120
       Projectile:
-        Speed: 1.4
+        Speed: 1.6
         HitBox: 1
         VelocityMultiplier: 0.6
         Damage: 4.5

@@ -18,12 +18,12 @@ public abstract class LivingProjectile<T extends LivingEntity> extends EmulatedP
 
     @Override
     public void onLaunch() {
-        plugin.getTeamManager().getPlayerTeam(this.launcher).addEntity(this.entity);
+        this.plugin.getTeamManager().getPlayerTeam(this.launcher).addEntity(this.entity);
     }
 
     @Override
     public void onRemove(ProjectileRemoveReason reason) {
-        plugin.getTeamManager().getPlayerTeam(this.launcher).removeEntity(this.entity);
+        this.plugin.getTeamManager().getPlayerTeam(this.launcher).removeEntity(this.entity);
     }
 
     @EventHandler

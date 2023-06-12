@@ -246,7 +246,7 @@ public class InGameState extends GameState {
         for (Player player : Bukkit.getOnlinePlayers()) {
 
             if (this.plugin.getGameManager().isPlayerAlive(player)) {
-                Location spawn = Collections.max(spawnLocations, comparator);
+                Location spawn = Collections.max(spawnsLeft, comparator);
                 spawnsLeft.remove(spawn);
                 player.teleport(spawn);
 
