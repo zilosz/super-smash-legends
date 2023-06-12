@@ -58,12 +58,12 @@ public class Team {
         this.entities.add(entity);
     }
 
-    public boolean hasEntity(LivingEntity entity) {
-        return this.entities.contains(entity);
-    }
-
     public void removeEntity(LivingEntity entity) {
         this.entities.remove(entity);
+    }
+
+    public boolean hasAnyEntity(LivingEntity entity) {
+        return this.entities.contains(entity) || entity instanceof Player && this.hasPlayer((Player) entity);
     }
 
     public int getSize() {
