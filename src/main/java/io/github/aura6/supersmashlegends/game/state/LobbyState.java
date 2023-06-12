@@ -93,11 +93,11 @@ public class LobbyState extends GameState {
         List<String> lines = new ArrayList<>();
         lines.add("&5&l---------------------");
 
-        if (this.countdownTask == null) {
-            lines.add("&7Waiting for players...");
+        if (this.isCounting) {
+            lines.add(String.format("&7Starting in &e&l%d &7seconds.", this.secUntilStart));
 
         } else {
-            lines.add(String.format("&7Starting in &e&l%d &7seconds.", this.secUntilStart));
+            lines.add("&7Waiting for players...");
         }
 
         lines.addAll(Arrays.asList(
