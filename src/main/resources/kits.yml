@@ -1520,21 +1520,18 @@ Mermaid:
       Item:
         Material: IRON_BARDING
       Description:
-        - "&7Craft a bubble of water that flies"
-        - "&7forward. Enemies caught inside the bubble"
-        - "&7are soaked. They, suddenly heavier than"
-        - "&7before, are moderately slowed for a short"
-        - "&7period of time."
+        - "&7Send forth a fish that leaps onto the"
+        - "&7target, latching on like a piranha. The"
+        - "&7target, bitten by a fish, struggles to"
+        - "&7move for a temporary period of time."
       Cooldown: 120
       Projectile:
-        Speed: 1.2
-        HasGravity: false
-        HitBox: 1.5
-        VelocityMultiplier: 0.5
+        Speed: 1.4
+        HitBox: 1
+        VelocityMultiplier: 0.7
         Damage: 4.5
-        SoakDuration: 50
-        Kb: 0.65
+        SoakDuration: 40
+        Kb: 0.9
         KbY: 0.5
         Item:
-          Material: WOOL
-          Data: 11
+          Material: RAW_FISH

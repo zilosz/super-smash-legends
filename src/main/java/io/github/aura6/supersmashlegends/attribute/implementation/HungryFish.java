@@ -1,14 +1,10 @@
 package io.github.aura6.supersmashlegends.attribute.implementation;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.reflect.StructureModifier;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
+import io.github.aura6.supersmashlegends.event.DamageEvent;
 import io.github.aura6.supersmashlegends.event.JumpEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
@@ -21,9 +17,11 @@ import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerVelocityEvent;
 import org.bukkit.scheduler.BukkitTask;
 
 public class WaterBubble extends RightClickAbility {
@@ -41,7 +39,6 @@ public class WaterBubble extends RightClickAbility {
     private static class BubbleProjectile extends ItemProjectile {
         private LivingEntity soakedEntity;
         private BukkitTask soakTask;
-        private PacketAdapter packetAdapter;
 
         public BubbleProjectile(SuperSmashLegends plugin, Ability ability, Section config) {
             super(plugin, ability, config);
@@ -65,9 +62,6 @@ public class WaterBubble extends RightClickAbility {
         }
 
         private void stopSoak() {
-            if (this.packetAdapter != null) {
-                ProtocolLibrary.getProtocolManager().removePacketListener(this.packetAdapter);
-            }
             if (this.soakTask != null) {
                 this.soakTask.cancel();
             }
@@ -85,25 +79,6 @@ public class WaterBubble extends RightClickAbility {
                     new ParticleBuilder(EnumParticle.WATER_DROP).setSpread(0.7f, 0.5f, 0.7f).show(target.getLocation());
                 }
             }, 0, 0);
-
-            this.packetAdapter = new PacketAdapter(this.plugin, PacketType.Play.Server.ENTITY_VELOCITY) {
-
-                @Override
-                public void onPacketSending(PacketEvent event) {
-                    StructureModifier<Integer> integers = event.getPacket().getIntegers();
-
-                    if (soakedEntity.getEntityId() == integers.read(0)) {
-                        double multiplier = config.getDouble("VelocityMultiplier");
-                        integers.write(1, (int) (integers.read(1) * multiplier));
-                        integers.write(2, (int) (integers.read(2) * multiplier));
-                        integers.write(3, (int) (integers.read(3) * multiplier));
-
-                        soakedEntity.getWorld().playSound(soakedEntity.getLocation(), Sound.SPLASH2, 0.5f, 2);
-                    }
-                }
-            };
-
-            ProtocolLibrary.getProtocolManager().addPacketListener(this.packetAdapter);
 
             Bukkit.getScheduler().runTaskLater(this.plugin, this::stopSoak, this.config.getInt("SoakDuration"));
         }
@@ -124,6 +99,21 @@ public class WaterBubble extends RightClickAbility {
         public void onJump(JumpEvent event) {
             if (this.soakedEntity == event.getPlayer()) {
                 event.setNoise(new Noise(Sound.SPLASH, 0.5f, 2));
+            }
+        }
+
+        @EventHandler
+        public void onPlayerVelocity(PlayerVelocityEvent event) {
+            if (event.getPlayer() == this.soakedEntity) {
+                event.setVelocity(event.getVelocity().multiply(this.config.getDouble("VelocityMultiplier")));
+            }
+        }
+
+        @EventHandler
+        public void onEntityVelocity(DamageEvent event) {
+            if (event.getVictim() == this.soakedEntity && this.soakedEntity.getType() != EntityType.PLAYER) {
+                event.getDamage().setKb(event.getDamage().getKb() * this.config.getDouble("VelocityMultiplier"));
+                event.getDamage().setKbY(event.getDamage().getKbY() * this.config.getDouble("VelocityMultiplier"));
             }
         }
     }
