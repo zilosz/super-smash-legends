@@ -7,7 +7,6 @@ import io.github.aura6.supersmashlegends.utils.file.PathBuilder;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -77,17 +76,13 @@ public class Arena {
         return YamlReader.locations("arena", config.getStringList("SpawnLocations"));
     }
 
-    public List<Location> getPowerLocations() {
-        return YamlReader.locations("arena", config.getStringList("PowerLocations"));
-    }
-
-    private double getTotalDistanceToPlayers(Location location) {
+    public static double getTotalDistanceToPlayers(Location location) {
         return Bukkit.getOnlinePlayers().stream()
-                .filter(player -> player.getGameMode() == GameMode.SURVIVAL)
+                .filter(player -> SuperSmashLegends.getInstance().getGameManager().isPlayerAlive(player))
                 .mapToDouble(player -> player.getLocation().distanceSquared(location)).sum();
     }
 
     public Location getFarthestSpawnFromPlayers() {
-        return Collections.max(getSpawnLocations(), Comparator.comparingDouble(this::getTotalDistanceToPlayers));
+        return Collections.max(this.getSpawnLocations(), Comparator.comparingDouble(Arena::getTotalDistanceToPlayers));
     }
 }

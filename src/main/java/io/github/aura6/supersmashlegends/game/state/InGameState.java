@@ -5,13 +5,13 @@ import com.connorlinfoot.titleapi.TitleAPI;
 import com.nametagedit.plugin.NametagEdit;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
+import io.github.aura6.supersmashlegends.arena.Arena;
 import io.github.aura6.supersmashlegends.attribute.Nameable;
 import io.github.aura6.supersmashlegends.damage.DamageManager;
 import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.team.Team;
 import io.github.aura6.supersmashlegends.team.TeamManager;
-import io.github.aura6.supersmashlegends.utils.CollectionUtils;
 import io.github.aura6.supersmashlegends.utils.HotbarItem;
 import io.github.aura6.supersmashlegends.utils.NmsUtils;
 import io.github.aura6.supersmashlegends.utils.effect.DeathNPC;
@@ -242,15 +242,16 @@ public class InGameState extends GameState {
 
         List<Location> spawnLocations = this.plugin.getArenaManager().getArena().getSpawnLocations();
         List<Location> spawnsLeft = new ArrayList<>(spawnLocations);
+        Comparator<Location> comparator = Comparator.comparingDouble(Arena::getTotalDistanceToPlayers);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
 
             if (this.plugin.getGameManager().isPlayerAlive(player)) {
-                Location spawn = CollectionUtils.selectRandom(spawnsLeft);
+                Location spawn = Collections.max(spawnLocations, comparator);
                 spawnsLeft.remove(spawn);
                 player.teleport(spawn);
 
-                if (spawnsLeft.size() == 0) {
+                if (spawnsLeft.isEmpty()) {
                     spawnsLeft = spawnLocations;
                 }
 
