@@ -3,6 +3,7 @@ package io.github.aura6.supersmashlegends.game.state;
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import com.connorlinfoot.titleapi.TitleAPI;
 import com.nametagedit.plugin.NametagEdit;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Nameable;
 import io.github.aura6.supersmashlegends.damage.DamageManager;
@@ -228,7 +229,9 @@ public class InGameState extends GameState {
 
     @Override
     public void start() {
-        this.secLeft = this.plugin.getResources().getConfig().getInt("Game.MaxGameSeconds");
+        Section timerConfig = this.plugin.getResources().getConfig().getSection("Game.Timer");
+        int extraPlayers = Math.max(0, this.plugin.getGameManager().getAlivePlayers().size() - 4);
+        this.secLeft = timerConfig.getInt("DefaultSeconds") + extraPlayers * timerConfig.getInt("SecondsPerExtraPlayer");
 
         this.gameTimer = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
             if (--this.secLeft <= 0) {
