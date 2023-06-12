@@ -1515,8 +1515,8 @@ Mermaid:
       MaxDiveKb: 1.3
       KbY: 0.5
     2:
-      ConfigName: WaterBubble
-      Name: "Water Bubble"
+      ConfigName: HungryFish
+      Name: "Hungry Fish"
       Item:
         Material: IRON_BARDING
       Description:
@@ -1528,7 +1528,7 @@ Mermaid:
       Projectile:
         Speed: 1.4
         HitBox: 1
-        VelocityMultiplier: 0.7
+        VelocityMultiplier: 0.5
         Damage: 4.5
         SoakDuration: 40
         Kb: 0.9

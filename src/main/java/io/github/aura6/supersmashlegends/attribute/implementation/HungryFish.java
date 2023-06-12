@@ -19,14 +19,17 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerVelocityEvent;
 import org.bukkit.scheduler.BukkitTask;
 
-public class WaterBubble extends RightClickAbility {
+public class HungryFish extends RightClickAbility {
 
-    public WaterBubble(SuperSmashLegends plugin, Section config, Kit kit) {
+    public HungryFish(SuperSmashLegends plugin, Section config, Kit kit) {
         super(plugin, config, kit);
     }
 
@@ -37,8 +40,9 @@ public class WaterBubble extends RightClickAbility {
     }
 
     private static class BubbleProjectile extends ItemProjectile {
-        private LivingEntity soakedEntity;
         private BukkitTask soakTask;
+        private Listener soakListener;
+        private LivingEntity soakedEntity;
 
         public BubbleProjectile(SuperSmashLegends plugin, Ability ability, Section config) {
             super(plugin, ability, config);
@@ -62,8 +66,13 @@ public class WaterBubble extends RightClickAbility {
         }
 
         private void stopSoak() {
-            if (this.soakTask != null) {
-                this.soakTask.cancel();
+            if (this.soakTask == null) return;
+
+            this.soakTask.cancel();
+            HandlerList.unregisterAll(this.soakListener);
+
+            if (this.soakedEntity.getType() == EntityType.PLAYER) {
+                ((Player) this.soakedEntity).setWalkSpeed(0.2f);
             }
         }
 
@@ -73,6 +82,12 @@ public class WaterBubble extends RightClickAbility {
 
             this.soakedEntity = target;
 
+            double multiplier = this.config.getDouble("VelocityMultiplier");
+
+            if (target.getType() == EntityType.PLAYER) {
+                ((Player) target).setWalkSpeed((float) (0.2 * multiplier));
+            }
+
             this.soakTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
 
                 for (int i = 0; i < 5; i++) {
@@ -80,6 +95,32 @@ public class WaterBubble extends RightClickAbility {
                 }
             }, 0, 0);
 
+            this.soakListener = new Listener() {
+
+                @EventHandler
+                public void onPlayerVelocity(PlayerVelocityEvent event) {
+                    if (event.getPlayer() == target) {
+                        event.setVelocity(event.getVelocity().multiply(multiplier));
+                    }
+                }
+
+                @EventHandler
+                public void onEntityVelocity(DamageEvent event) {
+                    if (event.getVictim() == target && target.getType() != EntityType.PLAYER) {
+                        event.getDamage().setKb(event.getDamage().getKb() * multiplier);
+                        event.getDamage().setKbY(event.getDamage().getKbY() * multiplier);
+                    }
+                }
+
+                @EventHandler
+                public void onJump(JumpEvent event) {
+                    if (event.getPlayer() == target) {
+                        event.setNoise(new Noise(Sound.SPLASH, 0.5f, 2));
+                    }
+                }
+            };
+
+            Bukkit.getPluginManager().registerEvents(this.soakListener, this.plugin);
             Bukkit.getScheduler().runTaskLater(this.plugin, this::stopSoak, this.config.getInt("SoakDuration"));
         }
 
@@ -92,28 +133,6 @@ public class WaterBubble extends RightClickAbility {
         public void onRemove(ProjectileRemoveReason reason) {
             if (reason != ProjectileRemoveReason.HIT_ENTITY) {
                 this.stopSoak();
-            }
-        }
-
-        @EventHandler
-        public void onJump(JumpEvent event) {
-            if (this.soakedEntity == event.getPlayer()) {
-                event.setNoise(new Noise(Sound.SPLASH, 0.5f, 2));
-            }
-        }
-
-        @EventHandler
-        public void onPlayerVelocity(PlayerVelocityEvent event) {
-            if (event.getPlayer() == this.soakedEntity) {
-                event.setVelocity(event.getVelocity().multiply(this.config.getDouble("VelocityMultiplier")));
-            }
-        }
-
-        @EventHandler
-        public void onEntityVelocity(DamageEvent event) {
-            if (event.getVictim() == this.soakedEntity && this.soakedEntity.getType() != EntityType.PLAYER) {
-                event.getDamage().setKb(event.getDamage().getKb() * this.config.getDouble("VelocityMultiplier"));
-                event.getDamage().setKbY(event.getDamage().getKbY() * this.config.getDouble("VelocityMultiplier"));
             }
         }
     }
