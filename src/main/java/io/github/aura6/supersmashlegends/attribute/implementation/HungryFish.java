@@ -13,11 +13,15 @@ import io.github.aura6.supersmashlegends.utils.Noise;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
+import io.github.aura6.supersmashlegends.utils.entity.FloatingEntity;
+import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -25,7 +29,9 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerVelocityEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 public class HungryFish extends RightClickAbility {
 
@@ -43,6 +49,8 @@ public class HungryFish extends RightClickAbility {
         private BukkitTask soakTask;
         private Listener soakListener;
         private LivingEntity soakedEntity;
+        private FloatingEntity<Item> fish;
+        private BukkitTask fishMoveTask;
 
         public BubbleProjectile(SuperSmashLegends plugin, Ability ability, Section config) {
             super(plugin, ability, config);
@@ -65,14 +73,29 @@ public class HungryFish extends RightClickAbility {
             this.displayBubble(1.5);
         }
 
+        @Override
+        public void onBlockHit(BlockHitResult result) {
+            this.onGeneralHit();
+        }
+
         private void stopSoak() {
             if (this.soakTask == null) return;
 
             this.soakTask.cancel();
             HandlerList.unregisterAll(this.soakListener);
 
+            this.fish.destroy();
+            this.fishMoveTask.cancel();
+
             if (this.soakedEntity.getType() == EntityType.PLAYER) {
                 ((Player) this.soakedEntity).setWalkSpeed(0.2f);
+            }
+        }
+
+        @Override
+        public void onRemove(ProjectileRemoveReason reason) {
+            if (reason != ProjectileRemoveReason.HIT_ENTITY) {
+                this.stopSoak();
             }
         }
 
@@ -95,12 +118,15 @@ public class HungryFish extends RightClickAbility {
                 }
             }, 0, 0);
 
+            Noise noise = new Noise(Sound.SPLASH, 0.5f, 1.5f);
+
             this.soakListener = new Listener() {
 
                 @EventHandler
                 public void onPlayerVelocity(PlayerVelocityEvent event) {
                     if (event.getPlayer() == target) {
                         event.setVelocity(event.getVelocity().multiply(multiplier));
+                        noise.playForAll(target.getLocation());
                     }
                 }
 
@@ -109,31 +135,39 @@ public class HungryFish extends RightClickAbility {
                     if (event.getVictim() == target && target.getType() != EntityType.PLAYER) {
                         event.getDamage().setKb(event.getDamage().getKb() * multiplier);
                         event.getDamage().setKbY(event.getDamage().getKbY() * multiplier);
+                        noise.playForAll(target.getLocation());
                     }
                 }
 
                 @EventHandler
                 public void onJump(JumpEvent event) {
                     if (event.getPlayer() == target) {
-                        event.setNoise(new Noise(Sound.SPLASH, 0.5f, 2));
+                        event.setNoise(noise);
                     }
                 }
             };
 
             Bukkit.getPluginManager().registerEvents(this.soakListener, this.plugin);
+
+            this.fish = new FloatingEntity<>() {
+
+                @Override
+                public Item createEntity(Location location) {
+                    Item fish = location.getWorld().dropItem(location, new ItemStack(Material.RAW_FISH));
+                    fish.setPickupDelay(Integer.MAX_VALUE);
+                    return fish;
+                }
+            };
+
+            Location location = this.entity.getLocation();
+            this.fish.spawn(location);
+            Vector relativeToLoc = VectorUtils.fromTo(target.getLocation(), location);
+
+            this.fishMoveTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+                this.fish.teleport(target.getLocation().add(relativeToLoc));
+            }, 0, 0);
+
             Bukkit.getScheduler().runTaskLater(this.plugin, this::stopSoak, this.config.getInt("SoakDuration"));
-        }
-
-        @Override
-        public void onBlockHit(BlockHitResult result) {
-            this.onGeneralHit();
-        }
-
-        @Override
-        public void onRemove(ProjectileRemoveReason reason) {
-            if (reason != ProjectileRemoveReason.HIT_ENTITY) {
-                this.stopSoak();
-            }
         }
     }
 }
