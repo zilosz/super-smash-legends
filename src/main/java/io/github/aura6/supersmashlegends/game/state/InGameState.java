@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -57,7 +56,7 @@ public class InGameState extends GameState {
     private final Map<Player, BukkitTask> trackerTasks = new HashMap<>();
     private final Map<Player, Player> closestTargets = new HashMap<>();
 
-    private final Map<UUID, BukkitTask> respawnTasks = new HashMap<>();
+    private final Map<Player, BukkitTask> respawnTasks = new HashMap<>();
     private final Set<BukkitTask> skinRestorers = new HashSet<>();
 
     private int secLeft;
@@ -271,7 +270,11 @@ public class InGameState extends GameState {
     }
 
     private void respawnPlayer(Player player) {
-        player.teleport(plugin.getArenaManager().getArena().getFarthestSpawnFromPlayers());
+        if (!this.plugin.getGameManager().isPlayerAlive(player)) return;
+
+        this.respawnTasks.remove(player).cancel();
+
+        player.teleport(this.plugin.getArenaManager().getArena().getFarthestSpawnFromPlayers());
 
         TitleAPI.sendTitle(player, MessageUtils.color("&7You have &arespawned&7."), MessageUtils.color("&cAvenge &7your death!"), 10, 30, 10);
         player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 2);
@@ -280,7 +283,7 @@ public class InGameState extends GameState {
         player.setGameMode(GameMode.SURVIVAL);
         player.setHealth(20);
 
-        Kit kit = plugin.getKitManager().getSelectedKit(player);
+        Kit kit = this.plugin.getKitManager().getSelectedKit(player);
         kit.giveItems();
         kit.activate();
     }
@@ -292,8 +295,8 @@ public class InGameState extends GameState {
         this.skinRestorers.forEach(BukkitTask::cancel);
         this.skinRestorers.clear();
 
-        this.respawnTasks.forEach((uuid, respawnTask) -> {
-            respawnPlayer(Bukkit.getPlayer(uuid));
+        this.respawnTasks.forEach((player, respawnTask) -> {
+            this.respawnPlayer(player);
             respawnTask.cancel();
         });
 
@@ -384,7 +387,7 @@ public class InGameState extends GameState {
         TitleAPI.sendTitle(died, MessageUtils.color("&7You &cdied!"), MessageUtils.color("&7Respawning soon..."), 7, 25, 7);
         died.playSound(died.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 1);
 
-        respawnTasks.put(died.getUniqueId(), new BukkitRunnable() {
+        respawnTasks.put(died, new BukkitRunnable() {
             int secondsLeft = plugin.getResources().getConfig().getInt("Game.DeathWaitSeconds");
             float pitch = 0.5f;
             final double pitchStep = 1.5 / secondsLeft;
@@ -394,8 +397,6 @@ public class InGameState extends GameState {
 
                 if (secondsLeft == 0) {
                     respawnPlayer(died);
-                    respawnTasks.remove(died.getUniqueId());
-                    cancel();
                     return;
                 }
 
