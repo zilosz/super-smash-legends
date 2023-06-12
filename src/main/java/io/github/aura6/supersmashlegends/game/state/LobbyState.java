@@ -4,11 +4,14 @@ import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import io.github.aura6.supersmashlegends.Resources;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.arena.Arena;
+import io.github.aura6.supersmashlegends.arena.ArenaVoter;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
 import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.kit.KitManager;
+import io.github.aura6.supersmashlegends.kit.KitSelector;
+import io.github.aura6.supersmashlegends.team.TeamSelector;
 import io.github.aura6.supersmashlegends.utils.HotbarItem;
 import io.github.aura6.supersmashlegends.utils.Skin;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
@@ -310,14 +313,14 @@ public class LobbyState extends GameState {
 
         Resources resources = this.plugin.getResources();
 
-        Consumer<PlayerInteractEvent> kitAction = e -> this.plugin.getKitSelector().build().open(player);
+        Consumer<PlayerInteractEvent> kitAction = e -> new KitSelector().build().open(player);
         this.hotbarItems.add(resources.giveHotbarItem("KitSelector", player, kitAction));
 
-        Consumer<PlayerInteractEvent> arenaAction = e -> this.plugin.getArenaVoter().build().open(player);
+        Consumer<PlayerInteractEvent> arenaAction = e -> new ArenaVoter().build().open(player);
         this.hotbarItems.add(resources.giveHotbarItem("ArenaVoter", player, arenaAction));
 
         if (plugin.getTeamManager().getTeamSize() > 1) {
-            Consumer<PlayerInteractEvent> teamAction = e -> this.plugin.getTeamSelector().build().open(player);
+            Consumer<PlayerInteractEvent> teamAction = e -> new TeamSelector().build().open(player);
             hotbarItems.add(resources.giveHotbarItem("TeamSelector", player, teamAction));
         }
     }

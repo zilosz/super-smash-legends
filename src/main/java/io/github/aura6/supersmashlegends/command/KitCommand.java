@@ -2,6 +2,7 @@ package io.github.aura6.supersmashlegends.command;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.kit.KitManager;
+import io.github.aura6.supersmashlegends.kit.KitSelector;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.Command;
@@ -25,7 +26,7 @@ public class KitCommand implements CommandExecutor {
         if (this.plugin.getGameManager().getState().allowKitSelection()) {
 
             if (strings.length == 0) {
-                this.plugin.getKitSelector().build().open(player);
+                new KitSelector().build().open(player);
 
             } else {
                 KitManager kitManager = this.plugin.getKitManager();

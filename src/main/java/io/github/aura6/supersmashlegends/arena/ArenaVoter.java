@@ -1,7 +1,7 @@
 package io.github.aura6.supersmashlegends.arena;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import io.github.aura6.supersmashlegends.utils.HorizontalInventory;
+import io.github.aura6.supersmashlegends.utils.CustomInventory;
 import io.github.aura6.supersmashlegends.utils.ItemBuilder;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
@@ -10,27 +10,32 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
-public class ArenaVoter extends HorizontalInventory<Arena> {
+public class ArenaVoter extends CustomInventory<Arena> {
 
-    public ArenaVoter(SuperSmashLegends plugin) {
-        super(plugin);
+    @Override
+    public int getBorderColorData() {
+        return 13;
     }
 
     @Override
     public String getTitle() {
-        return "&2&lArena Voter";
+        return "Arena Voter";
     }
 
     @Override
-    public List<Arena> getElements() {
-        return plugin.getArenaManager().getArenas();
+    public List<Arena> getItems() {
+        return SuperSmashLegends.getInstance().getArenaManager().getArenas().stream()
+                .sorted(Comparator.comparing(Arena::getName))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public ItemStack getItemStack(Arena arena, Player player) {
+    public ItemStack getItemStack(Player player, Arena arena) {
         Replacers replacers = new Replacers().add("AUTHORS", arena.getAuthors()).add("VOTES", arena.getTotalVotes());
 
         List<String> lore = replacers.replaceLines(Arrays.asList(
@@ -47,10 +52,10 @@ public class ArenaVoter extends HorizontalInventory<Arena> {
     }
 
     @Override
-    public void onItemClick(Arena arena, Player player, InventoryClickEvent event) {
+    public void onItemClick(Player player, Arena arena, InventoryClickEvent event) {
         AtomicReference<Arena> chosenAtomic = new AtomicReference<>();
 
-        plugin.getArenaManager().getChosenArena(player).ifPresent(chosen -> {
+        SuperSmashLegends.getInstance().getArenaManager().getChosenArena(player).ifPresent(chosen -> {
             chosen.wipeVote(player);
             chosenAtomic.set(chosen);
         });
@@ -64,6 +69,6 @@ public class ArenaVoter extends HorizontalInventory<Arena> {
         }
 
         player.closeInventory();
-        build().open(player);
+        this.build().open(player);
     }
 }

@@ -14,9 +14,6 @@ import io.github.aura6.supersmashlegends.damage.DamageManager;
 import io.github.aura6.supersmashlegends.database.Database;
 import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.game.GameScoreboard;
-import io.github.aura6.supersmashlegends.arena.ArenaVoter;
-import io.github.aura6.supersmashlegends.kit.KitSelector;
-import io.github.aura6.supersmashlegends.team.TeamSelector;
 import io.github.aura6.supersmashlegends.kit.KitManager;
 import io.github.aura6.supersmashlegends.team.TeamManager;
 import io.github.aura6.supersmashlegends.utils.WorldManager;
@@ -40,12 +37,9 @@ public class SuperSmashLegends extends JavaPlugin {
     private Database db;
     private KitManager kitManager;
     private InventoryManager inventoryManager;
-    private KitSelector kitSelector;
-    private ArenaVoter arenaVoter;
     private GameManager gameManager;
     private ArenaManager arenaManager;
     private TeamManager teamManager;
-    private TeamSelector teamSelector;
     private WorldManager worldManager;
     private DamageManager damageManager;
 
@@ -64,10 +58,7 @@ public class SuperSmashLegends extends JavaPlugin {
         this.worldManager = new WorldManager();
         this.inventoryManager = new InventoryManager(this);
         this.teamManager = new TeamManager(this);
-        this.teamSelector = new TeamSelector(this);
         this.arenaManager = new ArenaManager(this);
-        this.kitSelector = new KitSelector(this);
-        this.arenaVoter = new ArenaVoter(this);
         this.db = new Database();
         this.kitManager = new KitManager(this);
         this.gameManager = new GameManager(this);
@@ -104,12 +95,12 @@ public class SuperSmashLegends extends JavaPlugin {
     public void onDisable() {
         this.kitManager.destroyNpcs();
 
-        try {
-            this.gameManager.getState().end();
-        } catch (IllegalPluginAccessException ignored) {}
-
         for (Player player : Bukkit.getOnlinePlayers()) {
             this.kitManager.wipePlayer(player);
         }
+
+        try {
+            this.gameManager.getState().end();
+        } catch (IllegalPluginAccessException ignored) {}
     }
 }

@@ -1,7 +1,7 @@
 package io.github.aura6.supersmashlegends.team;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import io.github.aura6.supersmashlegends.utils.HorizontalInventory;
+import io.github.aura6.supersmashlegends.utils.CustomInventory;
 import io.github.aura6.supersmashlegends.utils.ItemBuilder;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
@@ -10,33 +10,37 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-public class TeamSelector extends HorizontalInventory<Team> {
+public class TeamSelector extends CustomInventory<Team> {
 
-    public TeamSelector(SuperSmashLegends plugin) {
-        super(plugin);
+    @Override
+    public int getBorderColorData() {
+        return 1;
     }
 
     @Override
     public String getTitle() {
-        return "&a&lTeam Selector";
+        return "Team Selector";
     }
 
     @Override
-    public List<Team> getElements() {
-        return plugin.getTeamManager().getTeamList();
+    public List<Team> getItems() {
+        return SuperSmashLegends.getInstance().getTeamManager().getTeamList().stream()
+                .sorted(Comparator.comparing(Team::getName))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public ItemStack getItemStack(Team team, Player player) {
+    public ItemStack getItemStack(Player player, Team team) {
         String players = team.getPlayers().stream().map(Player::getName).collect(Collectors.joining(", "));
 
         Replacers replacers = new Replacers()
                 .add("SIZE", team.getSize())
-                .add("CAP", this.plugin.getTeamManager().getTeamSize())
+                .add("CAP", SuperSmashLegends.getInstance().getTeamManager().getTeamSize())
                 .add("PLAYERS", team.getSize() > 0 ? players : "&7&oNone");
 
         List<String> lore = replacers.replaceLines(Arrays.asList(
@@ -52,8 +56,8 @@ public class TeamSelector extends HorizontalInventory<Team> {
     }
 
     @Override
-    public void onItemClick(Team team, Player player, InventoryClickEvent event) {
-        TeamManager teamManager = plugin.getTeamManager();
+    public void onItemClick(Player player, Team team, InventoryClickEvent event) {
+        TeamManager teamManager = SuperSmashLegends.getInstance().getTeamManager();
 
         if (team.getSize() == teamManager.getTeamSize()) {
             Chat.TEAM.send(player, "&7This team is full!");

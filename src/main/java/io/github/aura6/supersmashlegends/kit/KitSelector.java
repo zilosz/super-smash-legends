@@ -5,7 +5,7 @@ import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
 import io.github.aura6.supersmashlegends.attribute.ClickableAbility;
 import io.github.aura6.supersmashlegends.attribute.PassiveAbility;
-import io.github.aura6.supersmashlegends.utils.HorizontalInventory;
+import io.github.aura6.supersmashlegends.utils.CustomInventory;
 import io.github.aura6.supersmashlegends.utils.ItemBuilder;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
 import org.bukkit.entity.Player;
@@ -14,49 +14,51 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class KitSelector extends HorizontalInventory<Kit> {
+public class KitSelector extends CustomInventory<Kit> {
 
-    public KitSelector(SuperSmashLegends plugin) {
-        super(plugin);
+    @Override
+    public int getBorderColorData() {
+        return 3;
     }
 
     @Override
     public String getTitle() {
-        return "&5&lKit Selector";
+        return "Kit Selector";
     }
 
     @Override
-    public List<Kit> getElements() {
-        return plugin.getKitManager().getKits();
+    public List<Kit> getItems() {
+        return SuperSmashLegends.getInstance().getKitManager().getKits().stream()
+                .sorted(Comparator.comparing(Kit::getConfigName))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public ItemStack getItemStack(Kit kit, Player player) {
+    public ItemStack getItemStack(Player player, Kit kit) {
         List<String> abilityUses = new ArrayList<>();
 
         for (Attribute attribute : kit.getAttributes()) {
 
             if (attribute instanceof Ability) {
                 Ability ability = (Ability) attribute;
-                String useDescription;
+                String useType = ability.getUseType();
+                String displayName = ability.getDisplayName();
 
                 if (ability instanceof ClickableAbility) {
-                    useDescription = String.format("&6%s &7to use %s&7", ability.getUseType(), ability.getDisplayName());
+                    abilityUses.add(String.format("&6%s &7to use %s&7", useType, displayName));
 
                 } else if (ability instanceof PassiveAbility) {
-                    useDescription = String.format("%s: &6%s&7", ability.getDisplayName(), ability.getUseType());
-
-                } else {
-                    useDescription = "&cNOT PROVIDED";
+                    abilityUses.add(String.format("%s: &6%s&7", displayName, useType));
                 }
-
-                abilityUses.add(useDescription);
             }
         }
 
-        KitAccessType accessType = plugin.getKitManager().getKitAccess(player, kit.getConfigName());
+        KitManager kitManager = SuperSmashLegends.getInstance().getKitManager();
+        KitAccessType accessType = kitManager.getKitAccess(player, kit.getConfigName());
 
         Replacers replacers = new Replacers()
                 .add("STATUS", accessType.getLore(kit))
@@ -105,8 +107,10 @@ public class KitSelector extends HorizontalInventory<Kit> {
     }
 
     @Override
-    public void onItemClick(Kit kit, Player player, InventoryClickEvent event) {
-        if (plugin.getKitManager().handleKitSelection(player, kit) != KitAccessType.ALREADY_SELECTED) {
+    public void onItemClick(Player player, Kit kit, InventoryClickEvent event) {
+        KitManager kitManager = SuperSmashLegends.getInstance().getKitManager();
+
+        if (kitManager.handleKitSelection(player, kit) != KitAccessType.ALREADY_SELECTED) {
             player.closeInventory();
         }
     }
