@@ -130,6 +130,11 @@ public class BatWave extends RightClickAbility {
             return stand;
         }
 
+        @Override
+        public void onLaunch() {
+            this.plugin.getTeamManager().getPlayerTeam(this.ability.getPlayer()).addEntity(this.bat);
+        }
+
         public void leash() {
             this.bat.setLeashHolder(this.launcher);
         }
@@ -143,6 +148,7 @@ public class BatWave extends RightClickAbility {
             super.onRemove(reason);
             this.unleash();
             this.bat.remove();
+            this.plugin.getTeamManager().getPlayerTeam(this.ability.getPlayer()).removeEntity(this.bat);
         }
 
         @EventHandler
