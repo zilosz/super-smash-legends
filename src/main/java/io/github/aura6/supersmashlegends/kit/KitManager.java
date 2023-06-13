@@ -133,7 +133,7 @@ public class KitManager implements Listener {
         GameState state = gameManager.getState();
 
         UUID uuid = player.getUniqueId();
-        Kit newKit = kit.copy();
+        Kit newKit = this.plugin.getResources().loadKit(kit.getConfigName());
 
         Optional.ofNullable(this.selectedKits.put(uuid, newKit)).ifPresent(oldKit -> {
             oldKit.destroy();

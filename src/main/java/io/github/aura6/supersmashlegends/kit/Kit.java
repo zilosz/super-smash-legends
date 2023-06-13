@@ -57,10 +57,6 @@ public class Kit {
         }));
     }
 
-    public Kit copy() {
-        return new Kit(this.config);
-    }
-
     public String getConfigName() {
         return config.getString("ConfigName");
     }
