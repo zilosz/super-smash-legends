@@ -430,7 +430,7 @@ public class InGameState extends GameState {
                 player.teleport(this.plugin.getArenaManager().getArena().getWaitLocation());
 
             } else if (player.getHealth() - event.getFinalDamage() > 0) {
-                event.setCancelled(true);
+                event.setDamage(0);
                 this.handleDeath(player, false);
                 this.registerDamageTaken(player, player.getHealth());
             }

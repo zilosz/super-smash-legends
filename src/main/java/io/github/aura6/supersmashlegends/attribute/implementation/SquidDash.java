@@ -85,8 +85,8 @@ public class SquidDash extends RightClickAbility {
 
     @Override
     public void deactivate() {
-        super.deactivate();
         this.reset();
+        super.deactivate();
     }
 
     private void stopDash() {

@@ -5,17 +5,18 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.event.DamageEvent;
-import io.github.aura6.supersmashlegends.event.projectile.ProjectileRemoveEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.LivingProjectile;
 import io.github.aura6.supersmashlegends.projectile.ProjectileRemoveReason;
 import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Bat;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.util.HashSet;
@@ -24,6 +25,7 @@ import java.util.Set;
 public class BatWave extends RightClickAbility {
     private final Set<BatProjectile> batProjectiles = new HashSet<>();
     private BatWaveState state = BatWaveState.INACTIVE;
+    private BukkitTask resetTask;
 
     public BatWave(SuperSmashLegends plugin, Section config, Kit kit) {
         super(plugin, config, kit);
@@ -47,6 +49,11 @@ public class BatWave extends RightClickAbility {
 
         Set<Location> locations = VectorUtils.getRectSpread(center, alt, width, height, count);
         locations.forEach(loc -> this.addAndLaunch(new BatProjectile(this.plugin, this, this.config), loc));
+
+        this.resetTask = Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+            this.reset();
+            this.startCooldown();
+        }, this.config.getInt("Lifespan"));
     }
 
     @Override
@@ -86,24 +93,16 @@ public class BatWave extends RightClickAbility {
         this.state = BatWaveState.INACTIVE;
         this.batProjectiles.forEach(projectile -> projectile.remove(ProjectileRemoveReason.DEACTIVATION));
         this.batProjectiles.clear();
+
+        if (this.resetTask != null) {
+            this.resetTask.cancel();
+        }
     }
 
     @Override
     public void deactivate() {
         super.deactivate();
         this.reset();
-    }
-
-    @EventHandler
-    public void onProjectileRemove(ProjectileRemoveEvent event) {
-        if (!(event.getProjectile() instanceof BatProjectile)) return;
-
-        BatProjectile projectile = (BatProjectile) event.getProjectile();
-
-        if (this.batProjectiles.contains(projectile) && event.getReason() != ProjectileRemoveReason.DEACTIVATION) {
-            this.reset();
-            this.startCooldown();
-        }
     }
 
     private enum BatWaveState {
