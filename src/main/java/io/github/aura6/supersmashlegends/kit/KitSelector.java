@@ -8,9 +8,11 @@ import io.github.aura6.supersmashlegends.attribute.PassiveAbility;
 import io.github.aura6.supersmashlegends.utils.CustomInventory;
 import io.github.aura6.supersmashlegends.utils.ItemBuilder;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -99,7 +101,9 @@ public class KitSelector extends CustomInventory<Kit> {
         }
 
 
-        return new ItemBuilder<>(kit.getItemStack())
+        return new ItemBuilder<SkullMeta>(Material.SKULL_ITEM)
+                .setData(3)
+                .applyMeta(meta -> meta.setOwner(kit.getSkinName()))
                 .setEnchanted(accessType == KitAccessType.ALREADY_SELECTED)
                 .setName("&l" + kit.getBoldedDisplayName())
                 .setLore(replacers.replaceLines(lore))

@@ -15,7 +15,6 @@ import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import lombok.Getter;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,10 +72,6 @@ public class Kit {
 
     public List<String> getDescription() {
         return config.getStringList("Description");
-    }
-
-    public ItemStack getItemStack() {
-        return YamlReader.stack(config.getSection("Item"));
     }
 
     public String getDisplayName() {

@@ -61,7 +61,7 @@ public class ItemBuilder<T extends ItemMeta> implements Supplier<ItemStack> {
         return this;
     }
 
-    private ItemBuilder<T> applyMeta(Consumer<T> meta) {
+    public ItemBuilder<T> applyMeta(Consumer<T> meta) {
         this.meta = this.meta.andThen(meta);
         return this;
     }
