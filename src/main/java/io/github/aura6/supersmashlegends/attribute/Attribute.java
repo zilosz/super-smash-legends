@@ -23,12 +23,17 @@ public class Attribute implements Listener {
     }
 
     public void activate() {
+        if (this.enabled) return;
+
         this.enabled = true;
         Bukkit.getPluginManager().registerEvents(this, this.plugin);
+
         this.task = Bukkit.getScheduler().runTaskTimer(this.plugin, this::run, 0, this.period);
     }
 
     public void deactivate() {
+        if (!this.enabled) return;
+
         this.enabled = false;
         HandlerList.unregisterAll(this);
 
@@ -44,8 +49,8 @@ public class Attribute implements Listener {
     public void unequip() {}
 
     public void destroy() {
-        deactivate();
-        unequip();
+        this.deactivate();
+        this.unequip();
     }
 
     public void run() {}

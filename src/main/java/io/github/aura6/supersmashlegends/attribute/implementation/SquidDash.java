@@ -137,10 +137,8 @@ public class SquidDash extends RightClickAbility {
                 return;
             }
 
-            Location loc = this.player.getLocation();
-
             this.player.setVelocity(this.velocity);
-            this.player.getWorld().playSound(loc, Sound.SPLASH2, 1, 1);
+            this.player.getWorld().playSound(player.getLocation(), Sound.SPLASH2, 1, 1);
 
             Section particleConfig = this.config.getSection("Particle");
 

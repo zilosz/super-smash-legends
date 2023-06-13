@@ -82,19 +82,20 @@ public abstract class Ability extends Attribute implements Nameable {
     @Override
     public void equip() {
         super.equip();
-        hotbarItem = new HotbarItem(player, buildItem(), slot);
-        hotbarItem.setAction(e -> sendDescription());
-        hotbarItem.register(plugin);
+
+        this.hotbarItem = new HotbarItem(this.player, this.buildItem(), this.slot);
+        this.hotbarItem.setAction(e -> sendDescription());
+        this.hotbarItem.register(this.plugin);
     }
 
     @Override
     public void unequip() {
-        hotbarItem.destroy();
+        this.hotbarItem.destroy();
     }
 
     @Override
     public void deactivate() {
         super.deactivate();
-        hotbarItem.setAction(null);
+        this.hotbarItem.setAction(null);
     }
 }
