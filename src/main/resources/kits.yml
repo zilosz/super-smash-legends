@@ -465,23 +465,17 @@ Drakula:
       Description:
         - "&7Transform into a bat when at low health"
         - "&7to gain flying powers. Hunt for blood"
-        - "&7in your thirst for vengeance. Gives"
-        - "&5&lVampiric Bloodlust."
-      HealthThreshold: 8
+        - "&7in your thirst for vengeance; latch"
+        - "&7your fangs onto unsuspecting victims"
+        - "&7through melee to take slivers of"
+        - "&7their health."
+      HealthThreshold: 7
       JumpPowerMultiplier: 1.15
       JumpHeightMultiplier: 0.85
       ExtraJumps: 4
       DamageTakenMultiplier: 1.25
-    4:
-      ConfigName: Bloodlust
-      Name: "Vampiric Bite"
-      Item:
-        Material: STONE_SWORD
-      Description:
-        - "&7Latch your fangs onto unsuspecting enemies in"
-        - "&7times of dire health, regaining slivers of"
-        - "&7health per hit."
-      Regen: 0.75
+      Regen: 1
+      RegenMultiplier: 1.5
 Cryomancer:
   ConfigName: Cryomancer
   Name: "Cryomancer"

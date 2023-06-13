@@ -23,22 +23,22 @@ public class Attribute implements Listener {
     }
 
     public void activate() {
-        enabled = true;
-        Bukkit.getPluginManager().registerEvents(this, plugin);
-        task = Bukkit.getScheduler().runTaskTimer(plugin, this::run, 0, period);
+        this.enabled = true;
+        Bukkit.getPluginManager().registerEvents(this, this.plugin);
+        this.task = Bukkit.getScheduler().runTaskTimer(this.plugin, this::run, 0, this.period);
     }
 
     public void deactivate() {
-        enabled = false;
+        this.enabled = false;
         HandlerList.unregisterAll(this);
 
-        if (task != null) {
-            task.cancel();
+        if (this.task != null) {
+            this.task.cancel();
         }
     }
 
     public void equip() {
-        player = kit.getPlayer();
+        this.player = this.kit.getPlayer();
     }
 
     public void unequip() {}

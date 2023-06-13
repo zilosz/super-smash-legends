@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class Kit {
-    protected final SuperSmashLegends plugin;
+    private static final SuperSmashLegends ssl = SuperSmashLegends.getInstance();
 
     private final Section config;
     private final List<Attribute> attributes = new ArrayList<>();
@@ -33,33 +33,32 @@ public class Kit {
     @Getter private final Skin skin;
 
     @SuppressWarnings("unchecked")
-    public Kit(SuperSmashLegends plugin, Section config) {
-        this.plugin = plugin;
+    public Kit(Section config) {
         this.config = config;
 
         this.skin = Skin.fromMojang(this.getSkinName());
 
-        jump = new Jump(plugin, this);
+        jump = new Jump(SuperSmashLegends.getInstance(), this);
         attributes.add(jump);
 
-        attributes.add(new Regeneration(plugin, this));
-        attributes.add(new Melee(plugin, this));
+        attributes.add(new Regeneration(ssl, this));
+        attributes.add(new Melee(ssl, this));
 
         if (config.isNumber("Energy")) {
-            attributes.add(new Energy(plugin, this));
+            attributes.add(new Energy(ssl, this));
         }
 
         IntStream.range(0, 9).forEach(slot -> config.getOptionalSection("Abilities." + slot).ifPresent(abilityConfig -> {
             String name = Ability.class.getPackageName() + ".implementation." + abilityConfig.getString("ConfigName");
             Class<? extends Ability> clazz = (Class<? extends Ability>) Reflector.loadClass(name);
-            Ability ability = Reflector.newInstance(clazz, plugin, abilityConfig, this);
+            Ability ability = Reflector.newInstance(clazz, ssl, abilityConfig, this);
             ability.setSlot(slot);
             attributes.add(ability);
         }));
     }
 
     public Kit copy() {
-        return new Kit(plugin, config);
+        return new Kit(this.config);
     }
 
     public String getConfigName() {

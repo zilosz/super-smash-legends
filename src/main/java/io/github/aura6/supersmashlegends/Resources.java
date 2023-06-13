@@ -54,7 +54,7 @@ public class Resources {
     }
 
     public Kit loadKit(String name) {
-        return new Kit(plugin, kits.getSection(name));
+        return new Kit(this.kits.getSection(name));
     }
 
     public List<Kit> loadKits() {
