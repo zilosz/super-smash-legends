@@ -27,6 +27,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
@@ -64,7 +65,7 @@ public class SquidDash extends RightClickAbility {
 
     private void unHidePlayer() {
         this.invisible = false;
-
+        this.plugin.getDamageManager().showEntityIndicator(this.player);
         Bukkit.getOnlinePlayers().forEach(other -> other.showPlayer(this.player));
         new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(EntityUtils.center(this.player), 1, 5, 0.5);
         this.player.getWorld().playSound(this.player.getLocation(), Sound.WITHER_HURT, 1, 2);
@@ -109,6 +110,7 @@ public class SquidDash extends RightClickAbility {
         });
 
         this.invisible = true;
+        this.plugin.getDamageManager().hideEntityIndicator(this.player);
         Bukkit.getOnlinePlayers().forEach(other -> other.hidePlayer(this.player));
         int ticks = (int) YamlReader.incLin(this.config, "InvisibilityTicks", this.ticksDashing, this.getMaxDashTicks());
         this.invisibilityTask = Bukkit.getScheduler().runTaskLater(this.plugin, this::unHidePlayer, ticks);
@@ -198,6 +200,13 @@ public class SquidDash extends RightClickAbility {
 
         if (isPlayer && isDashing && isMelee) {
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        if (this.invisible) {
+            event.getPlayer().hidePlayer(this.player);
         }
     }
 }

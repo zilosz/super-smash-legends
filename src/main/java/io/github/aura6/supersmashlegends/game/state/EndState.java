@@ -96,6 +96,8 @@ public class EndState extends GameState {
 
     @Override
     public void start() {
+        this.plugin.getDamageManager().reset();
+
         GameManager gameManager = this.plugin.getGameManager();
         TeamManager teamManager = this.plugin.getTeamManager();
 

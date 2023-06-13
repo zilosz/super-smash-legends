@@ -6,6 +6,7 @@ import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.math.MathUtils;
+import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -23,6 +24,7 @@ public class DamageManager {
 
     private final Map<LivingEntity, DamageIndicator> indicators = new HashMap<>();
     private final Map<LivingEntity, BukkitTask> indicatorRemovers = new HashMap<>();
+    private final Set<LivingEntity> entitiesWithInvisibleIndicator = new HashSet<>();
 
     private final Map<LivingEntity, Attribute> lastDamagingAttributes = new HashMap<>();
     private final Map<LivingEntity, BukkitTask> damageSourceRemovers = new HashMap<>();
@@ -53,12 +55,30 @@ public class DamageManager {
         } else {
             indicator = DamageIndicator.create(this.plugin, entity);
             this.indicators.put(entity, indicator);
+
+            if (this.entitiesWithInvisibleIndicator.contains(entity)) {
+                indicator.setGlobalVisibility(VisibilitySettings.Visibility.HIDDEN);
+            }
         }
 
         indicator.stackDamage(damage);
 
         int comboDuration = this.plugin.getResources().getConfig().getInt("Damage.Indicator.ComboDuration");
         this.indicatorRemovers.put(entity, Bukkit.getScheduler().runTaskLater(this.plugin, () -> destroyIndicator(entity), comboDuration));
+    }
+
+    public void hideEntityIndicator(LivingEntity entity) {
+        this.entitiesWithInvisibleIndicator.add(entity);
+
+        Optional.ofNullable(this.indicators.get(entity))
+                .ifPresent(indicator -> indicator.setGlobalVisibility(VisibilitySettings.Visibility.HIDDEN));
+    }
+
+    public void showEntityIndicator(LivingEntity entity) {
+        this.entitiesWithInvisibleIndicator.remove(entity);
+
+        Optional.ofNullable(this.indicators.get(entity))
+                .ifPresent(indicator -> indicator.setGlobalVisibility(VisibilitySettings.Visibility.VISIBLE));
     }
 
     private void cancelDamageSourceRemover(LivingEntity entity) {
@@ -147,9 +167,28 @@ public class DamageManager {
     }
 
     public void clearImmunities(LivingEntity entity) {
-        if (this.immunities.containsKey(entity)) {
-            this.immunities.get(entity).forEach(attribute -> this.destroyImmunityRemover(entity, attribute));
-            this.immunities.get(entity).clear();
-        }
+        Optional.ofNullable(this.immunities.get(entity)).ifPresent(immunities -> {
+            immunities.forEach(attribute -> this.destroyImmunityRemover(entity, attribute));
+            immunities.clear();
+        });
+    }
+
+    public void reset() {
+        this.indicators.values().forEach(DamageIndicator::destroy);
+        this.indicators.clear();
+
+        this.indicatorRemovers.values().forEach(BukkitTask::cancel);
+        this.indicators.clear();
+
+        this.entitiesWithInvisibleIndicator.clear();
+        this.lastDamagingAttributes.clear();
+
+        this.damageSourceRemovers.values().forEach(BukkitTask::cancel);
+        this.damageSourceRemovers.clear();
+
+        this.immunities.clear();
+
+        this.immunityRemovers.values().forEach(map -> map.values().forEach(BukkitTask::cancel));
+        this.immunityRemovers.clear();
     }
 }

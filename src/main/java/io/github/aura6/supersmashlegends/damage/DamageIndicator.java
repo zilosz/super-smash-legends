@@ -29,6 +29,10 @@ public class DamageIndicator extends BukkitRunnable {
         this.height = height;
     }
 
+    public void setGlobalVisibility(VisibilitySettings.Visibility visibility) {
+        this.hologram.getVisibilitySettings().setGlobalVisibility(visibility);
+    }
+
     public void stackDamage(double damage) {
         this.damage += damage;
         line.setText(damageFormat(entity, this.damage));
@@ -81,12 +85,12 @@ public class DamageIndicator extends BukkitRunnable {
         Hologram hologram = HolographicDisplaysAPI.get(plugin).createHologram(loc);
         TextHologramLine line = hologram.getLines().appendText(damageFormat(entity, 0));
 
+        DamageIndicator indicator = new DamageIndicator(hologram, line, entity, height);
+        indicator.runTaskTimer(plugin, 0, 0);
+
         if (entity instanceof Player) {
             hologram.getVisibilitySettings().setIndividualVisibility((Player) entity, VisibilitySettings.Visibility.HIDDEN);
         }
-
-        DamageIndicator indicator = new DamageIndicator(hologram, line, entity, height);
-        indicator.runTaskTimer(plugin, 0, 0);
 
         return indicator;
     }
