@@ -1527,7 +1527,7 @@ Mermaid:
       Cooldown: 120
       Projectile:
         Speed: 1.6
-        HitBox: 1
+        HitBox: 0.75
         VelocityMultiplier: 0.6
         Damage: 4.5
         SoakDuration: 60
