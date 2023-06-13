@@ -5,30 +5,34 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
 import io.github.aura6.supersmashlegends.attribute.ClickableAbility;
 import io.github.aura6.supersmashlegends.attribute.PassiveAbility;
+import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
+import io.github.aura6.supersmashlegends.event.DamageEvent;
 import io.github.aura6.supersmashlegends.event.JumpEvent;
 import io.github.aura6.supersmashlegends.event.RegenEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.DisguiseUtils;
+import io.github.aura6.supersmashlegends.utils.ItemBuilder;
 import io.github.aura6.supersmashlegends.utils.Noise;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
+import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import me.libraryaddict.disguise.DisguiseAPI;
+import me.libraryaddict.disguise.disguisetypes.Disguise;
 import me.libraryaddict.disguise.disguisetypes.DisguiseType;
 import me.libraryaddict.disguise.disguisetypes.MobDisguise;
 import net.minecraft.server.v1_8_R3.EnumParticle;
-import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BatForm extends PassiveAbility {
-    private Bloodlust bloodlust;
     private int oldJumpLimit;
-    private List<Attribute> replaced;
-    private boolean active = false;
+    private Set<Attribute> removedAttributes;
+    private boolean isBat = false;
 
     public BatForm(SuperSmashLegends plugin, Section config, Kit kit) {
         super(plugin, config, kit);
@@ -41,101 +45,105 @@ public class BatForm extends PassiveAbility {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onReceivingDamage(EntityDamageEvent event) {
-        if (event.getEntity() != player) return;
-        if (active) return;
         if (event.getCause() == EntityDamageEvent.DamageCause.FALL) return;
-        if (player.getHealth() - event.getFinalDamage() > config.getDouble("HealthThreshold")) return;
+        if (event.getEntity() != this.player) return;
+        if (this.player.getHealth() - event.getFinalDamage() > this.config.getDouble("HealthThreshold")) return;
+        if (this.isBat) return;
 
-        active = true;
+        this.isBat = true;
 
-        player.getWorld().playSound(player.getLocation(), Sound.BAT_HURT, 1, 0.5f);
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.BAT_HURT, 1, 0.5f);
 
-        for (int i = 0; i < 4; i++) {
-            new ParticleBuilder(EnumParticle.SMOKE_LARGE).show(player.getLocation());
+        for (int i = 0; i < 3; i++) {
+            new ParticleBuilder(EnumParticle.SMOKE_LARGE).setSpread(0.5f, 0.5f, 0.5f).show(this.player.getLocation());
         }
 
-        DisguiseAPI.disguiseToAll(player, DisguiseUtils.applyDisguiseParams(player, new MobDisguise(DisguiseType.BAT)));
+        Disguise disguise = DisguiseUtils.applyDisguiseParams(this.player, new MobDisguise(DisguiseType.BAT));
+        DisguiseAPI.disguiseToAll(this.player, disguise);
 
-        oldJumpLimit = kit.getJump().getCount();
-        kit.getJump().setCount(config.getInt("ExtraJumps"));
+        this.oldJumpLimit = this.kit.getJump().getCount();
+        this.kit.getJump().setCount(this.config.getInt("ExtraJumps"));
 
-        bloodlust.equip();
-        bloodlust.activate();
-        bloodlust.getHotbarItem().show();
+        this.removedAttributes = this.kit.getAttributes().stream()
+                .filter(attr -> attr instanceof ClickableAbility)
+                .collect(Collectors.toSet());
+        this.removedAttributes.forEach(Attribute::destroy);
 
-        replaced = new ArrayList<>();
+        this.player.getInventory().setItem(0, new ItemBuilder<>(Material.GOLD_SWORD).get());
+    }
 
-        for (Attribute attribute : kit.getAttributes()) {
+    private void reset() {
+        if (!this.isBat) return;
 
-            if (attribute instanceof ClickableAbility) {
-                attribute.destroy();
-                replaced.add(attribute);
-            }
-        }
+        this.isBat = false;
+        this.player.getInventory().remove(Material.GOLD_SWORD);
+        this.kit.getJump().setCount(this.oldJumpLimit);
+        DisguiseAPI.undisguiseToAll(this.player);
+    }
+
+    @Override
+    public void deactivate() {
+        this.reset();
+        super.deactivate();
     }
 
     @EventHandler
     public void onRegen(RegenEvent event) {
-        if (event.getPlayer() != player) return;
-        if (!active) return;
-        if (player.getHealth() + event.getRegen() <= config.getDouble("HealthThreshold")) return;
+        if (event.getPlayer() != this.player) return;
+        if (!this.isBat) return;
 
-        reset();
+        event.setRegen(event.getRegen() * this.config.getDouble("RegenMultiplier"));
 
-        for (Attribute attribute : replaced) {
+        if (this.player.getHealth() + event.getRegen() <= this.config.getDouble("HealthThreshold")) return;
+
+        this.reset();
+
+        for (Attribute attribute : this.removedAttributes) {
             attribute.equip();
             attribute.activate();
         }
 
-        for (int i = 0; i < 4; i++) {
-            new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(player.getLocation(), 2, 20, 0.5);
-        }
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.BAT_HURT, 1, 2);
 
-        player.getWorld().playSound(player.getLocation(), Sound.BAT_HURT, 1, 2);
+        for (int i = 0; i < 3; i++) {
+            new ParticleBuilder(EnumParticle.SMOKE_LARGE).setSpread(0.5f, 0.5f, 0.5f).show(this.player.getLocation());
+        }
     }
 
     @EventHandler
     public void onJump(JumpEvent event) {
-        if (!active || event.getPlayer() != player) return;
+        if (event.getPlayer() != this.player) return;
+        if (!this.isBat) return;
 
-        event.setPower(event.getPower() * config.getDouble("JumpPowerMultiplier"));
-        event.setHeight(event.getHeight() * config.getDouble("JumpHeightMultiplier"));
+        event.setPower(event.getPower() * this.config.getDouble("JumpPowerMultiplier"));
+        event.setHeight(event.getHeight() * this.config.getDouble("JumpHeightMultiplier"));
         event.setNoise(new Noise(Sound.BAT_TAKEOFF, 1, 2));
     }
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
-        if (active && event.getEntity() == player) {
-            event.setDamage(event.getDamage() * config.getDouble("DamageTakenMultiplier"));
+        if (event.getEntity() == this.player && this.isBat) {
+            event.setDamage(event.getDamage() * this.config.getDouble("DamageTakenMultiplier"));
         }
     }
 
-    private void reset() {
-        active = false;
-        bloodlust.destroy();
-        kit.getJump().setCount(oldJumpLimit);
-        DisguiseAPI.undisguiseToAll(player);
-    }
-
-    @Override
-    public void activate() {
-        super.activate();
-
-        for (Attribute attribute : kit.getAttributes()) {
-
-            if (attribute instanceof Bloodlust) {
-                bloodlust = (Bloodlust) attribute;
-                Bukkit.getScheduler().runTaskLater(plugin, bloodlust::deactivate, 20);
-            }
+    @EventHandler
+    public void onCustomDamage(DamageEvent event) {
+        if (event.getVictim() == this.player && this.isBat) {
+            event.getDamage().setDamage(event.getDamage().getDamage() * this.config.getDouble("DamageTakenMultiplier"));
         }
     }
 
-    @Override
-    public void deactivate() {
-        super.deactivate();
+    @EventHandler
+    public void onAttributeDamage(AttributeDamageEvent event) {
+        Attribute attribute = event.getAttribute();
 
-        if (active) {
-            reset();
-        }
+        if (attribute.getPlayer() != this.player) return;
+        if (!(attribute instanceof Melee)) return;
+        if (!this.isBat) return;
+        if (!RegenEvent.attempt(this.player, this.config.getDouble("Regen"))) return;
+
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_UNFECT, 1, 2);
+        new ParticleBuilder(EnumParticle.REDSTONE).boom(this.plugin, EntityUtils.center(event.getVictim()), 3, 0.3, 7);
     }
 }
