@@ -272,8 +272,6 @@ public class InGameState extends GameState {
     private void respawnPlayer(Player player) {
         if (!this.plugin.getGameManager().isPlayerAlive(player)) return;
 
-        this.respawnTasks.remove(player).cancel();
-
         player.teleport(this.plugin.getArenaManager().getArena().getFarthestSpawnFromPlayers());
 
         TitleAPI.sendTitle(player, MessageUtils.color("&7You have &arespawned&7."), MessageUtils.color("&cAvenge &7your death!"), 10, 30, 10);
@@ -397,6 +395,7 @@ public class InGameState extends GameState {
 
                 if (secondsLeft == 0) {
                     respawnPlayer(died);
+                    respawnTasks.remove(died).cancel();
                     return;
                 }
 

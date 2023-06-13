@@ -1326,7 +1326,7 @@ Shinoby:
         Material: IRON_HOE
       Description:
         - ""
-      EnergyCost: 0.8
+      EnergyCost: 0.5
       Recoil: 1.2
       Clone:
         Velocity: 1.4
@@ -1530,7 +1530,7 @@ Mermaid:
         HitBox: 1
         VelocityMultiplier: 0.6
         Damage: 4.5
-        SoakDuration: 40
+        SoakDuration: 60
         Kb: 0.9
         KbY: 0.5
         Item:
