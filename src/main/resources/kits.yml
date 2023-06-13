@@ -800,7 +800,7 @@ Miner:
         Speed: 1
         BurnChance: 0.3
         BurnDuration: 50
-        FragmentCount: 18
+        FragmentCount: 15
         MinPitch: -10
         MaxPitch: -35
         Damage: 4.75
@@ -832,7 +832,7 @@ Miner:
       Cooldown: 160
       MaxChargeTicks: 20
       Velocity: 1.1
-      HitBox: 1.5
+      HitBox: 1.6
       Damage: 5.5
       Kb: 2.4
       KbY: 0.5
@@ -850,10 +850,10 @@ Miner:
         - "&7along semi-flat ground and can sneak"
         - "&7once more to emerge onto the surface."
       Velocity: 0.4
-      MaxTicks: 75
+      MaxTicks: 60
       Depth: 1.6
-      DropVelocity: 1.4
-      MaxDropTicks: 40
+      EmergeVelocity: 0.8
+      EmergeVelocityY: 0.8
       TicksPerParticle: 20
       Blindness: 1
       PassableMaterials:

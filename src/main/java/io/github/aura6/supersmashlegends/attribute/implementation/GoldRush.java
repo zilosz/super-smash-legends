@@ -8,33 +8,28 @@ import io.github.aura6.supersmashlegends.event.EnergyEvent;
 import io.github.aura6.supersmashlegends.event.JumpEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
+import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
+import io.github.aura6.supersmashlegends.utils.message.Chat;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GoldRush extends PassiveAbility {
     private List<Material> passableMaterials;
-
     private boolean isMining = false;
-    private boolean isDropping = false;
-
     private BukkitTask resetTask;
     private BukkitTask moveTask;
-    private BukkitTask dropTask;
-    private BukkitTask dropCancelTask;
     private BukkitTask particleTask;
 
     public GoldRush(SuperSmashLegends plugin, Section config, Kit kit) {
@@ -55,8 +50,6 @@ public class GoldRush extends PassiveAbility {
     }
 
     private void reset() {
-        this.cancelDrop();
-
         if (!this.isMining) return;
 
         this.isMining = false;
@@ -76,6 +69,10 @@ public class GoldRush extends PassiveAbility {
         this.player.setGameMode(GameMode.SURVIVAL);
         this.player.removePotionEffect(PotionEffectType.BLINDNESS);
 
+        double velocity = this.config.getDouble("EmergeVelocity");
+        double velY = this.config.getDouble("EmergeVelocityY");
+        this.player.setVelocity(location.getDirection().multiply(velocity).setY(velY));
+
         this.kit.getJump().replenish();
     }
 
@@ -93,19 +90,12 @@ public class GoldRush extends PassiveAbility {
         this.player.teleport(location.subtract(0, this.config.getDouble("Depth"), 0));
     }
 
-    private void cancelDrop() {
-        if (this.dropTask != null) {
-            this.dropTask.cancel();
-            this.dropCancelTask.cancel();
-            this.isDropping = false;
-        }
-    }
-
     private void startMining() {
         this.isMining = true;
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.DIG_GRASS, 2, 0.85f);
 
+        this.player.setExp(0);
         this.player.setGameMode(GameMode.SPECTATOR);
         this.player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 10_000, this.config.getInt("Blindness")));
         this.teleport(this.player.getLocation());
@@ -154,7 +144,6 @@ public class GoldRush extends PassiveAbility {
     public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
         if (event.getPlayer() != this.player) return;
         if (this.player.isSneaking()) return;
-        if (this.isDropping) return;
 
         if (this.isMining) {
             this.reset();
@@ -163,49 +152,31 @@ public class GoldRush extends PassiveAbility {
 
         if (this.player.getExp() < 1) return;
 
-        this.isDropping = true;
+        if (!EntityUtils.isPlayerGrounded(this.player)) {
+            Chat.ABILITY.send(this.player, "&7You must be grounded to start mining.");
+            return;
+        }
 
-        this.player.getWorld().playSound(this.player.getLocation(), Sound.IRONGOLEM_THROW, 2, 0.5f);
-        this.player.setExp(0);
-
-        this.dropTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
-            this.player.setVelocity(new Vector(0, -this.config.getDouble("DropVelocity"), 0));
-
-            for (int i = 0; i < 5; i++) {
-                new ParticleBuilder(EnumParticle.FIREWORKS_SPARK).setSpread(1, 1, 1).show(this.player.getLocation());
-            }
-
-            if (((Entity) this.player).isOnGround()) {
-                this.cancelDrop();
-                this.startMining();
-            }
-        }, 0, 0);
-
-        int dropTicks = this.config.getInt("MaxDropTicks");
-        this.dropCancelTask = Bukkit.getScheduler().runTaskLater(this.plugin, this::cancelDrop, dropTicks);
-    }
-
-    private boolean isActive() {
-        return this.isMining || this.isDropping;
+        this.startMining();
     }
 
     @EventHandler
     public void onAbilityUse(AbilityUseEvent event) {
-        if (event.getAbility().getPlayer() == this.player && this.isActive()) {
+        if (event.getAbility().getPlayer() == this.player && this.isMining) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
     public void onJump(JumpEvent event) {
-        if (event.getPlayer() == this.player && this.isActive()) {
+        if (event.getPlayer() == this.player && this.isMining) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
     public void onEnergy(EnergyEvent event) {
-        if (event.getPlayer() == this.player && this.isActive()) {
+        if (event.getPlayer() == this.player && this.isMining) {
             event.setEnergy(0);
         }
     }
