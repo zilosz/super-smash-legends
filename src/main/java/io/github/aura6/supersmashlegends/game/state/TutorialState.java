@@ -61,24 +61,29 @@ public class TutorialState extends GameState {
 
     @Override
     public List<String> getScoreboard(Player player) {
-        Arena arena = plugin.getArenaManager().getArena();
+        List<String> lines = new ArrayList<>(Arrays.asList(
+                "&5&l---------------------",
+                "&f&lStatus",
+                "&7Enjoy the tutorial!",
+                "",
+                "&f&lArena",
+                "{ARENA}",
+                "",
+                "&f&lAuthors",
+                "&7{AUTHORS}"
+        ));
+
+        Arena arena = this.plugin.getArenaManager().getArena();
 
         Replacers replacers = new Replacers()
                 .add("ARENA", arena.getName())
                 .add("AUTHORS", arena.getAuthors());
 
-        List<String> lines = new ArrayList<>(Arrays.asList(
-                "&5&l---------------------",
-                "&7Enjoy the tutorial!",
-                "",
-                "&fArena: {ARENA}",
-                "&fAuthors: &7{AUTHORS}"
-        ));
-
-        if (!plugin.getGameManager().isSpectator(player)) {
+        if (!this.plugin.getGameManager().isSpectator(player)) {
             lines.add("");
-            lines.add(6, "&fKit: &5{KIT}");
-            replacers.add("KIT", plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+            lines.add("&f&lKit");
+            lines.add("{KIT}");
+            replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
         }
 
         lines.add("&5&l---------------------");

@@ -64,6 +64,7 @@ public class EndState extends GameState {
 
         List<String> lines = new ArrayList<>(Arrays.asList(
                 "&5&l---------------------",
+                "&f&lStatus",
                 "&7Ending the game...",
                 ""
         ));
@@ -71,23 +72,20 @@ public class EndState extends GameState {
         Replacers replacers = new Replacers();
 
         if (this.winnerString == null) {
-            lines.add("&fResult: &eTie");
+            lines.add("&f&lResult");
+            lines.add("&eTie");
 
         } else {
-            lines.add("&fWinner: {WINNER}");
+            lines.add("&f&lWinner");
+            lines.add("{WINNER}");
             replacers.add("WINNER", this.winnerString);
         }
 
-        GameManager gameManager = this.plugin.getGameManager();
-
         if (this.plugin.getTeamManager().doesPlayerHaveTeam(player)) {
-            InGameProfile profile = gameManager.getProfile(player);
-
-            replacers.add("KILLS", profile.getKills());
-            replacers.add("KIT", profile.getKit().getBoldedDisplayName());
-
             lines.add("");
-            lines.addAll(Arrays.asList("&fKills: &5{KILLS}", "&fKit: {KIT}"));
+            lines.add("&f&lKit");
+            lines.add("{KIT}");
+            replacers.add("KIT", this.plugin.getGameManager().getProfile(player).getKit().getBoldedDisplayName());
         }
 
         lines.add("&5&l---------------------");

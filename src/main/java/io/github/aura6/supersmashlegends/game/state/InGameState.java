@@ -113,17 +113,19 @@ public class InGameState extends GameState {
 
         List<String> scoreboard = new ArrayList<>(Arrays.asList(
                 "&5&l---------------------",
-                "&fTime Left: &e{TIME_LEFT}",
+                "&f&lMinutes Left",
+                "&e{MIN_LEFT}",
                 ""
         ));
 
         int playerIndex = scoreboard.size();
 
-        Replacers replacers = new Replacers().add("TIME_LEFT", MessageUtils.secToMin(this.secLeft));
+        Replacers replacers = new Replacers().add("MIN_LEFT", MessageUtils.secToMin(this.secLeft));
 
         if (this.plugin.getGameManager().isPlayerAlive(player)) {
             scoreboard.add("");
-            scoreboard.add("&fKit: {KIT}");
+            scoreboard.add("&f&lKit");
+            scoreboard.add("{KIT}");
 
             try {
                 replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
@@ -132,12 +134,12 @@ public class InGameState extends GameState {
 
         scoreboard.add("&5&l---------------------");
 
-        TeamManager teamManager = plugin.getTeamManager();
-        int lifeCap = plugin.getResources().getConfig().getInt("Game.Lives");
+        TeamManager teamManager = this.plugin.getTeamManager();
+        int lifeCap = this.plugin.getResources().getConfig().getInt("Game.Lives");
         Set<Player> alivePlayers = this.plugin.getGameManager().getAlivePlayers();
 
         if (teamManager.getTeamSize() == 1) {
-            scoreboard.add(playerIndex, "&5&lPlayers");
+            scoreboard.add(playerIndex, "&f&lPlayers");
 
             if (scoreboard.size() + alivePlayers.size() <= MAX_SCOREBOARD_SIZE) {
 
@@ -150,7 +152,7 @@ public class InGameState extends GameState {
             }
 
         } else {
-            scoreboard.add(playerIndex, "&5&lTeams");
+            scoreboard.add(playerIndex, "&f&lTeams");
             List<Team> aliveTeams = teamManager.getAliveTeams();
 
             if (scoreboard.size() + alivePlayers.size() <= MAX_SCOREBOARD_SIZE) {

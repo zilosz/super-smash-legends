@@ -90,8 +90,10 @@ public class LobbyState extends GameState {
             replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
         } catch (NullPointerException ignored) {}
 
-        List<String> lines = new ArrayList<>();
-        lines.add("&5&l---------------------");
+        List<String> lines = new ArrayList<>(Arrays.asList(
+                "&5&l---------------------",
+                "&f&lStatus"
+        ));
 
         if (this.isCounting) {
             lines.add(String.format("&7Starting in &e&l%d &7seconds.", this.secUntilStart));
@@ -102,9 +104,11 @@ public class LobbyState extends GameState {
 
         lines.addAll(Arrays.asList(
                 "",
-                "&fPlayers: &5{CURRENT}&7/&f{CAP}",
+                "&f&lPlayers",
+                "&5&l{CURRENT} &7/ &f{CAP}",
                 "",
-                "&fKit: &5{KIT}",
+                "&f&lKit",
+                "{KIT}",
                 "&5&l---------------------"
         ));
 
