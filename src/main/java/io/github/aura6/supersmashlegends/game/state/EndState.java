@@ -1,5 +1,6 @@
 package io.github.aura6.supersmashlegends.game.state;
 
+import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import com.connorlinfoot.titleapi.TitleAPI;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.database.Database;
@@ -243,7 +244,6 @@ public class EndState extends GameState {
         this.endCountdown = new BukkitRunnable() {
             int secondsLeft = plugin.getResources().getConfig().getInt("Game.EndWaitSeconds");
             float pitch = 0.5f;
-            final double pitchStep = 1.5 / secondsLeft;
 
             @Override
             public void run() {
@@ -253,18 +253,18 @@ public class EndState extends GameState {
                     return;
                 }
 
+                String message = MessageUtils.color("&7Resetting in &5&l" + this.secondsLeft + " &7seconds.");
+
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    String title = MessageUtils.color("&7Resetting in...");
-                    String subtitle = MessageUtils.color("&5&l" + this.secondsLeft);
-                    TitleAPI.sendTitle(player, title, subtitle, 4, 12, 4);
+                    ActionBarAPI.sendActionBar(player, message);
                     player.playSound(player.getLocation(), Sound.CLICK, 1, this.pitch);
                 }
 
-                this.pitch += this.pitchStep;
+                this.pitch += 1.5 / this.secondsLeft;
                 this.secondsLeft--;
             }
 
-        }.runTaskTimer(plugin, 70, 20);
+        }.runTaskTimer(this.plugin, 40, 20);
     }
 
     @Override
