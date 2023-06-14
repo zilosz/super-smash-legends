@@ -111,12 +111,12 @@ public class Rasenshuriken extends RightClickAbility {
             pitch = actual >= 0 ? actual - 90 : actual + 90;
         }
 
-        for (double radius = 0; radius <= 0.5; radius += 0.1) {
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 255, 255).ring(loc, pitch, yaw, radius, 7.5);
+        for (double radius = 0; radius <= 0.5; radius += 0.16) {
+            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 255, 255).ring(loc, pitch, yaw, radius, 18);
         }
 
         double radius = config.getDouble("ParticleRadius");
-        new ParticleBuilder(EnumParticle.REDSTONE).setRgb(173, 216, 230).solidSphere(loc, radius, 7, 0.1);
+        new ParticleBuilder(EnumParticle.REDSTONE).setRgb(173, 216, 230).hollowSphere(loc, radius, 5);
     }
 
     public static class Shuriken extends ItemProjectile {

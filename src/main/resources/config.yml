@@ -63,4 +63,4 @@ Damage:
     FactorsHealth: false
   KbHealthMultiplier:
     Min: 1
-    Max: 2
+    Max: 1.5

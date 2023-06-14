@@ -60,7 +60,7 @@ public class Rasengan extends RightClickAbility {
 
     public static void display(LivingEntity entity) {
         Location location = EntityUtils.underHand(entity, 0);
-        new ParticleBuilder(EnumParticle.REDSTONE).setRgb(173, 216, 230).solidSphere(location, 0, 50, 0.05);
+        new ParticleBuilder(EnumParticle.REDSTONE).setRgb(173, 216, 230).hollowSphere(location, 0.15, 20);
     }
 
     public static void end(LivingEntity entity) {

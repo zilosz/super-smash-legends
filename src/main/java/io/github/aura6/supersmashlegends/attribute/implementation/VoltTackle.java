@@ -4,7 +4,6 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
@@ -128,13 +127,6 @@ public class VoltTackle extends RightClickAbility {
     public void deactivate() {
         this.reset(false, false);
         super.deactivate();
-    }
-
-    @EventHandler
-    public void onDamage(AttributeDamageEvent event) {
-        if (event.getVictim() == this.player && !(event.getAttribute() instanceof Melee)) {
-            this.reset(true, true);
-        }
     }
 
     @EventHandler

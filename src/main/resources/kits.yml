@@ -138,7 +138,7 @@ Globby:
         - "&7goo. The sheer speed of the goo, along"
         - "&7with its slimy nature, allows it to"
         - "&7bounce off obstacles."
-      EnergyCost: 0.32
+      EnergyCost: 0.4
       Speed: 1.3
       Damage: 4
       Kb: 1.1
@@ -175,7 +175,7 @@ Globby:
       AutoStartCooldown: false
       Velocity: 2
       SlimeSize: 2
-      HitBox: 1.5
+      HitBox: 1.25
       Damage: 6
       Kb: 2.1
       KbY: 0.85
@@ -190,7 +190,7 @@ Globby:
         - "&7energy efficiency in an act of pure survival"
         - "&7instincts."
       UseDescription: "Receive energy boost when at low health"
-      EnergyMultiplier: 1.65
+      EnergyMultiplier: 1.5
       Speed: 1
       HealthThreshold: 7.5
 Mechon:
@@ -245,7 +245,7 @@ Mechon:
         Invisible: true
         HasGravity: false
         MinSpeed: 0.5
-        MaxSpeed: 2.79
+        MaxSpeed: 2.1
         Item:
           Material: GHAST_TEAR
         LaunchSound:
@@ -398,11 +398,11 @@ Drakula:
         - "&7Shoot multiple pellets of venom-tainted"
         - "&7blood at enemies, inflicting damage and"
         - "&7debilitating poison."
-      Cooldown: 110
+      Cooldown: 130
       Interval: 2
-      Count: 10
+      Count: 6
       Projectile:
-        PoisonDuration: 40
+        PoisonDuration: 20
         PoisonLevel: 1
         Speed: 1.3
         Damage: 4
@@ -475,7 +475,7 @@ Drakula:
       ExtraJumps: 4
       DamageTakenMultiplier: 1.25
       Regen: 1
-      RegenMultiplier: 1.5
+      RegenMultiplier: 1.25
 Cryomancer:
   ConfigName: Cryomancer
   Name: "Cryomancer"
@@ -511,7 +511,7 @@ Cryomancer:
         - "&7Cryomancer's wizardry powers, the"
         - "&7icicle reels targets towards him."
         - "&7Its damage ignores enemy armor."
-      Cooldown: 70
+      Cooldown: 90
       Projectile:
         Speed: 1.65
         FactorsArmor: false
@@ -539,7 +539,7 @@ Cryomancer:
       MinRadius: 0.3
       MaxRadius: 2.2
       HitBox: 1.5
-      Range: 7.5
+      Range: 5
       RingCount: 15
       ParticleDensity: 20
       Kb: 1.8
@@ -701,9 +701,9 @@ Tank:
       MaxChargeTicks: 80
       KbY: 1.1
       MinDamage: 4
-      MaxDamage: 14
+      MaxDamage: 12
       MinSpeed: 0.65
-      MaxSpeed: 1.5
+      MaxSpeed: 1.6
       MinKb: 1.5
       MaxKb: 3.2
       MinSize: 1
@@ -721,7 +721,7 @@ Tank:
         - "&7with small fissures."
       Cooldown: 160
       AutoStartCooldown: false
-      HorizontalRange: 6
+      HorizontalRange: 6.5
       VerticalRange: 4
       Kb: 1.55
       KbY: 1.35
@@ -741,9 +741,9 @@ Tank:
         - "&7to close heavy distances. Sneak to cancel."
       Cooldown: 130
       AutoStartCooldown: false
-      ChainSpeed: 1.25
+      ChainSpeed: 1.3
       ChainTicks: 40
-      PullSpeed: 1.1
+      PullSpeed: 1.3
       Damage: 5.5
       HitBox: 1
     3:
@@ -895,7 +895,7 @@ Moreo:
   Regen: 0.275
   Jump:
     Power: 1.25
-    Height: 1.5
+    Height: 1.4
     Sound:
       Type: VILLAGER_YES
       Volume: 1
@@ -917,7 +917,7 @@ Moreo:
       DownwardVelocity: 1.8
       MinBounce: 0.35
       MaxBounce: 3.5
-      HitBox: 1.5
+      HitBox: 1.7
       MaxDamage: 18
       MinDamage: 4
       MaxKb: 3.5
@@ -938,7 +938,7 @@ Moreo:
       AutoStartCooldown: false
       AutoSendUseMessage: false
       Speed: 1.15
-      TicksToReturn: 115
+      TicksToReturn: 100
       RotationPerTick: 0.45
       RemoveOnEntityHit: false
       HasGravity: false
@@ -1073,7 +1073,7 @@ Pikachew:
   Damage: 5
   Armor: 0.7
   Kb: 1.85
-  Regen: 0.325
+  Regen: 0.3
   Jump:
     Power: 1.35
     Height: 0.95
@@ -1091,7 +1091,7 @@ Pikachew:
         - "&7Charge up an immensely powerful lightning"
         - "&7strike. Hits foes in the direction you are"
         - "&7facing once you stop charging."
-      Cooldown: 160
+      Cooldown: 140
       MinChargeTicks: 10
       MaxChargeTicks: 40
       KbY: 0.7
@@ -1101,7 +1101,7 @@ Pikachew:
       MaxKb: 2.5
       MinRange: 5
       MaxRange: 40
-      HitBox: 0.75
+      HitBox: 0.8
     1:
       ConfigName: VoltTackle
       Name: "Volt Tackle"
@@ -1112,13 +1112,12 @@ Pikachew:
         - "&7electricity to charge forwards at a"
         - "&7blinding pace. Pikachew's immense speed"
         - "&7means he struggles to change direction."
-        - "&7Taking projectile damage cancels the"
-        - "&7charge, but colliding with enemies deals"
-        - "&7great damage and recoil. Sneak to cancel."
+        - "&7Colliding with enemies deals great"
+        - "&7damage and recoil. Sneak to cancel."
       Cooldown: 160
       AutoStartCooldown: false
-      MinVelocity: 0.1
-      MaxVelocity: 1.6
+      MinVelocity: 0.3
+      MaxVelocity: 1.4
       MaxVelocityY: 0.25
       DurationTicks: 50
       MinDamage: 1
@@ -1126,7 +1125,7 @@ Pikachew:
       MinKb: 0.8
       MaxKb: 2.6
       KbY: 0.8
-      HitBox: 1.8
+      HitBox: 1.5
       ParticlesPerTick: 6
       ParticleDuration: 5
       ParticleSpeed: 0.4
@@ -1147,7 +1146,7 @@ Pikachew:
         - "&7him to leap upwards. The liftoff power is"
         - "&7strong and imbued with electricity, hurting"
         - "&7enemies within a nearby radius."
-      Cooldown: 180
+      Cooldown: 160
       Radius: 4
       Velocity: 1.5
       HitBox: 1.3
@@ -1259,7 +1258,7 @@ Shinoby:
   Armor: 0.65
   Kb: 1.7
   Regen: 0.3
-  Energy: 0.07
+  Energy: 0.05
   Jump:
     Power: 1.15
     Height: 1
