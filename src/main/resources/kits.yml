@@ -1327,6 +1327,7 @@ Shinoby:
         Health: 10
         Limit: 2
         Speed: 1
+        Duration: 200
         Rasenshuriken:
           Height: 0.35
           DamageMultiplier: 0.5

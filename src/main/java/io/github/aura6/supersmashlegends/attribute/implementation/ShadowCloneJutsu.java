@@ -88,7 +88,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
             if (clone.creature.isValid()) {
                 clone.destroy();
             }
-        }, 400);
+        }, this.config.getInt("Clone.Duration"));
     }
 
     @Override
