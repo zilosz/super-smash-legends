@@ -18,6 +18,7 @@ public class HotbarItem implements Listener {
     @Getter private final ItemStack itemStack;
     @Getter private final int slot;
     @Setter private Consumer<PlayerInteractEvent> action;
+    private Integer lastTick;
 
     public HotbarItem(Player player, ItemStack itemStack, int slot) {
         this.player = player;
@@ -45,11 +46,17 @@ public class HotbarItem implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getPlayer() != player) return;
-        if (event.getPlayer().getInventory().getHeldItemSlot() != slot) return;
+        if (event.getPlayer() != this.player) return;
+        if (event.getPlayer().getInventory().getHeldItemSlot() != this.slot) return;
 
-        if (action != null) {
-            action.accept(event);
+        int currTick = (int) this.player.getWorld().getFullTime();
+
+        if (this.lastTick != null && this.lastTick == currTick) return;
+
+        this.lastTick = currTick;
+
+        if (this.action != null) {
+            this.action.accept(event);
         }
 
         if (event.getItem() == null) return;
