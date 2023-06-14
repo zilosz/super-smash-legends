@@ -11,7 +11,7 @@ import io.github.aura6.supersmashlegends.command.ReloadConfigCommand;
 import io.github.aura6.supersmashlegends.command.SkipCommand;
 import io.github.aura6.supersmashlegends.command.StartCommand;
 import io.github.aura6.supersmashlegends.damage.DamageManager;
-import io.github.aura6.supersmashlegends.database.Database;
+import io.github.aura6.supersmashlegends.database.PlayerDatabase;
 import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.game.GameScoreboard;
 import io.github.aura6.supersmashlegends.kit.KitManager;
@@ -34,7 +34,7 @@ public class SuperSmashLegends extends JavaPlugin {
     @Getter private static SuperSmashLegends instance;
 
     private Resources resources;
-    private Database db;
+    private PlayerDatabase playerDatabase;
     private KitManager kitManager;
     private InventoryManager inventoryManager;
     private GameManager gameManager;
@@ -59,14 +59,14 @@ public class SuperSmashLegends extends JavaPlugin {
         this.inventoryManager = new InventoryManager(this);
         this.teamManager = new TeamManager(this);
         this.arenaManager = new ArenaManager(this);
-        this.db = new Database();
+        this.playerDatabase = new PlayerDatabase();
         this.kitManager = new KitManager(this);
         this.gameManager = new GameManager(this);
 
         Section dbConfig = this.resources.getConfig().getSection("Database");
 
         if (dbConfig.getBoolean("Enabled")) {
-            this.db.init(dbConfig.getString("Uri"), dbConfig.getString("Database"), dbConfig.getString("Collection"));
+            this.playerDatabase.init(dbConfig.getString("Uri"), dbConfig.getString("Database"), dbConfig.getString("Collection"));
         }
 
         Bukkit.getPluginManager().registerEvents(this.kitManager, this);

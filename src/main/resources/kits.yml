@@ -518,7 +518,6 @@ Cryomancer:
         Damage: 4
         Kb: -1
         KbY: 0.5
-        HitBox: 0.85
         LaunchSound:
           Type: GLASS
           Volume: 1
@@ -1101,7 +1100,7 @@ Pikachew:
       MaxKb: 2.5
       MinRange: 5
       MaxRange: 40
-      HitBox: 0.8
+      HitBox: 1
     1:
       ConfigName: VoltTackle
       Name: "Volt Tackle"
@@ -1362,7 +1361,7 @@ Webman:
   Regen: 0.28
   Jump:
     Power: 1.2
-    Height: 0.95
+    Height: 0.9
     Sound:
       Type: SPIDER_IDLE
       Volume: 1
@@ -1521,7 +1520,6 @@ Mermaid:
       Cooldown: 120
       Projectile:
         Speed: 1.6
-        HitBox: 0.75
         VelocityMultiplier: 0.6
         Damage: 4.5
         SoakDuration: 60

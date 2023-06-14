@@ -5,6 +5,7 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Updates;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,7 +14,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-public class Database {
+public class PlayerDatabase {
     private MongoCollection<Document> mongoCollection;
 
     public void init(String uri, String db, String collection) {
@@ -22,10 +23,10 @@ public class Database {
 
     @SuppressWarnings("unchecked")
     public <T> T getOrDefault(UUID uuid, String key, T ifNull, T ifDisabled) {
-        if (mongoCollection == null) return ifDisabled;
+        if (this.mongoCollection == null) return ifDisabled;
 
         CompletableFuture<T> future = new CompletableFuture<>();
-        Document doc = mongoCollection.find(new Document("uuid", uuid.toString())).first();
+        Document doc = this.mongoCollection.find(new Document("uuid", uuid.toString())).first();
         future.complete(doc == null || doc.get(key) == null ? null : (T) doc.get(key));
 
         try {
@@ -37,36 +38,34 @@ public class Database {
         }
     }
 
-    public <T> void setIfEnabled(UUID uuid, String key, T value) {
-        if (mongoCollection == null) return;
+    public <T> void set(UUID uuid, String key, T value, Bson update) {
+        if (this.mongoCollection == null) return;
 
         Document document = new Document("uuid", uuid.toString());
-        Document existing = mongoCollection.find(document).first();
+        Document existing = this.mongoCollection.find(document).first();
 
         if (existing == null) {
             document.put(key, value);
-            mongoCollection.insertOne(document);
+            this.mongoCollection.insertOne(document);
 
         } else {
-            mongoCollection.updateOne(existing, Updates.set(key, value));
+            this.mongoCollection.updateOne(existing, update);
         }
     }
 
-    public void increaseDouble(UUID uuid, String key, double amount) {
-        double oldDouble = this.getOrDefault(uuid, key, 0.0, 0.0);
-        this.setIfEnabled(uuid, key, oldDouble + amount);
+    public <T> void set(UUID uuid, String key, T value) {
+        this.set(uuid, key, value, Updates.set(key, value));
     }
 
-    public void increaseInt(UUID uuid, String key, int amount) {
-        int oldInt = this.getOrDefault(uuid, key, 0, 0);
-        this.setIfEnabled(uuid, key, oldInt + amount);
+    public void increment(UUID uuid, String key, Number value) {
+        this.set(uuid, key, value, Updates.inc(key, value));
     }
 
     public List<Document> getDocuments() {
-        if (mongoCollection == null) return Collections.emptyList();
+        if (this.mongoCollection == null) return Collections.emptyList();
 
         List<Document> documents = new ArrayList<>();
-        FindIterable<Document> found = mongoCollection.find();
+        FindIterable<Document> found = this.mongoCollection.find();
 
         for (Document document : found) {
             documents.add(document);

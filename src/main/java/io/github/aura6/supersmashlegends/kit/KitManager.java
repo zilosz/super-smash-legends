@@ -109,7 +109,7 @@ public class KitManager implements Listener {
     }
 
     public void pullUserKit(Player player) {
-        String kitString = plugin.getDb().getOrDefault(player.getUniqueId(), "kit", "Barbarian", "Barbarian");
+        String kitString = plugin.getPlayerDatabase().getOrDefault(player.getUniqueId(), "kit", "Barbarian", "Barbarian");
         Kit kit = this.kitsByName.get(kitString);
         setKit(player, kit == null ? this.kitsByName.get("Barbarian") : kit);
     }
@@ -120,7 +120,7 @@ public class KitManager implements Listener {
 
         Optional.ofNullable(this.selectedKits.remove(player.getUniqueId())).ifPresent(kit -> {
             kit.destroy();
-            this.plugin.getDb().setIfEnabled(player.getUniqueId(), "kit", kit.getConfigName());
+            this.plugin.getPlayerDatabase().set(player.getUniqueId(), "kit", kit.getConfigName());
         });
     }
 

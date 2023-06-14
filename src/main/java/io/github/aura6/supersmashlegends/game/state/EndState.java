@@ -3,7 +3,7 @@ package io.github.aura6.supersmashlegends.game.state;
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import com.connorlinfoot.titleapi.TitleAPI;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import io.github.aura6.supersmashlegends.database.Database;
+import io.github.aura6.supersmashlegends.database.PlayerDatabase;
 import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.game.GameResult;
 import io.github.aura6.supersmashlegends.game.InGameProfile;
@@ -223,15 +223,15 @@ public class EndState extends GameState {
 
             UUID uuid = player.getUniqueId();
             InGameProfile profile = gameManager.getProfile(player);
-            Database db = this.plugin.getDb();
+            PlayerDatabase db = this.plugin.getPlayerDatabase();
 
             if (playerRanks.size() > 1 && altsUsed < 2) {
-                db.increaseInt(uuid, profile.getGameResult().getDbString(), 1);
-                db.increaseInt(uuid, "result." + playerRanks.get(player), 1);
-                db.increaseInt(uuid, "kills", profile.getKills());
-                db.increaseInt(uuid, "deaths", profile.getDeaths());
-                db.increaseDouble(uuid, "damageDealt", profile.getDamageDealt());
-                db.increaseDouble(uuid, "damageTaken", profile.getDamageTaken());
+                db.increment(uuid, profile.getGameResult().getDbString(), 1);
+                db.increment(uuid, "result." + playerRanks.get(player), 1);
+                db.increment(uuid, "kills", profile.getKills());
+                db.increment(uuid, "deaths", profile.getDeaths());
+                db.increment(uuid, "damageDealt", profile.getDamageDealt());
+                db.increment(uuid, "damageTaken", profile.getDamageTaken());
             }
         }
 
@@ -264,7 +264,7 @@ public class EndState extends GameState {
                 this.secondsLeft--;
             }
 
-        }.runTaskTimer(this.plugin, 40, 20);
+        }.runTaskTimer(this.plugin, 100, 20);
     }
 
     @Override

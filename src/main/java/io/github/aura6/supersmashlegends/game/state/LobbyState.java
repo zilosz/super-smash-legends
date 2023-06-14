@@ -129,7 +129,7 @@ public class LobbyState extends GameState {
         List<String> players = new ArrayList<>();
         List<Integer> stats = new ArrayList<>();
 
-        for (Document doc : plugin.getDb().getDocuments()) {
+        for (Document doc : plugin.getPlayerDatabase().getDocuments()) {
             String name = doc.getString("name");
             int stat = (int) doc.getOrDefault(statName, 0);
 
@@ -372,7 +372,7 @@ public class LobbyState extends GameState {
         kitManager.pullUserKit(player);
         kitManager.updateHolograms(player);
 
-        this.plugin.getDb().setIfEnabled(player.getUniqueId(), "name", player.getName());
+        this.plugin.getPlayerDatabase().set(player.getUniqueId(), "name", player.getName());
 
         this.tryCountdownStart();
     }
