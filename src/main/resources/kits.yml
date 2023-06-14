@@ -86,7 +86,8 @@ Barbarian:
       Cooldown: 175
       Uses: 2
       AutoStartCooldown: false
-      Recoil: 1.4
+      ForwardVelocity: 1.1
+      ForwardVelocityY: 1.1
       Speed: 0.9
       Damage: 7
       Kb: 1.75
@@ -1433,12 +1434,12 @@ Shinoby:
       EnergyCost: 0.5
       Recoil: 1.2
       Clone:
-        Velocity: 1.4
+        Velocity: 1.3
         Vision: 30
         Health: 10
         Limit: 2
         Speed: 1
-        Duration: 200
+        Duration: 160
         Rasenshuriken:
           Height: 0.35
           DamageMultiplier: 0.5

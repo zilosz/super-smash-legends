@@ -26,12 +26,15 @@ public class SpringTrap extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new SpringProjectile(plugin, this, config).launch();
-        player.setVelocity(new Vector(0, config.getDouble("Recoil"), 0));
+        new SpringProjectile(this.plugin, this, this.config).launch();
 
-        if (++uses >= config.getInt("Uses")) {
-            startCooldown();
-            uses = 0;
+        double velocity = this.config.getDouble("ForwardVelocity");
+        double velocityY = this.config.getDouble("ForwardVelocityY");
+        this.player.setVelocity(this.player.getEyeLocation().getDirection().multiply(velocity).setY(velocityY));
+
+        if (++this.uses >= this.config.getInt("Uses")) {
+            this.startCooldown();
+            this.uses = 0;
         }
     }
 
