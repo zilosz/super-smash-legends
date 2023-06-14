@@ -72,12 +72,12 @@ public class RocketLauncher extends ChargedRightClickAbility {
             Location location = this.entity.getLocation();
             this.entity.getWorld().playSound(location, Sound.FUSE, 0.5f, 1);
 
-            particles.add(location);
+            this.particles.add(location);
 
             for (Location loc : this.particles) {
 
-                for (int i = 0; i < 5; i++) {
-                    new ParticleBuilder(EnumParticle.REDSTONE).setRgb(53, 153, 255).setSpread(0.3f, 0.3f, 0.3f).show(loc);
+                for (int i = 0; i < 3; i++) {
+                    new ParticleBuilder(EnumParticle.SMOKE_LARGE).setSpread(0.3f, 0.3f, 0.3f).show(loc);
                 }
             }
         }
