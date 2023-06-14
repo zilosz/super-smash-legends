@@ -1,5 +1,6 @@
 package io.github.aura6.supersmashlegends.game.state;
 
+import com.comphenix.protocol.ProtocolLibrary;
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import com.connorlinfoot.titleapi.TitleAPI;
 import com.nametagedit.plugin.NametagEdit;
@@ -12,6 +13,7 @@ import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.team.Team;
 import io.github.aura6.supersmashlegends.team.TeamManager;
+import io.github.aura6.supersmashlegends.utils.HeldItemHider;
 import io.github.aura6.supersmashlegends.utils.HotbarItem;
 import io.github.aura6.supersmashlegends.utils.NmsUtils;
 import io.github.aura6.supersmashlegends.utils.effect.DeathNPC;
@@ -61,6 +63,8 @@ public class InGameState extends GameState {
 
     private int secLeft;
     private BukkitTask gameTimer;
+
+    private HeldItemHider heldItemHider;
 
     public InGameState(SuperSmashLegends plugin) {
         super(plugin);
@@ -241,6 +245,9 @@ public class InGameState extends GameState {
             }
         }, 20, 20);
 
+        this.heldItemHider = new HeldItemHider(this.plugin);
+        ProtocolLibrary.getProtocolManager().addPacketListener(this.heldItemHider);
+
         List<Location> spawnLocations = this.plugin.getArenaManager().getArena().getSpawnLocations();
         List<Location> spawnsLeft = new ArrayList<>(spawnLocations);
         Comparator<Location> comparator = Comparator.comparingDouble(Arena::getTotalDistanceToPlayers);
@@ -301,6 +308,8 @@ public class InGameState extends GameState {
         });
 
         this.respawnTasks.clear();
+
+        ProtocolLibrary.getProtocolManager().removePacketListener(this.heldItemHider);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             this.removeTracker(player);
