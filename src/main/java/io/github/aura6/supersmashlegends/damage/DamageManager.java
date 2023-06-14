@@ -36,8 +36,8 @@ public class DamageManager {
         this.plugin = plugin;
     }
 
-    public Optional<Attribute> getLastDamagingAttribute(LivingEntity entity) {
-        return Optional.ofNullable(this.lastDamagingAttributes.get(entity));
+    public Attribute getLastDamagingAttribute(LivingEntity entity) {
+        return this.lastDamagingAttributes.get(entity);
     }
 
     public void destroyIndicator(LivingEntity entity) {
@@ -64,7 +64,7 @@ public class DamageManager {
         indicator.stackDamage(damage);
 
         int comboDuration = this.plugin.getResources().getConfig().getInt("Damage.Indicator.ComboDuration");
-        this.indicatorRemovers.put(entity, Bukkit.getScheduler().runTaskLater(this.plugin, () -> destroyIndicator(entity), comboDuration));
+        this.indicatorRemovers.put(entity, Bukkit.getScheduler().runTaskLater(this.plugin, () -> this.destroyIndicator(entity), comboDuration));
     }
 
     public void hideEntityIndicator(LivingEntity entity) {
@@ -99,18 +99,12 @@ public class DamageManager {
     public boolean attemptAttributeDamage(LivingEntity victim, Damage damage, Attribute attribute) {
         if (this.immunities.containsKey(victim) && this.immunities.get(victim).contains(attribute)) return false;
 
-        AttributeDamageEvent event = new AttributeDamageEvent(victim, damage, attribute);
-        Bukkit.getPluginManager().callEvent(event);
-
-        if (event.isCancelled()) return false;
-
-        this.lastDamagingAttributes.put(victim, attribute);
-
-        this.cancelDamageSourceRemover(victim);
-        int damageLifetime = this.plugin.getResources().getConfig().getInt("Damage.Lifetime");
-
-        this.damageSourceRemovers.put(victim, Bukkit.getScheduler()
-                .runTaskLater(this.plugin, () -> removeDamageSource(victim), damageLifetime));
+        if (damage.isFactorsHealth()) {
+            double min = this.plugin.getResources().getConfig().getDouble("Damage.KbHealthMultiplier.Min");
+            double max = this.plugin.getResources().getConfig().getDouble("Damage.KbHealthMultiplier.Max");
+            double multiplier = MathUtils.decreasingLinear(min, max, victim.getMaxHealth(), victim.getHealth());
+            damage.setKb(damage.getKb() * multiplier);
+        }
 
         if (victim instanceof Player) {
             Player player = (Player) victim;
@@ -125,12 +119,10 @@ public class DamageManager {
             }
         }
 
-        if (damage.isFactorsHealth()) {
-            double min = this.plugin.getResources().getConfig().getDouble("Damage.KbHealthMultiplier.Min");
-            double max = this.plugin.getResources().getConfig().getDouble("Damage.KbHealthMultiplier.Max");
-            double multiplier = MathUtils.decreasingLinear(min, max, victim.getMaxHealth(), victim.getHealth());
-            damage.setKb(damage.getKb() * multiplier);
-        }
+        AttributeDamageEvent event = new AttributeDamageEvent(victim, damage, attribute);
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled()) return false;
 
         victim.damage(damage.getDamage());
         attribute.getPlayer().setLevel((int) damage.getDamage());
@@ -146,6 +138,14 @@ public class DamageManager {
 
             victim.setVelocity(velocity);
         });
+
+        this.lastDamagingAttributes.put(victim, attribute);
+
+        this.cancelDamageSourceRemover(victim);
+        int damageLifetime = this.plugin.getResources().getConfig().getInt("Damage.Lifetime");
+
+        this.damageSourceRemovers.put(victim, Bukkit.getScheduler()
+                .runTaskLater(this.plugin, () -> removeDamageSource(victim), damageLifetime));
 
         this.updateIndicator(victim, damage.getDamage());
 

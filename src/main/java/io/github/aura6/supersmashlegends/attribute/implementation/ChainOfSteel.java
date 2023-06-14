@@ -138,7 +138,7 @@ public class ChainOfSteel extends RightClickAbility {
                     Damage damageObj = Damage.Builder.fromConfig(this.config).build();
 
                     if (this.plugin.getDamageManager().attemptAttributeDamage(target, damageObj, this)) {
-                        this.player.playSound(this.player.getLocation(), Sound.SUCCESSFUL_HIT, 1, 1);
+                        this.player.playSound(this.player.getLocation(), Sound.ORB_PICKUP, 1, 1);
                         this.player.getWorld().playSound(currLocation, Sound.EXPLODE, 1, 1.5f);
                         new ParticleBuilder(EnumParticle.EXPLOSION_NORMAL).show(currLocation);
                         this.pullTowardsLocation(currLocation);

@@ -30,7 +30,6 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -47,7 +46,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class LobbyState extends GameState {
+public class LobbyState extends GameState implements TeleportsOnVoid {
     private final Set<HotbarItem> hotbarItems = new HashSet<>();
     private final Set<Hologram> holograms = new HashSet<>();
 
@@ -76,6 +75,11 @@ public class LobbyState extends GameState {
 
     @Override
     public boolean updatesKitSkins() {
+        return false;
+    }
+
+    @Override
+    public boolean allowsDamage() {
         return false;
     }
 
@@ -388,14 +392,6 @@ public class LobbyState extends GameState {
     }
 
     @EventHandler
-    public void handleVoid(EntityDamageEvent event) {
-        if (event.getCause() == EntityDamageEvent.DamageCause.VOID && event.getEntity() instanceof Player) {
-            event.setCancelled(true);
-            event.getEntity().teleport(getSpawn());
-        }
-    }
-
-    @EventHandler
     public void stopBows(EntityShootBowEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
 
@@ -410,5 +406,10 @@ public class LobbyState extends GameState {
                 }
             }
         }
+    }
+
+    @Override
+    public Location getTeleportLocation() {
+        return this.getSpawn();
     }
 }

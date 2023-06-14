@@ -1,9 +1,6 @@
 package io.github.aura6.supersmashlegends.attribute.implementation;
 
-import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
@@ -12,6 +9,7 @@ import io.github.aura6.supersmashlegends.event.DamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
 import io.github.aura6.supersmashlegends.projectile.ProjectileRemoveReason;
+import io.github.aura6.supersmashlegends.utils.SoundCanceller;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
 import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
 import org.bukkit.Location;
@@ -28,7 +26,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 public class WebGrapple extends RightClickAbility {
-    private PacketAdapter packetAdapter;
+    private SoundCanceller batSoundCanceller;
     private GrappleProjectile grappleProjectile;
 
     public WebGrapple(SuperSmashLegends plugin, Section config, Kit kit) {
@@ -47,31 +45,16 @@ public class WebGrapple extends RightClickAbility {
     public void activate() {
         super.activate();
 
-        this.packetAdapter = new PacketAdapter(this.plugin, PacketType.Play.Server.NAMED_SOUND_EFFECT) {
-
-            @Override
-            public void onPacketSending(PacketEvent event) {
-
-                if (event.getPacket().getType() == PacketType.Play.Server.NAMED_SOUND_EFFECT) {
-                    String name = event.getPacket().getStrings().read(0);
-
-                    if (name.equals("mob.bat.idle") && event.getPlayer() == player) {
-                        event.setCancelled(true);
-                    }
-                }
-            }
-
-        };
-
-        ProtocolLibrary.getProtocolManager().addPacketListener(this.packetAdapter);
+        this.batSoundCanceller = new SoundCanceller(this.plugin, "mob.bat.idle");
+        ProtocolLibrary.getProtocolManager().addPacketListener(this.batSoundCanceller);
     }
 
     @Override
     public void deactivate() {
         super.deactivate();
 
-        if (this.packetAdapter != null) {
-            ProtocolLibrary.getProtocolManager().removePacketListener(this.packetAdapter);
+        if (this.batSoundCanceller != null) {
+            ProtocolLibrary.getProtocolManager().removePacketListener(this.batSoundCanceller);
         }
 
         if (this.grappleProjectile != null) {

@@ -21,6 +21,14 @@ Barbarian:
       Type: HORSE_JUMP
       Volume: 1
       Pitch: 1
+  HurtSound:
+    Type: VILLAGER_HIT
+    Volume: 1
+    Pitch: 0.75
+  DeathSound:
+    Type: VILLAGER_DEATH
+    Volume: 1
+    Pitch: 0.75
   Abilities:
     0:
       ConfigName: AxeThrow
@@ -127,6 +135,14 @@ Globby:
       Type: SLIME_WALK2
       Volume: 1
       Pitch: 2
+  HurtSound:
+    Type: SLIME_ATTACK
+    Volume: 1
+    Pitch: 1
+  DeathSound:
+    Type: SLIME_ATTACK
+    Volume: 1
+    Pitch: 0.5
   Abilities:
     0:
       ConfigName: GooeyBullet
@@ -218,6 +234,14 @@ Mechon:
       Type: ZOMBIE_METAL
       Volume: 0.5
       Pitch: 0.5
+  HurtSound:
+    Type: IRONGOLEM_HIT
+    Volume: 1
+    Pitch: 2
+  DeathSound:
+    Type: IRONGOLEM_DEATH
+    Volume: 1
+    Pitch: 2
   Abilities:
     0:
       ConfigName: RocketLauncher
@@ -315,6 +339,14 @@ Squawk:
       Type: CHICKEN_IDLE
       Volume: 1
       Pitch: 1
+  HurtSound:
+    Type: CHICKEN_HURT
+    Volume: 1
+    Pitch: 1
+  DeathSound:
+    Type: CHICKEN_HURT
+    Volume: 1
+    Pitch: 0.5
   Abilities:
     0:
       ConfigName: Eggstacy
@@ -388,6 +420,14 @@ Drakula:
       Type: ZOMBIE_INFECT
       Volume: 1
       Pitch: 1
+  HurtSound:
+    Type: ZOMBIE_HURT
+    Volume: 1
+    Pitch: 1
+  DeathSound:
+    Type: ZOMBIE_DEATH
+    Volume: 1
+    Pitch: 1
   Abilities:
     0:
       ConfigName: Bloodshot
@@ -450,7 +490,7 @@ Drakula:
       Damage: 2.5
       Width: 4
       Height: 4
-      Lifespan: 110
+      Lifespan: 90
       HitsMultiple: true
       HasGravity: false
       TargetHitSound:
@@ -500,6 +540,14 @@ Cryomancer:
       Type: GLASS
       Volume: 1
       Pitch: 2
+  HurtSound:
+    Type: GLASS
+    Volume: 1
+    Pitch: 1
+  DeathSound:
+    Type: GLASS
+    Volume: 1
+    Pitch: 0.5
   Abilities:
     0:
       ConfigName: FrigidSpear
@@ -595,6 +643,14 @@ Deadmortal:
       Type: ZOMBIE_PIG_ANGRY
       Volume: 1.5
       Pitch: 1.5
+  HurtSound:
+    Type: ZOMBIE_PIG_HURT
+    Volume: 1
+    Pitch: 1
+  DeathSound:
+    Type: ZOMBIE_PIG_DEATH
+    Volume: 1
+    Pitch: 0.5
   Abilities:
     0:
       ConfigName: DiseasedFlesh
@@ -684,6 +740,14 @@ Tank:
       Type: IRONGOLEM_THROW
       Volume: 2
       Pitch: 1
+  HurtSound:
+    Type: IRONGOLEM_HIT
+    Volume: 1
+    Pitch: 1
+  DeathSound:
+    Type: IRONGOLEM_DEATH
+    Volume: 1
+    Pitch: 1
   Abilities:
     0:
       ConfigName: GaiaToss
@@ -777,6 +841,14 @@ Miner:
       Type: FIRE_IGNITE
       Volume: 1
       Pitch: 1
+  HurtSound:
+    Type: VILLAGER_HIT
+    Volume: 1
+    Pitch: 1.5
+  DeathSound:
+    Type: VILLAGER_DEATH
+    Volume: 1
+    Pitch: 1.5
   Abilities:
     0:
       ConfigName: CoalCluster
@@ -899,6 +971,14 @@ Moreo:
       Type: VILLAGER_YES
       Volume: 1
       Pitch: 1
+  HurtSound:
+    Type: VILLAGER_HIT
+    Volume: 1
+    Pitch: 2
+  DeathSound:
+    Type: VILLAGER_DEATH
+    Volume: 1
+    Pitch: 2
   Abilities:
     0:
       ConfigName: GroundPound
@@ -998,6 +1078,14 @@ MasterBlade:
       Type: ENDERMAN_TELEPORT
       Volume: 1
       Pitch: 1
+  HurtSound:
+    Type: ENDERMAN_HIT
+    Volume: 1
+    Pitch: 1
+  DeathSound:
+    Type: ENDERMAN_DEATH
+    Volume: 1
+    Pitch: 0.5
   Abilities:
     0:
       ConfigName: TerraShot
@@ -1080,6 +1168,14 @@ Pikachew:
       Type: FIREWORK_LAUNCH
       Volume: 1
       Pitch: 1.1
+  HurtSound:
+    Type: CAT_HIT
+    Volume: 1
+    Pitch: 2
+  DeathSound:
+    Type: CAT_HIT
+    Volume: 1
+    Pitch: 0.5
   Abilities:
     0:
       ConfigName: Thunderbolt
@@ -1115,8 +1211,8 @@ Pikachew:
         - "&7damage and recoil. Sneak to cancel."
       Cooldown: 160
       AutoStartCooldown: false
-      MinVelocity: 0.3
-      MaxVelocity: 1.4
+      MinVelocity: 0.2
+      MaxVelocity: 1.6
       MaxVelocityY: 0.25
       DurationTicks: 50
       MinDamage: 1
@@ -1176,6 +1272,14 @@ Skellington:
       Type: SKELETON_WALK
       Volume: 2
       Pitch: 1
+  HurtSound:
+    Type: SKELETON_HURT
+    Volume: 1
+    Pitch: 1
+  DeathSound:
+    Type: SKELETON_DEATH
+    Volume: 1
+    Pitch: 0.5
   Abilities:
     0:
       ConfigName: BoneExplosion
@@ -1194,7 +1298,7 @@ Skellington:
       MaxDamage: 7
       MinKb: 0.7
       MaxKb: 1.7
-      KbY: 0.8
+      KbY: 0.5
     1:
       ConfigName: RopedArrow
       Name: "Roped Arrow"
@@ -1265,6 +1369,14 @@ Shinoby:
       Type: ZOMBIE_PIG_IDLE
       Volume: 1
       Pitch: 1
+  HurtSound:
+    Type: ZOMBIE_PIG_HURT
+    Volume: 1
+    Pitch: 2
+  DeathSound:
+    Type: ZOMBIE_PIG_DEATH
+    Volume: 1
+    Pitch: 2
   Abilities:
     0:
       ConfigName: Rasengan
@@ -1366,6 +1478,14 @@ Webman:
       Type: SPIDER_IDLE
       Volume: 1
       Pitch: 2
+  HurtSound:
+    Type: SPIDER_IDLE
+    Volume: 1
+    Pitch: 1
+  DeathSound:
+    Type: SPIDER_DEATH
+    Volume: 1
+    Pitch: 1
   Abilities:
     0:
       ConfigName: WebGrapple
@@ -1450,6 +1570,14 @@ Mermaid:
       Type: SPLASH2
       Volume: 0.5
       Pitch: 2
+  HurtSound:
+    Type: SPLASH
+    Volume: 0.5
+    Pitch: 2
+  DeathSound:
+    Type: ENDERMAN_SCREAM
+    Volume: 1
+    Pitch: 1
   Abilities:
     0:
       ConfigName: SquidDash
@@ -1514,9 +1642,10 @@ Mermaid:
         Material: IRON_BARDING
       Description:
         - "&7Send forth a fish that leaps onto the"
-        - "&7target, latching on like a piranha. The"
-        - "&7target, bitten by a fish, struggles to"
-        - "&7move for a temporary period of time."
+        - "&7target, latching on like a piranha."
+        - "&7target struggles to move for a"
+        - "&7temporary period of time while the"
+        - "&7fish is latched on."
       Cooldown: 120
       Projectile:
         Speed: 1.6

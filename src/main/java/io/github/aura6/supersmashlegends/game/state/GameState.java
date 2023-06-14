@@ -45,6 +45,8 @@ public abstract class GameState implements Listener {
 
     public abstract boolean updatesKitSkins();
 
+    public abstract boolean allowsDamage();
+
     public abstract List<String> getScoreboard(Player player);
 
     public abstract void start();
@@ -111,15 +113,22 @@ public abstract class GameState implements Listener {
     }
 
     @EventHandler
-    public void onChat(AsyncPlayerChatEvent event) {
-        event.setFormat(MessageUtils.color("&9%s" + "» &7%s"));
+    public void onEntityDamage(EntityDamageEvent event) {
+
+        if (!this.allowsDamage()) {
+            event.setCancelled(true);
+        }
+
+        boolean isVoid = event.getCause() == EntityDamageEvent.DamageCause.VOID;
+
+        if (isVoid && this instanceof TeleportsOnVoid && event.getEntity() instanceof Player) {
+            event.getEntity().teleport(((TeleportsOnVoid) this).getTeleportLocation());
+        }
     }
 
     @EventHandler
-    public void onDamage(EntityDamageEvent event) {
-        if (event.getCause() == EntityDamageEvent.DamageCause.FALL || !(this instanceof InGameState)) {
-            event.setCancelled(true);
-        }
+    public void onChat(AsyncPlayerChatEvent event) {
+        event.setFormat(MessageUtils.color("&9%s" + "» &7%s"));
     }
 
     @EventHandler

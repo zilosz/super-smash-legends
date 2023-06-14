@@ -6,10 +6,9 @@ import io.github.aura6.supersmashlegends.arena.Arena;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class PreGameState extends GameState {
+public class PreGameState extends GameState implements TeleportsOnVoid {
     private BukkitTask startCountdown;
 
     public PreGameState(SuperSmashLegends plugin) {
@@ -42,6 +41,11 @@ public class PreGameState extends GameState {
     @Override
     public boolean updatesKitSkins() {
         return true;
+    }
+
+    @Override
+    public boolean allowsDamage() {
+        return false;
     }
 
     @Override
@@ -125,11 +129,8 @@ public class PreGameState extends GameState {
         }
     }
 
-    @EventHandler
-    public void handleVoid(EntityDamageEvent event) {
-        if (event.getCause() == EntityDamageEvent.DamageCause.VOID && event.getEntity() instanceof Player) {
-            event.setCancelled(true);
-            event.getEntity().teleport(plugin.getArenaManager().getArena().getWaitLocation());
-        }
+    @Override
+    public Location getTeleportLocation() {
+        return this.plugin.getArenaManager().getArena().getWaitLocation();
     }
 }

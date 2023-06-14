@@ -60,6 +60,11 @@ public class TutorialState extends GameState {
     }
 
     @Override
+    public boolean allowsDamage() {
+        return false;
+    }
+
+    @Override
     public List<String> getScoreboard(Player player) {
         List<String> lines = new ArrayList<>(Arrays.asList(
                 "&5&l---------------------",
@@ -213,7 +218,7 @@ public class TutorialState extends GameState {
 
         if (this.playersInTutorial.contains(player)) {
             this.playersInTutorial.remove(player);
-            stopPlayerDuringMovement(player);
+            this.stopPlayerDuringMovement(player);
         }
     }
 }

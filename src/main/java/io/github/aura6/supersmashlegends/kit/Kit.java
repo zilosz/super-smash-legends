@@ -109,6 +109,14 @@ public class Kit {
         return YamlReader.noise(config.getSection("Jump.Sound"));
     }
 
+    public Noise getHurtNoise() {
+        return YamlReader.noise(this.config.getSection("HurtSound"));
+    }
+
+    public Noise getDeathNoise() {
+        return YamlReader.noise(this.config.getSection("DeathSound"));
+    }
+
     public float getEnergy() {
         return config.getFloat("Energy");
     }
