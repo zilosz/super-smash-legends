@@ -292,7 +292,7 @@ public class InGameState extends GameState {
 
         player.teleport(this.plugin.getArenaManager().getArena().getFarthestSpawnFromPlayers());
 
-        TitleAPI.sendTitle(player, MessageUtils.color("&7You have &arespawned&7."), MessageUtils.color("&cAvenge &7your death!"), 10, 30, 10);
+        Chat.GAME.send(player, "&7You have &arespawned.");
         player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 2);
         player.playSound(player.getLocation(), Sound.LEVEL_UP, 1, 0.8f);
 
@@ -429,8 +429,8 @@ public class InGameState extends GameState {
                     return;
                 }
 
-                String title = MessageUtils.color("&7Respawning in...");
-                TitleAPI.sendTitle(died, title, MessageUtils.color("&5&l" + secondsLeft), 4, 12, 4);
+                String message = String.format("&7Respawning in &e&l%d &7seconds.", this.secondsLeft);
+                ActionBarAPI.sendActionBar(died, MessageUtils.color(message));
                 died.playSound(died.getLocation(), Sound.ENDERDRAGON_HIT, 2, pitch);
 
                 pitch += pitchStep;

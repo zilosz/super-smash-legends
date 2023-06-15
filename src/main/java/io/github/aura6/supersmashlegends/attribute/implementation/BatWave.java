@@ -64,19 +64,16 @@ public class BatWave extends RightClickAbility {
             case INACTIVE:
                 this.onInactiveClick();
                 this.state = BatWaveState.UNLEASHED;
-                System.out.println("inactive");
                 break;
 
             case UNLEASHED:
                 this.batProjectiles.forEach(BatProjectile::leash);
                 this.state = BatWaveState.LEASHED;
-                System.out.println("unleashed");
                 break;
 
             case LEASHED:
                 this.batProjectiles.forEach(BatProjectile::unleash);
                 this.state = BatWaveState.UNLEASHED;
-                System.out.println("leashed");
         }
     }
 
