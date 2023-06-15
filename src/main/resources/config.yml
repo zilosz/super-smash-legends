@@ -20,7 +20,7 @@ Description:
   - "&2&lArena - {ARENA} &7by &f&l{AUTHORS}"
   - "&5&l------------------------------"
 Scoreboard:
-  Title: "&f&lSUPER &lSMASH &5LEGENDS"
+  Title: "&f&lSUPER &lSMASH &5&lLEGENDS"
   Width: 17
 KitHologramHeight: 2.7
 Death:
