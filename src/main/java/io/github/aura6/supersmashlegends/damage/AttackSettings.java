@@ -1,6 +1,7 @@
 package io.github.aura6.supersmashlegends.damage;
 
 import dev.dejvokep.boostedyaml.block.implementation.Section;
+import io.github.aura6.supersmashlegends.Resources;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +9,7 @@ import org.bukkit.util.Vector;
 
 @Getter @Setter
 public class Damage {
-    private double damage;
+    private double baseDamage;
     private boolean factorsArmor;
     private int immunityTicks;
     private Vector direction;
@@ -20,7 +21,7 @@ public class Damage {
     private boolean kbFactorsPreviousVelocity;
 
     private Damage(Builder builder) {
-        this.damage = builder.damage;
+        this.baseDamage = builder.baseDamage;
         this.factorsArmor = builder.factorsArmor;
         this.immunityTicks = builder.immunityTicks;
         this.direction = builder.direction;
@@ -33,7 +34,7 @@ public class Damage {
     }
 
     public static class Builder {
-        private double damage;
+        private double baseDamage;
         private boolean factorsArmor;
         private int immunityTicks;
         private Vector direction;
@@ -44,8 +45,8 @@ public class Damage {
         private boolean linearKb;
         private boolean kbFactorsPreviousVelocity;
 
-        public Builder setDamage(double damage) {
-            this.damage = damage;
+        public Builder setBaseDamage(double baseDamage) {
+            this.baseDamage = baseDamage;
             return this;
         }
 
@@ -99,10 +100,11 @@ public class Damage {
         }
 
         public static Builder fromConfig(Section defaults, Vector direction) {
-            int defaultImmunity = SuperSmashLegends.getInstance().getResources().getConfig().getInt("Damage.DefaultImmunityTicks");
+            Resources resources = SuperSmashLegends.getInstance().getResources();
+            int defaultImmunity = resources.getConfig().getInt("Damage.DefaultImmunityTicks");
 
             return new Builder()
-                    .setDamage(defaults.getDouble("Damage"))
+                    .setBaseDamage(defaults.getDouble("Damage"))
                     .setKb(defaults.getDouble("Kb"))
                     .setKbY(defaults.getDouble("KbY"))
                     .setFactorsArmor(defaults.getOptionalBoolean("FactorsArmor").orElse(true))
