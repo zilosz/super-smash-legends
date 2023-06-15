@@ -95,15 +95,15 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
         } catch (NullPointerException ignored) {}
 
         List<String> lines = new ArrayList<>(Arrays.asList(
-                "&5&l---------------------",
+                this.getScoreboardLine(),
                 "&f&lStatus"
         ));
 
         if (this.isCounting) {
-            lines.add(String.format("&7Starting in &e&l%d &7seconds.", this.secUntilStart));
+            lines.add(String.format("&7Starting in &e&l%d &7sec", this.secUntilStart));
 
         } else {
-            lines.add("&7Waiting for players...");
+            lines.add("&7Waiting for players");
         }
 
         lines.addAll(Arrays.asList(
@@ -113,7 +113,7 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
                 "",
                 "&f&lKit",
                 "{KIT}",
-                "&5&l---------------------"
+                this.getScoreboardLine()
         ));
 
         return replacers.replaceLines(lines);

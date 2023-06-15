@@ -1,21 +1,18 @@
 package io.github.aura6.supersmashlegends.game;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
+import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import io.github.thatkawaiisam.assemble.AssembleAdapter;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
 public class GameScoreboard implements AssembleAdapter {
-    private final SuperSmashLegends plugin;
-
-    public GameScoreboard(SuperSmashLegends plugin) {
-        this.plugin = plugin;
-    }
+    private static final SuperSmashLegends plugin = SuperSmashLegends.getInstance();
 
     @Override
     public String getTitle(Player player) {
-        return "&5&lMytheral &fNetwork";
+        return MessageUtils.color(plugin.getResources().getConfig().getString("Scoreboard.Title"));
     }
 
     @Override

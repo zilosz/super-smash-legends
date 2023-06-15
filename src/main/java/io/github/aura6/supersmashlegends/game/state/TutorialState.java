@@ -67,7 +67,7 @@ public class TutorialState extends GameState {
     @Override
     public List<String> getScoreboard(Player player) {
         List<String> lines = new ArrayList<>(Arrays.asList(
-                "&5&l---------------------",
+                this.getScoreboardLine(),
                 "&f&lStatus",
                 "&7Enjoy the tutorial!",
                 "",
@@ -91,7 +91,7 @@ public class TutorialState extends GameState {
             replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
         }
 
-        lines.add("&5&l---------------------");
+        lines.add(this.getScoreboardLine());
         return replacers.replaceLines(lines);
     }
 

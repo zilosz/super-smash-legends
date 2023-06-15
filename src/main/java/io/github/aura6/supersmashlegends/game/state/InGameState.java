@@ -125,7 +125,7 @@ public class InGameState extends GameState {
     public List<String> getScoreboard(Player player) {
 
         List<String> scoreboard = new ArrayList<>(Arrays.asList(
-                "&5&l---------------------",
+                this.getScoreboardLine(),
                 "&f&lMinutes Left",
                 "&e{MIN_LEFT}",
                 ""
@@ -145,7 +145,7 @@ public class InGameState extends GameState {
             } catch (NullPointerException ignored) {}
         }
 
-        scoreboard.add("&5&l---------------------");
+        scoreboard.add(this.getScoreboardLine());
 
         TeamManager teamManager = this.plugin.getTeamManager();
         int lifeCap = this.plugin.getResources().getConfig().getInt("Game.Lives");

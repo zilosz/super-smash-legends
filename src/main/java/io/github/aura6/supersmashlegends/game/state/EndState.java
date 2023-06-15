@@ -68,9 +68,9 @@ public class EndState extends GameState implements TeleportsOnVoid {
     public List<String> getScoreboard(Player player) {
 
         List<String> lines = new ArrayList<>(Arrays.asList(
-                "&5&l---------------------",
+                this.getScoreboardLine(),
                 "&f&lStatus",
-                "&7Ending the game...",
+                "&7Ending the game",
                 ""
         ));
 
@@ -93,7 +93,7 @@ public class EndState extends GameState implements TeleportsOnVoid {
             replacers.add("KIT", this.plugin.getGameManager().getProfile(player).getKit().getBoldedDisplayName());
         }
 
-        lines.add("&5&l---------------------");
+        lines.add(this.getScoreboardLine());
         return replacers.replaceLines(lines);
     }
 

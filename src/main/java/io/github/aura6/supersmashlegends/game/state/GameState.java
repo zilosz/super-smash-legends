@@ -5,6 +5,7 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
@@ -48,6 +49,11 @@ public abstract class GameState implements Listener {
     public abstract boolean allowsDamage();
 
     public abstract List<String> getScoreboard(Player player);
+
+    protected String getScoreboardLine() {
+        int width = this.plugin.getResources().getConfig().getInt("Scoreboard.Width");
+        return "&5&l" + StringUtils.repeat("-", width);
+    }
 
     public abstract void start();
 

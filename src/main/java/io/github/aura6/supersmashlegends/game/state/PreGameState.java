@@ -52,9 +52,9 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
     public List<String> getScoreboard(Player player) {
 
         List<String> lines = new ArrayList<>(Arrays.asList(
-                "&5&l---------------------",
+                this.getScoreboardLine(),
                 "&f&lStatus",
-                "&7The game is starting...",
+                "&7The game is starting",
                 "",
                 "&f&lArena",
                 "{ARENA}",
@@ -76,7 +76,7 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
             replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
         }
 
-        lines.add("&5&l---------------------");
+        lines.add(this.getScoreboardLine());
         return replacers.replaceLines(lines);
     }
 
