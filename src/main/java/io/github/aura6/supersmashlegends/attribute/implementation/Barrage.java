@@ -47,7 +47,7 @@ public class Barrage extends Bow {
     }
 
     private void launch(double force, boolean first) {
-        BarrageArrow arrow = new BarrageArrow(this.plugin, this, this.config.getSection("Projectile"));
+        BarrageArrow arrow = new BarrageArrow(this.plugin, this, this.config);
         arrow.setSpeed(force * this.config.getDouble("MaxSpeed"));
 
         if (first) {

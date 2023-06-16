@@ -19,11 +19,6 @@ import java.util.stream.Collectors;
 public class ArenaVoter extends CustomInventory<Arena> implements HasRandomOption {
 
     @Override
-    public int getBorderColorData() {
-        return 13;
-    }
-
-    @Override
     public String getTitle() {
         return "Arena Voter";
     }

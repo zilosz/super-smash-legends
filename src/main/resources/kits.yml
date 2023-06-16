@@ -1316,6 +1316,7 @@ Skellington:
       Damage: 6
       Kb: 1
       KbY: 0.5
+      Lifespan: 140
     2:
       ConfigName: BoneTippedArrow
       Name: "Bone-Tipped Arrow"
@@ -1341,11 +1342,11 @@ Skellington:
       MaxArrowCount: 6
       TicksBetweenShot: 1
       MaxSpeed: 3
-      Projectile:
-        Spread: 6.5
-        Damage: 6
-        Kb: 1
-        KbY: 0.5
+      Spread: 6.5
+      Damage: 6
+      Kb: 1
+      KbY: 0.5
+      Lifespan: 140
 Shinoby:
   ConfigName: Shinoby
   Name: "Shinoby"

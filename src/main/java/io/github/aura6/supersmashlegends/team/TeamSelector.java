@@ -19,11 +19,6 @@ import java.util.stream.Collectors;
 public class TeamSelector extends CustomInventory<Team> implements HasRandomOption {
 
     @Override
-    public int getBorderColorData() {
-        return 1;
-    }
-
-    @Override
     public String getTitle() {
         return "Team Selector";
     }

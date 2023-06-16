@@ -21,8 +21,6 @@ public abstract class CustomInventory<T> implements InventoryProvider {
     private static final int MAX_ROWS = 5;
     private static final int MAX_COLUMNS = 7;
 
-    public abstract int getBorderColorData();
-
     public abstract String getTitle();
 
     public abstract List<T> getItems();
@@ -60,7 +58,7 @@ public abstract class CustomInventory<T> implements InventoryProvider {
             }
         }
 
-        ItemStack borderStack = new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) this.getBorderColorData());
+        ItemStack borderStack = new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 7);
         contents.fillBorders(ClickableItem.empty(borderStack));
     }
 

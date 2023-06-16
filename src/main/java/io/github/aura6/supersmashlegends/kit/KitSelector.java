@@ -26,11 +26,6 @@ import java.util.stream.Collectors;
 public class KitSelector extends CustomInventory<Kit> implements HasRandomOption {
 
     @Override
-    public int getBorderColorData() {
-        return 3;
-    }
-
-    @Override
     public String getTitle() {
         return "Kit Selector";
     }
