@@ -48,6 +48,8 @@ public abstract class GameState implements Listener {
 
     public abstract boolean allowsDamage();
 
+    public abstract boolean allowSpecCommand();
+
     public abstract List<String> getScoreboard(Player player);
 
     protected String getScoreboardLine() {
@@ -114,7 +116,9 @@ public abstract class GameState implements Listener {
         }
 
         this.plugin.getKitManager().wipePlayer(player);
+
         gameManager.removeSpectator(player);
+        gameManager.removeFutureSpectator(player);
     }
 
     @EventHandler

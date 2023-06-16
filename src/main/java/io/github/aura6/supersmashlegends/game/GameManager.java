@@ -34,6 +34,7 @@ public class GameManager {
     private int stateIdx = 0;
 
     private final Map<UUID, InGameProfile> profiles = new HashMap<>();
+    private final Set<Player> willSpectate = new HashSet<>();
 
     private BukkitTask tickTask;
     @Getter private int ticksActive = 0;
@@ -48,6 +49,18 @@ public class GameManager {
         states.add(new PreGameState(plugin));
         states.add(new InGameState(plugin));
         states.add(new EndState(plugin));
+    }
+
+    public void addFutureSpectator(Player player) {
+        this.willSpectate.add(player);
+    }
+
+    public void removeFutureSpectator(Player player) {
+        this.willSpectate.remove(player);
+    }
+
+    public boolean willSpectate(Player player) {
+        return this.willSpectate.contains(player);
     }
 
     public GameState getState() {

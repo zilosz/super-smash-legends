@@ -6,6 +6,7 @@ import io.github.aura6.supersmashlegends.utils.ItemBuilder;
 import io.github.aura6.supersmashlegends.utils.inventory.HasRandomOption;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -55,6 +56,8 @@ public class ArenaVoter extends CustomInventory<Arena> implements HasRandomOptio
             chosen.wipeVote(player);
             chosenAtomic.set(chosen);
         });
+
+        player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 0.5F);
 
         if (chosenAtomic.get() == arena) {
             Chat.ARENA.send(player, "&7Your arena vote has been wiped.");

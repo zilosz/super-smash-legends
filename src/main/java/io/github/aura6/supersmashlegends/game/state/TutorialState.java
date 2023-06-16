@@ -3,6 +3,7 @@ package io.github.aura6.supersmashlegends.game.state;
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.arena.Arena;
+import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
@@ -28,12 +29,13 @@ import java.util.Set;
 import java.util.UUID;
 
 public class TutorialState extends GameState {
-    private Set<Player> playersInTutorial;
+    private final Set<Player> playersInTutorial = new HashSet<>();
     private final Map<UUID, BukkitTask> movers = new HashMap<>();
     private final Map<UUID, BukkitTask> moveDelayers = new HashMap<>();
     private final Map<UUID, BukkitTask> tutorialSchedulers = new HashMap<>();
     private final Map<UUID, BukkitTask> ruleDisplayers = new HashMap<>();
     private final Map<UUID, BukkitTask> skinChangers = new HashMap<>();
+    private BukkitTask skipTask;
 
     public TutorialState(SuperSmashLegends plugin) {
         super(plugin);
@@ -65,7 +67,13 @@ public class TutorialState extends GameState {
     }
 
     @Override
+    public boolean allowSpecCommand() {
+        return false;
+    }
+
+    @Override
     public List<String> getScoreboard(Player player) {
+
         List<String> lines = new ArrayList<>(Arrays.asList(
                 this.getScoreboardLine(),
                 "&f&lStatus",
@@ -136,8 +144,25 @@ public class TutorialState extends GameState {
 
     @Override
     public void start() {
-        Set<Player> players = plugin.getGameManager().getAlivePlayers();
-        playersInTutorial = new HashSet<>(players);
+        GameManager gameManager = this.plugin.getGameManager();
+
+        int specCount = 0;
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+
+            if (gameManager.isSpectator(player)) {
+                player.teleport(this.plugin.getArenaManager().getArena().getWaitLocation());
+                specCount++;
+            }
+        }
+
+        if (specCount == Bukkit.getOnlinePlayers().size()) {
+            this.skipTask = Bukkit.getScheduler().runTaskLater(this.plugin, gameManager::advanceState, 5);
+            return;
+        }
+
+        Set<Player> players = gameManager.getAlivePlayers();
+        this.playersInTutorial.addAll(players);
 
         Arena arena = plugin.getArenaManager().getArena();
         List<Location> tutorialLocations = arena.getTutorialLocations();
@@ -210,6 +235,10 @@ public class TutorialState extends GameState {
         this.skinChangers.clear();
 
         new ArrayList<>(this.playersInTutorial).forEach(this::stopPlayerAfterCompletion);
+
+        if (this.skipTask != null) {
+            this.skipTask.cancel();
+        }
     }
 
     @EventHandler

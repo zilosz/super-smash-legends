@@ -11,7 +11,6 @@ import io.github.aura6.supersmashlegends.utils.inventory.HasRandomOption;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -110,7 +109,6 @@ public class KitSelector extends CustomInventory<Kit> implements HasRandomOption
 
     @Override
     public void onItemClick(Player player, Kit kit, InventoryClickEvent event) {
-        player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 0.5F);
         SuperSmashLegends.getInstance().getKitManager().setKit(player, kit);
         player.closeInventory();
     }

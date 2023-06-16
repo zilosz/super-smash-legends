@@ -6,6 +6,7 @@ import io.github.aura6.supersmashlegends.utils.ItemBuilder;
 import io.github.aura6.supersmashlegends.utils.inventory.HasRandomOption;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -68,6 +69,7 @@ public class TeamSelector extends CustomInventory<Team> implements HasRandomOpti
         });
 
         player.closeInventory();
+        player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 0.5F);
 
         if (chosenAtomic.get() == team) {
             Chat.TEAM.send(player, "&7You are no longer on a team.");

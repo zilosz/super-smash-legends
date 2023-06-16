@@ -10,6 +10,7 @@ import io.github.aura6.supersmashlegends.command.KitCommand;
 import io.github.aura6.supersmashlegends.command.LocCommand;
 import io.github.aura6.supersmashlegends.command.ReloadConfigCommand;
 import io.github.aura6.supersmashlegends.command.SkipCommand;
+import io.github.aura6.supersmashlegends.command.SpecCommand;
 import io.github.aura6.supersmashlegends.command.StartCommand;
 import io.github.aura6.supersmashlegends.damage.DamageManager;
 import io.github.aura6.supersmashlegends.database.PlayerDatabase;
@@ -91,6 +92,7 @@ public class SuperSmashLegends extends JavaPlugin {
         this.getCommand("dummy").setExecutor(new DummyCommand());
         this.getCommand("loc").setExecutor(new LocCommand());
         this.getCommand("damage").setExecutor(new DamageCommand());
+        this.getCommand("spec").setExecutor(new SpecCommand());
     }
 
     @Override

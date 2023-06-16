@@ -9,6 +9,7 @@ import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
 import io.github.aura6.supersmashlegends.game.GameManager;
 import io.github.aura6.supersmashlegends.game.InGameProfile;
+import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.kit.KitManager;
 import io.github.aura6.supersmashlegends.kit.KitSelector;
 import io.github.aura6.supersmashlegends.team.TeamSelector;
@@ -84,10 +85,20 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
     }
 
     @Override
+    public boolean allowSpecCommand() {
+        return true;
+    }
+
+    private int getParticipantCount() {
+        GameManager gameManager = this.plugin.getGameManager();
+        return (int) Bukkit.getOnlinePlayers().stream().filter(p -> !gameManager.willSpectate(p)).count();
+    }
+
+    @Override
     public List<String> getScoreboard(Player player) {
 
         Replacers replacers = new Replacers()
-                .add("CURRENT", Bukkit.getOnlinePlayers().size())
+                .add("CURRENT", this.getParticipantCount())
                 .add("CAP", this.plugin.getResources().getConfig().getInt("Game.MinPlayersToStart"));
 
         try {
@@ -194,7 +205,7 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
     private void tryCountdownStart() {
         int minPlayersNeeded = this.plugin.getResources().getConfig().getInt("Game.MinPlayersToStart");
 
-        if (this.isCounting || Bukkit.getOnlinePlayers().size() < minPlayersNeeded) return;
+        if (this.isCounting || this.getParticipantCount() < minPlayersNeeded) return;
 
         int notifyInterval = this.plugin.getResources().getConfig().getInt("Game.LobbyCountdown.NotifyInterval");
         int totalSec = this.plugin.getResources().getConfig().getInt("Game.LobbyCountdown.Seconds");
@@ -360,11 +371,19 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
         List<String> description = replacers.replaceLines(
                this.plugin.getResources().getConfig().getStringList("Description"));
 
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            this.plugin.getGameManager().setupProfile(player);
-            this.plugin.getTeamManager().assignPlayer(player);
+        GameManager gameManager = this.plugin.getGameManager();
 
+        for (Player player : Bukkit.getOnlinePlayers()) {
             description.forEach(player::sendMessage);
+
+            if (gameManager.willSpectate(player)) {
+                gameManager.addSpectator(player);
+                this.plugin.getKitManager().getSelectedKit(player).destroy();
+
+            } else {
+                gameManager.setupProfile(player);
+                this.plugin.getTeamManager().assignPlayer(player);
+            }
         }
 
         this.plugin.getTeamManager().removeEmptyTeams();
@@ -399,7 +418,9 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
     public void stopBows(EntityShootBowEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
 
-        for (Attribute attribute : plugin.getKitManager().getSelectedKit((Player) event.getEntity()).getAttributes()) {
+        Kit kit = this.plugin.getKitManager().getSelectedKit((Player) event.getEntity());
+
+        for (Attribute attribute : kit.getAttributes()) {
 
             if (attribute instanceof Ability) {
                 Ability ability = (Ability) attribute;

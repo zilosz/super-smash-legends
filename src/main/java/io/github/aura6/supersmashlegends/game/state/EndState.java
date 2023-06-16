@@ -65,6 +65,11 @@ public class EndState extends GameState implements TeleportsOnVoid {
     }
 
     @Override
+    public boolean allowSpecCommand() {
+        return false;
+    }
+
+    @Override
     public List<String> getScoreboard(Player player) {
 
         List<String> lines = new ArrayList<>(Arrays.asList(
@@ -190,7 +195,8 @@ public class EndState extends GameState implements TeleportsOnVoid {
 
         } else {
             Set<Player> tiedPlayers = rankedTeams.get(0).stream()
-                    .flatMap(team -> team.getPlayers().stream()).collect(Collectors.toSet());
+                    .flatMap(team -> team.getPlayers().stream())
+                    .collect(Collectors.toSet());
 
             for (Team team : teams) {
 

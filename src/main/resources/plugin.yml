@@ -10,7 +10,7 @@ commands:
     description: Opens the kit GUI or sets a player's kit.
     usage: "/<command> [kit]"
   reloadconfig:
-    description: Dynamically reloads the plugin configuration files.
+    description: Dynamically reloads configuration files.
     aliases: [ rc, reloadconfigs ]
     permission: op
     usage: "/<command>"
@@ -35,6 +35,9 @@ commands:
     permission: op
     usage: "/<command>"
   damage:
-    description: Damage a player or yourself for a provided amount.
+    description: Damage a player or yourself.
     usage: "/<command> <damage> [player]"
     permission: op
+  spec:
+    description: Toggle spectator mode for upcoming games.
+    usage: "/<command>"

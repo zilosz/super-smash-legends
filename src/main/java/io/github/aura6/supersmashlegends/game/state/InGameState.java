@@ -96,6 +96,11 @@ public class InGameState extends GameState {
         return true;
     }
 
+    @Override
+    public boolean allowSpecCommand() {
+        return false;
+    }
+
     private String getPlayerLivesText(Player player, int lifeCap, String nameColor) {
         int lives = plugin.getGameManager().getProfile(player).getLives();
         double lifePercentage = (double) lives / lifeCap;

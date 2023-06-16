@@ -49,6 +49,11 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
     }
 
     @Override
+    public boolean allowSpecCommand() {
+        return false;
+    }
+
+    @Override
     public List<String> getScoreboard(Player player) {
 
         List<String> lines = new ArrayList<>(Arrays.asList(
