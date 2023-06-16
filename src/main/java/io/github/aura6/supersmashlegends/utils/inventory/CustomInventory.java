@@ -34,11 +34,13 @@ public abstract class CustomInventory<T> implements InventoryProvider {
         List<T> items = this.getItems();
 
         int index = 0;
+        int r;
+        int c = 1;
         boolean ended = false;
 
-        for (int r = 1; r <= MAX_ROWS; r++) {
+        for (r = 1; r <= MAX_ROWS; r++) {
 
-            for (int c = 1; c <= MAX_COLUMNS; c++) {
+            for (c = 1; c <= MAX_COLUMNS; c++) {
 
                 if (index >= items.size()) {
                     ended = true;
@@ -59,7 +61,12 @@ public abstract class CustomInventory<T> implements InventoryProvider {
         }
 
         ItemStack borderStack = new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 7);
-        contents.fillBorders(ClickableItem.empty(borderStack));
+        ClickableItem clickableItem = ClickableItem.empty(borderStack);
+        contents.fillBorders(clickableItem);
+
+        while (c <= this.getColumnCount() - 1) {
+            contents.set(r, c++, clickableItem);
+        }
     }
 
     @Override
