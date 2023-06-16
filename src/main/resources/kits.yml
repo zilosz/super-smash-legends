@@ -261,7 +261,7 @@ Mechon:
       MaxChargeTicks: 25
       ShowExp: false
       Rocket:
-        Lifespan: 85
+        Lifespan: 100
         KbY: 0.8
         HitBox: 1.5
         MinDamage: 0.75
@@ -1416,7 +1416,7 @@ Shinoby:
         KbY: 0.8
         Radius: 4
         ParticleRadius: 0.3
-        Lifetime: 160
+        Lifespan: 160
         Invisible: true
         HasGravity: false
         HitBox: 1.25

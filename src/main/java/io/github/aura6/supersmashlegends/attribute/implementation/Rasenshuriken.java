@@ -26,6 +26,7 @@ import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 public class Rasenshuriken extends RightClickAbility {
     private BukkitTask task;
@@ -134,9 +135,12 @@ public class Rasenshuriken extends RightClickAbility {
 
         @Override
         public void onTick() {
-            display(this.entity.getLocation(), true, this.config);
 
-            if (this.ticksAlive % 11 == 0) {
+            if (this.ticksAlive % 2 == 0) {
+                display(this.entity.getLocation(), true, this.config);
+            }
+
+            if (this.ticksAlive % 5 == 0) {
                 this.entity.getWorld().playSound(this.entity.getLocation(), Sound.WITHER_SHOOT, 0.5f, 1);
             }
         }
@@ -159,14 +163,16 @@ public class Rasenshuriken extends RightClickAbility {
             this.entity.getWorld().playSound(loc, Sound.EXPLODE, 1.5f, 1);
             new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).solidSphere(loc, radius / 2, 40, 0.1);
 
-            new EntityFinder(this.plugin, new DistanceSelector(radius)).findAll(this.launcher, loc).forEach(target -> {
-                if (target == avoid) return;
+            EntityFinder finder = new EntityFinder(this.plugin, new DistanceSelector(radius)).avoid(avoid);
 
+            finder.findAll(this.launcher, loc).forEach(target -> {
                 double distanceSq = target.getLocation().distanceSquared(loc);
                 double damage = YamlReader.decLin(this.config, "Damage", distanceSq, radius * radius);
                 double kb = YamlReader.decLin(this.config, "Kb", distanceSq, radius * radius);
 
-                AttackSettings settings = new AttackSettings(this.config, VectorUtils.fromTo(this.entity, target))
+                Vector direction = VectorUtils.fromTo(this.entity, target);
+
+                AttackSettings settings = new AttackSettings(this.config, direction)
                         .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
                         .modifyKb(kbSettings -> kbSettings.setKb(kb));
 

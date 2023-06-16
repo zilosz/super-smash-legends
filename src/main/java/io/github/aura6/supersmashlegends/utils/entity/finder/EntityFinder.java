@@ -45,7 +45,9 @@ public class EntityFinder {
     }
 
     public EntityFinder avoid(Entity target) {
-        toAvoid.add(target.getUniqueId());
+        if (target != null) {
+            this.toAvoid.add(target.getUniqueId());
+        }
         return this;
     }
 

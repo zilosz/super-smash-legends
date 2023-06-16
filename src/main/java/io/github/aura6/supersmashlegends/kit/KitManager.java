@@ -161,6 +161,7 @@ public class KitManager implements Listener {
         updateAccessHologram(accessHologram, KitAccessType.ALREADY_SELECTED, newKit);
 
         Chat.KIT.send(player, String.format("&7You have selected the %s &7kit.", newKit.getDisplayName()));
+        newKit.getHurtNoise().playForPlayer(player);
     }
 
     public Kit getSelectedKit(Player player) {
