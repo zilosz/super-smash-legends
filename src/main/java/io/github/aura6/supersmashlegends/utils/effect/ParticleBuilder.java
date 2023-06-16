@@ -54,7 +54,7 @@ public class ParticleBuilder {
         float green = this.g / 255f;
         float blue = this.b / 255f;
 
-        PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(this.particle, false, x, y, z, red, green, blue, 1, 0, 1);
+        PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(this.particle, true, x, y, z, red, green, blue, 1, 0, 1);
         Bukkit.getOnlinePlayers().forEach(player -> NmsUtils.sendPacket(player, packet));
     }
 
