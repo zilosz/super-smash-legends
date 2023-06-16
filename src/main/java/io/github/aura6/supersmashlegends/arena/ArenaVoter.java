@@ -1,8 +1,9 @@
 package io.github.aura6.supersmashlegends.arena;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import io.github.aura6.supersmashlegends.utils.CustomInventory;
+import io.github.aura6.supersmashlegends.utils.inventory.CustomInventory;
 import io.github.aura6.supersmashlegends.utils.ItemBuilder;
+import io.github.aura6.supersmashlegends.utils.inventory.HasRandomOption;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
 import org.bukkit.entity.Player;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-public class ArenaVoter extends CustomInventory<Arena> {
+public class ArenaVoter extends CustomInventory<Arena> implements HasRandomOption {
 
     @Override
     public int getBorderColorData() {
@@ -70,5 +71,15 @@ public class ArenaVoter extends CustomInventory<Arena> {
 
         player.closeInventory();
         this.build().open(player);
+    }
+
+    @Override
+    public Chat getChatType() {
+        return Chat.ARENA;
+    }
+
+    @Override
+    public String getMessage() {
+        return "&7Voting for a random arena...";
     }
 }

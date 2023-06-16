@@ -1,8 +1,9 @@
 package io.github.aura6.supersmashlegends.team;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import io.github.aura6.supersmashlegends.utils.CustomInventory;
+import io.github.aura6.supersmashlegends.utils.inventory.CustomInventory;
 import io.github.aura6.supersmashlegends.utils.ItemBuilder;
+import io.github.aura6.supersmashlegends.utils.inventory.HasRandomOption;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
 import org.bukkit.entity.Player;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-public class TeamSelector extends CustomInventory<Team> {
+public class TeamSelector extends CustomInventory<Team> implements HasRandomOption {
 
     @Override
     public int getBorderColorData() {
@@ -80,5 +81,15 @@ public class TeamSelector extends CustomInventory<Team> {
             team.addPlayer(player);
             Chat.TEAM.send(player, String.format("&7You are now on the %s &7team.", team.getName()));
         }
+    }
+
+    @Override
+    public Chat getChatType() {
+        return Chat.TEAM;
+    }
+
+    @Override
+    public String getMessage() {
+        return "&7Selecting a random team...";
     }
 }

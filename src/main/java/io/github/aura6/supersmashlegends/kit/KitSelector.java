@@ -5,10 +5,13 @@ import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
 import io.github.aura6.supersmashlegends.attribute.ClickableAbility;
 import io.github.aura6.supersmashlegends.attribute.PassiveAbility;
-import io.github.aura6.supersmashlegends.utils.CustomInventory;
+import io.github.aura6.supersmashlegends.utils.inventory.CustomInventory;
 import io.github.aura6.supersmashlegends.utils.ItemBuilder;
+import io.github.aura6.supersmashlegends.utils.inventory.HasRandomOption;
+import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -20,7 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class KitSelector extends CustomInventory<Kit> {
+public class KitSelector extends CustomInventory<Kit> implements HasRandomOption {
 
     @Override
     public int getBorderColorData() {
@@ -112,10 +115,18 @@ public class KitSelector extends CustomInventory<Kit> {
 
     @Override
     public void onItemClick(Player player, Kit kit, InventoryClickEvent event) {
-        KitManager kitManager = SuperSmashLegends.getInstance().getKitManager();
+        player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 0.5F);
+        SuperSmashLegends.getInstance().getKitManager().setKit(player, kit);
+        player.closeInventory();
+    }
 
-        if (kitManager.handleKitSelection(player, kit) != KitAccessType.ALREADY_SELECTED) {
-            player.closeInventory();
-        }
+    @Override
+    public Chat getChatType() {
+        return Chat.KIT;
+    }
+
+    @Override
+    public String getMessage() {
+        return "&7Selecting a random kit...";
     }
 }

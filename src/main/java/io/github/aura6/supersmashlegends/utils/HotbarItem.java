@@ -14,7 +14,7 @@ import org.bukkit.plugin.Plugin;
 import java.util.function.Consumer;
 
 public class HotbarItem implements Listener {
-    private final Player player;
+    @Getter private final Player player;
     @Getter private final ItemStack itemStack;
     @Getter private final int slot;
     @Setter private Consumer<PlayerInteractEvent> action;
@@ -27,21 +27,21 @@ public class HotbarItem implements Listener {
     }
 
     public void show() {
-        player.getInventory().setItem(slot, itemStack);
+        this.player.getInventory().setItem(this.slot, this.itemStack);
     }
 
     public void register(Plugin plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
-        show();
+        this.show();
     }
 
     public void hide() {
-        player.getInventory().setItem(slot, null);
+        this.player.getInventory().setItem(this.slot, null);
     }
 
     public void destroy() {
         HandlerList.unregisterAll(this);
-        hide();
+        this.hide();
     }
 
     @EventHandler

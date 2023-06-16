@@ -37,7 +37,7 @@ public class KitCommand implements CommandExecutor {
                 String name = StringUtils.capitalize(strings[0].toLowerCase());
 
                 kitManager.getKitByName(name).ifPresentOrElse(
-                        kit -> kitManager.handleKitSelection(player, kit),
+                        kit -> kitManager.setKit(player, kit),
                         () -> Chat.KIT.send(player, String.format("\"%s\" &7is not a valid kit.", name)));
             }
 

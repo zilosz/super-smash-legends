@@ -33,6 +33,8 @@ public class Barrage extends Bow {
         this.stageTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
             if (this.stage > this.getStages()) return;
 
+            this.player.setExp((float) this.stage / this.getStages());
+
             float pitch = (float) MathUtils.increasingLinear(0.5, 2, this.config.getInt("Stages"), this.stage - 1);
             this.player.playSound(this.player.getLocation(), Sound.ITEM_PICKUP, 2, pitch);
 
@@ -67,6 +69,7 @@ public class Barrage extends Bow {
     @Override
     public void onFinish() {
         this.stage = 1;
+        this.player.setExp(0);
 
         if (this.stageTask != null) {
             this.stageTask.cancel();

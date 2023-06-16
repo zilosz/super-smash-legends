@@ -17,7 +17,6 @@ import net.citizensnpcs.trait.SkinTrait;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -172,34 +171,17 @@ public class KitManager implements Listener {
         return this.kitsByName.containsKey(name) ? Optional.of(this.kitsByName.get(name)) : Optional.empty();
     }
 
-    public KitAccessType handleKitSelection(Player player, Kit kit) {
-        KitAccessType accessType = getKitAccess(player, kit.getConfigName());
-
-        if (accessType == KitAccessType.ALREADY_SELECTED) {
-            Chat.KIT.send(player, "&7You have already selected this kit.");
-
-        } else if (accessType == KitAccessType.ACCESS) {
-            player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 1);
-            setKit(player, kit);
-        }
-
-        return accessType;
-    }
-
     public KitAccessType getKitAccess(Player player, String kit) {
         return getSelectedKit(player).getConfigName().equals(kit) ? KitAccessType.ALREADY_SELECTED : KitAccessType.ACCESS;
     }
 
     public void destroyNpcs() {
-        kitsByNpc.keySet().forEach(uuid -> CitizensAPI.getNPCRegistry().getByUniqueId(uuid).destroy());
+        this.kitsByNpc.keySet().forEach(uuid -> CitizensAPI.getNPCRegistry().getByUniqueId(uuid).destroy());
     }
 
     @EventHandler
     public void onNpcClick(NPCLeftClickEvent event) {
         UUID uuid = event.getNPC().getUniqueId();
-
-        if (kitsByNpc.containsKey(uuid)) {
-            handleKitSelection(event.getClicker(), kitsByNpc.get(uuid));
-        }
+        Optional.ofNullable(this.kitsByNpc.get(uuid)).ifPresent(npc -> this.setKit(event.getClicker(), npc));
     }
 }
