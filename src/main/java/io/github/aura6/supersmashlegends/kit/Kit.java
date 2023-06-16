@@ -11,6 +11,7 @@ import io.github.aura6.supersmashlegends.attribute.implementation.Jump;
 import io.github.aura6.supersmashlegends.utils.Noise;
 import io.github.aura6.supersmashlegends.utils.Reflector;
 import io.github.aura6.supersmashlegends.utils.Skin;
+import io.github.aura6.supersmashlegends.utils.effect.ColorType;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import lombok.Getter;
@@ -58,23 +59,27 @@ public class Kit {
     }
 
     public String getConfigName() {
-        return config.getString("ConfigName");
+        return this.config.getString("ConfigName");
     }
 
-    public String getColor() {
-        return config.getString("Color");
+    public ColorType getColor() {
+        try {
+            return ColorType.valueOf(this.config.getString("Color"));
+        } catch (IllegalArgumentException e) {
+            return ColorType.WHITE;
+        }
     }
 
     public List<String> getDescription() {
-        return config.getStringList("Description");
+        return this.config.getStringList("Description");
     }
 
     public String getDisplayName() {
-        return MessageUtils.color(getColor() + config.getString("Name"));
+        return MessageUtils.color(this.getColor().getChatSymbol() + this.config.getString("Name"));
     }
 
     public String getBoldedDisplayName() {
-        return MessageUtils.color(getColor() + "&l" + config.getString("Name"));
+        return MessageUtils.color(this.getColor().getChatSymbol() + "&l" + this.config.getString("Name"));
     }
 
     public double getRegen() {

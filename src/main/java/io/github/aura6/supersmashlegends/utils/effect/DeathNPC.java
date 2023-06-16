@@ -3,12 +3,14 @@ package io.github.aura6.supersmashlegends.utils.effect;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.event.attack.DamageEvent;
+import io.github.aura6.supersmashlegends.kit.KitManager;
+import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.SkinTrait;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import org.bukkit.Color;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -17,20 +19,17 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 public class DeathNPC extends BukkitRunnable implements Listener {
-    private final Plugin plugin;
     private final NPC npc;
     private final Player player;
     private final int duration;
     private final double velocity;
     private int ticks = 0;
 
-    private DeathNPC(Plugin plugin, NPC npc, Player player, int duration, double velocity) {
-        this.plugin = plugin;
+    private DeathNPC(NPC npc, Player player, int duration, double velocity) {
         this.npc = npc;
         this.player = player;
         this.duration = duration;
@@ -38,16 +37,21 @@ public class DeathNPC extends BukkitRunnable implements Listener {
     }
 
     public void destroy() {
-        if (!npc.isSpawned()) return;
+        if (!this.npc.isSpawned()) return;
 
-        Location loc = npc.getStoredLocation();
-        player.getWorld().playSound(loc, Sound.WITHER_DEATH, 3, 1.5f);
-        new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 0, 255).boom(plugin, loc, 5, 0.25, 30);
+        this.player.getWorld().playSound(this.npc.getStoredLocation(), Sound.WITHER_DEATH, 3, 1.5f);
 
-        npc.destroy();
+        KitManager kitManager = SuperSmashLegends.getInstance().getKitManager();
+        Color color = kitManager.getSelectedKit(this.player).getColor().getColor();
+
+        new ParticleBuilder(EnumParticle.REDSTONE)
+                .setRgb(color.getRed(), color.getGreen(), color.getBlue())
+                .boom(SuperSmashLegends.getInstance(), EntityUtils.center(this.npc.getEntity()), 5, 0.25, 50);
+
+        this.npc.destroy();
 
         HandlerList.unregisterAll(this);
-        cancel();
+        this.cancel();
     }
 
     @Override
@@ -88,7 +92,7 @@ public class DeathNPC extends BukkitRunnable implements Listener {
         npc.addTrait(skinTrait);
         npc.spawn(player.getLocation());
 
-        DeathNPC deathNPC = new DeathNPC(plugin, npc, player, death.getInt("Duration"), death.getDouble("Velocity"));
+        DeathNPC deathNPC = new DeathNPC(npc, player, death.getInt("Duration"), death.getDouble("Velocity"));
         deathNPC.runTaskTimer(plugin, 0, 0);
         Bukkit.getPluginManager().registerEvents(deathNPC, plugin);
 

@@ -1,6 +1,7 @@
 package io.github.aura6.supersmashlegends.team;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
+import io.github.aura6.supersmashlegends.utils.effect.ColorType;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,29 +18,22 @@ import java.util.stream.Collectors;
 
 public class Team {
     private final SuperSmashLegends plugin;
-
-    private final TeamData data;
-
+    @Getter private final ColorType colorType;
     private final Set<Player> players = new HashSet<>();
     private final Set<LivingEntity> entities = new HashSet<>();
-
     @Getter @Setter private int lifespan;
 
-    public Team(SuperSmashLegends plugin, TeamData data) {
+    public Team(SuperSmashLegends plugin, ColorType colorType) {
         this.plugin = plugin;
-        this.data = data;
-    }
-
-    public String getColor() {
-        return this.data.getTextColor();
+        this.colorType = colorType;
     }
 
     public String getName() {
-        return MessageUtils.color(getColor() + this.data.getName());
+        return MessageUtils.color(this.colorType.getChatSymbol() + this.colorType.getName());
     }
 
     public ItemStack getItemStack() {
-        return new ItemStack(Material.WOOL, 1, (byte) this.data.getWoolData());
+        return new ItemStack(Material.WOOL, 1, this.colorType.getDyeColor().getWoolData());
     }
 
     public void addPlayer(Player player) {

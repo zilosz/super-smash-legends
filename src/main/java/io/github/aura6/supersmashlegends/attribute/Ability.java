@@ -35,15 +35,19 @@ public abstract class Ability extends Attribute implements Nameable {
 
     @Override
     public String getDisplayName() {
-        return MessageUtils.color(this.kit.getColor() + config.getString("Name"));
+        return MessageUtils.color(this.kit.getColor().getChatSymbol() + this.config.getString("Name"));
     }
 
     public String getBoldedDisplayName() {
-        return MessageUtils.color(this.kit.getColor() + "&l" + config.getString("Name"));
+        return MessageUtils.color(this.kit.getColor().getChatSymbol() + "&l" + this.config.getString("Name"));
     }
 
     public Material getMaterial() {
-        return Material.valueOf(config.getString("Item.Material"));
+        try {
+            return Material.valueOf(this.config.getString("Item.Material"));
+        } catch (IllegalArgumentException e) {
+            return Material.DIRT;
+        }
     }
 
     public ItemStack buildItem() {
@@ -66,10 +70,10 @@ public abstract class Ability extends Attribute implements Nameable {
         player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 1);
 
         Replacers replacers = new Replacers()
-                .add("COLOR", this.kit.getColor())
-                .add("DISPLAY_NAME", getDisplayName())
-                .add("USE_TYPE", getUseType())
-                .add("DESCRIPTION", getDescription());
+                .add("COLOR", this.kit.getColor().getChatSymbol())
+                .add("DISPLAY_NAME", this.getDisplayName())
+                .add("USE_TYPE", this.getUseType())
+                .add("DESCRIPTION", this.getDescription());
 
         replacers.replaceLines(Arrays.asList(
                 "{COLOR}-------------------------------------",

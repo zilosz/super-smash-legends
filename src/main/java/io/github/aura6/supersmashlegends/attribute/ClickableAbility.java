@@ -96,9 +96,10 @@ public abstract class ClickableAbility extends Ability {
             message = String.format("%s &7- &6%s", this.getBoldedDisplayName(), "&l" + this.getUseType());
 
         } else {
-            String emptyColor = this.kit.getColor().equals("&7") ? "&8&l" : "&7&l";
+            String color = this.kit.getColor().getChatSymbol();
+            String emptyColor = color.equals("&7") ? "&8&l" : "&7&l";
             int cooldownSoFar = this.cooldown - this.cooldownLeft;
-            String bar = MessageUtils.progressBar("❚", "❚", this.kit.getColor(), emptyColor, cooldownSoFar, this.cooldown, 20);
+            String bar = MessageUtils.progressBar("❚", "❚", color, emptyColor, cooldownSoFar, this.cooldown, 20);
 
             DecimalFormat format = new DecimalFormat("#.#");
             format.setMinimumFractionDigits(1);

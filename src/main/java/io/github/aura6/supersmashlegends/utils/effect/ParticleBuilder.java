@@ -46,11 +46,15 @@ public class ParticleBuilder {
     }
 
     public void show(Location location) {
-        float x = (float) MathUtils.randSpread(location.getX(), spreadX);
-        float y = (float) MathUtils.randSpread(location.getY(), spreadY);
-        float z = (float) MathUtils.randSpread(location.getZ(), spreadZ);
+        float x = (float) MathUtils.randSpread(location.getX(), this.spreadX);
+        float y = (float) MathUtils.randSpread(location.getY(), this.spreadY);
+        float z = (float) MathUtils.randSpread(location.getZ(), this.spreadZ);
 
-        PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(particle, true, x, y, z, r / 255f, g / 255f, b / 255f, 1, 0);
+        float red = this.r == 0 ? 0.001f : this.r / 255f;
+        float green = this.g / 255f;
+        float blue = this.b / 255f;
+
+        PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(this.particle, false, x, y, z, red, green, blue, 1, 0, 1);
         Bukkit.getOnlinePlayers().forEach(player -> NmsUtils.sendPacket(player, packet));
     }
 

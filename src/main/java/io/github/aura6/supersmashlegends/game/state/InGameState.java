@@ -172,7 +172,8 @@ public class InGameState extends GameState {
                     for (Player p : team.getSortedPlayers()) {
 
                         if (this.plugin.getGameManager().isPlayerAlive(p)) {
-                            scoreboard.add(playerIndex + 1, getPlayerLivesText(p, lifeCap, team.getColor()));
+                            String text = this.getPlayerLivesText(p, lifeCap, team.getColorType().getChatSymbol());
+                            scoreboard.add(playerIndex + 1, text);
                         }
                     }
                 }

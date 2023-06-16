@@ -71,7 +71,7 @@ public class KitSelector extends CustomInventory<Kit> implements HasRandomOption
                 .add("JUMP_COUNT", kit.getJumpCount())
                 .add("ABILITIES", abilityUses)
                 .add("DESCRIPTION", kit.getDescription())
-                .add("COLOR", kit.getColor());
+                .add("COLOR", kit.getColor().getChatSymbol());
 
         List<String> lore = new ArrayList<>(Arrays.asList(
                 "{STATUS}",

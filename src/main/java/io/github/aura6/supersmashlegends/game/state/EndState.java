@@ -170,7 +170,7 @@ public class EndState extends GameState implements TeleportsOnVoid {
                 this.winnerString = winnerKit.getColor() + winner.getName();
 
             } else {
-                this.winnerString = winningTeam.getColor() + winningTeam.getName();
+                this.winnerString = winningTeam.getName();
             }
 
             for (Team team : teams) {

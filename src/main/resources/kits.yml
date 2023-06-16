@@ -1,7 +1,7 @@
 Barbarian:
   ConfigName: Barbarian
   Name: "Barbarian"
-  Color: "&6"
+  Color: ORANGE
   Description:
     - "&7This fearless warrior relies on his"
     - "&7bulging muscles and striking mustache "
@@ -27,7 +27,7 @@ Barbarian:
     Pitch: 0.75
   DeathSound:
     Type: VILLAGER_DEATH
-    Volume: 1
+    Volume: 3
     Pitch: 0.75
   Abilities:
     0:
@@ -115,7 +115,7 @@ Barbarian:
 Globby:
   ConfigName: Globby
   Name: "Globby"
-  Color: "&a"
+  Color: LIME
   Description:
     - "&7Globby is the master of everything sticky."
     - "&7His gooey skin is quite fragile, but Globby"
@@ -143,7 +143,7 @@ Globby:
     Pitch: 1
   DeathSound:
     Type: SLIME_ATTACK
-    Volume: 1
+    Volume: 3
     Pitch: 0.5
   Abilities:
     0:
@@ -214,7 +214,7 @@ Globby:
 Mechon:
   ConfigName: Mechon
   Name: "Mechon"
-  Color: "&c"
+  Color: RED
   Description:
     - "&7Mechon is an entity of unbridled"
     - "&7intelligence matched with a powerful"
@@ -242,7 +242,7 @@ Mechon:
     Pitch: 2
   DeathSound:
     Type: IRONGOLEM_DEATH
-    Volume: 1
+    Volume: 3
     Pitch: 2
   Abilities:
     0:
@@ -324,7 +324,7 @@ Squawk:
   Name: "Squawk"
   Description:
     - "&7Squawk"
-  Color: "&f"
+  Color: WHITE
   Skin: "Nugleet"
   Item:
     Material: FEATHER
@@ -347,7 +347,7 @@ Squawk:
     Pitch: 1
   DeathSound:
     Type: CHICKEN_HURT
-    Volume: 1
+    Volume: 3
     Pitch: 0.5
   Abilities:
     0:
@@ -400,7 +400,7 @@ Squawk:
 Drakula:
   ConfigName: Drakula
   Name: "Drakula"
-  Color: "&5"
+  Color: PURPLE
   Item:
     Material: REDSTONE
   Description:
@@ -428,7 +428,7 @@ Drakula:
     Pitch: 1
   DeathSound:
     Type: ZOMBIE_DEATH
-    Volume: 1
+    Volume: 3
     Pitch: 1.7
   Abilities:
     0:
@@ -521,7 +521,7 @@ Drakula:
 Cryomancer:
   ConfigName: Cryomancer
   Name: "Cryomancer"
-  Color: "&b"
+  Color: LIGHT_BLUE
   Item:
     Material: ICE
   Description:
@@ -548,7 +548,7 @@ Cryomancer:
     Pitch: 1
   DeathSound:
     Type: GLASS
-    Volume: 1
+    Volume: 3
     Pitch: 0.5
   Abilities:
     0:
@@ -625,7 +625,7 @@ Cryomancer:
 Deadmortal:
   ConfigName: Deadmortal
   Name: "Deadmortal"
-  Color: "&4"
+  Color: DARK_RED
   Item:
     Material: ROTTEN_FLESH
   Description:
@@ -651,7 +651,7 @@ Deadmortal:
     Pitch: 1
   DeathSound:
     Type: ZOMBIE_PIG_DEATH
-    Volume: 1
+    Volume: 3
     Pitch: 0.5
   Abilities:
     0:
@@ -721,7 +721,7 @@ Deadmortal:
 Tank:
   ConfigName: Tank
   Name: "Tank"
-  Color: "&2"
+  Color: GREEN
   Item:
     Material: IRON_BLOCK
   Description:
@@ -748,7 +748,7 @@ Tank:
     Pitch: 1
   DeathSound:
     Type: IRONGOLEM_DEATH
-    Volume: 1
+    Volume: 3
     Pitch: 1
   Abilities:
     0:
@@ -823,7 +823,7 @@ Tank:
 Miner:
   ConfigName: Miner
   Name: "Miner"
-  Color: "&1"
+  Color: BLUE
   Item:
     Material: COAL
   Description:
@@ -849,7 +849,7 @@ Miner:
     Pitch: 1.5
   DeathSound:
     Type: VILLAGER_DEATH
-    Volume: 1
+    Volume: 3
     Pitch: 1.5
   Abilities:
     0:
@@ -952,7 +952,7 @@ Miner:
 Moreo:
   ConfigName: Moreo
   Name: "Moreo"
-  Color: "&c"
+  Color: RED
   Item:
     Material: RED_MUSHROOM
   Description:
@@ -979,7 +979,7 @@ Moreo:
     Pitch: 2
   DeathSound:
     Type: VILLAGER_DEATH
-    Volume: 1
+    Volume: 3
     Pitch: 2
   Abilities:
     0:
@@ -1059,7 +1059,7 @@ Moreo:
 MasterBlade:
   ConfigName: MasterBlade
   Name: "Master Blade"
-  Color: "&5"
+  Color: MAGENTA
   Item:
     Material: ENDER_PEARL
   Description:
@@ -1085,7 +1085,7 @@ MasterBlade:
     Pitch: 1
   DeathSound:
     Type: ENDERMAN_DEATH
-    Volume: 1
+    Volume: 3
     Pitch: 0.5
   Abilities:
     0:
@@ -1149,7 +1149,7 @@ MasterBlade:
 Pikachew:
   ConfigName: Pikachew
   Name: "Pikachew"
-  Color: "&e"
+  Color: YELLOW
   Item:
     Material: GOLD_INGOT
   Description:
@@ -1175,7 +1175,7 @@ Pikachew:
     Pitch: 1.2
   DeathSound:
     Type: CAT_HIT
-    Volume: 1
+    Volume: 3
     Pitch: 0.5
   Abilities:
     0:
@@ -1252,7 +1252,7 @@ Pikachew:
 Skellington:
   ConfigName: Skellington
   Name: "Skellington"
-  Color: "&7"
+  Color: SILVER
   Item:
     Material: SKULL_ITEM
     Data: 0
@@ -1279,7 +1279,7 @@ Skellington:
     Pitch: 1
   DeathSound:
     Type: SKELETON_DEATH
-    Volume: 1
+    Volume: 3
     Pitch: 0.5
   Abilities:
     0:
@@ -1350,7 +1350,7 @@ Skellington:
 Shinoby:
   ConfigName: Shinoby
   Name: "Shinoby"
-  Color: "&e"
+  Color: YELLOW
   Item:
     Material: DIAMOND
   Description:
@@ -1455,7 +1455,7 @@ Shinoby:
 Webman:
   ConfigName: Webman
   Name: "Webman"
-  Color: "&8"
+  Color: RED
   Item:
     Material: WEB
   Description:
@@ -1483,7 +1483,7 @@ Webman:
     Pitch: 1
   DeathSound:
     Type: SPIDER_DEATH
-    Volume: 1
+    Volume: 3
     Pitch: 1
   Abilities:
     0:
@@ -1549,7 +1549,7 @@ Webman:
 Mermaid:
   ConfigName: Mermaid
   Name: "Mermaid"
-  Color: "&3"
+  Color: CYAN
   Item:
     Material: RAW_FISH
   Description:
@@ -1575,7 +1575,7 @@ Mermaid:
     Pitch: 2
   DeathSound:
     Type: ENDERMAN_SCREAM
-    Volume: 1
+    Volume: 3
     Pitch: 1
   Abilities:
     0:

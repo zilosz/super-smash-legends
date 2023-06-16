@@ -1,11 +1,11 @@
 package io.github.aura6.supersmashlegends.team;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
+import io.github.aura6.supersmashlegends.utils.effect.ColorType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -15,33 +15,19 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class TeamManager {
-
-    private static final List<TeamData> TEAM_COLORS = Arrays.asList(
-            new TeamData("Yellow", "&e", 4),
-            new TeamData("Blue", "&b", 3),
-            new TeamData("Red", "&c", 14),
-            new TeamData("Lime", "&a", 5),
-            new TeamData("Pink", "&d", 2),
-            new TeamData("Purple", "&5", 10),
-            new TeamData("Green", "&2", 13),
-            new TeamData("Turquoise", "&3", 9),
-            new TeamData("Orange", "&6", 1),
-            new TeamData("Black", "&0", 15),
-            new TeamData("White", "&f", 0)
-    );
-
     private final SuperSmashLegends plugin;
-
     private final List<Team> teamList = new ArrayList<>();
     private final Map<UUID, Team> teamsByEntity = new HashMap<>();
 
     public TeamManager(SuperSmashLegends plugin) {
         this.plugin = plugin;
-        this.grabTeams();
+        this.loadTeams();
     }
 
-    private void grabTeams() {
-        TEAM_COLORS.forEach(colors -> this.teamList.add(new Team(this.plugin, colors)));
+    private void loadTeams() {
+        for (ColorType colorType : ColorType.values()) {
+            this.teamList.add(new Team(this.plugin, colorType));
+        }
     }
 
     public int getTeamSize() {
@@ -49,7 +35,7 @@ public class TeamManager {
     }
 
     public int getAbsolutePlayerCap() {
-        return TEAM_COLORS.size() * this.getTeamSize();
+        return ColorType.values().length * this.getTeamSize();
     }
 
     public List<Team> getTeamList() {
@@ -70,9 +56,9 @@ public class TeamManager {
 
     public String getPlayerColor(Player player) {
         if (this.getTeamSize() == 1) {
-            return this.plugin.getGameManager().getProfile(player).getKit().getColor();
+            return this.plugin.getGameManager().getProfile(player).getKit().getColor().getChatSymbol();
         }
-        return this.getPlayerTeam(player).getColor();
+        return this.getPlayerTeam(player).getColorType().getChatSymbol();
     }
 
     public void assignPlayer(Player player) {
@@ -120,6 +106,6 @@ public class TeamManager {
     public void reset() {
         this.teamsByEntity.clear();
         this.teamList.clear();
-        this.grabTeams();
+        this.loadTeams();
     }
 }

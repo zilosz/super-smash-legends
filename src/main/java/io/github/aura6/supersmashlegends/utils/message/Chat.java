@@ -4,15 +4,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 public enum Chat {
-    KIT("&b&lKit» "),
-    JOIN("&a&lJoin» "),
-    QUIT("&c&lQuit» "),
-    ARENA("&2&lArena» "),
-    TEAM("&6&lTeam» "),
-    COMMAND("&1&lCommand» "),
-    GAME("&5&lGame» "),
-    DEATH("&4&lDeath» "),
     ABILITY("&d&lAbility» "),
+    ARENA("&2&lArena» "),
+    COMMAND("&1&lCommand» "),
+    DEATH("&4&lDeath» "),
+    GAME("&5&lGame» "),
+    JOIN("&a&lJoin» "),
+    KIT("&b&lKit» "),
+    QUIT("&c&lQuit» "),
+    TEAM("&6&lTeam» "),
     TRACKER("&e&lTracker» ");
 
     private final String prefix;
