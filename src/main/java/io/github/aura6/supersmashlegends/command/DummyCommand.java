@@ -18,6 +18,6 @@ public class DummyCommand implements CommandExecutor {
         dummy.setMaxHealth(200);
         dummy.setHealth(200);
 
-        return false;
+        return true;
     }
 }

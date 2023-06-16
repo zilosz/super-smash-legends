@@ -4,7 +4,7 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.damage.Damage;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
 import io.github.aura6.supersmashlegends.event.CustomEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
@@ -123,9 +123,8 @@ public class Rasenshuriken extends RightClickAbility {
 
         public Shuriken(SuperSmashLegends plugin, Ability ability, Section config) {
             super(plugin, ability, config);
-
-            this.getDamage().setDamage(config.getDouble("MaxDamage"));
-            this.getDamage().setKb(config.getDouble("MaxKb"));
+            this.getAttackSettings().getDamageSettings().setDamage(config.getDouble("MaxDamage"));
+            this.getAttackSettings().getKbSettings().setKb(config.getDouble("MaxKb"));
         }
 
         @Override
@@ -167,11 +166,11 @@ public class Rasenshuriken extends RightClickAbility {
                 double damage = YamlReader.decLin(this.config, "Damage", distanceSq, radius * radius);
                 double kb = YamlReader.decLin(this.config, "Kb", distanceSq, radius * radius);
 
-                Damage dmg = Damage.Builder.fromConfig(this.config, VectorUtils.fromTo(this.entity, target)).build();
-                dmg.setDamage(damage);
-                dmg.setKb(kb);
+                AttackSettings settings = new AttackSettings(this.config, VectorUtils.fromTo(this.entity, target))
+                        .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
+                        .modifyKb(kbSettings -> kbSettings.setKb(kb));
 
-                this.plugin.getDamageManager().attemptAttributeDamage(target, dmg, this.ability);
+                this.plugin.getDamageManager().attack(target, this.ability, settings);
             });
         }
     }

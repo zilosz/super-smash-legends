@@ -3,8 +3,9 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.PassiveAbility;
-import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
+import io.github.aura6.supersmashlegends.damage.KbSettings;
+import io.github.aura6.supersmashlegends.event.attack.AttackEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
@@ -16,6 +17,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -59,8 +61,8 @@ public class BlindingFists extends PassiveAbility {
         }
     }
 
-    @EventHandler
-    public void onCustomDamage(AttributeDamageEvent event) {
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onCustomDamage(AttackEvent event) {
         LivingEntity victim = event.getVictim();
 
         if (victim == this.player) {
@@ -112,10 +114,12 @@ public class BlindingFists extends PassiveAbility {
         double maxKbYMul = this.config.getDouble("MaxKbYMultiplier");
         double kbYMul = MathUtils.increasingLinear(1, maxKbYMul, maxChain - 1, currChain);
 
-        Damage damage = event.getDamage();
-        damage.setDamage(damage.getDamage() * damageMul);
-        damage.setKb(damage.getKb() * kbMul);
-        damage.setKbY(damage.getKbY() * kbYMul);
+        AttackSettings settings = event.getAttackSettings();
+        settings.getDamageSettings().setDamage(settings.getDamageSettings().getDamage() * damageMul);
+
+        KbSettings kbSettings = settings.getKbSettings();
+        kbSettings.setKb(kbSettings.getKb() * kbMul);
+        kbSettings.setKbY(kbSettings.getKbY() * kbYMul);
 
         Optional.ofNullable(this.chainResetters.remove(victim)).ifPresent(BukkitTask::cancel);
 

@@ -2,7 +2,7 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
-import io.github.aura6.supersmashlegends.event.JumpEvent;
+import io.github.aura6.supersmashlegends.event.attribute.JumpEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import lombok.Getter;

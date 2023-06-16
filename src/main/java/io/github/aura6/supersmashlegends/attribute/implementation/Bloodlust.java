@@ -3,14 +3,14 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.PassiveAbility;
-import io.github.aura6.supersmashlegends.event.RegenEvent;
+import io.github.aura6.supersmashlegends.event.attribute.RegenEvent;
+import io.github.aura6.supersmashlegends.event.attack.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 public class Bloodlust extends PassiveAbility {
 
@@ -24,11 +24,12 @@ public class Bloodlust extends PassiveAbility {
     }
 
     @EventHandler
-    public void onDamage(EntityDamageByEntityEvent event) {
-        if (event.getDamager() != this.player) return;
+    public void onDamage(AttributeDamageEvent event) {
+        if (event.getAttribute().getPlayer() != this.player) return;
+        if (!(event.getAttribute() instanceof Melee)) return;
         if (!RegenEvent.attempt(this.player, this.config.getDouble("Regen"))) return;
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_UNFECT, 1, 2);
-        new ParticleBuilder(EnumParticle.REDSTONE).boom(this.plugin, EntityUtils.center(event.getEntity()), 3, 0.3, 7);
+        new ParticleBuilder(EnumParticle.REDSTONE).boom(this.plugin, EntityUtils.center(event.getVictim()), 3, 0.3, 7);
     }
 }

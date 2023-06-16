@@ -10,20 +10,20 @@ import io.github.aura6.supersmashlegends.arena.Arena;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
 import io.github.aura6.supersmashlegends.attribute.Nameable;
 import io.github.aura6.supersmashlegends.damage.DamageManager;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
+import io.github.aura6.supersmashlegends.damage.DamageSettings;
+import io.github.aura6.supersmashlegends.event.attack.AttributeDamageEvent;
+import io.github.aura6.supersmashlegends.event.attack.DamageEvent;
 import io.github.aura6.supersmashlegends.game.InGameProfile;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.team.Team;
 import io.github.aura6.supersmashlegends.team.TeamManager;
 import io.github.aura6.supersmashlegends.utils.HotbarItem;
-import io.github.aura6.supersmashlegends.utils.NmsUtils;
 import io.github.aura6.supersmashlegends.utils.SoundCanceller;
 import io.github.aura6.supersmashlegends.utils.effect.DeathNPC;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import io.github.aura6.supersmashlegends.utils.message.Replacers;
-import net.minecraft.server.v1_8_R3.PacketPlayInClientCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -34,7 +34,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -61,8 +60,6 @@ public class InGameState extends GameState {
     private final Map<Player, BukkitTask> trackerTasks = new HashMap<>();
     private final Map<Player, Player> closestTargets = new HashMap<>();
     private final Map<Player, BukkitTask> respawnTasks = new HashMap<>();
-    private final Map<Player, Boolean> makeNpcMap = new HashMap<>();
-    private final Map<Player, Boolean> preferAttributeDamageMap = new HashMap<>();
     private final Set<BukkitTask> skinRestorers = new HashSet<>();
 
     private int secLeft;
@@ -141,7 +138,7 @@ public class InGameState extends GameState {
             scoreboard.add("{KIT}");
 
             try {
-                replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+                replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getDisplayName());
             } catch (NullPointerException ignored) {}
         }
 
@@ -267,6 +264,7 @@ public class InGameState extends GameState {
                 Location spawn = Collections.max(spawnsLeft, comparator);
                 spawnsLeft.remove(spawn);
                 player.teleport(spawn);
+                player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
 
                 if (spawnsLeft.isEmpty()) {
                     spawnsLeft = spawnLocations;
@@ -339,9 +337,7 @@ public class InGameState extends GameState {
             DeathNPC.spawn(this.plugin, died);
         }
 
-        died.setVelocity(new Vector(0, 0, 0));
         died.setGameMode(GameMode.SPECTATOR);
-        NmsUtils.getConnection(died).a(new PacketPlayInClientCommand(PacketPlayInClientCommand.EnumClientCommand.PERFORM_RESPAWN));
 
         InGameProfile profile = plugin.getGameManager().getProfile(died);
         profile.setLives(profile.getLives() - 1);
@@ -388,6 +384,8 @@ public class InGameState extends GameState {
 
         if (teleportPlayer) {
             died.teleport(tpLocation);
+            died.setVelocity(new Vector(0, 0, 0));
+            died.playSound(died.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
         }
 
         damageManager.destroyIndicator(died);
@@ -440,21 +438,40 @@ public class InGameState extends GameState {
         }.runTaskTimer(plugin, 60, 20));
     }
 
-    private void registerDamageTaken(Player player, double damage) {
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onDamage(DamageEvent event) {
+        double finalDamage = event.getFinalDamage();
+        this.plugin.getDamageManager().updateIndicator(event.getVictim(), finalDamage);
+
+        if (!(event.getVictim() instanceof Player)) return;
+
+        Player player = (Player) event.getVictim();
+
         InGameProfile profile = this.plugin.getGameManager().getProfile(player);
-        profile.setDamageTaken(profile.getDamageTaken() + damage);
-        this.plugin.getKitManager().getSelectedKit(player).getHurtNoise().playForAll(player.getLocation());
+        profile.setDamageTaken(profile.getDamageTaken() + Math.min(player.getHealth(), finalDamage));
+
+        if (event instanceof AttributeDamageEvent && event.willDie()) {
+            this.handleDeath(player, true, false, ((AttributeDamageEvent) event).getAttribute(), true);
+
+        } else if (event.isVoid()) {
+            this.handleDeath(player, false, true, null, true);
+            event.setCancelled(true);
+
+        } else if (event.willDie()) {
+            this.handleDeath(player, true, false, null, false);
+            event.setCancelled(true);
+
+        } else {
+            this.plugin.getKitManager().getSelectedKit(player).getHurtNoise().playForAll(player.getLocation());
+        }
     }
 
-    private void handleDeathFromSettings(Player player) {
-        boolean makeNpc = this.makeNpcMap.get(player);
-        boolean preferAttributeDamage = this.preferAttributeDamageMap.get(player);
-        this.handleDeath(player, makeNpc, true, null, preferAttributeDamage);
-    }
-
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onRegularDamage(EntityDamageEvent event) {
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onEntityDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof LivingEntity)) return;
+
+        LivingEntity victim = (LivingEntity) event.getEntity();
+
         if (event.getEntity() instanceof ArmorStand) return;
 
         if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
@@ -462,9 +479,7 @@ public class InGameState extends GameState {
             return;
         }
 
-        boolean isPlayer = event.getEntity() instanceof Player;
-
-        if (isPlayer) {
+        if (victim instanceof Player) {
             Player player = (Player) event.getEntity();
             boolean isAlive = this.plugin.getGameManager().isPlayerAlive(player);
             boolean isSpec = player.getGameMode() == GameMode.SPECTATOR;
@@ -475,50 +490,15 @@ public class InGameState extends GameState {
             }
         }
 
-        this.plugin.getDamageManager().updateIndicator((LivingEntity) event.getEntity(), event.getFinalDamage());
+        boolean isVoid = event.getCause() == EntityDamageEvent.DamageCause.VOID;
+        DamageSettings damageSettings = new DamageSettings(event.getFinalDamage(), true);
+        DamageEvent damageEvent = new DamageEvent(victim, damageSettings, isVoid);
+        Bukkit.getPluginManager().callEvent(damageEvent);
+        event.setDamage(damageEvent.getFinalDamage());
 
-        if (isPlayer) {
-            Player player = (Player) event.getEntity();
-            boolean died = player.getHealth() - event.getFinalDamage() <= 0;
-
-            if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
-                this.registerDamageTaken(player, player.getHealth());
-                this.makeNpcMap.put(player, false);
-                this.preferAttributeDamageMap.put(player, true);
-
-                if (!died) {
-                    this.handleDeathFromSettings(player);
-                }
-
-            } else {
-                this.registerDamageTaken(player, event.getFinalDamage());
-
-                if (died) {
-                    this.makeNpcMap.put(player, true);
-                    this.preferAttributeDamageMap.put(player, false);
-                }
-            }
+        if (damageEvent.isCancelled()) {
+            event.setCancelled(true);
         }
-    }
-
-    @EventHandler
-    public void onAttributeDamage(AttributeDamageEvent event) {
-        if (!(event.getVictim() instanceof Player)) return;
-
-        double damage = event.getDamage().getDamage();
-        Player player = (Player) event.getVictim();
-        this.registerDamageTaken(player, damage);
-
-        if (player.getHealth() - damage <= 0) {
-            this.handleDeath(player, true, false, event.getAttribute(), true);
-        }
-    }
-
-    @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        event.getDrops().clear();
-        event.setDeathMessage("");
-        this.handleDeathFromSettings(event.getEntity());
     }
 
     @EventHandler

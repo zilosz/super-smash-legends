@@ -3,10 +3,11 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.damage.Damage;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
+import io.github.aura6.supersmashlegends.utils.entity.finder.selector.EntitySelector;
 import io.github.aura6.supersmashlegends.utils.entity.finder.selector.HitBoxSelector;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
@@ -37,9 +38,11 @@ public class ArcticBreath extends RightClickAbility {
         player.getWorld().playSound(center, Sound.GLASS, 2, 2);
         new ParticleBuilder(EnumParticle.SNOW_SHOVEL).ring(center, radius, config.getDouble("ParticleDensity"));
 
-        new EntityFinder(plugin, new HitBoxSelector(config.getDouble("HitBox"))).findAll(player, center).forEach(target -> {
-            Damage dmg = Damage.Builder.fromConfig(config, step).setDamage(damage).build();
-            plugin.getDamageManager().attemptAttributeDamage(target, dmg, this);
+        EntitySelector selector = new HitBoxSelector(config.getDouble("HitBox"));
+
+        new EntityFinder(plugin, selector).findAll(player, center).forEach(target -> {
+            AttackSettings settings = new AttackSettings(this.config, step).modifyDamage(dmg -> dmg.setDamage(damage));
+            plugin.getDamageManager().attack(target, this, settings);
         });
 
         createRing(center.add(step), step, damage - damageStep, damageStep, radius + radiusStep, radiusStep, ringCount + 1);

@@ -3,11 +3,12 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.ChargedRightClickAbility;
-import io.github.aura6.supersmashlegends.damage.Damage;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
+import io.github.aura6.supersmashlegends.utils.entity.finder.selector.EntitySelector;
 import io.github.aura6.supersmashlegends.utils.entity.finder.selector.HitBoxSelector;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
@@ -40,10 +41,10 @@ public class AerialAssault extends ChargedRightClickAbility {
         Location particleCenter = EntityUtils.center(this.player).setDirection(this.velocity).add(forward);
         new ParticleBuilder(EnumParticle.FIREWORKS_SPARK).ring(particleCenter, 1.5, 20);
 
-        new EntityFinder(this.plugin, new HitBoxSelector(this.config.getDouble("HitBox"))).findAll(this.player).forEach(target -> {
-            Damage damage = Damage.Builder.fromConfig(this.config, this.velocity).build();
+        EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
-            if (this.plugin.getDamageManager().attemptAttributeDamage(target, damage, this)) {
+        new EntityFinder(this.plugin, selector).findAll(this.player).forEach(target -> {
+            if (this.plugin.getDamageManager().attack(target, this, new AttackSettings(this.config, this.velocity))) {
                 this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_METAL, 1, 1);
             }
         });

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class Kit {
-    private static final SuperSmashLegends ssl = SuperSmashLegends.getInstance();
+    private static final SuperSmashLegends plugin = SuperSmashLegends.getInstance();
 
     private final Section config;
     private final List<Attribute> attributes = new ArrayList<>();
@@ -41,17 +41,17 @@ public class Kit {
         jump = new Jump(SuperSmashLegends.getInstance(), this);
         attributes.add(jump);
 
-        attributes.add(new Regeneration(ssl, this));
-        attributes.add(new Melee(ssl, this));
+        attributes.add(new Regeneration(plugin, this));
+        attributes.add(new Melee(plugin, this));
 
         if (config.isNumber("Energy")) {
-            attributes.add(new Energy(ssl, this));
+            attributes.add(new Energy(plugin, this));
         }
 
         IntStream.range(0, 9).forEach(slot -> config.getOptionalSection("Abilities." + slot).ifPresent(abilityConfig -> {
             String name = Ability.class.getPackageName() + ".implementation." + abilityConfig.getString("ConfigName");
             Class<? extends Ability> clazz = (Class<? extends Ability>) Reflector.loadClass(name);
-            Ability ability = Reflector.newInstance(clazz, ssl, abilityConfig, this);
+            Ability ability = Reflector.newInstance(clazz, plugin, abilityConfig, this);
             ability.setSlot(slot);
             attributes.add(ability);
         }));
@@ -136,21 +136,17 @@ public class Kit {
 
     public void giveItems() {
         attributes.forEach(Attribute::equip);
-        System.out.println("gave items for " + this.player.getName());
     }
 
     public void activate() {
         attributes.forEach(Attribute::activate);
-        System.out.println("activated for " + this.player.getName());
     }
 
     public void deactivate() {
         attributes.forEach(Attribute::deactivate);
-        System.out.println("deactivated for " + this.player.getName());
     }
 
     public void destroy() {
         attributes.forEach(Attribute::destroy);
-        System.out.println("destroyed for " + this.player.getName());
     }
 }

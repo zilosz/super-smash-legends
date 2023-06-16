@@ -81,7 +81,6 @@ public abstract class GameState implements Listener {
             player.teleport(this.plugin.getArenaManager().getArena().getWaitLocation());
 
         } else {
-            Chat.GAME.send(player, "&7You can use &d&l/start &7 and &3&l/end &7to force game progress.");
             event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined the game.", player.getName())));
         }
 
@@ -129,6 +128,7 @@ public abstract class GameState implements Listener {
 
         if (isVoid && this instanceof TeleportsOnVoid && event.getEntity() instanceof Player) {
             event.getEntity().teleport(((TeleportsOnVoid) this).getTeleportLocation());
+            ((Player) event.getEntity()).playSound(event.getEntity().getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
         }
     }
 

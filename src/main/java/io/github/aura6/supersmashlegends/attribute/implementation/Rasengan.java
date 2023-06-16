@@ -3,7 +3,9 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
+import io.github.aura6.supersmashlegends.damage.DamageSettings;
+import io.github.aura6.supersmashlegends.damage.KbSettings;
+import io.github.aura6.supersmashlegends.event.attack.AttackEvent;
 import io.github.aura6.supersmashlegends.event.CustomEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
@@ -106,17 +108,19 @@ public class Rasengan extends RightClickAbility {
     }
 
     @EventHandler
-    public void onMelee(AttributeDamageEvent event) {
-        if (task == null) return;
+    public void onMelee(AttackEvent event) {
+        if (!this.isActive()) return;
         if (event.getAttribute().getPlayer() != player) return;
         if (!(event.getAttribute() instanceof Melee)) return;
 
         reset();
 
-        event.getDamage().setDamage(config.getDouble("Damage"));
-        event.getDamage().setKb(config.getInt("Kb"));
-        event.getDamage().setKbY(config.getInt("KbY"));
-        event.setAttribute(this);
+        DamageSettings damageSettings = event.getAttackSettings().getDamageSettings();
+        damageSettings.setDamage(this.config.getDouble("Damage"));
+
+        KbSettings kbSettings = event.getAttackSettings().getKbSettings();
+        kbSettings.setKb(this.config.getDouble("Kb"));
+        kbSettings.setKbY(this.config.getDouble("KbY"));
 
         event.getVictim().getWorld().playSound(event.getVictim().getLocation(), Sound.EXPLODE, 3, 1);
         displayAttackEffect(event.getVictim());

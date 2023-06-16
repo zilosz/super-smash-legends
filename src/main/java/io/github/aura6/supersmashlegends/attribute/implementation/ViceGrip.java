@@ -3,7 +3,7 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.damage.Damage;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
@@ -36,10 +36,12 @@ public class ViceGrip extends RightClickAbility {
         while (stepped <= config.getDouble("Range") && !location.getBlock().getType().isSolid() && !found) {
 
             for (LivingEntity target : finder.findAll(player, location)) {
-                Damage dmg = Damage.Builder.fromConfig(config, step).build();
-                dmg.setKbY(step.clone().getY() + config.getDouble("ExtraKbY"));
+                double kbY = step.clone().getY() + this.config.getDouble("ExtraY");
 
-                if (plugin.getDamageManager().attemptAttributeDamage(target, dmg, this)) {
+                AttackSettings settings = new AttackSettings(this.config, step)
+                        .modifyKb(kbSettings -> kbSettings.setKbY(kbY));
+
+                if (plugin.getDamageManager().attack(target, this, settings)) {
                     player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 1);
                     found = true;
                     break;

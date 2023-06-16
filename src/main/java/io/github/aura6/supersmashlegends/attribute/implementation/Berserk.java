@@ -3,7 +3,7 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
+import io.github.aura6.supersmashlegends.event.attack.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.effect.Effects;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
@@ -78,8 +78,9 @@ public class Berserk extends RightClickAbility {
 
     @EventHandler
     public void onDamage(AttributeDamageEvent event) {
-        if (active && event.getAttribute().getPlayer() == player) {
-            event.getDamage().setDamage(event.getDamage().getDamage() * config.getDouble("DamageMultiplier"));
+        if (this.active && event.getAttribute().getPlayer() == this.player) {
+            double multiplier = config.getDouble("DamageMultiplier");
+            event.getDamageSettings().setDamage(event.getDamageSettings().getDamage() * multiplier);
         }
     }
 }

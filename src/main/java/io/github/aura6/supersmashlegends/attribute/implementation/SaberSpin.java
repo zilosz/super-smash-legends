@@ -3,10 +3,11 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.ChargedRightClickAbility;
-import io.github.aura6.supersmashlegends.damage.Damage;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
+import io.github.aura6.supersmashlegends.utils.entity.finder.selector.EntitySelector;
 import io.github.aura6.supersmashlegends.utils.entity.finder.selector.HitBoxSelector;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
@@ -36,10 +37,10 @@ public class SaberSpin extends ChargedRightClickAbility {
 
         player.setVelocity(direction.clone().multiply(config.getDouble("ChargeSpeed")));
 
-        new EntityFinder(plugin, new HitBoxSelector(config.getDouble("HitBox"))).findAll(player, center).forEach(target -> {
-            Damage damage = Damage.Builder.fromConfig(config, direction).build();
+        EntitySelector selector = new HitBoxSelector(config.getDouble("HitBox"));
 
-            if (plugin.getDamageManager().attemptAttributeDamage(target, damage, this)) {
+        new EntityFinder(plugin, selector).findAll(player, center).forEach(target -> {
+            if (plugin.getDamageManager().attack(target, this, new AttackSettings(this.config, this.direction))) {
                 player.getWorld().playSound(player.getLocation(), Sound.BLAZE_BREATH, 2, 1);
             }
         });

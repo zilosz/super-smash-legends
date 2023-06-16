@@ -3,8 +3,8 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.DamageEvent;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
+import io.github.aura6.supersmashlegends.event.attack.AttributeKbEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
@@ -68,9 +68,12 @@ public class GroundPound extends RightClickAbility {
         EntityFinder finder = new EntityFinder(plugin, new HitBoxSelector(config.getDouble("HitBox")));
 
         for (LivingEntity target : finder.findAll(player)) {
-            Vector direction = player.getLocation().getDirection();
-            Damage dmg = Damage.Builder.fromConfig(config, direction).setDamage(damage).setKb(kb).build();
-            plugin.getDamageManager().attemptAttributeDamage(target, dmg, this);
+
+            AttackSettings settings = new AttackSettings(this.config, this.player.getLocation().getDirection())
+                    .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
+                    .modifyKb(kbSettings -> kbSettings.setKb(kb));
+
+            plugin.getDamageManager().attack(target, this, settings);
 
             player.getWorld().playSound(target.getLocation(), Sound.EXPLODE, 2, 2);
             new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).show(target.getLocation());
@@ -107,9 +110,9 @@ public class GroundPound extends RightClickAbility {
     }
 
     @EventHandler
-    public void onDamage(DamageEvent event) {
+    public void onKb(AttributeKbEvent event) {
         if (event.getVictim() == player && fallTask != null) {
-            event.getDamage().setDirection(null);
+            event.getKbSettings().setDirection(null);
         }
     }
 }

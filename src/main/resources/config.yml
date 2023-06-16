@@ -37,13 +37,13 @@ Collision:
 Game:
   Lives: 4
   TeamSize: 1
-  MinPlayersToStart: 4
+  MinPlayersToStart: 2
   Tutorial:
-    DurationTicks: 200
-    DelayTicks: 55
+    DurationTicks: 140
+    DelayTicks: 40
   LobbyCountdown:
-    Seconds: 30
-    NotifyInterval: 10
+    Seconds: 20
+    NotifyInterval: 5
   Timer:
     DefaultSeconds: 720
     SecondsPerExtraPlayer: 60
@@ -62,8 +62,7 @@ Damage:
   Melee:
     Kb: 0.9
     KbY: 0.45
-    FactorsKb: false
+    FactorsKit: false
     FactorsHealth: false
-  KbHealthMultiplier:
-    Min: 1
-    Max: 1.5
+  MinKbHealthMultiplier: 1
+  MaxKbHealthMultiplier: 1.6

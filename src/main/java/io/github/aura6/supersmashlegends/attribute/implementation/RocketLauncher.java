@@ -4,6 +4,8 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.ChargedRightClickAbility;
+import io.github.aura6.supersmashlegends.damage.DamageSettings;
+import io.github.aura6.supersmashlegends.damage.KbSettings;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
 import io.github.aura6.supersmashlegends.utils.CollectionUtils;
@@ -54,8 +56,13 @@ public class RocketLauncher extends ChargedRightClickAbility {
     public void onSuccessfulCharge() {
         Section main = config.getSection("Rocket");
         Rocket rocket = new Rocket(plugin, this, main);
-        rocket.getDamage().setDamage(YamlReader.incLin(main, "Damage", ticksCharging, maxChargeTicks));
-        rocket.getDamage().setKb(YamlReader.incLin(main, "Kb", ticksCharging, maxChargeTicks));
+
+        DamageSettings damageSettings = rocket.getAttackSettings().getDamageSettings();
+        damageSettings.setDamage(YamlReader.incLin(main, "Damage", this.ticksCharging, this.maxChargeTicks));
+
+        KbSettings kbSettings = rocket.getAttackSettings().getKbSettings();
+        kbSettings.setKb(YamlReader.incLin(main, "Kb", this.ticksCharging, this.maxChargeTicks));
+
         rocket.setSpeed(YamlReader.incLin(main, "Speed", ticksCharging, maxChargeTicks));
         rocket.launch();
     }
@@ -75,10 +82,7 @@ public class RocketLauncher extends ChargedRightClickAbility {
             this.particles.add(location);
 
             for (Location loc : this.particles) {
-
-                for (int i = 0; i < 3; i++) {
-                    new ParticleBuilder(EnumParticle.SMOKE_LARGE).setSpread(0.3f, 0.3f, 0.3f).show(loc);
-                }
+                new ParticleBuilder(EnumParticle.SMOKE_LARGE).setSpread(0.3f, 0.3f, 0.3f).show(loc);
             }
         }
 
@@ -97,8 +101,12 @@ public class RocketLauncher extends ChargedRightClickAbility {
 
                 double multiplier =  config.getDouble("Shrapnel.Multiplier");
 
-                shrapnel.getDamage().setDamage(getDamage().getDamage() * multiplier);
-                shrapnel.getDamage().setKb(getDamage().getKb() * multiplier);
+                DamageSettings damageSettings = shrapnel.getAttackSettings().getDamageSettings();
+                damageSettings.setDamage(damageSettings.getDamage() * multiplier);
+
+                KbSettings kbSettings = shrapnel.getAttackSettings().getKbSettings();
+                kbSettings.setKb(kbSettings.getKb() * multiplier);
+
                 shrapnel.setOverrideLocation(launchLocation);
                 shrapnel.setSpeed(this.launchSpeed * multiplier);
 

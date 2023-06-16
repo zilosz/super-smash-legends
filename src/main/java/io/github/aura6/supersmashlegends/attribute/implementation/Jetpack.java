@@ -3,7 +3,7 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.PassiveAbility;
-import io.github.aura6.supersmashlegends.event.EnergyEvent;
+import io.github.aura6.supersmashlegends.event.attribute.EnergyEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;

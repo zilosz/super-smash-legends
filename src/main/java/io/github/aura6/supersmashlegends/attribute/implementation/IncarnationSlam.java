@@ -3,12 +3,13 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.damage.Damage;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.DisguiseUtils;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.effect.Effects;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
+import io.github.aura6.supersmashlegends.utils.entity.finder.selector.EntitySelector;
 import io.github.aura6.supersmashlegends.utils.entity.finder.selector.HitBoxSelector;
 import me.libraryaddict.disguise.DisguiseAPI;
 import me.libraryaddict.disguise.disguisetypes.DisguiseType;
@@ -58,9 +59,11 @@ public class IncarnationSlam extends RightClickAbility {
                 return;
             }
 
-            new EntityFinder(plugin, new HitBoxSelector(config.getDouble("HitBox"))).findAll(player).forEach(target -> {
-                Damage damage = Damage.Builder.fromConfig(config, player.getLocation().getDirection()).build();
-                plugin.getDamageManager().attemptAttributeDamage(target, damage, this);
+            EntitySelector selector = new HitBoxSelector(config.getDouble("HitBox"));
+
+            new EntityFinder(plugin, selector).findAll(player).forEach(target -> {
+                AttackSettings settings = new AttackSettings(this.config, this.player.getLocation().getDirection());
+                plugin.getDamageManager().attack(target, this, settings);
 
                 target.getWorld().playSound(target.getLocation(), Sound.SLIME_ATTACK, 2, 2);
                 Effects.itemBoom(plugin, target.getLocation(), new ItemStack(Material.SLIME_BALL), 4, 0.3, 5);

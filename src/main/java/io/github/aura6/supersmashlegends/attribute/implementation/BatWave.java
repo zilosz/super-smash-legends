@@ -4,7 +4,7 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.event.DamageEvent;
+import io.github.aura6.supersmashlegends.event.attack.DamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.LivingProjectile;
 import io.github.aura6.supersmashlegends.projectile.ProjectileRemoveReason;
@@ -14,7 +14,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Bat;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
@@ -149,15 +148,8 @@ public class BatWave extends RightClickAbility {
         }
 
         @EventHandler
-        public void onCustomDamageBat(DamageEvent event) {
+        public void onDamageBat(DamageEvent event) {
             if (event.getVictim() == this.bat) {
-                event.setCancelled(true);
-            }
-        }
-
-        @EventHandler
-        public void onRegularDamageBat(EntityDamageEvent event) {
-            if (event.getEntity() == this.bat) {
                 event.setCancelled(true);
             }
         }

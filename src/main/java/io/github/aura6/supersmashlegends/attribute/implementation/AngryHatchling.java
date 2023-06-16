@@ -4,7 +4,7 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.damage.Damage;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.LivingProjectile;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
@@ -56,7 +56,8 @@ public class AngryHatchling extends RightClickAbility {
         }
 
         private void displayExplodeEffect(BlockFace face) {
-            new ParticleBuilder(EnumParticle.SNOWBALL).setFace(face).solidSphere(this.entity.getLocation(), this.config.getDouble("Radius"), 65, 0.4);
+            new ParticleBuilder(EnumParticle.SNOWBALL).setFace(face)
+                    .solidSphere(this.entity.getLocation(), this.config.getDouble("Radius"), 20, 0.4);
             this.entity.getWorld().playSound(this.entity.getLocation(), Sound.FIREWORK_TWINKLE, 3, 1);
             this.entity.getWorld().playSound(this.entity.getLocation(), Sound.EXPLODE, 1, 1);
         }
@@ -73,10 +74,10 @@ public class AngryHatchling extends RightClickAbility {
             EntityFinder finder = new EntityFinder(this.plugin, new DistanceSelector(this.config.getDouble("Radius")));
 
             finder.findAll(this.launcher, this.entity.getLocation()).forEach(target -> {
-                Damage damage = getDamage();
-                damage.setDirection(VectorUtils.fromTo(this.entity.getLocation(), target.getLocation()));
+                Vector vector = VectorUtils.fromTo(this.entity, target);
+                AttackSettings attackSettings = this.getAttackSettings().modifyKb(kb -> kb.setDirection(vector));
 
-                if (this.plugin.getDamageManager().attemptAttributeDamage(target, damage, this.ability)) {
+                if (this.plugin.getDamageManager().attack(target, this.ability, attackSettings)) {
                     this.launcher.playSound(this.launcher.getLocation(), Sound.ORB_PICKUP, 2, 0.5f);
                 };
             });

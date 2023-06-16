@@ -4,7 +4,7 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.damage.Damage;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.BlockProjectile;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
@@ -63,8 +63,9 @@ public class SpringTrap extends RightClickAbility {
             EntityFinder finder = new EntityFinder(this.plugin, new DistanceSelector(config.getDouble("Radius")));
 
             finder.findAll(this.launcher, this.entity.getLocation()).forEach(target -> {
-                Damage damage = Damage.Builder.fromConfig(config.getSection("Aoe"), VectorUtils.fromTo(this.entity, target)).build();
-                this.plugin.getDamageManager().attemptAttributeDamage(target, damage, this.ability);
+                Vector direction = VectorUtils.fromTo(this.entity, target);
+                AttackSettings settings = new AttackSettings(this.config.getSection("Aoe"), direction);
+                this.plugin.getDamageManager().attack(target, this.ability, settings);
             });
         }
     }

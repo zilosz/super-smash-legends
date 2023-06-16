@@ -90,7 +90,7 @@ public class EndState extends GameState implements TeleportsOnVoid {
             lines.add("");
             lines.add("&f&lKit");
             lines.add("{KIT}");
-            replacers.add("KIT", this.plugin.getGameManager().getProfile(player).getKit().getBoldedDisplayName());
+            replacers.add("KIT", this.plugin.getGameManager().getProfile(player).getKit().getDisplayName());
         }
 
         lines.add(this.getScoreboardLine());

@@ -139,8 +139,8 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
         projectile.setData(block.getBlockData());
         projectile.setOverrideLocation(block.getLocation().setDirection(this.player.getEyeLocation().getDirection()));
         projectile.setSpeed(speed);
-        projectile.getDamage().setDamage(damage);
-        projectile.getDamage().setKb(kb);
+        projectile.getAttackSettings().getDamageSettings().setDamage(damage);
+        projectile.getAttackSettings().getKbSettings().setKb(kb);
         projectile.launch();
     }
 

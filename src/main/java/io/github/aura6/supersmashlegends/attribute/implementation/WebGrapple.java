@@ -5,7 +5,7 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.event.DamageEvent;
+import io.github.aura6.supersmashlegends.event.attack.AttackEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
 import io.github.aura6.supersmashlegends.projectile.ProjectileRemoveReason;
@@ -18,7 +18,6 @@ import org.bukkit.entity.Bat;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.potion.PotionEffect;
@@ -102,14 +101,7 @@ public class WebGrapple extends RightClickAbility {
         }
 
         @EventHandler
-        public void onRegularBatDamage(EntityDamageEvent event) {
-            if (event.getEntity() == this.bat) {
-                event.setCancelled(true);
-            }
-        }
-
-        @EventHandler
-        public void onCustomBatDamage(DamageEvent event) {
+        public void onBatAttack(AttackEvent event) {
             if (event.getVictim() == this.bat) {
                 event.setCancelled(true);
             }

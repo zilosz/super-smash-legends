@@ -3,7 +3,7 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.ChargedRightClickAbility;
-import io.github.aura6.supersmashlegends.damage.Damage;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
@@ -59,9 +59,12 @@ public class Thunderbolt extends ChargedRightClickAbility {
             }
 
             for (LivingEntity target : finder.findAll(player, location)) {
-                Damage dmg = Damage.Builder.fromConfig(config, step).setDamage(damage).setKb(kb).build();
 
-                if (plugin.getDamageManager().attemptAttributeDamage(target, dmg, this)) {
+                AttackSettings settings = new AttackSettings(this.config, step)
+                        .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
+                        .modifyKb(kbSettings -> kbSettings.setKb(kb));
+
+                if (plugin.getDamageManager().attack(target, this, settings)) {
                     found = true;
                     break;
                 }

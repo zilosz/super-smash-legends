@@ -17,6 +17,6 @@ public class ReloadConfigCommand implements CommandExecutor {
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         resources.reload();
         Chat.COMMAND.broadcast("&7Configuration has been reloaded.");
-        return false;
+        return true;
     }
 }

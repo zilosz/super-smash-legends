@@ -16,6 +16,6 @@ public class StartCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         plugin.getGameManager().skipToState(new TutorialState(plugin));
-        return false;
+        return true;
     }
 }

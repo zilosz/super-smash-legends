@@ -3,15 +3,15 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.PassiveAbility;
-import io.github.aura6.supersmashlegends.event.EnergyEvent;
-import io.github.aura6.supersmashlegends.event.RegenEvent;
+import io.github.aura6.supersmashlegends.event.attack.DamageEvent;
+import io.github.aura6.supersmashlegends.event.attribute.EnergyEvent;
+import io.github.aura6.supersmashlegends.event.attribute.RegenEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.effect.Effects;
 import org.bukkit.Color;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -38,12 +38,12 @@ public class StickySituation extends PassiveAbility {
         reset();
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onReceivingDamage(EntityDamageEvent event) {
-        if (event.getEntity() != player) return;
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onReceivingDamage(DamageEvent event) {
+        if (event.getVictim() != player) return;
         if (active) return;
-        if (event.getCause() == EntityDamageEvent.DamageCause.FALL) return;
-        if (player.getHealth() - event.getFinalDamage() > config.getDouble("HealthThreshold")) return;
+
+        if (event.willDie() || event.getNewHealth() > this.config.getDouble("HealthThreshold")) return;
 
         active = true;
 

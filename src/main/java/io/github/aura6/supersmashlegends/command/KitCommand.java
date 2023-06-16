@@ -25,10 +25,14 @@ public class KitCommand implements CommandExecutor {
 
         if (this.plugin.getGameManager().getState().allowKitSelection()) {
 
+            if (strings.length > 1) {
+                return false;
+            }
+
             if (strings.length == 0) {
                 new KitSelector().build().open(player);
 
-            } else {
+            } else  {
                 KitManager kitManager = this.plugin.getKitManager();
                 String name = StringUtils.capitalize(strings[0].toLowerCase());
 

@@ -3,7 +3,7 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.damage.Damage;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
@@ -102,9 +102,12 @@ public class VoltTackle extends RightClickAbility {
             new EntityFinder(this.plugin, selector).findClosest(this.player).ifPresent(target -> {
                 double damage = YamlReader.incLin(this.config, "Damage", this.ticksMoving, duration);
                 double kb = YamlReader.incLin(this.config, "Kb", this.ticksMoving, duration);
-                Damage damageObj = Damage.Builder.fromConfig(this.config, velocity).setDamage(damage).setKb(kb).build();
 
-                if (this.plugin.getDamageManager().attemptAttributeDamage(target, damageObj, this)) {
+                AttackSettings settings = new AttackSettings(this.config, velocity)
+                        .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
+                        .modifyKb(kbSettings -> kbSettings.setKb(kb));
+
+                if (this.plugin.getDamageManager().attack(target, this, settings)) {
                     this.player.getWorld().playSound(this.player.getLocation(), Sound.FALL_BIG, 1, 2);
                     this.player.getWorld().strikeLightningEffect(target.getLocation());
 
@@ -112,10 +115,11 @@ public class VoltTackle extends RightClickAbility {
                     double recoilDamage = YamlReader.incLin(recoilConfig, "Damage", this.ticksMoving, duration);
                     double recoilKb = YamlReader.incLin(recoilConfig, "Kb", this.ticksMoving, duration);
 
-                    Damage recoilObj = Damage.Builder.fromConfig(recoilConfig, velocity.multiply(-1))
-                            .setDamage(recoilDamage).setKb(recoilKb).build();
+                    AttackSettings recoil = new AttackSettings(recoilConfig, velocity.multiply(-1))
+                            .modifyDamage(damageSettings -> damageSettings.setDamage(recoilDamage))
+                            .modifyKb(kbSettings -> kbSettings.setKb(recoilKb));
 
-                    this.plugin.getDamageManager().attemptAttributeDamage(target, recoilObj, this);
+                    this.plugin.getDamageManager().attack(target, this, recoil);
                 }
 
                 this.reset(true, false);

@@ -2,7 +2,7 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
-import io.github.aura6.supersmashlegends.event.RegenEvent;
+import io.github.aura6.supersmashlegends.event.attribute.RegenEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 
 public class Regeneration extends Attribute {
@@ -14,6 +14,6 @@ public class Regeneration extends Attribute {
 
     @Override
     public void run() {
-        RegenEvent.attempt(player, kit.getRegen());
+        RegenEvent.attempt(this.player, this.kit.getRegen());
     }
 }

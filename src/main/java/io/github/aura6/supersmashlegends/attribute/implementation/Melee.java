@@ -4,7 +4,7 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
 import io.github.aura6.supersmashlegends.attribute.Nameable;
-import io.github.aura6.supersmashlegends.damage.Damage;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.team.Team;
 import io.github.aura6.supersmashlegends.team.TeamPreference;
@@ -37,7 +37,9 @@ public class Melee extends Attribute implements Nameable {
 
         Section config = this.plugin.getResources().getConfig().getSection("Damage.Melee");
         Vector direction = this.player.getEyeLocation().getDirection();
-        Damage damage = Damage.Builder.fromConfig(config, direction).setDamage(this.kit.getDamage()).build();
-        this.plugin.getDamageManager().attemptAttributeDamage(victim, damage, this);
+        double damage = this.plugin.getKitManager().getSelectedKit(this.player).getDamage();
+
+        this.plugin.getDamageManager().attack(victim, this, new AttackSettings(config, direction)
+                .modifyDamage(damageSettings -> damageSettings.setDamage(damage)));
     }
 }

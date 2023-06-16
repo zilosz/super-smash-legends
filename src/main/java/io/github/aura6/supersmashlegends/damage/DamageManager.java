@@ -2,16 +2,14 @@ package io.github.aura6.supersmashlegends.damage;
 
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
+import io.github.aura6.supersmashlegends.event.attack.AttackEvent;
+import io.github.aura6.supersmashlegends.event.attack.AttributeDamageEvent;
+import io.github.aura6.supersmashlegends.event.attack.AttributeKbEvent;
 import io.github.aura6.supersmashlegends.game.InGameProfile;
-import io.github.aura6.supersmashlegends.kit.Kit;
-import io.github.aura6.supersmashlegends.utils.math.MathUtils;
 import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -96,48 +94,43 @@ public class DamageManager {
         this.cancelDamageSourceRemover(entity);
     }
 
-    public boolean attemptAttributeDamage(LivingEntity victim, Damage damage, Attribute attribute) {
+    public boolean attack(LivingEntity victim, Attribute attribute, AttackSettings attackSettings) {
         if (this.immunities.containsKey(victim) && this.immunities.get(victim).contains(attribute)) return false;
 
-        if (damage.isFactorsHealth()) {
-            double min = this.plugin.getResources().getConfig().getDouble("Damage.KbHealthMultiplier.Min");
-            double max = this.plugin.getResources().getConfig().getDouble("Damage.KbHealthMultiplier.Max");
-            double multiplier = MathUtils.decreasingLinear(min, max, victim.getMaxHealth(), victim.getHealth());
-            damage.setKb(damage.getKb() * multiplier);
+        DamageSettings settings = attackSettings.getDamageSettings();
+        AttributeDamageEvent damageEvent = new AttributeDamageEvent(victim, settings, false, attribute);
+        Bukkit.getPluginManager().callEvent(damageEvent);
+
+        if (damageEvent.isCancelled()) return false;
+
+        AttributeKbEvent kbEvent = new AttributeKbEvent(victim, attackSettings.getKbSettings(), attribute);
+        Bukkit.getPluginManager().callEvent(kbEvent);
+
+        DamageSettings damageSettings = damageEvent.getDamageSettings();
+        KbSettings kbSettings = kbEvent.getKbSettings();
+        int immunityTicks = attackSettings.getImmunityTicks();
+
+        AttackSettings newAttackSettings = new AttackSettings(damageSettings, kbSettings, immunityTicks);
+        AttackEvent attackEvent = new AttackEvent(victim, newAttackSettings, attribute);
+        Bukkit.getPluginManager().callEvent(attackEvent);
+
+        if (attackEvent.isCancelled()) {
+            kbEvent.setCancelled(true);
+            return false;
         }
 
-        if (victim instanceof Player) {
-            Player player = (Player) victim;
-            Kit kit = this.plugin.getKitManager().getSelectedKit(player);
+        double finalDamage = attackEvent.getFinalDamage();
+        victim.setMaximumNoDamageTicks(0);
+        victim.setNoDamageTicks(0);
+        victim.damage(finalDamage);
+        attribute.getPlayer().setLevel((int) finalDamage);
 
-            if (damage.isFactorsArmor()) {
-                damage.setDamage(damage.getDamage() * kit.getArmor());
-            }
+        InGameProfile damagerProfile = this.plugin.getGameManager().getProfile(attribute.getPlayer());
+        damagerProfile.setDamageDealt(damagerProfile.getDamageDealt() + finalDamage);
 
-            if (damage.isFactorsKb()) {
-                damage.setKb(damage.getKb() * kit.getKb());
-            }
+        if (!kbEvent.isCancelled()) {
+            attackEvent.getFinalKbVector().ifPresent(victim::setVelocity);
         }
-
-        AttributeDamageEvent event = new AttributeDamageEvent(victim, damage, attribute);
-        Bukkit.getPluginManager().callEvent(event);
-
-        if (event.isCancelled()) return false;
-
-        victim.damage(damage.getDamage());
-        attribute.getPlayer().setLevel((int) damage.getDamage());
-
-        Optional.ofNullable(damage.getDirection()).ifPresent(direction -> {
-            Vector kb = new Vector(damage.getKb(), 1, damage.getKb());
-            Vector velocity = direction.clone().setY(0).normalize().multiply(kb);
-            velocity.setY(damage.isLinearKb() ? direction.getY() : damage.getKbY());
-
-            if (damage.isKbFactorsPreviousVelocity()) {
-                velocity = victim.getVelocity().add(velocity);
-            }
-
-            victim.setVelocity(velocity);
-        });
 
         this.lastDamagingAttributes.put(victim, attribute);
 
@@ -145,12 +138,7 @@ public class DamageManager {
         int damageLifetime = this.plugin.getResources().getConfig().getInt("Damage.Lifetime");
 
         this.damageSourceRemovers.put(victim, Bukkit.getScheduler()
-                .runTaskLater(this.plugin, () -> removeDamageSource(victim), damageLifetime));
-
-        this.updateIndicator(victim, damage.getDamage());
-
-        InGameProfile damagerProfile = this.plugin.getGameManager().getProfile(attribute.getPlayer());
-        damagerProfile.setDamageDealt(damagerProfile.getDamageDealt() + damage.getDamage());
+                .runTaskLater(this.plugin, () -> this.removeDamageSource(victim), damageLifetime));
 
         this.immunityRemovers.putIfAbsent(victim, new HashMap<>());
         this.destroyImmunityRemover(victim, attribute);
@@ -161,7 +149,7 @@ public class DamageManager {
         this.immunityRemovers.get(victim).put(attribute, Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
             this.destroyImmunityRemover(victim, attribute);
             this.immunities.get(victim).remove(attribute);
-        }, damage.getImmunityTicks()));
+        }, attackSettings.getImmunityTicks()));
 
         return true;
     }

@@ -3,7 +3,7 @@ package io.github.aura6.supersmashlegends.projectile;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
-import io.github.aura6.supersmashlegends.damage.Damage;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
 import io.github.aura6.supersmashlegends.event.projectile.ProjectileLaunchEvent;
 import io.github.aura6.supersmashlegends.event.projectile.ProjectileRemoveEvent;
 import io.github.aura6.supersmashlegends.game.state.InGameState;
@@ -49,7 +49,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     @Getter @Setter protected double distanceFromEye;
     @Getter @Setter protected boolean removeOnBlockHit;
     @Getter protected boolean invisible;
-    @Getter protected Damage damage;
+    @Getter protected AttackSettings attackSettings;
 
     @Getter protected int ticksAlive = 0;
     protected Vector launchVelocity;
@@ -62,7 +62,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         this.config = config;
 
         launcher = ability.getPlayer();
-        damage = Damage.Builder.fromConfig(config, null).build();
+        attackSettings = new AttackSettings(config, null);
 
         spread = config.getFloat("Spread");
         lifespan = config.getOptionalInt("Lifespan").orElse(Integer.MAX_VALUE);
@@ -191,9 +191,9 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     public void onTargetHit(LivingEntity target) {}
 
     protected void handleTargetHit(LivingEntity target) {
-        this.damage.setDirection(this.entity.getVelocity());
+        this.attackSettings.modifyKb(kb -> kb.setDirection(this.entity.getVelocity()));
 
-        if (!this.plugin.getDamageManager().attemptAttributeDamage(target, this.damage, this.ability)) return;
+        if (!this.plugin.getDamageManager().attack(target, this.ability, this.attackSettings)) return;
 
         this.launcher.playSound(this.launcher.getLocation(), Sound.SUCCESSFUL_HIT, 2, 1);
         this.config.getOptionalSection("TargetHitSound").ifPresent(sound -> YamlReader.noise(sound).playForAll(this.entity.getLocation()));

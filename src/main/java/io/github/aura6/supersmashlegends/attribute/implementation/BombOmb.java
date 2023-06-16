@@ -5,7 +5,7 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.ClickableAbility;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.damage.Damage;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
 import io.github.aura6.supersmashlegends.projectile.ProjectileRemoveReason;
@@ -97,9 +97,10 @@ public class BombOmb extends RightClickAbility {
             double kb = YamlReader.decLin(explode, "Kb", distanceSq, max);
 
             Vector direction = VectorUtils.fromTo(this.bombBlock.getLocation(), target.getLocation());
-            Damage dmg = Damage.Builder.fromConfig(explode, direction).setDamage(damage).setKb(kb).build();
 
-            this.plugin.getDamageManager().attemptAttributeDamage(target, dmg, this.ability);
+            this.plugin.getDamageManager().attack(target, this.ability, new AttackSettings(explode, direction)
+                    .modifyDamage(settings -> settings.setDamage(damage))
+                    .modifyKb(settings -> settings.setKb(kb)));
         }
 
         private void explode() {

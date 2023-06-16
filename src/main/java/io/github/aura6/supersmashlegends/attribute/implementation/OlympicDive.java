@@ -4,8 +4,8 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
+import io.github.aura6.supersmashlegends.event.attack.AttributeKbEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.team.TeamPreference;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
@@ -63,10 +63,11 @@ public class OlympicDive extends RightClickAbility {
             double damage = YamlReader.decLin(this.config, "DiveDamage", distance, radius);
             double kb = YamlReader.decLin(this.config, "DiveKb", distance, radius);
 
-            Vector direction = VectorUtils.fromTo(this.player, target);
-            Damage damageObj = Damage.Builder.fromConfig(this.config, direction).setDamage(damage).setKb(kb).build();
+            AttackSettings settings = new AttackSettings(this.config, VectorUtils.fromTo(this.player, target))
+                    .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
+                    .modifyKb(kbSettings -> kbSettings.setKb(kb));
 
-            this.plugin.getDamageManager().attemptAttributeDamage(target, damageObj, this);
+            this.plugin.getDamageManager().attack(target, this, settings);
         });
     }
 
@@ -147,12 +148,11 @@ public class OlympicDive extends RightClickAbility {
     }
 
     @EventHandler
-    public void onAttributeDamage(AttributeDamageEvent event) {
+    public void onKb(AttributeKbEvent event) {
         Attribute attr = event.getAttribute();
 
         if (attr.getPlayer() == this.player && this.diveState != DiveState.INACTIVE && attr instanceof Melee) {
-            event.getDamage().setKb(0);
-            event.getDamage().setKbY(0);
+            event.getKbSettings().setDirection(null);
         }
     }
 }

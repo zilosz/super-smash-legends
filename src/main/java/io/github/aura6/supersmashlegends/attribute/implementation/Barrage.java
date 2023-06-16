@@ -5,7 +5,7 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.Bow;
 import io.github.aura6.supersmashlegends.kit.Kit;
-import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
+import io.github.aura6.supersmashlegends.projectile.ArrowProjectile;
 import io.github.aura6.supersmashlegends.utils.RunnableUtils;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.math.MathUtils;
@@ -37,7 +37,7 @@ public class Barrage extends Bow {
             this.player.playSound(this.player.getLocation(), Sound.ITEM_PICKUP, 2, pitch);
 
             if (this.stage == this.getStages()) {
-                this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_PIG_DEATH, 3, 2);
+                this.player.playSound(this.player.getLocation(), Sound.ZOMBIE_PIG_DEATH, 3, 2);
             }
 
             this.stage++;
@@ -79,7 +79,7 @@ public class Barrage extends Bow {
         this.onFinish();
     }
 
-    public static class BarrageArrow extends ItemProjectile {
+    public static class BarrageArrow extends ArrowProjectile {
 
         public BarrageArrow(SuperSmashLegends plugin, Ability ability, Section config) {
             super(plugin, ability, config);

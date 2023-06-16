@@ -1,5 +1,6 @@
-package io.github.aura6.supersmashlegends.event;
+package io.github.aura6.supersmashlegends.event.attribute;
 
+import io.github.aura6.supersmashlegends.event.CustomEvent;
 import io.github.aura6.supersmashlegends.utils.Noise;
 import lombok.Getter;
 import lombok.Setter;

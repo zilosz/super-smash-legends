@@ -30,6 +30,7 @@ public abstract class Bow extends PassiveAbility {
         if (!event.hasItem() || event.getItem().getType() != Material.BOW) return;
         if (!event.getPlayer().getInventory().contains(Material.ARROW)) return;
         if (!event.getAction().name().contains("RIGHT")) return;
+        if (this.ticksCharging > 0) return;
 
         this.ticksCharging = 1;
         this.bowSlot = event.getPlayer().getInventory().getHeldItemSlot();

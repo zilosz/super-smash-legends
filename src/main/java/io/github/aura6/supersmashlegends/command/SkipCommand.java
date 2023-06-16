@@ -19,6 +19,7 @@ public class SkipCommand implements CommandExecutor {
         if (strings.length == 1) {
             GameManager gameManager = plugin.getGameManager();
             gameManager.findState(strings[0]).ifPresent(gameManager::skipToState);
+            return true;
         }
 
         return false;

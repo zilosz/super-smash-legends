@@ -1,59 +1,34 @@
-package io.github.aura6.supersmashlegends.event.damage;
+package io.github.aura6.supersmashlegends.event.attack;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
-import io.github.aura6.supersmashlegends.Resources;
-import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Attribute;
 import io.github.aura6.supersmashlegends.damage.KbSettings;
-import io.github.aura6.supersmashlegends.kit.KitManager;
-import io.github.aura6.supersmashlegends.utils.file.YamlReader;
+import io.github.aura6.supersmashlegends.event.CustomEvent;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.util.Vector;
 
 import java.util.Optional;
 
-public class KbEvent extends SingleAttackEvent {
-    @Getter private final KbSettings kbSettings;
+@Getter
+public class AttributeKbEvent extends CustomEvent implements Cancellable {
+    @Setter private boolean cancelled = false;
+    private final LivingEntity victim;
+    private final KbSettings kbSettings;
+    private final Attribute attribute;
 
-    public KbEvent(LivingEntity victim, Attribute attribute, KbSettings kbSettings) {
-        super(victim, attribute);
+    public AttributeKbEvent(LivingEntity victim, KbSettings kbSettings, Attribute attribute) {
+        this.victim = victim;
         this.kbSettings = kbSettings;
+        this.attribute = attribute;
     }
 
     public double getFinalKb() {
-        double kb = this.kbSettings.getKb();
-
-        if (this.kbSettings.isFactorsHealth()) {
-            Resources resources = SuperSmashLegends.getInstance().getResources();
-            Section config = resources.getConfig().getSection("Damage");
-            kb *= YamlReader.decLin(config, "KbHealthMultiplier", victim.getHealth(), victim.getMaxHealth());
-        }
-
-        if (this.kbSettings.isFactorsKit() && this.victim instanceof Player) {
-            KitManager kitManager = SuperSmashLegends.getInstance().getKitManager();
-            kb *= kitManager.getSelectedKit((Player) this.victim).getKb();
-        }
-
-        return kb;
+        return this.kbSettings.getFinalKb(this.victim);
     }
 
     public Optional<Vector> getFinalKbVector() {
-        Vector direction = this.kbSettings.getDirection();
-
-        if (direction == null) {
-            return Optional.empty();
-        }
-
-        double finalKb = this.getFinalKb();
-        Vector velocity = direction.clone().setY(0).normalize().multiply(new Vector(finalKb, 1, finalKb));
-        velocity.setY(this.kbSettings.isLinear() ? direction.getY() : this.kbSettings.getKbY());
-
-        if (this.kbSettings.isFactorsPreviousVelocity()) {
-            velocity = this.victim.getVelocity().add(velocity);
-        }
-
-        return Optional.of(velocity);
+        return this.kbSettings.getFinalKbVector(this.victim);
     }
 }

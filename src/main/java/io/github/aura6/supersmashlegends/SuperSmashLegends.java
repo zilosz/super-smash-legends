@@ -3,6 +3,7 @@ package io.github.aura6.supersmashlegends;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import fr.minuskube.inv.InventoryManager;
 import io.github.aura6.supersmashlegends.arena.ArenaManager;
+import io.github.aura6.supersmashlegends.command.DamageCommand;
 import io.github.aura6.supersmashlegends.command.DummyCommand;
 import io.github.aura6.supersmashlegends.command.EndCommand;
 import io.github.aura6.supersmashlegends.command.KitCommand;
@@ -82,13 +83,14 @@ public class SuperSmashLegends extends JavaPlugin {
         Assemble scoreboard = new Assemble(this, new GameScoreboard());
         scoreboard.setTicks(5);
 
-        getCommand("kit").setExecutor(new KitCommand(this));
-        getCommand("reloadconfig").setExecutor(new ReloadConfigCommand(this.resources));
-        getCommand("start").setExecutor(new StartCommand(this));
-        getCommand("end").setExecutor(new EndCommand(this));
-        getCommand("skip").setExecutor(new SkipCommand(this));
-        getCommand("dummy").setExecutor(new DummyCommand());
-        getCommand("loc").setExecutor(new LocCommand());
+        this.getCommand("kit").setExecutor(new KitCommand(this));
+        this.getCommand("reloadconfig").setExecutor(new ReloadConfigCommand(this.resources));
+        this.getCommand("start").setExecutor(new StartCommand(this));
+        this.getCommand("end").setExecutor(new EndCommand(this));
+        this.getCommand("skip").setExecutor(new SkipCommand(this));
+        this.getCommand("dummy").setExecutor(new DummyCommand());
+        this.getCommand("loc").setExecutor(new LocCommand());
+        this.getCommand("damage").setExecutor(new DamageCommand());
     }
 
     @Override

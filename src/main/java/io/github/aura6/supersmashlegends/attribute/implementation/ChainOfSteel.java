@@ -3,7 +3,7 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.damage.Damage;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
@@ -135,9 +135,9 @@ public class ChainOfSteel extends RightClickAbility {
             } else {
 
                 new EntityFinder(this.plugin, selector).findClosest(this.player, currLocation).ifPresent(target -> {
-                    Damage damageObj = Damage.Builder.fromConfig(this.config).build();
+                    AttackSettings attackSettings = new AttackSettings(this.config, null);
 
-                    if (this.plugin.getDamageManager().attemptAttributeDamage(target, damageObj, this)) {
+                    if (this.plugin.getDamageManager().attack(target, this, attackSettings)) {
                         this.player.playSound(this.player.getLocation(), Sound.ORB_PICKUP, 1, 1);
                         this.player.getWorld().playSound(currLocation, Sound.EXPLODE, 1, 1.5f);
                         new ParticleBuilder(EnumParticle.EXPLOSION_NORMAL).show(currLocation);

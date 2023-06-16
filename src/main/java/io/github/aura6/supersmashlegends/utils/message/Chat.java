@@ -1,7 +1,7 @@
 package io.github.aura6.supersmashlegends.utils.message;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 
 public enum Chat {
     KIT("&b&lKit» "),
@@ -22,14 +22,14 @@ public enum Chat {
     }
 
     public String get(String message) {
-        return MessageUtils.color(prefix + message);
+        return MessageUtils.color(this.prefix + message);
     }
 
-    public void send(Player player, String message) {
+    public void send(CommandSender player, String message) {
         player.sendMessage(this.get(message));
     }
 
     public void broadcast(String message) {
-        Bukkit.getOnlinePlayers().forEach(player -> this.send(player, message));
+        Bukkit.broadcastMessage(this.get(message));
     }
 }

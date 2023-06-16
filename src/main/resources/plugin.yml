@@ -8,16 +8,33 @@ depend: [ ProtocolLib ]
 commands:
   kit:
     description: Opens the kit GUI or sets a player's kit.
+    usage: "/<command> [kit]"
   reloadconfig:
     description: Dynamically reloads the plugin configuration files.
     aliases: [ rc, reloadconfigs ]
+    permission: op
+    usage: "/<command>"
   start:
     description: Forces the game to start.
+    permission: op
+    usage: "/<command>"
   end:
     description: Forces the game to end.
+    permission: op
+    usage: "/<command>"
   skip:
     description: Skips to the provided Game State.
+    permission: op
+    usage: "/<command> <state>"
   dummy:
     description: Spawns a dummy above the player.
+    permission: op
+    usage: "/<command>"
   loc:
     description: Sends the player's location.
+    permission: op
+    usage: "/<command>"
+  damage:
+    description: Damage a player or yourself for a provided amount.
+    usage: "/<command> <damage> [player]"
+    permission: op

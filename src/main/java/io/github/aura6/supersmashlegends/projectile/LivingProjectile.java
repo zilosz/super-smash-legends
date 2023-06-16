@@ -3,11 +3,10 @@ package io.github.aura6.supersmashlegends.projectile;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
-import io.github.aura6.supersmashlegends.event.DamageEvent;
+import io.github.aura6.supersmashlegends.event.attack.AttributeDamageEvent;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 public abstract class LivingProjectile<T extends LivingEntity> extends EmulatedProjectile<T> {
@@ -27,29 +26,22 @@ public abstract class LivingProjectile<T extends LivingEntity> extends EmulatedP
     }
 
     @EventHandler
-    public void onEntityDamage(EntityDamageEvent event) {
-        if (event.getEntity() == entity) {
+    public void onDamage(AttributeDamageEvent event) {
+        if (event.getVictim() == this.entity) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if (event.getDamager() == entity) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler
-    public void onCustomDamage(DamageEvent event) {
-        if (event.getVictim() == entity) {
+        if (event.getDamager() == this.entity) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
-        if (event.getEntity() == entity) {
+        if (event.getEntity() == this.entity) {
             remove(ProjectileRemoveReason.ENTITY_DEATH);
         }
     }

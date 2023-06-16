@@ -88,7 +88,7 @@ public class TutorialState extends GameState {
             lines.add("");
             lines.add("&f&lKit");
             lines.add("{KIT}");
-            replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+            replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getDisplayName());
         }
 
         lines.add(this.getScoreboardLine());

@@ -4,6 +4,8 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.ChargedRightClickBlockAbility;
+import io.github.aura6.supersmashlegends.damage.DamageSettings;
+import io.github.aura6.supersmashlegends.damage.KbSettings;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.BlockProjectile;
 import io.github.aura6.supersmashlegends.utils.RunnableUtils;
@@ -73,8 +75,13 @@ public class TerraShot extends ChargedRightClickBlockAbility {
             TerraProjectile projectile = new TerraProjectile(plugin, this, config);
             projectile.setMaterial(material);
             projectile.setData(data);
-            projectile.getDamage().setDamage(damage);
-            projectile.getDamage().setKb(kb);
+
+            DamageSettings damageSettings = projectile.getAttackSettings().getDamageSettings();
+            damageSettings.setDamage(damage);
+
+            KbSettings kbSettings = projectile.getAttackSettings().getKbSettings();
+            kbSettings.setKb(kb);
+
             projectile.setSpeed(speed);
             projectile.launch();
         }, this::stopRotation);

@@ -3,7 +3,7 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.damage.Damage;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.effect.Effects;
@@ -28,7 +28,7 @@ public class BoneExplosion extends RightClickAbility {
         player.getWorld().playSound(player.getLocation(), Sound.SKELETON_HURT, 2, 1);
 
         double radius = config.getDouble("Radius");
-        Effects.itemBoom(plugin, EntityUtils.center(player), new ItemStack(Material.BONE), radius, 1, 60);
+        Effects.itemBoom(plugin, EntityUtils.center(player), new ItemStack(Material.BONE), radius, 0.8, 60);
 
         new EntityFinder(plugin, new DistanceSelector(radius)).findAll(player).forEach(target -> {
             double distanceSq = player.getLocation().distanceSquared(target.getLocation());
@@ -36,9 +36,10 @@ public class BoneExplosion extends RightClickAbility {
             double kb = YamlReader.decLin(config, "Kb", distanceSq, radius * radius);
 
             Vector direction = VectorUtils.fromTo(player, target);
-            Damage dmg = Damage.Builder.fromConfig(config, direction).setDamage(damage).setKb(kb).build();
 
-            plugin.getDamageManager().attemptAttributeDamage(target, dmg, this);
+            plugin.getDamageManager().attack(target, this, new AttackSettings(this.config, direction)
+                    .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
+                    .modifyKb(kbSettings -> kbSettings.setKb(kb)));
         });
     }
 }

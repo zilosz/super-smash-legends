@@ -91,7 +91,7 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
                 .add("CAP", this.plugin.getResources().getConfig().getInt("Game.MinPlayersToStart"));
 
         try {
-            replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+            replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getDisplayName());
         } catch (NullPointerException ignored) {}
 
         List<String> lines = new ArrayList<>(Arrays.asList(
@@ -108,7 +108,7 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
 
         lines.addAll(Arrays.asList(
                 "",
-                "&f&lPlayers",
+                "&f&lPlayers &lNeeded",
                 "&5&l{CURRENT} &7/ &f{CAP}",
                 "",
                 "&f&lKit",
@@ -255,7 +255,11 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
             Skin skin = kitManager.getSelectedKit(player).getSkin();
             String text = skin.getPreviousTexture();
             String sig = skin.getPreviousSignature();
-            Skin.applyAcrossTp(this.plugin, player, text, sig, () -> this.initializePlayer(player));
+
+            Skin.applyAcrossTp(this.plugin, player, text, sig, () -> {
+                this.initializePlayer(player);
+                player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
+            });
 
             InGameProfile profile = gameManager.getProfile(player);
             DecimalFormat format = new DecimalFormat("#.#");

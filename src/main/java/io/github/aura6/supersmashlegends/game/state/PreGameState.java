@@ -73,7 +73,7 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
             lines.add("");
             lines.add("&f&lKit");
             lines.add("{KIT}");
-            replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getBoldedDisplayName());
+            replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getDisplayName());
         }
 
         lines.add(this.getScoreboardLine());

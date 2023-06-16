@@ -1,4 +1,4 @@
-package io.github.aura6.supersmashlegends.event;
+package io.github.aura6.supersmashlegends.event.attribute;
 
 import io.github.aura6.supersmashlegends.attribute.ClickableAbility;
 import io.github.aura6.supersmashlegends.event.CustomEvent;

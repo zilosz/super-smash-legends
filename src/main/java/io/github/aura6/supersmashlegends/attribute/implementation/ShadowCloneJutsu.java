@@ -3,8 +3,8 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
+import io.github.aura6.supersmashlegends.damage.DamageSettings;
 import io.github.aura6.supersmashlegends.event.projectile.ProjectileLaunchEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.team.Team;
@@ -178,13 +178,6 @@ public class ShadowCloneJutsu extends RightClickAbility {
         }
 
         @EventHandler
-        public void onDamage(AttributeDamageEvent event) {
-            if (event.getAttribute() == this.ability && this.clones.stream().anyMatch(clone -> clone.creature == event.getVictim())) {
-                event.setCancelled(true);
-            }
-        }
-
-        @EventHandler
         public void onProjectileLaunch(ProjectileLaunchEvent event) {
             if (!(event.getProjectile().getAbility() instanceof Rasenshuriken)) return;
             if (event.getProjectile().getLauncher() != this.ability.getPlayer()) return;
@@ -200,7 +193,10 @@ public class ShadowCloneJutsu extends RightClickAbility {
 
             Rasenshuriken.Shuriken shuriken = (Rasenshuriken.Shuriken) event.getProjectile().copy(this.ability);
             shuriken.setOverrideLocation(this.lastShurikenLocation.setDirection(direction));
-            shuriken.getDamage().setDamage(shuriken.getDamage().getDamage() * config.getDouble("Clone.Rasenshuriken.DamageMultiplier"));
+
+            DamageSettings damageSettings = shuriken.getAttackSettings().getDamageSettings();
+            double multiplier = this.config.getDouble("Clone.Rasenshuriken.DamageMultiplier");
+            damageSettings.setDamage(damageSettings.getDamage() * multiplier);
             shuriken.setSpeed(event.getProjectile().getSpeed());
             shuriken.launch();
         }
@@ -254,20 +250,20 @@ public class ShadowCloneJutsu extends RightClickAbility {
                     if (TeamPreference.FRIENDLY.validate(team, target)) continue;
                     if (!BlockUtils.isLocationInsideBox(curr, NmsUtils.getLiving(target).getBoundingBox())) continue;
 
-                    Damage damage;
+                    AttackSettings settings;
 
                     if (this.rasenganTask == null) {
-                        damage = Damage.Builder.fromConfig(this.config.getSection("Clone.Melee"), step)
-                                .setDamage(this.ability.getKit().getDamage()).build();
+                        settings = new AttackSettings(this.config.getSection("Clone.Melee"), step)
+                                .modifyDamage(damage -> damage.setDamage(this.ability.getKit().getDamage()));
 
                     } else {
-                        damage = Damage.Builder.fromConfig(this.config.getSection("Clone.Rasengan"), step).build();
+                        settings = new AttackSettings(this.config.getSection("Clone.Rasengan"), step);
 
                         Rasengan.displayAttackEffect(this.creature);
                         endRasengan();
                     }
 
-                    if (this.plugin.getDamageManager().attemptAttributeDamage(target, damage, this.ability)) {
+                    if (this.plugin.getDamageManager().attack(target, this.ability, settings)) {
                         Location loc = this.ability.getPlayer().getLocation();
                         this.ability.getPlayer().playSound(loc, Sound.ORB_PICKUP, 1, 1);
                     }

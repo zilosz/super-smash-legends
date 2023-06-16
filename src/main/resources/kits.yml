@@ -10,13 +10,13 @@ Barbarian:
   Skin: "Santi_MST"
   Item:
     Material: IRON_AXE
-  Damage: 5.5
-  Kb: 1.25
+  Damage: 6.5
+  Kb: 0.9
   Armor: 0.6
   Regen: 0.25
   Jump:
-    Power: 1
-    Height: 1
+    Power: 1.1
+    Height: 0.9
     Sound:
       Type: HORSE_JUMP
       Volume: 1
@@ -46,6 +46,7 @@ Barbarian:
         Damage: 5
         Kb: 1.4
         KbY: 0.5
+        HitBox: 0.9
         Item:
           Material: IRON_AXE
         LaunchSound:
@@ -67,7 +68,7 @@ Barbarian:
       Cooldown: 180
       AutoStartCooldown: false
       Duration: 160
-      DamageMultiplier: 1.25
+      DamageMultiplier: 1.3
       Speed: 2
       ExtraJumps: 1
     2:
@@ -94,7 +95,7 @@ Barbarian:
       KbY: 0.7
       Radius: 3.5
       Aoe:
-        Damage: 4.5
+        Damage: 5
         Kb: 1.8
         KbY: 0.7
       Block:
@@ -125,13 +126,13 @@ Globby:
   Item:
     Material: SLIME_BALL
   Damage: 4.5
-  Kb: 2
+  Kb: 1.4
   Armor: 0.8
   Regen: 0.35
   Energy: 0.14
   Jump:
-    Power: 1.35
-    Height: 1.3
+    Power: 1.15
+    Height: 1.05
     Sound:
       Type: SLIME_WALK2
       Volume: 1
@@ -224,13 +225,13 @@ Mechon:
   Item:
     Material: IRON_CHESTPLATE
   Damage: 5
-  Kb: 1.3
+  Kb: 0.9
   Armor: 0.55
   Regen: 0.25
   Energy: 0.3
   Jump:
-    Power: 1.15
-    Height: 1
+    Power: 1.1
+    Height: 0.9
     Sound:
       Type: ZOMBIE_METAL
       Volume: 0.5
@@ -293,14 +294,14 @@ Mechon:
         - "&7Rapidly glide downwards until the time"
         - "&7limit passes or you touch the ground."
         - "&7Colliding with enemies harms them."
-      Cooldown: 105
+      Cooldown: 120
       MaxChargeTicks: 30
       ShowExp: false
-      Speed: 1.3
+      Speed: 1.2
       VelocityY: -0.625
       HitBox: 2
-      Damage: 6.5
-      Kb: 1.75
+      Damage: 5
+      Kb: 1.6
       KbY: 0.7
     2:
       ConfigName: Jetpack
@@ -328,13 +329,13 @@ Squawk:
   Item:
     Material: FEATHER
   Damage: 4
-  Kb: 1.85
+  Kb: 1.4
   Energy: 0.2
   Regen: 0.3
   Armor: 0.8
   Jump:
-    Power: 1.03
-    Height: 0.85
+    Power: 1
+    Height: 0.8
     Count: 3
     Sound:
       Type: CHICKEN_IDLE
@@ -361,7 +362,7 @@ Squawk:
         - "&7eggs, Squawk prefers to throw them at"
         - "&7enemies in cruel, barbaric fashion!"
       EnergyCost: 0.065
-      ExtraEggsPerTick: 0
+      ExtraEggsPerTick: 1
       Speed: 1.6
       Spread: 4
       Damage: 2.4
@@ -412,11 +413,11 @@ Drakula:
   Skin: "UFC321"
   Damage: 4.5
   Armor: 0.7
-  Kb: 1.75
+  Kb: 1.15
   Regen: 0.33
   Jump:
-    Power: 1.15
-    Height: 1
+    Power: 1.1
+    Height: 0.9
     Sound:
       Type: ZOMBIE_INFECT
       Volume: 1
@@ -428,7 +429,7 @@ Drakula:
   DeathSound:
     Type: ZOMBIE_DEATH
     Volume: 1
-    Pitch: 1
+    Pitch: 1.7
   Abilities:
     0:
       ConfigName: Bloodshot
@@ -532,11 +533,11 @@ Cryomancer:
   Skin: "Ernestitoninja"
   Damage: 5.5
   Armor: 0.55
-  Kb: 1.35
+  Kb: 1
   Regen: 0.30
   Jump:
-    Power: 1.15
-    Height: 1
+    Power: 1.1
+    Height: 0.9
     Sound:
       Type: GLASS
       Volume: 1
@@ -560,12 +561,12 @@ Cryomancer:
         - "&7Cryomancer's wizardry powers, the"
         - "&7icicle reels targets towards him."
         - "&7Its damage ignores enemy armor."
-      Cooldown: 90
+      Cooldown: 100
       Projectile:
-        Speed: 1.65
+        Speed: 1.6
         FactorsArmor: false
         Damage: 4
-        Kb: -1
+        Kb: -0.9
         KbY: 0.5
         LaunchSound:
           Type: GLASS
@@ -587,12 +588,12 @@ Cryomancer:
       MinRadius: 0.3
       MaxRadius: 2.2
       HitBox: 1.5
-      Range: 5
+      Range: 4.5
       RingCount: 15
       ParticleDensity: 20
       Kb: 1.8
       KbY: 0.45
-      LinearKb: true
+      IsLinear: true
     2:
       ConfigName: FrostedTwirl
       Name: "Frosted Twirl"
@@ -635,11 +636,11 @@ Deadmortal:
   Skin: "MarMC"
   Damage: 5.5
   Armor: 0.625
-  Kb: 1.66
+  Kb: 1.1
   Regen: 0.35
   Jump:
-    Power: 1.15
-    Height: 1
+    Power: 1.1
+    Height: 0.9
     Sound:
       Type: ZOMBIE_PIG_ANGRY
       Volume: 1.5
@@ -664,11 +665,11 @@ Deadmortal:
         - "&7and/or inflict an array of status effects,"
         - "&7some much more deadly than others."
       Cooldown: 140
-      Speed: 1.24
+      Speed: 1.2
       Spread: 8.5
-      Count: 8
+      Count: 7
       ImmunityTicks: 0
-      Damage: 1.35
+      Damage: 0.85
       Kb: 1.05
       KbY: 0.5
     1:
@@ -685,7 +686,7 @@ Deadmortal:
       Speed: 1.2
       Interval: 3
       Recoil: 0.7
-      Count: 5
+      Count: 4
       Damage: 2
       Kb: 1.25
       KbY: 0.5
@@ -708,7 +709,7 @@ Deadmortal:
         - "&7in the direction you're facing. Can be"
         - "&7used to cover space and escape the void."
       Cooldown: 145
-      Range: 17
+      Range: 15
     3:
       ConfigName: Bloodlust
       Name: "Bloodlust"
@@ -732,10 +733,10 @@ Tank:
   Skin: "zzz0www"
   Damage: 6
   Armor: 0.45
-  Kb: 1
+  Kb: 0.8
   Regen: 0.22
   Jump:
-    Power: 0.85
+    Power: 0.95
     Height: 0.9
     Sound:
       Type: IRONGOLEM_THROW
@@ -765,7 +766,7 @@ Tank:
       MaxChargeTicks: 80
       KbY: 1.1
       MinDamage: 4
-      MaxDamage: 12
+      MaxDamage: 11
       MinSpeed: 0.65
       MaxSpeed: 1.6
       MinKb: 1.5
@@ -831,13 +832,13 @@ Miner:
     - "&7techniques to overwhelm enemies."
   Skin: "Lifio13"
   Damage: 5
-  Armor: 0.5
-  Kb: 1.15
+  Armor: 0.6
+  Kb: 1
   Regen: 0.25
   Energy: 0.1
   Jump:
-    Power: 1.15
-    Height: 1
+    Power: 1.1
+    Height: 0.9
     Sound:
       Type: FIRE_IGNITE
       Volume: 1
@@ -963,11 +964,11 @@ Moreo:
   Skin: "PapaLegend"
   Damage: 4.5
   Armor: 0.625
-  Kb: 1.55
+  Kb: 1.1
   Regen: 0.275
   Jump:
-    Power: 1.25
-    Height: 1.4
+    Power: 1.1
+    Height: 1.2
     Sound:
       Type: VILLAGER_YES
       Volume: 1
@@ -994,16 +995,15 @@ Moreo:
       Cooldown: 120
       AutoStartCooldown: false
       MaxFall: 30
-      DownwardVelocity: 1.8
+      DownwardVelocity: 1.7
       MinBounce: 0.35
       MaxBounce: 3.5
-      HitBox: 1.7
-      MaxDamage: 18
-      MinDamage: 4
-      MaxKb: 3.5
-      MinKb: 1.5
+      HitBox: 1.8
+      MaxDamage: 16
+      MinDamage: 2
+      MaxKb: 2.5
+      MinKb: 1
       KbY: 1
-      ImmunityTicks: 0
     1:
       ConfigName: HatThrow
       Name: "Hat Throw"
@@ -1070,11 +1070,11 @@ MasterBlade:
   Skin: "Goldbot"
   Damage: 5.5
   Armor: 0.6
-  Kb: 1.65
+  Kb: 1.1
   Regen: 0.25
   Jump:
-    Power: 1.15
-    Height: 1
+    Power: 1.1
+    Height: 0.9
     Sound:
       Type: ENDERMAN_TELEPORT
       Volume: 1
@@ -1160,11 +1160,11 @@ Pikachew:
   Skin: "bink10"
   Damage: 5
   Armor: 0.7
-  Kb: 1.85
+  Kb: 1.3
   Regen: 0.3
   Jump:
-    Power: 1.35
-    Height: 0.95
+    Power: 1.2
+    Height: 0.85
     Sound:
       Type: FIREWORK_LAUNCH
       Volume: 1
@@ -1172,7 +1172,7 @@ Pikachew:
   HurtSound:
     Type: CAT_HIT
     Volume: 1
-    Pitch: 2
+    Pitch: 1.2
   DeathSound:
     Type: CAT_HIT
     Volume: 1
@@ -1192,11 +1192,11 @@ Pikachew:
       MaxChargeTicks: 40
       KbY: 0.7
       MinDamage: 2
-      MaxDamage: 7.5
+      MaxDamage: 6.5
       MinKb: 1
       MaxKb: 2.5
       MinRange: 5
-      MaxRange: 40
+      MaxRange: 45
       HitBox: 1
     1:
       ConfigName: VoltTackle
@@ -1213,8 +1213,8 @@ Pikachew:
       Cooldown: 160
       AutoStartCooldown: false
       MinVelocity: 0.2
-      MaxVelocity: 1.6
-      MaxVelocityY: 0.25
+      MaxVelocity: 1.8
+      MaxVelocityY: 0.275
       DurationTicks: 50
       MinDamage: 1
       MaxDamage: 8.5
@@ -1265,10 +1265,10 @@ Skellington:
   Damage: 4.5
   Armor: 0.675
   Regen: 0.25
-  Kb: 1.6
+  Kb: 1.2
   Jump:
-    Power: 1.15
-    Height: 1
+    Power: 1.1
+    Height: 0.9
     Sound:
       Type: SKELETON_WALK
       Volume: 2
@@ -1309,10 +1309,10 @@ Skellington:
         - "&7Left click to launch a precise arrow"
         - "&7that functions like a grapple. Allows"
         - "&7for quick combos and agile movement."
-      Cooldown: 95
+      Cooldown: 100
       PullStrength: 1.6
       ExtraY: 0.4
-      Speed: 2.15
+      Speed: 3
       Damage: 6
       Kb: 1
       KbY: 0.5
@@ -1327,7 +1327,7 @@ Skellington:
         - "&7powerful, ranged weapons."
       AmountAtOnce: 1
       MaxAmount: 3
-      TicksPerItem: 80
+      TicksPerItem: 60
     3:
       ConfigName: Barrage
       Name: "Barrage"
@@ -1340,15 +1340,12 @@ Skellington:
       StageTicks: 7
       MaxArrowCount: 6
       TicksBetweenShot: 1
-      MaxSpeed: 2.05
+      MaxSpeed: 3
       Projectile:
-        HitBox: 0.5
-        Spread: 5.5
+        Spread: 6.5
         Damage: 6
         Kb: 1
         KbY: 0.5
-        Item:
-          Material: BONE
 Shinoby:
   ConfigName: Shinoby
   Name: "Shinoby"
@@ -1360,12 +1357,12 @@ Shinoby:
   Skin: "SunSon19"
   Damage: 4.5
   Armor: 0.65
-  Kb: 1.7
+  Kb: 1.15
   Regen: 0.3
   Energy: 0.05
   Jump:
-    Power: 1.15
-    Height: 1
+    Power: 1.1
+    Height: 0.9
     Sound:
       Type: ZOMBIE_PIG_IDLE
       Volume: 1
@@ -1452,7 +1449,7 @@ Shinoby:
         Melee:
           Kb: 0.9
           KbY: 0.45
-          FactorsKb: false
+          FactorsKit: false
           FactorsHealth: false
 Webman:
   ConfigName: Webman
@@ -1470,7 +1467,7 @@ Webman:
   Skin: "allsilver"
   Damage: 5
   Armor: 0.625
-  Kb: 1.8
+  Kb: 1.2
   Regen: 0.28
   Jump:
     Power: 1.2
@@ -1562,11 +1559,11 @@ Mermaid:
   Skin: "thesaferoom"
   Damage: 5
   Armor: 0.65
-  Kb: 1.6
+  Kb: 0.95
   Regen: 0.3
   Jump:
-    Power: 1.15
-    Height: 1
+    Power: 1.1
+    Height: 0.9
     Sound:
       Type: SPLASH2
       Volume: 0.5

@@ -3,7 +3,7 @@ package io.github.aura6.supersmashlegends.attribute;
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
-import io.github.aura6.supersmashlegends.event.AbilityUseEvent;
+import io.github.aura6.supersmashlegends.event.attribute.AbilityUseEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;

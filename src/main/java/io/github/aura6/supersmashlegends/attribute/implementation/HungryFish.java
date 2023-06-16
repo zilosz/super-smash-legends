@@ -4,8 +4,8 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.event.DamageEvent;
-import io.github.aura6.supersmashlegends.event.JumpEvent;
+import io.github.aura6.supersmashlegends.event.attribute.JumpEvent;
+import io.github.aura6.supersmashlegends.event.attack.AttributeKbEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
 import io.github.aura6.supersmashlegends.projectile.ProjectileRemoveReason;
@@ -58,7 +58,7 @@ public class HungryFish extends RightClickAbility {
 
         private void displayBubble(double radiusMultiplier) {
             Location center = EntityUtils.center(this.entity);
-            double radius = this.config.getDouble("HitBox") * radiusMultiplier;
+            double radius = this.hitBox * radiusMultiplier;
             int count = (int) (100 * radiusMultiplier);
             new ParticleBuilder(EnumParticle.WATER_DROP).hollowSphere(center, radius, count);
         }
@@ -131,10 +131,10 @@ public class HungryFish extends RightClickAbility {
                 }
 
                 @EventHandler
-                public void onEntityVelocity(DamageEvent event) {
+                public void onEntityVelocity(AttributeKbEvent event) {
                     if (event.getVictim() == target && target.getType() != EntityType.PLAYER) {
-                        event.getDamage().setKb(event.getDamage().getKb() * multiplier);
-                        event.getDamage().setKbY(event.getDamage().getKbY() * multiplier);
+                        event.getKbSettings().setKb(event.getKbSettings().getKb() * multiplier);
+                        event.getKbSettings().setKbY(event.getKbSettings().getKbY() * multiplier);
                         noise.playForAll(target.getLocation());
                     }
                 }

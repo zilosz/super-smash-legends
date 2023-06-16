@@ -3,8 +3,9 @@ package io.github.aura6.supersmashlegends.attribute.implementation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.damage.Damage;
-import io.github.aura6.supersmashlegends.event.AttributeDamageEvent;
+import io.github.aura6.supersmashlegends.damage.AttackSettings;
+import io.github.aura6.supersmashlegends.event.attack.AttributeDamageEvent;
+import io.github.aura6.supersmashlegends.event.attack.DamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.utils.DisguiseUtils;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
@@ -25,7 +26,6 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
@@ -64,6 +64,7 @@ public class SquidDash extends RightClickAbility {
     }
 
     private void unHidePlayer() {
+        this.invisibilityTask.cancel();
         this.invisible = false;
         this.plugin.getDamageManager().showEntityIndicator(this.player);
         Bukkit.getOnlinePlayers().forEach(other -> other.showPlayer(this.player));
@@ -75,7 +76,6 @@ public class SquidDash extends RightClickAbility {
 
         if (this.invisible) {
             this.unHidePlayer();
-            this.invisibilityTask.cancel();
         }
 
         this.resetDash();
@@ -104,9 +104,12 @@ public class SquidDash extends RightClickAbility {
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
         new EntityFinder(this.plugin, selector).findAll(this.player).forEach(target -> {
-            Vector direction = VectorUtils.fromTo(this.player, target);
-            Damage damageObj = Damage.Builder.fromConfig(this.config, direction).setDamage(damage).setKb(kb).build();
-            this.plugin.getDamageManager().attemptAttributeDamage(target, damageObj, this);
+
+            AttackSettings settings = new AttackSettings(this.config, VectorUtils.fromTo(this.player, target))
+                    .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
+                    .modifyKb(kbSettings -> kbSettings.setKb(kb));
+
+            this.plugin.getDamageManager().attack(target, this, settings);
         });
 
         this.invisible = true;
@@ -172,12 +175,15 @@ public class SquidDash extends RightClickAbility {
     }
 
     @EventHandler
-    public void onTakeAttributeDamage(AttributeDamageEvent event) {
-        if (event.getVictim() != this.player) return;
-
-        if (this.invisible) {
+    public void onDamage(DamageEvent event) {
+        if (event.getVictim() == this.player && this.invisible) {
             this.unHidePlayer();
         }
+    }
+
+    @EventHandler
+    public void onAttributeDamage(AttributeDamageEvent event) {
+        if (event.getVictim() != this.player) return;
 
         if (event.getAttribute() instanceof Melee) {
 
@@ -187,17 +193,6 @@ public class SquidDash extends RightClickAbility {
 
         } else {
             this.reset();
-        }
-    }
-
-    @EventHandler
-    public void onRegDamage(EntityDamageEvent event) {
-        boolean isPlayer = event.getEntity() == this.player;
-        boolean isDashing = this.ticksDashing > -1;
-        boolean isMelee = event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK;
-
-        if (isPlayer && isDashing && isMelee) {
-            event.setCancelled(true);
         }
     }
 
