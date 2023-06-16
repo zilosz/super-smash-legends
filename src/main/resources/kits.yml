@@ -257,7 +257,7 @@ Mechon:
         - "&7slight recoil and allows for Mechon to"
         - "&7fire a thick bullet that breaks into"
         - "&7shrapnel upon hitting entities or blocks."
-      Cooldown: 120
+      Cooldown: 100
       MaxChargeTicks: 25
       ShowExp: false
       Rocket:

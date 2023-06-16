@@ -167,7 +167,7 @@ public class EndState extends GameState implements TeleportsOnVoid {
             if (teamManager.getTeamSize() == 1) {
                 Player winner = winningSet.iterator().next();
                 Kit winnerKit = this.plugin.getKitManager().getSelectedKit(winner);
-                this.winnerString = winnerKit.getColor() + winner.getName();
+                this.winnerString = winnerKit.getColor().getChatSymbol() + winner.getName();
 
             } else {
                 this.winnerString = winningTeam.getName();

@@ -10,10 +10,12 @@ import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
 import io.github.aura6.supersmashlegends.utils.CollectionUtils;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
+import io.github.aura6.supersmashlegends.utils.effect.ColorType;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.file.YamlReader;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
 import net.minecraft.server.v1_8_R3.EnumParticle;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
@@ -22,20 +24,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class RocketLauncher extends ChargedRightClickAbility {
-
-    private static final List<ParticleBuilder> PARTICLES = Arrays.asList(
-            new ParticleBuilder(EnumParticle.REDSTONE),
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 255, 0),
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(0, 255, 0),
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(1, 1, 1),
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 140, 0),
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 165, 200)
-    );
-
     private float pitch;
 
     public RocketLauncher(SuperSmashLegends plugin, Section config, Kit kit) {
@@ -96,8 +87,13 @@ public class RocketLauncher extends ChargedRightClickAbility {
                 Location launchLocation = location.clone();
                 launchLocation.setYaw(yaw);
 
-                ParticleBuilder particle = CollectionUtils.selectRandom(PARTICLES);
-                Shrapnel shrapnel = new Shrapnel(this.plugin, this.ability, config.getSection("Shrapnel"), particle, toAvoid);
+                Color colorType = CollectionUtils.selectRandom(ColorType.values()).getColor();
+
+                ParticleBuilder particle = new ParticleBuilder(EnumParticle.REDSTONE)
+                        .setRgb(colorType.getRed(), colorType.getGreen(), colorType.getBlue());
+
+                Section shrapnelConfig = config.getSection("Shrapnel");
+                Shrapnel shrapnel = new Shrapnel(this.plugin, this.ability, shrapnelConfig, particle, toAvoid);
 
                 double multiplier =  config.getDouble("Shrapnel.Multiplier");
 

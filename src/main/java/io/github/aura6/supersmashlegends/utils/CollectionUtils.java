@@ -70,4 +70,8 @@ public class CollectionUtils {
     public static <T> T selectRandom(List<T> items) {
         return items.get((int) MathUtils.randRange(0, items.size()));
     }
+
+    public static <T> T selectRandom(T[] items) {
+        return items[(int) MathUtils.randRange(0, items.length)];
+    }
 }
