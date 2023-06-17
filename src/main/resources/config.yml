@@ -65,4 +65,4 @@ Damage:
     FactorsKit: false
     FactorsHealth: false
   MinKbHealthMultiplier: 1
-  MaxKbHealthMultiplier: 1.6
+  MaxKbHealthMultiplier: 2

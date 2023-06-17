@@ -97,10 +97,9 @@ public class KitSelector extends CustomInventory<Kit> implements HasRandomOption
             replacers.add("ENERGY", kit.getEnergy());
         }
 
-
         return new ItemBuilder<SkullMeta>(Material.SKULL_ITEM)
                 .setData(3)
-                .applyMeta(meta -> meta.setOwner(kit.getSkinName()))
+                .applyMeta(meta -> kit.getSkin().applyToSkull(meta))
                 .setEnchanted(accessType == KitAccessType.ALREADY_SELECTED)
                 .setName("&l" + kit.getBoldedDisplayName())
                 .setLore(replacers.replaceLines(lore))

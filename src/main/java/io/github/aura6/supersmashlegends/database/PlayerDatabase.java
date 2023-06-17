@@ -1,13 +1,12 @@
 package io.github.aura6.supersmashlegends.database;
 
-import com.mongodb.client.FindIterable;
+import com.google.common.collect.Lists;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Updates;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -63,14 +62,6 @@ public class PlayerDatabase {
 
     public List<Document> getDocuments() {
         if (this.mongoCollection == null) return Collections.emptyList();
-
-        List<Document> documents = new ArrayList<>();
-        FindIterable<Document> found = this.mongoCollection.find();
-
-        for (Document document : found) {
-            documents.add(document);
-        }
-
-        return documents;
+        return Lists.newArrayList(this.mongoCollection.find().iterator());
     }
 }

@@ -11,12 +11,15 @@ import net.minecraft.server.v1_8_R3.PacketPlayOutRespawn;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.net.URL;
+import java.util.UUID;
 
 @Getter
 public class Skin {
@@ -35,10 +38,27 @@ public class Skin {
         this.previousSignature = signature;
     }
 
+    private static void updateProfile(GameProfile gameProfile, String texture, String signature) {
+        gameProfile.getProperties().removeAll("textures");
+        gameProfile.getProperties().put("textures", new Property("textures", texture, signature));
+    }
+
+    public void applyToSkull(SkullMeta meta) {
+        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+        updateProfile(profile, this.texture, this.signature);
+
+        try {
+            Field profileField = meta.getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            profileField.set(meta, profile);
+
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static void showToOthers(Player player, String texture, String signature) {
-        GameProfile profile = NmsUtils.getPlayer(player).getProfile();
-        profile.getProperties().removeAll("textures");
-        profile.getProperties().put("textures", new Property("textures", texture, signature));
+        updateProfile(NmsUtils.getPlayer(player).getProfile(), texture, signature);
 
         for (Player other : Bukkit.getOnlinePlayers()) {
             other.hidePlayer(player);
