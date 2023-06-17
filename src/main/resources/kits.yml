@@ -319,84 +319,6 @@ Mechon:
       StreamStep: 0.1
       ParticlesPerSpread: 3
       EnergyPerTick: 0.05
-Squawk:
-  ConfigName: Squawk
-  Name: "Squawk"
-  Description:
-    - "&7Squawk"
-  Color: WHITE
-  Skin: "Nugleet"
-  Item:
-    Material: FEATHER
-  Damage: 4
-  Kb: 1.4
-  Energy: 0.2
-  Regen: 0.3
-  Armor: 0.8
-  Jump:
-    Power: 1
-    Height: 0.8
-    Count: 3
-    Sound:
-      Type: CHICKEN_IDLE
-      Volume: 1
-      Pitch: 1
-  HurtSound:
-    Type: CHICKEN_HURT
-    Volume: 1
-    Pitch: 1
-  DeathSound:
-    Type: CHICKEN_HURT
-    Volume: 3
-    Pitch: 0.5
-  Abilities:
-    0:
-      ConfigName: Eggstacy
-      Name: "Eggstacy"
-      Item:
-        Material: IRON_SWORD
-      Description:
-        - "&7As a chicken, Squawk will periodically"
-        - "&7lay eggs. However, she often gets"
-        - "&7carried away. Rather than hatching surplus"
-        - "&7eggs, Squawk prefers to throw them at"
-        - "&7enemies in cruel, barbaric fashion!"
-      EnergyCost: 0.065
-      ExtraEggsPerTick: 1
-      Speed: 1.6
-      Spread: 4
-      Damage: 2.4
-      Kb: 0.85
-      KbY: 0.45
-      MaxBounces: 5
-      LaunchSound:
-        Type: CHICKEN_EGG_POP
-        Volume: 1
-        Pitch: 1
-    1:
-      ConfigName: AngryHatchling
-      Name: "Angry Hatchling"
-      Item:
-        Material: DIAMOND_SPADE
-      Description:
-        - "&7Squawk detests motherhood. So much"
-        - "&7so, in fact, that her fury sometimes"
-        - "&7manifests in her children. Angry and"
-        - "&7volatile, they spiral towards the"
-        - "&7ground at a violent pace, exploding"
-        - "&7upon contact."
-      Cooldown: 105
-      HasGravity: false
-      Radius: 5
-      Recoil: 1.35
-      Damage: 7.5
-      Kb: 2
-      KbY: 0.8
-      Speed: 1.15
-      LaunchSound:
-        Type: CHICKEN_EGG_POP
-        Volume: 3
-        Pitch: 1
 Drakula:
   ConfigName: Drakula
   Name: "Drakula"
@@ -440,7 +362,7 @@ Drakula:
         - "&7Shoot multiple pellets of venom-tainted"
         - "&7blood at enemies, inflicting damage and"
         - "&7debilitating poison."
-      Cooldown: 130
+      Cooldown: 120
       Interval: 2
       Count: 6
       Projectile:
