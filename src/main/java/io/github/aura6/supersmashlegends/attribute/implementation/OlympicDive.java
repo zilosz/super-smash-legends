@@ -25,7 +25,8 @@ import org.bukkit.util.Vector;
 
 public class OlympicDive extends RightClickAbility {
     private BukkitTask task;
-
+    private BukkitTask diveDelayer;
+    private boolean canDive = false;
     private DiveState diveState = DiveState.INACTIVE;
 
     private enum DiveState {
@@ -39,6 +40,8 @@ public class OlympicDive extends RightClickAbility {
     }
 
     private void dive() {
+        if (!this.canDive) return;
+
         this.diveState = DiveState.DIVING;
 
         double diveVelocity = this.config.getDouble("DiveVelocity");
@@ -76,6 +79,11 @@ public class OlympicDive extends RightClickAbility {
 
         this.diveState = DiveState.INACTIVE;
         this.task.cancel();
+        this.canDive = false;
+
+        if (this.diveDelayer != null) {
+            this.diveDelayer.cancel();
+        }
 
         if (natural) {
             this.player.playSound(this.player.getLocation(), Sound.IRONGOLEM_DEATH, 0.5f, 2);
@@ -101,6 +109,9 @@ public class OlympicDive extends RightClickAbility {
             velocity.setY(Math.max(velocity.getY(), this.config.getDouble("MaxPullY")));
             target.setVelocity(velocity);
         });
+
+        int diveDelay = this.config.getInt("DiveDelay");
+        this.diveDelayer = Bukkit.getScheduler().runTaskLater(this.plugin, () -> this.canDive = true, diveDelay);
 
         this.task = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
 

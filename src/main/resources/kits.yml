@@ -1622,6 +1622,7 @@ Mermaid:
       Cooldown: 160
       AutoStartCooldown: false
       AutoSendUseMessage: false
+      DiveDelay: 13
       AscendVelocity: 1.3
       PullVelocity: 0.9
       PullDistance: 4
