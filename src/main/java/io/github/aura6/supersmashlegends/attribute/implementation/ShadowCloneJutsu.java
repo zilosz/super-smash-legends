@@ -69,7 +69,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
         creature.setCustomName(MessageUtils.color("&8Shadow Clone"));
         creature.setCustomNameVisible(true);
 
-        DisguiseAPI.disguiseEntity(creature, new PlayerDisguise(player.getName()));
+        DisguiseAPI.disguiseEntity(creature, new PlayerDisguise(this.player.getName()));
 
         ShadowClone clone = new ShadowClone(plugin, this, config, creature, clones);
         plugin.getTeamManager().getPlayerTeam(player).addEntity(clone.creature);

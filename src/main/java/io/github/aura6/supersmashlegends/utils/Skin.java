@@ -38,7 +38,7 @@ public class Skin {
         this.previousSignature = signature;
     }
 
-    private static void updateProfile(GameProfile gameProfile, String texture, String signature) {
+    public static void updateProfile(GameProfile gameProfile, String texture, String signature) {
         gameProfile.getProperties().removeAll("textures");
         gameProfile.getProperties().put("textures", new Property("textures", texture, signature));
     }

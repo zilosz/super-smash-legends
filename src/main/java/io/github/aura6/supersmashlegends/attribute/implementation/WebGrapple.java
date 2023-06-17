@@ -5,7 +5,7 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
-import io.github.aura6.supersmashlegends.event.attack.AttackEvent;
+import io.github.aura6.supersmashlegends.event.attack.DamageEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
 import io.github.aura6.supersmashlegends.projectile.ProjectileRemoveReason;
@@ -101,7 +101,7 @@ public class WebGrapple extends RightClickAbility {
         }
 
         @EventHandler
-        public void onBatAttack(AttackEvent event) {
+        public void onBatDamage(DamageEvent event) {
             if (event.getVictim() == this.bat) {
                 event.setCancelled(true);
             }
