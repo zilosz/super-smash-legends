@@ -17,7 +17,7 @@ public class VectorUtils {
         Vector direction = center.getDirection();
 
         if (direction.getX() == 0 && direction.getZ() == 0) {
-            direction = alternative;
+            direction = alternative.clone().normalize();
         }
 
         Vector unitHorizontal = direction.getCrossProduct(new Vector(0, 1, 0)).normalize();
@@ -47,6 +47,20 @@ public class VectorUtils {
         Location ringPoint = MathUtils.ringPoint(ringCenter, source.getPitch(), source.getYaw(), length, radians);
 
         return fromTo(source, ringPoint).normalize();
+    }
+
+    public static Vector getHorizontallyTiltedVector(Location source, Vector alternative, double angle) {
+        Vector direction = source.getDirection();
+
+        if (direction.getX() == 0 && direction.getZ() == 0) {
+            direction = alternative.clone().normalize();
+        }
+
+        Vector unitHorizontal = direction.getCrossProduct(new Vector(0, 1, 0)).normalize();
+        double amountHorizontal = Math.tan(MathUtils.degToRad(angle));
+        Location target = source.clone().add(unitHorizontal.multiply(amountHorizontal)).add(direction);
+
+        return fromTo(source, target).normalize();
     }
 
     public static Vector fromTo(Location from, Location to) {

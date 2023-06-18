@@ -8,8 +8,6 @@ Barbarian:
     - "&7to wreak havoc on enemies. Become a "
     - "&7Barbarian and enjoy the mayhem."
   Skin: "Santi_MST"
-  Item:
-    Material: IRON_AXE
   Damage: 6.5
   Kb: 0.9
   Armor: 0.6
@@ -123,8 +121,6 @@ Globby:
     - "&7unpredictable nature. The King of Slimes is"
     - "&7a great choice for destroying opponents."
   Skin: "BalmungM90"
-  Item:
-    Material: SLIME_BALL
   Damage: 4.5
   Kb: 1.4
   Armor: 0.8
@@ -222,8 +218,6 @@ Mechon:
     - "&7to make use of various mechanized"
     - "&7gadgets to destroy his opponents."
   Skin: "MrGabeeee"
-  Item:
-    Material: IRON_CHESTPLATE
   Damage: 5
   Kb: 0.9
   Armor: 0.55
@@ -319,90 +313,10 @@ Mechon:
       StreamStep: 0.1
       ParticlesPerSpread: 3
       EnergyPerTick: 0.05
-Squawk:
-  ConfigName: Squawk
-  Name: "Squawk"
-  Description:
-    - "&7Squawk"
-  Color: WHITE
-  Skin: "Nugleet"
-  Item:
-    Material: FEATHER
-  Damage: 4
-  Kb: 1.4
-  Energy: 0.2
-  Regen: 0.3
-  Armor: 0.8
-  Jump:
-    Power: 1
-    Height: 0.8
-    Count: 3
-    Sound:
-      Type: CHICKEN_IDLE
-      Volume: 1
-      Pitch: 1
-  HurtSound:
-    Type: CHICKEN_HURT
-    Volume: 1
-    Pitch: 1
-  DeathSound:
-    Type: CHICKEN_HURT
-    Volume: 3
-    Pitch: 0.5
-  Abilities:
-    0:
-      ConfigName: Eggstacy
-      Name: "Eggstacy"
-      Item:
-        Material: IRON_SWORD
-      Description:
-        - "&7As a chicken, Squawk will periodically"
-        - "&7lay eggs. However, she often gets"
-        - "&7carried away. Rather than hatching surplus"
-        - "&7eggs, Squawk prefers to throw them at"
-        - "&7enemies in cruel, barbaric fashion!"
-      EnergyCost: 0.065
-      ExtraEggsPerTick: 1
-      Speed: 1.6
-      Spread: 4
-      Damage: 2.4
-      Kb: 0.85
-      KbY: 0.45
-      MaxBounces: 5
-      LaunchSound:
-        Type: CHICKEN_EGG_POP
-        Volume: 1
-        Pitch: 1
-    1:
-      ConfigName: AngryHatchling
-      Name: "Angry Hatchling"
-      Item:
-        Material: DIAMOND_SPADE
-      Description:
-        - "&7Squawk detests motherhood. So much"
-        - "&7so, in fact, that her fury sometimes"
-        - "&7manifests in her children. Angry and"
-        - "&7volatile, they spiral towards the"
-        - "&7ground at a violent pace, exploding"
-        - "&7upon contact."
-      Cooldown: 105
-      HasGravity: false
-      Radius: 5
-      Recoil: 1.35
-      Damage: 7.5
-      Kb: 2
-      KbY: 0.8
-      Speed: 1.15
-      LaunchSound:
-        Type: CHICKEN_EGG_POP
-        Volume: 3
-        Pitch: 1
 Drakula:
   ConfigName: Drakula
   Name: "Drakula"
   Color: PURPLE
-  Item:
-    Material: REDSTONE
   Description:
     - "&7This vile creature sustains itself by"
     - "&7feeding on the essence of the living."
@@ -440,7 +354,7 @@ Drakula:
         - "&7Shoot multiple pellets of venom-tainted"
         - "&7blood at enemies, inflicting damage and"
         - "&7debilitating poison."
-      Cooldown: 130
+      Cooldown: 120
       Interval: 2
       Count: 6
       Projectile:
@@ -522,8 +436,6 @@ Cryomancer:
   ConfigName: Cryomancer
   Name: "Cryomancer"
   Color: LIGHT_BLUE
-  Item:
-    Material: ICE
   Description:
     - "&7Cryomancer utilizes his advanced"
     - "&7cryogenerator to compress and"
@@ -626,8 +538,6 @@ Deadmortal:
   ConfigName: Deadmortal
   Name: "Deadmortal"
   Color: DARK_RED
-  Item:
-    Material: ROTTEN_FLESH
   Description:
     - "&7Deadmortal is a disfigured mercenary with"
     - "&7superhuman abilities, such as accelerated"
@@ -722,8 +632,6 @@ Tank:
   ConfigName: Tank
   Name: "Tank"
   Color: GREEN
-  Item:
-    Material: IRON_BLOCK
   Description:
     - "&7Slow but deadly, Tank uses every inch"
     - "&7of his body to slam into opponents,"
@@ -824,8 +732,6 @@ Miner:
   ConfigName: Miner
   Name: "Miner"
   Color: BLUE
-  Item:
-    Material: COAL
   Description:
     - "&7Miner is a jack of all trades. He"
     - "&7employs the use of various underground"
@@ -953,8 +859,6 @@ Moreo:
   ConfigName: Moreo
   Name: "Moreo"
   Color: RED
-  Item:
-    Material: RED_MUSHROOM
   Description:
     - "&7His courage and jumping abilities have seen"
     - "&7him through countless adventures. Moreo is"
@@ -1060,8 +964,6 @@ MasterBlade:
   ConfigName: MasterBlade
   Name: "Master Blade"
   Color: MAGENTA
-  Item:
-    Material: ENDER_PEARL
   Description:
     - "&7Master Blade is the legendary guardian of"
     - "&7peace and order in the galaxy. He defends"
@@ -1150,8 +1052,6 @@ Pikachew:
   ConfigName: Pikachew
   Name: "Pikachew"
   Color: YELLOW
-  Item:
-    Material: GOLD_INGOT
   Description:
     - "&7Pikachew can generate electric attacks"
     - "&7using the electric pouches located in both"
@@ -1253,9 +1153,6 @@ Skellington:
   ConfigName: Skellington
   Name: "Skellington"
   Color: SILVER
-  Item:
-    Material: SKULL_ITEM
-    Data: 0
   Description:
     - "&7Big boned from an early age, Skellington has"
     - "&7always been destined for success. He prefers"
@@ -1351,8 +1248,6 @@ Shinoby:
   ConfigName: Shinoby
   Name: "Shinoby"
   Color: YELLOW
-  Item:
-    Material: DIAMOND
   Description:
     - "&7Shinoby"
   Skin: "SunSon19"
@@ -1360,7 +1255,7 @@ Shinoby:
   Armor: 0.65
   Kb: 1.15
   Regen: 0.3
-  Energy: 0.05
+  Energy: 0.06
   Jump:
     Power: 1.1
     Height: 0.9
@@ -1403,7 +1298,7 @@ Shinoby:
         - "&7The Shuriken Spiral creates countless"
         - "&7microscopic wind-blades that severely"
         - "&7damage the body on a cellular level."
-      Cooldown: 140
+      Cooldown: 130
       AutoStartCooldown: false
       Lifespan: 60
       Height: 0.35
@@ -1428,7 +1323,7 @@ Shinoby:
       Item:
         Material: IRON_HOE
       Description:
-        - ""
+        - "&7Jutsu"
       EnergyCost: 0.5
       Recoil: 1.2
       Clone:
@@ -1456,8 +1351,6 @@ Webman:
   ConfigName: Webman
   Name: "Webman"
   Color: RED
-  Item:
-    Material: WEB
   Description:
     - "&7Webman is not just another Spiderman"
     - "&7counterpart in the Multiverse. His"
@@ -1550,15 +1443,13 @@ Mermaid:
   ConfigName: Mermaid
   Name: "Mermaid"
   Color: CYAN
-  Item:
-    Material: RAW_FISH
   Description:
     - "&7When it comes to water-based combat,"
     - "&7the Mermaid is second to none. She uses"
     - "&7swift movements and secret underwater"
     - "&7techniques to overwhelm foes. "
   Skin: "thesaferoom"
-  Damage: 5
+  Damage: 5.5
   Armor: 0.65
   Kb: 0.95
   Regen: 0.3
@@ -1656,3 +1547,115 @@ Mermaid:
         KbY: 0.5
         Item:
           Material: RAW_FISH
+Musician:
+  ConfigName: Musician
+  Name: "Musician"
+  Color: WHITE
+  Description:
+    - "&7The Musician is the most accomplished"
+    - "&7DJ in all the land. With his trusty"
+    - "&7boombox, he can shred opponents"
+    - "&7solely using the power of music. The"
+    - "&7art of the boombox is hard to master"
+    - "&7but rewarding for aspiring DJs."
+  Skin: "Bo_Rum_Dal"
+  Damage: 5
+  Armor: 0.625
+  Kb: 1.45
+  Regen: 0.25
+  Jump:
+    Power: 1.05
+    Height: 0.8
+    Sound:
+      Type: NOTE_BASS
+      Volume: 1
+      Pitch: 1.5
+  HurtSound:
+    Type: NOTE_BASS
+    Volume: 1
+    Pitch: 1
+  DeathSound:
+    Type: NOTE_PLING
+    Volume: 3
+    Pitch: 0.5
+  Abilities:
+    0:
+      ConfigName: Boombox
+      Name: "Boombox"
+      Item:
+        Material: JUKEBOX
+      Description:
+        - "&7The Boombox is every Musician's key"
+        - "&7component. Musician places down a"
+        - "&7boombox that, when clicked, spews"
+        - "&7out a rapid stream of music discs."
+        - "&7As you click the boombox more, the"
+        - "&7projectile accuracy rises while the"
+        - "&7damage and knock-back fall."
+      AutoStartCooldown: false
+      Cooldown: 100
+      MaxDuration: 240
+      PlaceReach: 4
+      Health: 15
+      MaxPunches: 4
+      MaxDamage: 13
+      MinDamage: 4
+      MaxKb: 2.3
+      MinKb: 1
+      MinSpread: 4
+      MaxSpread: 12
+      MinCount: 4
+      MaxCount: 12
+      ClickDelay: 10
+      Projectile:
+        Speed: 2.4
+        HasGravity: false
+        Item:
+          Material: RECORD_6
+      Mixtape:
+        Radius: 8
+        MinDamage: 2
+        MaxDamage: 13
+        MinKb: 1
+        MaxKb: 3
+        KbY: 1
+    1:
+      ConfigName: MixTapeDrop
+      Name: "Mixtape Drop"
+      Item:
+        Material: DIAMOND_SPADE
+      Description:
+        - "&7Musician drops the hardest mixtape ever."
+        - "&7It does contact damage and also has a"
+        - "&7small area of effect upon hitting blocks."
+        - "&7The mixtape is so fire that it explodes"
+        - "&7your boombox on contact."
+      Cooldown: 60
+      Projectile:
+        Damage: 6
+        Speed: 1.3
+        Kb: 1.6
+        KbY: 0.65
+        HitBox: 0.5
+        Ground:
+          Radius: 2.5
+          Damage: 4
+          Kb: 1.3
+          KbY: 0.7
+        Item:
+          Material: RECORD_10
+    2:
+      ConfigName: DjsPassion
+      Name: "DJ's Passion"
+      Item:
+        Material: GOLD_AXE
+      Description:
+        - "&7No Musician is complete without his"
+        - "&7boombox. Musician feels an inherent"
+        - "&7pull towards his DJ booth and can"
+        - "&7teleport to it at will. Usually you"
+        - "&7are teleported on top of the boombox,"
+        - "&7but crouching will attempt to teleport"
+        - "&7you directly under the boombox."
+      Cooldown: 60
+      AutoStartCooldown: false

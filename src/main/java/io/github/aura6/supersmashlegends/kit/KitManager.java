@@ -16,7 +16,9 @@ import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.SkinTrait;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -42,10 +44,21 @@ public class KitManager implements Listener {
         this.plugin = plugin;
     }
 
-    private void setupKit(Kit kit) {
-        kitsByName.put(kit.getConfigName(), kit);
+    private void setPodiumWool(Location beacon, int x, int z, Kit kit) {
+        Block block = beacon.clone().add(x, -1, z).getBlock();
+        block.setType(Material.WOOL);
+        block.setData(kit.getColor().getDyeColor().getWoolData());
+    }
 
-        String locString = plugin.getResources().getLobby().getString("KitNpcs." + kit.getConfigName());
+    private void setPodiumSlab(Location beacon, int x, int z) {
+        Block block = beacon.clone().add(x, 0, z).getBlock();
+        block.setType(Material.STEP);
+    }
+
+    private void setupKit(Kit kit) {
+        this.kitsByName.put(kit.getConfigName(), kit);
+
+        String locString = this.plugin.getResources().getLobby().getString("KitNpcs." + kit.getConfigName());
         Location location = YamlReader.location("lobby", locString);
 
         NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, kit.getSkinName());
@@ -57,12 +70,24 @@ public class KitManager implements Listener {
 
         npc.spawn(location);
 
-        kitsByNpc.put(npc.getUniqueId(), kit);
-        npcsByKit.put(kit.getConfigName(), npc);
+        this.kitsByNpc.put(npc.getUniqueId(), kit);
+        this.npcsByKit.put(kit.getConfigName(), npc);
+
+        location.subtract(0, 1, 0).getBlock().setType(Material.BEACON);
+
+        this.setPodiumSlab(location, 1, 0);
+        this.setPodiumSlab(location, 0, 1);
+        this.setPodiumSlab(location, -1, 0);
+        this.setPodiumSlab(location, 0, -1);
+
+        this.setPodiumWool(location, 1, 0, kit);
+        this.setPodiumWool(location, -1, 0, kit);
+        this.setPodiumWool(location, 0, 1, kit);
+        this.setPodiumWool(location, 0, -1, kit);
     }
 
     public void setupKits() {
-        plugin.getResources().loadKits().forEach(this::setupKit);
+        this.plugin.getResources().loadKits().forEach(this::setupKit);
     }
 
     private static void updateAccessHologram(Hologram hologram, KitAccessType accessType, Kit kit) {

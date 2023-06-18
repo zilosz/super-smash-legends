@@ -56,11 +56,11 @@ public abstract class ClickableAbility extends Ability {
     }
 
     public void sendUseMessage() {
-        Chat.ABILITY.send(player, String.format("&7You used %s&7.", getDisplayName()));
+        Chat.ABILITY.send(this.player, String.format("&7You used %s&7.", this.getDisplayName()));
     }
 
     public void startCooldown() {
-        cooldownLeft = cooldown;
+        this.cooldownLeft = this.cooldown;
     }
 
     @Override

@@ -4,6 +4,7 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.damage.AttackSettings;
+import io.github.aura6.supersmashlegends.event.projectile.ProjectileHitBlockEvent;
 import io.github.aura6.supersmashlegends.event.projectile.ProjectileLaunchEvent;
 import io.github.aura6.supersmashlegends.event.projectile.ProjectileRemoveEvent;
 import io.github.aura6.supersmashlegends.game.state.InGameState;
@@ -146,7 +147,11 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     protected void handleBlockHitResult(BlockHitResult result) {
         if (result == null) return;
 
-        onBlockHit(result);
+        ProjectileHitBlockEvent event = new ProjectileHitBlockEvent(this, result);
+        Bukkit.getPluginManager().callEvent(event);
+
+        this.onBlockHit(result);
+
         config.getOptionalSection("BlockHitSound").ifPresent(section -> YamlReader.noise(section).playForAll(entity.getLocation()));
 
         if (result.getFace() == null) return;
