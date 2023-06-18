@@ -17,6 +17,10 @@ public class BlockRay {
         this.direction = direction.clone();
     }
 
+    public BlockRay(Location location) {
+        this(location, location.getDirection());
+    }
+
     public void cast(int range) {
         BlockIterator iterator = new BlockIterator(location.getWorld(), location.toVector(), direction, 0, range);
         emptyDestination = location.clone();

@@ -6,7 +6,6 @@ import io.github.aura6.supersmashlegends.utils.entity.finder.selector.EntitySele
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -60,7 +59,6 @@ public class EntityFinder {
         return rangeSelector.getEntityStream(location)
                 .filter(entity -> !CitizensAPI.getNPCRegistry().isNPC(entity))
                 .filter(entity -> this.entityType == null || entity.getType().equals(this.entityType))
-                .filter(entity -> !(entity instanceof ArmorStand))
                 .filter(entity -> entity instanceof LivingEntity)
                 .map(LivingEntity.class::cast)
                 .filter(entity -> !(entity instanceof Player) || plugin.getGameManager().isPlayerAlive((Player) entity) && ((Player) entity).getGameMode() == GameMode.SURVIVAL)
