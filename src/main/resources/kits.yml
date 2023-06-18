@@ -1281,7 +1281,8 @@ Shinoby:
         - "&7The Sphere Spiral is a spinning ball of"
         - "&7chakra formed and held in the palm of"
         - "&7the user's hand, which is only known"
-        - "&7to Shinoby himself."
+        - "&7to Shinoby himself. You can crouch to"
+        - "&7leap forwards while the ability is active."
       Cooldown: 120
       AutoStartCooldown: false
       Damage: 7.5
@@ -1289,6 +1290,7 @@ Shinoby:
       KbY: 0.85
       Lifespan: 80
       Speed: 1
+      LeapVelocity: 1.8
     1:
       ConfigName: Rasenshuriken
       Name: "Rasenshuriken"

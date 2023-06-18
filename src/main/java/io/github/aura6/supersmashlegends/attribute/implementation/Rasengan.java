@@ -19,6 +19,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -26,6 +27,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 public class Rasengan extends RightClickAbility {
     private BukkitTask task;
+    private boolean leapt = false;
 
     public Rasengan(SuperSmashLegends plugin, Section config, Kit kit) {
         super(plugin, config, kit);
@@ -42,7 +44,7 @@ public class Rasengan extends RightClickAbility {
         Bukkit.getPluginManager().callEvent(startEvent);
         startEvent.apply(player, config.getInt("Speed"));
 
-        hotbarItem.hide();
+        this.hotbarItem.hide();
 
         task = new BukkitRunnable() {
             int ticksCharged = 0;
@@ -69,18 +71,16 @@ public class Rasengan extends RightClickAbility {
         entity.getWorld().playSound(entity.getLocation(), Sound.BLAZE_HIT, 2, 1);
     }
 
-    public boolean isActive() {
-        return task != null;
-    }
-
     private void reset() {
-        if (!isActive()) return;
+        if (this.task == null) return;
+
+        this.leapt = false;
 
         task.cancel();
         task = null;
 
-        startCooldown();
-        hotbarItem.show();
+        this.startCooldown();
+        this.hotbarItem.show();
 
         end(player);
         player.removePotionEffect(PotionEffectType.SPEED);
@@ -88,8 +88,8 @@ public class Rasengan extends RightClickAbility {
 
     @Override
     public void deactivate() {
+        this.reset();
         super.deactivate();
-        reset();
     }
 
     @EventHandler
@@ -109,7 +109,7 @@ public class Rasengan extends RightClickAbility {
 
     @EventHandler
     public void onMelee(AttackEvent event) {
-        if (!this.isActive()) return;
+        if (this.task == null) return;
         if (event.getAttribute().getPlayer() != player) return;
         if (!(event.getAttribute() instanceof Melee)) return;
 
@@ -124,6 +124,18 @@ public class Rasengan extends RightClickAbility {
 
         event.getVictim().getWorld().playSound(event.getVictim().getLocation(), Sound.EXPLODE, 3, 1);
         displayAttackEffect(event.getVictim());
+    }
+
+    @EventHandler
+    public void onSneak(PlayerToggleSneakEvent event) {
+        if (this.task == null || this.leapt) return;
+
+        this.leapt = true;
+
+        double velocity = this.config.getDouble("LeapVelocity");
+        this.player.setVelocity(this.player.getEyeLocation().getDirection().multiply(velocity));
+
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.WITHER_IDLE, 0.5f, 2);
     }
 
     public static class RasenganStartEvent extends CustomEvent {
