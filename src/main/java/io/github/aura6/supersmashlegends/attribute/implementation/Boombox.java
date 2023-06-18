@@ -193,14 +193,14 @@ public class Boombox extends RightClickAbility {
         this.explode();
     }
 
-    private void launch(float spread, double damage, double kb, Location source) {
+    private void launch(boolean first, Location source) {
         Section settings = this.config.getSection("Projectile");
         MusicDiscProjectile projectile = new MusicDiscProjectile(this.plugin, this, settings);
-
         projectile.setOverrideLocation(source);
-        projectile.setSpread(spread);
-        projectile.getAttackSettings().getDamageSettings().setDamage(damage);
-        projectile.getAttackSettings().getKbSettings().setKb(kb);
+
+        if (first) {
+            projectile.setSpread(0);
+        }
 
         projectile.launch();
     }
@@ -238,17 +238,14 @@ public class Boombox extends RightClickAbility {
         Vector direction = this.player.getEyeLocation().getDirection();
         Location source = this.block.getLocation().add(0.5, 0.5, 0.5).add(direction).setDirection(direction);
 
-        int count = (int) Math.ceil(YamlReader.incLin(this.config, "Count", this.charge, maxPunches - 1));
-        float spread = (float) YamlReader.incLin(this.config, "Spread", this.charge, maxPunches - 1);
-        double damage = YamlReader.decLin(this.config, "Damage", this.charge, maxPunches - 1);
-        double kb = YamlReader.decLin(this.config, "Kb", this.charge, maxPunches - 1);
-        double conicAngle = YamlReader.incLin(this.config, "ConicAngle", this.charge, maxPunches - 1);
+        this.launch(true, source);
 
-        this.launch(0, damage, kb, source);
+        int count = this.config.getInt("Count");
+        double conicAngle = this.config.getDouble("ConicAngle");
 
         for (Vector vector : VectorUtils.getConicVectors(source, conicAngle, count - 1)) {
             Location loc = source.clone().setDirection(vector);
-            this.launch(spread, damage, kb, loc);
+            this.launch(false, loc);
         }
 
         if (++this.charge == maxPunches) {

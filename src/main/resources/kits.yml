@@ -1596,24 +1596,19 @@ Musician:
         - "&7projectile accuracy rises while the"
         - "&7damage and knock-back fall."
       AutoStartCooldown: false
-      Cooldown: 80
+      Cooldown: 40
       MaxDuration: 240
       PlaceReach: 3
       Health: 15
-      MaxPunches: 3
-      MaxDamage: 10
-      MinDamage: 5
-      MaxKb: 2
-      MinKb: 1
-      MinSpread: 2
-      MaxSpread: 5
-      MinConicAngle: 3
-      MaxConicAngle: 7
-      MinCount: 4
-      MaxCount: 12
+      MaxPunches: 4
+      Damage: 7
+      Kb: 2
+      ConicAngle: 4.5
+      Count: 10
       ClickDelay: 10
       Projectile:
         Speed: 2.4
+        Spread: 2
         Lifespan: 100
         HasGravity: false
         Item:
