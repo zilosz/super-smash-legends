@@ -59,7 +59,6 @@ public class ShadowCloneJutsu extends RightClickAbility {
 
         Vector direction = player.getEyeLocation().getDirection();
         player.setVelocity(direction.clone().multiply(-config.getDouble("Recoil")));
-        kit.getJump().giveExtraJumps(1);
 
         Skeleton creature = player.getWorld().spawn(player.getLocation(), Skeleton.class);
         creature.setSkeletonType(Skeleton.SkeletonType.WITHER);
