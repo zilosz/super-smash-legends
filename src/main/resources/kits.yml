@@ -1255,7 +1255,7 @@ Shinoby:
   Armor: 0.65
   Kb: 1.15
   Regen: 0.3
-  Energy: 0.06
+  Energy: 0.075
   Jump:
     Power: 1.1
     Height: 0.9
@@ -1334,7 +1334,7 @@ Shinoby:
         Health: 10
         Limit: 2
         Speed: 1
-        Duration: 160
+        Duration: 200
         Rasenshuriken:
           Height: 0.35
           DamageMultiplier: 0.5
