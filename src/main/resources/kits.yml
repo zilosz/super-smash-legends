@@ -1255,7 +1255,7 @@ Shinoby:
   Armor: 0.65
   Kb: 1.15
   Regen: 0.3
-  Energy: 0.05
+  Energy: 0.06
   Jump:
     Power: 1.1
     Height: 0.9
@@ -1298,7 +1298,7 @@ Shinoby:
         - "&7The Shuriken Spiral creates countless"
         - "&7microscopic wind-blades that severely"
         - "&7damage the body on a cellular level."
-      Cooldown: 140
+      Cooldown: 130
       AutoStartCooldown: false
       Lifespan: 60
       Height: 0.35
@@ -1323,7 +1323,7 @@ Shinoby:
       Item:
         Material: IRON_HOE
       Description:
-        - ""
+        - "&7Jutsu"
       EnergyCost: 0.5
       Recoil: 1.2
       Clone:
