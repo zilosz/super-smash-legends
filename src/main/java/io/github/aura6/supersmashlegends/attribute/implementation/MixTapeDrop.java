@@ -30,6 +30,7 @@ public class MixTapeDrop extends RightClickAbility {
     public void onClick(PlayerInteractEvent event) {
         new MixTapeProjectile(this.plugin, this, this.config.getSection("Projectile")).launch();
         this.player.getWorld().playSound(this.player.getLocation(), Sound.NOTE_SNARE_DRUM, 2, 1);
+        this.player.setVelocity(this.player.getEyeLocation().getDirection().multiply(-this.config.getDouble("Recoil")));
     }
 
     public static class MixTapeProjectile extends ItemProjectile {

@@ -135,16 +135,62 @@ public class Boombox extends RightClickAbility {
         this.hologram.getLines().appendText(MessageUtils.color(title));
     }
 
+    private void explode() {
+        this.reset();
+
+        for (int i = 0; i < 3; i++) {
+            new ParticleBuilder(EnumParticle.EXPLOSION_HUGE).setSpread(0.5f, 0.5f, 0.5f).show(this.block.getLocation());
+        }
+
+        this.player.getWorld().playSound(this.block.getLocation(), Sound.EXPLODE, 3, 2);
+        this.player.getWorld().playSound(this.block.getLocation(), Sound.NOTE_SNARE_DRUM, 3, 0.5f);
+
+        Section mixTapeConfig = this.config.getSection("Mixtape");
+        double radius = mixTapeConfig.getDouble("Radius");
+        EntitySelector selector = new DistanceSelector(radius);
+
+        EntityFinder finder = new EntityFinder(this.plugin, selector)
+                .setTeamPreference(TeamPreference.ANY).setAvoidsUser(false);
+
+        Location center = this.block.getLocation().add(0.5, 0.5, 0.5);
+
+        finder.findAll(this.player, center).forEach(target -> {
+            Vector direction = VectorUtils.fromTo(center, target.getLocation());
+
+            double distance = target.getLocation().distance(center);
+            double damage = YamlReader.decLin(mixTapeConfig, "Damage", distance, radius);
+            double kb = YamlReader.decLin(mixTapeConfig, "Kb", distance, radius);
+
+            AttackSettings settings = new AttackSettings(mixTapeConfig, direction)
+                    .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
+                    .modifyKb(kbSettings -> kbSettings.setKb(kb));
+
+            this.plugin.getDamageManager().attack(target, this, settings);
+        });
+    }
+
     @EventHandler
     public void onDamage(AttributeDamageEvent event) {
         if (event.getVictim() != this.stand) return;
 
         event.setCancelled(true);
 
-        if (event.getAttribute().getPlayer() != this.player) {
+        if (event.getAttribute() instanceof MixTapeDrop) {
+            this.explode();
+
+        } else if (event.getAttribute().getPlayer() != this.player) {
             this.updateHealth(event.getFinalDamage());
             this.player.getWorld().playSound(this.stand.getLocation(), Sound.ZOMBIE_WOODBREAK, 1, 2);
         }
+    }
+
+    @EventHandler
+    public void onProjectileHitBlock(ProjectileHitBlockEvent event) {
+        if (!this.isPlaced) return;
+        if (!(event.getResult().getBlock().equals(this.block))) return;
+        if (!(event.getProjectile() instanceof MixTapeDrop.MixTapeProjectile)) return;
+
+        this.explode();
     }
 
     private void launch(float spread, double damage, double kb, Location source) {
@@ -196,55 +242,18 @@ public class Boombox extends RightClickAbility {
         float spread = (float) YamlReader.incLin(this.config, "Spread", this.charge, maxPunches - 1);
         double damage = YamlReader.decLin(this.config, "Damage", this.charge, maxPunches - 1);
         double kb = YamlReader.decLin(this.config, "Kb", this.charge, maxPunches - 1);
+        double conicAngle = YamlReader.incLin(this.config, "ConicAngle", this.charge, maxPunches - 1);
 
         this.launch(0, damage, kb, source);
 
-        for (int i = 1; i < count; i++) {
-            this.launch(spread, damage, kb, source);
+        for (Vector vector : VectorUtils.getConicVectors(source, conicAngle, count - 1)) {
+            Location loc = source.clone().setDirection(vector);
+            this.launch(spread, damage, kb, loc);
         }
 
         if (++this.charge == maxPunches) {
             this.reset();
         }
-    }
-
-    @EventHandler
-    public void onProjectileHitBlock(ProjectileHitBlockEvent event) {
-        if (!this.isPlaced) return;
-        if (!(event.getResult().getBlock().equals(this.block))) return;
-        if (!(event.getProjectile() instanceof MixTapeDrop.MixTapeProjectile)) return;
-
-        this.reset();
-
-        for (int i = 0; i < 3; i++) {
-            new ParticleBuilder(EnumParticle.EXPLOSION_HUGE).setSpread(0.5f, 0.5f, 0.5f).show(this.block.getLocation());
-        }
-
-        this.player.getWorld().playSound(this.block.getLocation(), Sound.EXPLODE, 3, 2);
-        this.player.getWorld().playSound(this.block.getLocation(), Sound.NOTE_SNARE_DRUM, 3, 0.5f);
-
-        Section mixTapeConfig = this.config.getSection("Mixtape");
-        double radius = mixTapeConfig.getDouble("Radius");
-        EntitySelector selector = new DistanceSelector(radius);
-
-        EntityFinder finder = new EntityFinder(this.plugin, selector)
-                .setTeamPreference(TeamPreference.ANY).setAvoidsUser(false);
-
-        Location center = this.block.getLocation().add(0.5, 0.5, 0.5);
-
-        finder.findAll(this.player, center).forEach(target -> {
-            Vector direction = VectorUtils.fromTo(center, target.getLocation());
-
-            double distance = target.getLocation().distance(center);
-            double damage = YamlReader.decLin(mixTapeConfig, "Damage", distance, radius);
-            double kb = YamlReader.decLin(mixTapeConfig, "Kb", distance, radius);
-
-            AttackSettings settings = new AttackSettings(mixTapeConfig, direction)
-                    .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
-                    .modifyKb(kbSettings -> kbSettings.setKb(kb));
-
-            this.plugin.getDamageManager().attack(target, this, settings);
-        });
     }
 
     @EventHandler
@@ -263,7 +272,7 @@ public class Boombox extends RightClickAbility {
         boolean solid2 = tpLocation.clone().add(0, 1, 0).getBlock().getType().isSolid();
 
         if (!solid1 && !solid2) {
-            this.player.teleport(tpLocation);
+            this.player.teleport(tpLocation.setDirection(this.player.getEyeLocation().getDirection()));
 
             this.player.getWorld().playSound(this.player.getLocation(), Sound.NOTE_PLING, 2, 1);
             this.player.getWorld().playSound(this.player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 2);

@@ -11,6 +11,7 @@ import io.github.aura6.supersmashlegends.projectile.ProjectileRemoveReason;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
 import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
+import io.github.aura6.supersmashlegends.utils.math.VectorUtils;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -32,12 +33,9 @@ public class WebbedSnare extends RightClickAbility {
         super(plugin, config, kit);
     }
 
-    private void launch(boolean first) {
-        Location location = EntityUtils.center(this.player);
-        location.setDirection(this.player.getEyeLocation().getDirection().multiply(-1));
-
+    private void launch(Location source, boolean first) {
         SnareProjectile projectile = new SnareProjectile(this.plugin, this, this.config.getSection("Projectile"));
-        projectile.setOverrideLocation(location);
+        projectile.setOverrideLocation(source);
 
         if (first) {
             projectile.setSpread(0);
@@ -53,10 +51,16 @@ public class WebbedSnare extends RightClickAbility {
 
         this.hitEntities = new HashSet<>();
 
-        this.launch(true);
+        Vector direction = this.player.getEyeLocation().getDirection().multiply(-1);
+        Location source = EntityUtils.center(this.player).setDirection(direction);
 
-        for (int i = 1; i < this.config.getInt("WebCount"); i++) {
-            this.launch(false);
+        this.launch(source, true);
+
+        double angle = this.config.getDouble("ConicAngle");
+        int count = this.config.getInt("ExtraWebCount");
+
+        for (Vector vector : VectorUtils.getConicVectors(source, angle, count)) {
+            this.launch(source.setDirection(vector), false);
         }
     }
 

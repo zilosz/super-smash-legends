@@ -1350,7 +1350,7 @@ Shinoby:
 Webman:
   ConfigName: Webman
   Name: "Webman"
-  Color: RED
+  Color: DARK_GRAY
   Description:
     - "&7Webman is not just another Spiderman"
     - "&7counterpart in the Multiverse. His"
@@ -1413,12 +1413,13 @@ Webman:
         - "&7power propels Webman in the opposite"
         - "&7direction."
       Cooldown: 140
-      WebCount: 15
-      Velocity: 1.6
+      ExtraWebCount: 15
+      ConicAngle: 7
+      Velocity: 1.5
       Projectile:
-        Spread: 15
-        Speed: 1.7
-        Damage: 4
+        Spread: 5
+        Speed: 1.8
+        Damage: 5
         WebDuration: 40
         Item:
           Material: WEB
@@ -1562,7 +1563,7 @@ Musician:
   Damage: 5
   Armor: 0.625
   Kb: 1.45
-  Regen: 0.25
+  Regen: 0.3
   Jump:
     Power: 1.05
     Height: 0.8
@@ -1593,22 +1594,25 @@ Musician:
         - "&7projectile accuracy rises while the"
         - "&7damage and knock-back fall."
       AutoStartCooldown: false
-      Cooldown: 100
+      Cooldown: 80
       MaxDuration: 240
-      PlaceReach: 4
+      PlaceReach: 3
       Health: 15
-      MaxPunches: 4
-      MaxDamage: 13
-      MinDamage: 4
-      MaxKb: 2.3
+      MaxPunches: 3
+      MaxDamage: 10
+      MinDamage: 5
+      MaxKb: 2
       MinKb: 1
-      MinSpread: 4
-      MaxSpread: 12
+      MinSpread: 2
+      MaxSpread: 5
+      MinConicAngle: 3
+      MaxConicAngle: 7
       MinCount: 4
       MaxCount: 12
       ClickDelay: 10
       Projectile:
         Speed: 2.4
+        Lifespan: 100
         HasGravity: false
         Item:
           Material: RECORD_6
@@ -1629,8 +1633,9 @@ Musician:
         - "&7It does contact damage and also has a"
         - "&7small area of effect upon hitting blocks."
         - "&7The mixtape is so fire that it explodes"
-        - "&7your boombox on contact."
+        - "&7your boombox on contact. Gives recoil."
       Cooldown: 60
+      Recoil: 1.4
       Projectile:
         Damage: 6
         Speed: 1.3

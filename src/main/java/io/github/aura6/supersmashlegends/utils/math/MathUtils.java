@@ -45,6 +45,10 @@ public class MathUtils {
         return center.clone().add(displacement);
     }
 
+    public static Location ringPoint(Location center, double radius, double radians) {
+        return ringPoint(center, center.getPitch(), center.getYaw(), radius, radians);
+    }
+
     public static double degToRad(double degrees) {
         return degrees * Math.PI / 180;
     }

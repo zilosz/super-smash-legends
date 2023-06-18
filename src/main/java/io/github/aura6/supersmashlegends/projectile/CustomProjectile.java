@@ -87,7 +87,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     }
 
     public double defaultHitBox() {
-        return 0.75;
+        return 0.8;
     }
 
     public abstract T createEntity(Location location);

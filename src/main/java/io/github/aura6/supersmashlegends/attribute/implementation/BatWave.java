@@ -46,7 +46,7 @@ public class BatWave extends RightClickAbility {
         double height = this.config.getDouble("Height");
         int count = this.config.getInt("BatCount");
 
-        Set<Location> locations = VectorUtils.getRectSpread(center, alt, width, height, count);
+        Set<Location> locations = VectorUtils.getRectLocations(center, alt, width, height, count);
         locations.forEach(loc -> this.addAndLaunch(new BatProjectile(this.plugin, this, this.config), loc));
 
         this.resetTask = Bukkit.getScheduler().runTaskLater(this.plugin, () -> {

@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class VectorUtils {
 
-    public static Set<Location> getRectSpread(Location center, Vector alternative, double width, double height, int count) {
+    public static Set<Location> getRectLocations(Location center, Vector alternative, double width, double height, int count) {
         Vector direction = center.getDirection();
 
         if (direction.getX() == 0 && direction.getZ() == 0) {
@@ -38,13 +38,31 @@ public class VectorUtils {
         return locations;
     }
 
+    public static Set<Vector> getConicVectors(Location source, double angle, int count) {
+        Set<Vector> vectors = new HashSet<>();
+
+        double radians = 0;
+        double angleStep = MathUtils.degToRad(360.0 / count);
+        double ringRadius = Math.tan(MathUtils.degToRad(angle));
+
+        Location center = source.clone().add(source.getDirection());
+
+        for (int i = 0; i < count; i++) {
+            Location ringPoint = MathUtils.ringPoint(center, ringRadius, radians);
+            vectors.add(fromTo(source, ringPoint).normalize());
+            radians += angleStep;
+        }
+
+        return vectors;
+    }
+
     public static Vector getRandomVectorInDirection(Location source, double maxAngle) {
         double angle = MathUtils.randRange(0, maxAngle);
         double radians = MathUtils.randRange(0, 2 * Math.PI);
         double length = Math.tan(MathUtils.degToRad(angle));
 
         Location ringCenter = source.clone().add(source.getDirection());
-        Location ringPoint = MathUtils.ringPoint(ringCenter, source.getPitch(), source.getYaw(), length, radians);
+        Location ringPoint = MathUtils.ringPoint(ringCenter, length, radians);
 
         return fromTo(source, ringPoint).normalize();
     }
