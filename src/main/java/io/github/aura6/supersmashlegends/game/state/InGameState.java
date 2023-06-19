@@ -358,10 +358,11 @@ public class InGameState extends GameState {
         String deathMessage;
         Location tpLocation;
 
+        Location waitLocation = this.plugin.getArenaManager().getArena().getWaitLocation();
         String diedName = this.plugin.getTeamManager().getPlayerColor(died) + died.getName();
 
         if (directKillingAttribute == null) {
-            tpLocation = this.plugin.getArenaManager().getArena().getWaitLocation();
+            tpLocation = waitLocation;
             deathMessage = String.format("%s &7died.", diedName);
 
         } else {
@@ -383,7 +384,7 @@ public class InGameState extends GameState {
                 deathMessage = String.format("%s &7was killed by %s.", diedName, killerName);
             }
 
-            tpLocation = killer.getLocation();
+            tpLocation = killer.equals(died) ? waitLocation : killer.getLocation();
         }
 
         Chat.DEATH.broadcast(deathMessage);

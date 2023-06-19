@@ -125,8 +125,10 @@ public class DamageManager {
         victim.damage(finalDamage);
         attribute.getPlayer().setLevel((int) finalDamage);
 
-        InGameProfile damagerProfile = this.plugin.getGameManager().getProfile(attribute.getPlayer());
-        damagerProfile.setDamageDealt(damagerProfile.getDamageDealt() + finalDamage);
+        if (!victim.equals(attribute.getPlayer())) {
+            InGameProfile damagerProfile = this.plugin.getGameManager().getProfile(attribute.getPlayer());
+            damagerProfile.setDamageDealt(damagerProfile.getDamageDealt() + finalDamage);
+        }
 
         if (!kbEvent.isCancelled()) {
             attackEvent.getFinalKbVector().ifPresent(victim::setVelocity);
