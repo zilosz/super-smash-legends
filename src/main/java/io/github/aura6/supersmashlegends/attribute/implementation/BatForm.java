@@ -80,8 +80,8 @@ public class BatForm extends PassiveAbility {
         Disguise disguise = DisguiseUtils.applyDisguiseParams(this.player, new MobDisguise(DisguiseType.BAT));
         DisguiseAPI.disguiseToAll(this.player, disguise);
 
-        this.oldJumpLimit = this.kit.getJump().getCount();
-        this.kit.getJump().setCount(this.config.getInt("ExtraJumps"));
+        this.oldJumpLimit = this.kit.getJump().getMaxCount();
+        this.kit.getJump().setMaxCount(this.config.getInt("ExtraJumps"));
 
         this.removedAttributes = this.kit.getAttributes().stream()
                 .filter(attr -> attr instanceof ClickableAbility)
@@ -96,7 +96,7 @@ public class BatForm extends PassiveAbility {
 
         this.isBat = false;
         this.player.getInventory().remove(Material.GOLD_SWORD);
-        this.kit.getJump().setCount(this.oldJumpLimit);
+        this.kit.getJump().setMaxCount(this.oldJumpLimit);
         DisguiseAPI.undisguiseToAll(this.player);
     }
 

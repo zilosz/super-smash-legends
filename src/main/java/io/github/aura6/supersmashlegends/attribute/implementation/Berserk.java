@@ -39,7 +39,7 @@ public class Berserk extends RightClickAbility {
 
         active = false;
 
-        kit.getJump().setCount(ogJumps);
+        kit.getJump().setMaxCount(ogJumps);
         player.removePotionEffect(PotionEffectType.SPEED);
 
         firework.remove();
@@ -53,8 +53,8 @@ public class Berserk extends RightClickAbility {
     public void onClick(PlayerInteractEvent event) {
         active = true;
 
-        ogJumps = kit.getJump().getCount();
-        kit.getJump().setCount(ogJumps + config.getInt("ExtraJumps"));
+        ogJumps = kit.getJump().getMaxCount();
+        kit.getJump().setMaxCount(ogJumps + config.getInt("ExtraJumps"));
 
         player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, config.getInt("Speed")));
         firework = Effects.launchFirework(player.getLocation(), Color.RED, 1);

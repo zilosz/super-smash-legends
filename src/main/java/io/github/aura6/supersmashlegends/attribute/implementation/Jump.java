@@ -8,14 +8,15 @@ import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 public class Jump extends Attribute {
-    @Getter @Setter private int count;
-    private int amountLeft;
+    @Getter @Setter private int maxCount;
+    private int countLeft;
     private BukkitTask hitGroundTask;
 
     public Jump(SuperSmashLegends plugin, Kit kit) {
@@ -29,8 +30,8 @@ public class Jump extends Attribute {
         this.player.setFlying(false);
         this.player.setAllowFlight(true);
 
-        this.count = this.kit.getJumpCount();
-        this.amountLeft = this.kit.getJumpCount();
+        this.maxCount = this.kit.getJumpCount();
+        this.countLeft = this.kit.getJumpCount();
     }
 
     @Override
@@ -41,14 +42,14 @@ public class Jump extends Attribute {
     }
 
     public void giveExtraJumps(int count) {
-        if (this.amountLeft + count <= this.count) {
-            this.amountLeft += count;
+        if (this.countLeft + count <= this.maxCount) {
+            this.countLeft += count;
             this.player.setAllowFlight(true);
         }
     }
 
     public void replenish() {
-        this.amountLeft = this.count;
+        this.countLeft = this.maxCount;
         this.player.setAllowFlight(true);
 
         if (this.hitGroundTask != null) {
@@ -69,11 +70,18 @@ public class Jump extends Attribute {
         if (jumpEvent.isCancelled()) return;
 
         Vector direction = this.player.getLocation().getDirection();
-        this.player.setVelocity(direction.multiply(jumpEvent.getPower()).setY(jumpEvent.getHeight()));
+        Vector velocity = direction.multiply(jumpEvent.getPower()).setY(jumpEvent.getHeight());
 
-        jumpEvent.getNoise().playForAll(player.getLocation());
+        if (((Entity) this.player).isOnGround()) {
+            double boost = this.plugin.getResources().getConfig().getDouble("JumpGroundBooster");
+            velocity.add(new Vector(0, boost, 0));
+        }
+
+        this.player.setVelocity(velocity);
+
+        jumpEvent.getNoise().playForAll(this.player.getLocation());
         
-        if (--this.amountLeft == 0) {
+        if (--this.countLeft == 0) {
             this.player.setAllowFlight(false);
         }
 

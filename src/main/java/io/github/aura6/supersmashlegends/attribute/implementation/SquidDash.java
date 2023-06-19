@@ -192,8 +192,12 @@ public class SquidDash extends RightClickAbility {
             }
 
         } else {
+
+            if (this.ticksDashing > 0) {
+                this.startCooldown();
+            }
+
             this.reset();
-            this.startCooldown();
         }
     }
 

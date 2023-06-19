@@ -5,15 +5,16 @@ import io.github.aura6.supersmashlegends.SuperSmashLegends;
 import io.github.aura6.supersmashlegends.attribute.Ability;
 import io.github.aura6.supersmashlegends.attribute.RightClickAbility;
 import io.github.aura6.supersmashlegends.damage.AttackSettings;
-import io.github.aura6.supersmashlegends.event.attack.AttributeDamageEvent;
 import io.github.aura6.supersmashlegends.event.attribute.AbilityUseEvent;
 import io.github.aura6.supersmashlegends.event.projectile.ProjectileHitBlockEvent;
 import io.github.aura6.supersmashlegends.kit.Kit;
+import io.github.aura6.supersmashlegends.projectile.CustomProjectile;
 import io.github.aura6.supersmashlegends.projectile.ItemProjectile;
 import io.github.aura6.supersmashlegends.team.TeamPreference;
 import io.github.aura6.supersmashlegends.utils.block.BlockHitResult;
 import io.github.aura6.supersmashlegends.utils.block.BlockRay;
 import io.github.aura6.supersmashlegends.utils.effect.ParticleBuilder;
+import io.github.aura6.supersmashlegends.utils.entity.EntityUtils;
 import io.github.aura6.supersmashlegends.utils.entity.finder.EntityFinder;
 import io.github.aura6.supersmashlegends.utils.entity.finder.selector.DistanceSelector;
 import io.github.aura6.supersmashlegends.utils.entity.finder.selector.EntitySelector;
@@ -24,13 +25,14 @@ import io.github.aura6.supersmashlegends.utils.message.Chat;
 import io.github.aura6.supersmashlegends.utils.message.MessageUtils;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
+import me.filoghost.holographicdisplays.api.hologram.line.TextHologramLine;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -41,14 +43,19 @@ import java.text.DecimalFormat;
 
 public class Boombox extends RightClickAbility {
     private boolean isPlaced = false;
-    private BukkitTask allowClickTask;
-    private int clickTicksLeft = 0;
-    private Block block;
-    private ArmorStand stand;
-    private double health;
+    private boolean canPlace = true;
     private int charge = 0;
+    private Block block;
+    private BukkitTask canPlaceAgainTask;
+
     private BukkitTask healthTask;
+    private double health;
+
+    private int clickTicksLeft = 0;
+    private BukkitTask allowClickTask;
+
     private Hologram hologram;
+    private TextHologramLine healthLine;
 
     public Boombox(SuperSmashLegends plugin, Section config, Kit kit) {
         super(plugin, config, kit);
@@ -56,32 +63,60 @@ public class Boombox extends RightClickAbility {
 
     @Override
     public boolean invalidate(PlayerInteractEvent event) {
-        return super.invalidate(event) || this.isPlaced;
+        if (super.invalidate(event) || this.isPlaced) return true;
+
+        if (!this.canPlace) {
+            Chat.ABILITY.send(this.player, "&7Touch the ground before re-using Boombox.");
+        }
+
+        return !this.canPlace;
     }
 
-    private void reset() {
+    private void reset(boolean startCanPlaceTask) {
         if (!this.isPlaced) return;
 
         this.startCooldown();
 
+        if (startCanPlaceTask) {
+            this.canPlace = false;
+
+            this.canPlaceAgainTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+
+                if (EntityUtils.isPlayerGrounded(this.player)) {
+                    this.canPlace = true;
+                    this.canPlaceAgainTask.cancel();
+                }
+            }, 0, 0);
+
+        } else {
+            this.canPlace = true;
+
+            if (this.canPlaceAgainTask != null) {
+                this.canPlaceAgainTask.cancel();
+            }
+        }
+
         this.isPlaced = false;
-        this.charge = 0;
 
         this.block.setType(Material.AIR);
-        this.stand.remove();
+        this.charge = 0;
+
+        this.player.setExp(0);
+
         this.hologram.delete();
-
         this.healthTask.cancel();
-
-        this.allowClickTask.cancel();
         this.clickTicksLeft = 0;
+
+        if (this.allowClickTask != null) {
+            this.allowClickTask.cancel();
+        }
 
         this.player.getWorld().playSound(this.block.getLocation(), Sound.ZOMBIE_WOODBREAK, 1, 0.8f);
     }
 
     @Override
     public void deactivate() {
-        this.reset();
+        this.reset(false);
         super.deactivate();
     }
 
@@ -93,12 +128,19 @@ public class Boombox extends RightClickAbility {
         this.health -= loss;
 
         if (this.health <= 0) {
-            this.reset();
+            this.reset(true);
             return;
         }
 
+        this.player.setExp((float) (this.health / this.getMaxHealth()));
         String bar = MessageUtils.progressBar("|", "|", "&a", "&c", this.health, this.getMaxHealth(), 20);
-        this.stand.setCustomName(bar);
+
+        if (this.hologram.getLines().size() == 1) {
+            this.healthLine = this.hologram.getLines().insertText(0, bar);
+
+        } else {
+            this.healthLine.setText(bar);
+        }
     }
 
     @Override
@@ -114,29 +156,20 @@ public class Boombox extends RightClickAbility {
         this.player.getWorld().playSound(this.block.getLocation(), Sound.DIG_WOOD, 2, 1);
         this.player.getWorld().playSound(this.player.getLocation(), Sound.NOTE_SNARE_DRUM, 3, 0.5f);
 
-        Location above = this.block.getLocation().add(0.5, 1, 0.5);
-
-        this.stand = this.player.getWorld().spawn(above.clone().subtract(0, 0.8, 0), ArmorStand.class);
-        this.stand.setCustomNameVisible(true);
-        this.stand.setGravity(false);
-        this.stand.setVisible(false);
-        this.stand.setSmall(true);
+        Location above = this.block.getLocation().add(0.5, 1.7, 0.5);
+        this.hologram = HolographicDisplaysAPI.get(this.plugin).createHologram(above);
+        String color = this.kit.getColor().getChatSymbol();
+        String title = String.format("&f%s's %s&lBoombox", this.player.getName(), color);
+        this.hologram.getLines().appendText(MessageUtils.color(title));
 
         this.health = this.getMaxHealth();
         this.updateHealth(0);
 
         double healthLossPerTick = this.health / this.config.getInt("MaxDuration");
-
         this.healthTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> this.updateHealth(healthLossPerTick), 1, 1);
-
-        this.hologram = HolographicDisplaysAPI.get(this.plugin).createHologram(above.add(0, 0.4, 0));
-        String color = this.kit.getColor().getChatSymbol();
-        String title = String.format("&f%s's %s&lBoombox", this.player.getName(), color);
-        this.hologram.getLines().appendText(MessageUtils.color(title));
     }
 
     private void explode() {
-        this.reset();
 
         for (int i = 0; i < 3; i++) {
             new ParticleBuilder(EnumParticle.EXPLOSION_HUGE).setSpread(0.5f, 0.5f, 0.5f).show(this.block.getLocation());
@@ -167,30 +200,24 @@ public class Boombox extends RightClickAbility {
 
             this.plugin.getDamageManager().attack(target, this, settings);
         });
-    }
 
-    @EventHandler
-    public void onDamage(AttributeDamageEvent event) {
-        if (event.getVictim() != this.stand) return;
-
-        event.setCancelled(true);
-
-        if (event.getAttribute() instanceof MixTapeDrop) {
-            this.explode();
-
-        } else if (event.getAttribute().getPlayer() != this.player) {
-            this.updateHealth(event.getFinalDamage());
-            this.player.getWorld().playSound(this.stand.getLocation(), Sound.ZOMBIE_WOODBREAK, 1, 2);
-        }
+        this.reset(true);
     }
 
     @EventHandler
     public void onProjectileHitBlock(ProjectileHitBlockEvent event) {
         if (!this.isPlaced) return;
         if (!(event.getResult().getBlock().equals(this.block))) return;
-        if (!(event.getProjectile() instanceof MixTapeDrop.MixTapeProjectile)) return;
 
-        this.explode();
+        CustomProjectile<? extends Entity> projectile = event.getProjectile();
+
+        if (projectile instanceof MixTapeDrop.MixTapeProjectile) {
+            this.explode();
+
+        } else {
+            this.updateHealth(projectile.getAttackSettings().getDamageSettings().getDamage());
+            this.player.getWorld().playSound(this.block.getLocation(), Sound.ZOMBIE_WOODBREAK, 1, 1.5f);
+        }
     }
 
     private void launch(boolean first, Location source) {
@@ -208,9 +235,14 @@ public class Boombox extends RightClickAbility {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (!this.isPlaced) return;
-        if (event.getPlayer() != this.player) return;
         if (event.getClickedBlock() == null) return;
         if (!event.getClickedBlock().equals(this.block)) return;
+
+        if (event.getPlayer() != this.player) {
+            Kit enemyKit = this.plugin.getKitManager().getSelectedKit(event.getPlayer());
+            this.updateHealth(enemyKit.getDamage());
+            return;
+        }
 
         if (this.clickTicksLeft > 0) {
             String secLeft = new DecimalFormat("#.#").format(this.clickTicksLeft / 20.0);
@@ -249,7 +281,7 @@ public class Boombox extends RightClickAbility {
         }
 
         if (++this.charge == maxPunches) {
-            this.reset();
+            this.reset(true);
         }
     }
 
@@ -264,6 +296,8 @@ public class Boombox extends RightClickAbility {
         if (this.player.isSneaking()) {
             tpLocation = this.block.getLocation().subtract(0, 2, 0);
         }
+
+        tpLocation.add(0.5, 0, 0.5);
 
         boolean solid1 = tpLocation.getBlock().getType().isSolid();
         boolean solid2 = tpLocation.clone().add(0, 1, 0).getBlock().getType().isSolid();

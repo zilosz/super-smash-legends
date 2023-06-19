@@ -354,7 +354,7 @@ Drakula:
         - "&7Shoot multiple pellets of venom-tainted"
         - "&7blood at enemies, inflicting damage and"
         - "&7debilitating poison."
-      Cooldown: 120
+      Cooldown: 100
       Interval: 2
       Count: 6
       Projectile:
@@ -1516,7 +1516,7 @@ Mermaid:
       Cooldown: 160
       AutoStartCooldown: false
       AutoSendUseMessage: false
-      DiveDelay: 13
+      DiveDelay: 10
       AscendVelocity: 1.3
       PullVelocity: 0.9
       PullDistance: 4
@@ -1574,9 +1574,9 @@ Musician:
       Volume: 1
       Pitch: 1.5
   HurtSound:
-    Type: NOTE_SNARE_DRUM
+    Type: NOTE_BASS
     Volume: 1
-    Pitch: 1.5
+    Pitch: 1
   DeathSound:
     Type: NOTE_PLING
     Volume: 3
@@ -1595,21 +1595,21 @@ Musician:
         - "&7As you click the boombox more, the"
         - "&7projectile accuracy rises while the"
         - "&7damage and knock-back fall."
-      AutoStartCooldown: false
       Cooldown: 40
-      MaxDuration: 240
-      PlaceReach: 3
-      Health: 15
+      AutoStartCooldown: false
+      MaxDuration: 200
+      PlaceReach: 2
+      Health: 10
       MaxPunches: 4
-      ConicAngle: 4.5
+      ConicAngle: 4
       Count: 10
       ClickDelay: 10
       Projectile:
-        Speed: 2.15
+        Speed: 2
         Spread: 2
         Lifespan: 100
-        Damage: 7
-        Kb: 2
+        Damage: 6
+        Kb: 1.85
         KbY: 0.7
         HasGravity: false
         Item:

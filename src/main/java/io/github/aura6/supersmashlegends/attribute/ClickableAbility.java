@@ -77,8 +77,11 @@ public abstract class ClickableAbility extends Ability {
 
     public void onCooldownEnd() {}
 
+    protected void onTick() {}
+
     @Override
     public void run() {
+        this.onTick();
 
         if (this.cooldownLeft > 0) {
 

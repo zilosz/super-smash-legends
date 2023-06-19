@@ -66,3 +66,4 @@ Damage:
     FactorsHealth: false
   MinKbHealthMultiplier: 1
   MaxKbHealthMultiplier: 2
+JumpGroundBooster: 0.2
