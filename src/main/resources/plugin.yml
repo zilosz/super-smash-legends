@@ -1,9 +1,10 @@
 name: SuperSmashLegends
-version: 1.0
-main: io.github.aura6.supersmashlegends.SuperSmashLegends
-authors: [ Aura ]
+version: 1.0.0-alpha
+main: io.github.zilosz.ssl.SSL
+authors: [ Zilosz ]
 api-version: 1.8.8
 depend: [ ProtocolLib ]
+softdepend: [ TitleAPI, NameTagEdit ]
 
 commands:
   kit:
