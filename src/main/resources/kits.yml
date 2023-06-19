@@ -1574,9 +1574,9 @@ Musician:
       Volume: 1
       Pitch: 1.5
   HurtSound:
-    Type: NOTE_BASS
+    Type: NOTE_SNARE_DRUM
     Volume: 1
-    Pitch: 1
+    Pitch: 1.5
   DeathSound:
     Type: NOTE_PLING
     Volume: 3
@@ -1601,15 +1601,16 @@ Musician:
       PlaceReach: 3
       Health: 15
       MaxPunches: 4
-      Damage: 7
-      Kb: 2
       ConicAngle: 4.5
       Count: 10
       ClickDelay: 10
       Projectile:
-        Speed: 2.4
+        Speed: 2.15
         Spread: 2
         Lifespan: 100
+        Damage: 7
+        Kb: 2
+        KbY: 0.7
         HasGravity: false
         Item:
           Material: RECORD_6
@@ -1632,15 +1633,15 @@ Musician:
         - "&7The mixtape is so fire that it explodes"
         - "&7your boombox on contact. Gives recoil."
       Cooldown: 60
-      Recoil: 1.4
+      Recoil: 1.3
       Projectile:
         Damage: 6
-        Speed: 1.3
+        Speed: 1.2
         Kb: 1.6
         KbY: 0.65
         HitBox: 0.5
         Ground:
-          Radius: 2.5
+          Radius: 3
           Damage: 4
           Kb: 1.3
           KbY: 0.7
