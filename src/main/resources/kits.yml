@@ -1563,12 +1563,12 @@ Musician:
     - "&7but rewarding for aspiring DJs."
   Skin: "Bo_Rum_Dal"
   Damage: 5
-  Armor: 0.625
+  Armor: 0.6
   Kb: 1.45
   Regen: 0.3
   Jump:
-    Power: 1.05
-    Height: 0.8
+    Power: 1.1
+    Height: 0.9
     Sound:
       Type: NOTE_BASS
       Volume: 1
@@ -1601,14 +1601,14 @@ Musician:
       PlaceReach: 2
       Health: 10
       MaxPunches: 4
-      ConicAngle: 4
+      ConicAngle: 5
       Count: 10
       ClickDelay: 10
       Projectile:
         Speed: 2
         Spread: 2
         Lifespan: 100
-        Damage: 6
+        Damage: 7
         Kb: 1.85
         KbY: 0.7
         HasGravity: false
