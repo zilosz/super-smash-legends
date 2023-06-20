@@ -1,6 +1,6 @@
 name: SuperSmashLegends
 version: 1.0.0-alpha
-main: io.github.zilosz.ssl.SSL
+main: com.github.zilosz.ssl.SSL
 authors: [ Zilosz ]
 api-version: 1.8.8
 depend: [ ProtocolLib ]

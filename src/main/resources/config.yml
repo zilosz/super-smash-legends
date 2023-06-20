@@ -60,8 +60,8 @@ Damage:
       Entity: 0.7
       Player: 1.5
   Melee:
-    Kb: 0.9
-    KbY: 0.45
+    Kb: 1
+    KbY: 0.4
     FactorsKit: false
     FactorsHealth: false
   MinKbHealthMultiplier: 1

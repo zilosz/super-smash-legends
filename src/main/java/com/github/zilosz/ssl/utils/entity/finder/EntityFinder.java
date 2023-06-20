@@ -59,6 +59,7 @@ public class EntityFinder {
         return rangeSelector.getEntityStream(location)
                 .filter(entity -> !CitizensAPI.getNPCRegistry().isNPC(entity))
                 .filter(entity -> this.entityType == null || entity.getType().equals(this.entityType))
+                .filter(entity -> !entity.getType().equals(EntityType.ARMOR_STAND))
                 .filter(entity -> entity instanceof LivingEntity)
                 .map(LivingEntity.class::cast)
                 .filter(entity -> !(entity instanceof Player) || plugin.getGameManager().isPlayerAlive((Player) entity) && ((Player) entity).getGameMode() == GameMode.SURVIVAL)
