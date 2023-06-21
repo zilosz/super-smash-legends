@@ -29,12 +29,12 @@ public class AttackSettings {
         this.immunityTicks = config.getOptionalInt("ImmunityTicks").orElse(defaultImmunity);
     }
 
-    public AttackSettings modifyDamage(Consumer<? super DamageSettings> consumer) {
+    public AttackSettings modifyDamage(Consumer<DamageSettings> consumer) {
         consumer.accept(this.damageSettings);
         return this;
     }
 
-    public AttackSettings modifyKb(Consumer<? super KbSettings> consumer) {
+    public AttackSettings modifyKb(Consumer<KbSettings> consumer) {
         consumer.accept(this.kbSettings);
         return this;
     }

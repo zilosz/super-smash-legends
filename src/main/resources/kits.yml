@@ -1118,7 +1118,7 @@ Pikachew:
       MinVelocity: 0.4
       MaxVelocity: 2.1
       MaxVelocityY: 0.275
-      DurationTicks: 50
+      DurationTicks: 40
       MinDamage: 1
       MaxDamage: 8.5
       MinKb: 0.8
