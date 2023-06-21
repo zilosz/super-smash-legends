@@ -3,6 +3,7 @@ package com.github.zilosz.ssl.command;
 import com.github.zilosz.ssl.kit.KitSelector;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.kit.KitManager;
+import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.message.Chat;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.Command;
@@ -36,9 +37,16 @@ public class KitCommand implements CommandExecutor {
                 KitManager kitManager = this.plugin.getKitManager();
                 String name = StringUtils.capitalize(strings[0].toLowerCase());
 
-                kitManager.getKitByName(name).ifPresentOrElse(
-                        kit -> kitManager.setKit(player, kit),
-                        () -> Chat.KIT.send(player, String.format("\"%s\" &7is not a valid kit.", name)));
+                kitManager.getKitByName(name).ifPresentOrElse(kit -> {
+                    kitManager.setKit(player, kit);
+                }, () -> {
+                    if (name.equalsIgnoreCase("random")) {
+                        Chat.KIT.send(player, "&7Selecting a random kit...");
+                        kitManager.setKit(player, CollectionUtils.selectRandom(kitManager.getKits()));
+                    } else {
+                        Chat.KIT.send(player, String.format("&7\"%s\" &7is not a valid kit.", name));
+                    }
+                });
             }
 
         } else {
