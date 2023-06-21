@@ -1,25 +1,25 @@
 package com.github.zilosz.ssl.game.state;
 
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
-import com.github.zilosz.ssl.attribute.Ability;
-import com.github.zilosz.ssl.attribute.Attribute;
-import com.github.zilosz.ssl.kit.KitSelector;
-import com.github.zilosz.ssl.team.TeamSelector;
-import com.github.zilosz.ssl.utils.CollectionUtils;
-import com.github.zilosz.ssl.utils.message.Chat;
-import com.github.zilosz.ssl.utils.message.Replacers;
 import com.github.zilosz.ssl.Resources;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.arena.Arena;
 import com.github.zilosz.ssl.arena.ArenaVoter;
+import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.InGameProfile;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.kit.KitManager;
+import com.github.zilosz.ssl.kit.KitSelector;
+import com.github.zilosz.ssl.team.TeamSelector;
+import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.HotbarItem;
 import com.github.zilosz.ssl.utils.Skin;
 import com.github.zilosz.ssl.utils.file.YamlReader;
+import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
+import com.github.zilosz.ssl.utils.message.Replacers;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
 import me.filoghost.holographicdisplays.api.hologram.HologramLines;
@@ -61,16 +61,6 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
     }
 
     @Override
-    public String getConfigName() {
-        return "Lobby";
-    }
-
-    @Override
-    public boolean isInArena() {
-        return false;
-    }
-
-    @Override
     public boolean allowKitSelection() {
         return true;
     }
@@ -81,18 +71,8 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
     }
 
     @Override
-    public boolean allowsDamage() {
-        return false;
-    }
-
-    @Override
     public boolean allowSpecCommand() {
         return true;
-    }
-
-    private int getParticipantCount() {
-        GameManager gameManager = this.plugin.getGameManager();
-        return (int) Bukkit.getOnlinePlayers().stream().filter(p -> !gameManager.willSpectate(p)).count();
     }
 
     @Override
@@ -104,12 +84,10 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
 
         try {
             replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getDisplayName());
-        } catch (NullPointerException ignored) {}
+        } catch (NullPointerException ignored) {
+        }
 
-        List<String> lines = new ArrayList<>(Arrays.asList(
-                this.getScoreboardLine(),
-                "&f&lStatus"
-        ));
+        List<String> lines = new ArrayList<>(Arrays.asList(this.getScoreboardLine(), "&f&lStatus"));
 
         if (this.isCounting) {
             lines.add(String.format("&7Starting in &e&l%d &7sec", this.secUntilStart));
@@ -131,21 +109,125 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
         return replacers.replaceLines(lines);
     }
 
+    private int getParticipantCount() {
+        GameManager gameManager = this.plugin.getGameManager();
+        return (int) Bukkit.getOnlinePlayers().stream().filter(p -> !gameManager.willSpectate(p)).count();
+    }
+
+    @Override
+    public void start() {
+        GameManager gameManager = this.plugin.getGameManager();
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            KitManager kitManager = this.plugin.getKitManager();
+
+            Optional.ofNullable(kitManager.getSelectedKit(player)).ifPresentOrElse(kit -> kit.equip(player), () -> {
+                kitManager.createHolograms(player);
+                kitManager.pullUserKit(player);
+            });
+
+            kitManager.updateHolograms(player);
+
+            if (gameManager.isSpectator(player)) {
+                this.initializePlayer(player);
+                continue;
+            }
+
+            Skin skin = kitManager.getSelectedKit(player).getSkin();
+            String text = skin.getPreviousTexture();
+            String sig = skin.getPreviousSignature();
+
+            Skin.applyAcrossTp(this.plugin, player, text, sig, () -> {
+                this.initializePlayer(player);
+                player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
+            });
+
+            InGameProfile profile = gameManager.getProfile(player);
+            DecimalFormat format = new DecimalFormat("#.#");
+
+            Replacers replacers = new Replacers().add("KIT", profile.getKit().getBoldedDisplayName())
+                    .add("RESULT", profile.getGameResult().getHologramString())
+                    .add("KILLS", profile.getKills())
+                    .add("DEATHS", profile.getDeaths())
+                    .add("DAMAGE_TAKEN", format.format(profile.getDamageTaken()))
+                    .add("DAMAGE_DEALT", format.format(profile.getDamageDealt()));
+
+            String lastGameLoc = this.plugin.getResources().getLobby().getString("LastGame");
+            Location lastGameLocation = YamlReader.location("lobby", lastGameLoc);
+            Hologram lastGameHolo = HolographicDisplaysAPI.get(this.plugin).createHologram(lastGameLocation);
+            this.holograms.add(lastGameHolo);
+
+            replacers.replaceLines(Arrays.asList(
+                    "&5&lLast Game",
+                    "&7----------------",
+                    "&fResult: {RESULT}",
+                    "&fKit: {KIT}",
+                    "&fKills: &e{KILLS}",
+                    "&fDeaths: &e{DEATHS}",
+                    "&fDamage Taken: &e{DAMAGE_TAKEN}",
+                    "&fDamage Dealt: &e{DAMAGE_DEALT}",
+                    "&7----------------"
+            )).forEach(line -> lastGameHolo.getLines().appendText(line));
+
+            for (Player other : Bukkit.getOnlinePlayers()) {
+
+                if (!other.equals(player)) {
+                    lastGameHolo.getVisibilitySettings()
+                            .setIndividualVisibility(other, VisibilitySettings.Visibility.HIDDEN);
+                }
+            }
+        }
+
+        this.plugin.getArenaManager().setupArenas();
+
+        this.createLeaderboard("Win", "wins", "Wins");
+        this.createLeaderboard("Kill", "kills", "Kills");
+
+        gameManager.reset();
+
+        this.isCounting = false;
+        this.tryCountdownStart();
+    }
+
+    private void initializePlayer(Player player) {
+        player.setGameMode(GameMode.SURVIVAL);
+        player.setHealth(20);
+        player.setLevel(0);
+        player.teleport(this.getSpawn());
+
+        if (!this.plugin.getGameManager().isSpectator(player)) {
+            ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Returned to the lobby."));
+        }
+
+        Resources resources = this.plugin.getResources();
+
+        Consumer<PlayerInteractEvent> kitAction = e -> new KitSelector().build().open(player);
+        this.hotbarItems.add(resources.giveHotbarItem("KitSelector", player, kitAction));
+
+        Consumer<PlayerInteractEvent> arenaAction = e -> new ArenaVoter().build().open(player);
+        this.hotbarItems.add(resources.giveHotbarItem("ArenaVoter", player, arenaAction));
+
+        if (this.plugin.getTeamManager().getTeamSize() > 1) {
+            Consumer<PlayerInteractEvent> teamAction = e -> new TeamSelector().build().open(player);
+            this.hotbarItems.add(resources.giveHotbarItem("TeamSelector", player, teamAction));
+        }
+    }
+
     private void createLeaderboard(String titleName, String statName, String configName) {
-        Location location = YamlReader.location("lobby", plugin.getResources().getLobby().getString(configName));
-        Hologram hologram = HolographicDisplaysAPI.get(plugin).createHologram(location);
-        holograms.add(hologram);
+        Location location = YamlReader.location("lobby", this.plugin.getResources().getLobby().getString(configName));
+        Hologram hologram = HolographicDisplaysAPI.get(this.plugin).createHologram(location);
+        this.holograms.add(hologram);
         HologramLines lines = hologram.getLines();
 
         lines.appendText(MessageUtils.color(String.format("&5&l%s Leaderboard", titleName)));
         lines.appendText(MessageUtils.color("&7------------------"));
 
-        int size = plugin.getResources().getConfig().getInt("LeaderboardSizes." + configName);
+        int size = this.plugin.getResources().getConfig().getInt("LeaderboardSizes." + configName);
 
         List<String> players = new ArrayList<>();
         List<Integer> stats = new ArrayList<>();
 
-        for (Document doc : plugin.getPlayerDatabase().getDocuments()) {
+        for (Document doc : this.plugin.getPlayerDatabase().getDocuments()) {
             String name = doc.getString("name");
             int stat = (int) doc.getOrDefault(statName, 0);
 
@@ -192,17 +274,6 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
         lines.appendText(MessageUtils.color("&7------------------"));
     }
 
-    private void stopCountdownTask(boolean abrupt) {
-        if (!this.isCounting) return;
-
-        this.isCounting = false;
-        this.countdownTask.cancel();
-
-        if (abrupt) {
-            Chat.GAME.broadcast("&7Not enough players to start.");
-        }
-    }
-
     private void tryCountdownStart() {
         int minPlayersNeeded = this.plugin.getResources().getConfig().getInt("Game.MinPlayersToStart");
 
@@ -219,21 +290,24 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
 
             @Override
             public void run() {
-                secUntilStart--;
+                LobbyState.this.secUntilStart--;
 
-                if (secUntilStart == 0) {
-                    plugin.getGameManager().advanceState();
+                if (LobbyState.this.secUntilStart == 0) {
+                    LobbyState.this.plugin.getGameManager().advanceState();
                     return;
                 }
 
-                if (secUntilStart <= 5 || secUntilStart % notifyInterval == 0) {
-                    Chat.GAME.broadcast(String.format("&7Starting in &e&l%d &7seconds.", secUntilStart));
+                if (LobbyState.this.secUntilStart <= 5 || LobbyState.this.secUntilStart % notifyInterval == 0) {
+                    Chat.GAME.broadcast(String.format(
+                            "&7Starting in &e&l%d &7seconds.",
+                            LobbyState.this.secUntilStart
+                    ));
 
-                    if (secUntilStart <= 4) {
+                    if (LobbyState.this.secUntilStart <= 4) {
                         this.pitch += 1.5f / totalSec;
                     }
 
-                    if (secUntilStart != totalSec) {
+                    if (LobbyState.this.secUntilStart != totalSec) {
 
                         for (Player player : Bukkit.getOnlinePlayers()) {
                             player.playSound(player.getLocation(), Sound.CLICK, 1, this.pitch);
@@ -245,108 +319,8 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
         }.runTaskTimer(this.plugin, 0, 20);
     }
 
-    @Override
-    public void start() {
-        GameManager gameManager = this.plugin.getGameManager();
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            KitManager kitManager = this.plugin.getKitManager();
-
-            Optional.ofNullable(kitManager.getSelectedKit(player)).ifPresentOrElse(kit -> kit.equip(player), () -> {
-                kitManager.createHolograms(player);
-                kitManager.pullUserKit(player);
-            });
-
-            kitManager.updateHolograms(player);
-
-            if (gameManager.isSpectator(player)) {
-                this.initializePlayer(player);
-                continue;
-            }
-
-            Skin skin = kitManager.getSelectedKit(player).getSkin();
-            String text = skin.getPreviousTexture();
-            String sig = skin.getPreviousSignature();
-
-            Skin.applyAcrossTp(this.plugin, player, text, sig, () -> {
-                this.initializePlayer(player);
-                player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
-            });
-
-            InGameProfile profile = gameManager.getProfile(player);
-            DecimalFormat format = new DecimalFormat("#.#");
-
-            Replacers replacers = new Replacers()
-                    .add("KIT", profile.getKit().getBoldedDisplayName())
-                    .add("RESULT", profile.getGameResult().getHologramString())
-                    .add("KILLS", profile.getKills())
-                    .add("DEATHS", profile.getDeaths())
-                    .add("DAMAGE_TAKEN", format.format(profile.getDamageTaken()))
-                    .add("DAMAGE_DEALT", format.format(profile.getDamageDealt()));
-
-            String lastGameLoc = this.plugin.getResources().getLobby().getString("LastGame");
-            Location lastGameLocation = YamlReader.location("lobby", lastGameLoc);
-            Hologram lastGameHolo = HolographicDisplaysAPI.get(this.plugin).createHologram(lastGameLocation);
-            this.holograms.add(lastGameHolo);
-
-            replacers.replaceLines(Arrays.asList(
-                    "&5&lLast Game",
-                    "&7----------------",
-                    "&fResult: {RESULT}",
-                    "&fKit: {KIT}",
-                    "&fKills: &e{KILLS}",
-                    "&fDeaths: &e{DEATHS}",
-                    "&fDamage Taken: &e{DAMAGE_TAKEN}",
-                    "&fDamage Dealt: &e{DAMAGE_DEALT}",
-                    "&7----------------"
-            )).forEach(line -> lastGameHolo.getLines().appendText(line));
-
-            for (Player other : Bukkit.getOnlinePlayers()) {
-
-                if (!other.equals(player)) {
-                    lastGameHolo.getVisibilitySettings()
-                            .setIndividualVisibility(other, VisibilitySettings.Visibility.HIDDEN);
-                }
-            }
-        }
-
-        this.plugin.getArenaManager().setupArenas();
-
-        createLeaderboard("Win", "wins", "Wins");
-        createLeaderboard("Kill", "kills", "Kills");
-
-        gameManager.reset();
-
-        this.isCounting = false;
-        this.tryCountdownStart();
-    }
-
     private Location getSpawn() {
         return YamlReader.location("lobby", this.plugin.getResources().getLobby().getString("Spawn"));
-    }
-
-    private void initializePlayer(Player player) {
-        player.setGameMode(GameMode.SURVIVAL);
-        player.setHealth(20);
-        player.setLevel(0);
-        player.teleport(getSpawn());
-
-        if (!this.plugin.getGameManager().isSpectator(player)) {
-            ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Returned to the lobby."));
-        }
-
-        Resources resources = this.plugin.getResources();
-
-        Consumer<PlayerInteractEvent> kitAction = e -> new KitSelector().build().open(player);
-        this.hotbarItems.add(resources.giveHotbarItem("KitSelector", player, kitAction));
-
-        Consumer<PlayerInteractEvent> arenaAction = e -> new ArenaVoter().build().open(player);
-        this.hotbarItems.add(resources.giveHotbarItem("ArenaVoter", player, arenaAction));
-
-        if (plugin.getTeamManager().getTeamSize() > 1) {
-            Consumer<PlayerInteractEvent> teamAction = e -> new TeamSelector().build().open(player);
-            hotbarItems.add(resources.giveHotbarItem("TeamSelector", player, teamAction));
-        }
     }
 
     @Override
@@ -362,12 +336,11 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
         this.plugin.getArenaManager().setupArena();
         Arena arena = this.plugin.getArenaManager().getArena();
 
-        Replacers replacers = new Replacers()
-                .add("ARENA", arena.getName())
-                .add("AUTHORS", arena.getAuthors());
+        Replacers replacers = new Replacers().add("ARENA", arena.getName()).add("AUTHORS", arena.getAuthors());
 
-        List<String> description = replacers.replaceLines(
-               this.plugin.getResources().getConfig().getStringList("Description"));
+        List<String> description = replacers.replaceLines(this.plugin.getResources()
+                .getConfig()
+                .getStringList("Description"));
 
         GameManager gameManager = this.plugin.getGameManager();
 
@@ -385,6 +358,32 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
         }
 
         this.plugin.getTeamManager().removeEmptyTeams();
+    }
+
+    @Override
+    public String getConfigName() {
+        return "Lobby";
+    }
+
+    @Override
+    public boolean isInArena() {
+        return false;
+    }
+
+    @Override
+    public boolean allowsDamage() {
+        return false;
+    }
+
+    private void stopCountdownTask(boolean abrupt) {
+        if (!this.isCounting) return;
+
+        this.isCounting = false;
+        this.countdownTask.cancel();
+
+        if (abrupt) {
+            Chat.GAME.broadcast("&7Not enough players to start.");
+        }
     }
 
     @EventHandler

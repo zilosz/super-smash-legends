@@ -2,24 +2,25 @@ package com.github.zilosz.ssl.game.state;
 
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import com.connorlinfoot.titleapi.TitleAPI;
-import com.github.zilosz.ssl.database.PlayerDatabase;
-import com.github.zilosz.ssl.game.GameResult;
-import com.github.zilosz.ssl.team.TeamManager;
-import com.github.zilosz.ssl.utils.CollectionUtils;
-import com.github.zilosz.ssl.utils.message.Chat;
-import com.github.zilosz.ssl.utils.message.Replacers;
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.database.PlayerDatabase;
 import com.github.zilosz.ssl.game.GameManager;
+import com.github.zilosz.ssl.game.GameResult;
 import com.github.zilosz.ssl.game.InGameProfile;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.team.Team;
+import com.github.zilosz.ssl.team.TeamManager;
+import com.github.zilosz.ssl.utils.CollectionUtils;
+import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
+import com.github.zilosz.ssl.utils.message.Replacers;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,21 +33,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class EndState extends GameState implements TeleportsOnVoid {
-    private String winnerString;
+    @Nullable private String winnerString;
     private BukkitTask endCountdown;
 
     public EndState(SSL plugin) {
         super(plugin);
-    }
-
-    @Override
-    public String getConfigName() {
-        return "End";
-    }
-
-    @Override
-    public boolean isInArena() {
-        return true;
     }
 
     @Override
@@ -56,11 +47,6 @@ public class EndState extends GameState implements TeleportsOnVoid {
 
     @Override
     public boolean updatesKitSkins() {
-        return false;
-    }
-
-    @Override
-    public boolean allowsDamage() {
         return false;
     }
 
@@ -194,7 +180,8 @@ public class EndState extends GameState implements TeleportsOnVoid {
             }
 
         } else {
-            Set<Player> tiedPlayers = rankedTeams.get(0).stream()
+            Set<Player> tiedPlayers = rankedTeams.get(0)
+                    .stream()
                     .flatMap(team -> team.getPlayers().stream())
                     .collect(Collectors.toSet());
 
@@ -252,7 +239,7 @@ public class EndState extends GameState implements TeleportsOnVoid {
         }
 
         this.endCountdown = new BukkitRunnable() {
-            int secondsLeft = plugin.getResources().getConfig().getInt("Game.EndWaitSeconds");
+            int secondsLeft = EndState.this.plugin.getResources().getConfig().getInt("Game.EndWaitSeconds");
             float pitch = 0.5f;
 
             @Override
@@ -290,6 +277,21 @@ public class EndState extends GameState implements TeleportsOnVoid {
             player.setFlying(false);
             TitleAPI.clearTitle(player);
         }
+    }
+
+    @Override
+    public String getConfigName() {
+        return "End";
+    }
+
+    @Override
+    public boolean isInArena() {
+        return true;
+    }
+
+    @Override
+    public boolean allowsDamage() {
+        return false;
     }
 
     @Override

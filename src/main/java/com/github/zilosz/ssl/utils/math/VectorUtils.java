@@ -56,6 +56,10 @@ public class VectorUtils {
         return vectors;
     }
 
+    public static Vector fromTo(Location from, Location to) {
+        return to.toVector().subtract(from.toVector());
+    }
+
     public static Vector getRandomVectorInDirection(Location source, double maxAngle) {
         double angle = MathUtils.randRange(0, maxAngle);
         double radians = MathUtils.randRange(0, 2 * Math.PI);
@@ -65,24 +69,6 @@ public class VectorUtils {
         Location ringPoint = MathUtils.ringPoint(ringCenter, length, radians);
 
         return fromTo(source, ringPoint).normalize();
-    }
-
-    public static Vector getHorizontallyTiltedVector(Location source, Vector alternative, double angle) {
-        Vector direction = source.getDirection();
-
-        if (direction.getX() == 0 && direction.getZ() == 0) {
-            direction = alternative.clone().normalize();
-        }
-
-        Vector unitHorizontal = direction.getCrossProduct(new Vector(0, 1, 0)).normalize();
-        double amountHorizontal = Math.tan(MathUtils.degToRad(angle));
-        Location target = source.clone().add(unitHorizontal.multiply(amountHorizontal)).add(direction);
-
-        return fromTo(source, target).normalize();
-    }
-
-    public static Vector fromTo(Location from, Location to) {
-        return to.toVector().subtract(from.toVector());
     }
 
     public static Vector fromTo(Entity from, Entity to) {
@@ -160,19 +146,19 @@ public class VectorUtils {
 
                 if (!rotating.isValid() || !reference.isValid()) {
                     rotating.remove();
-                    cancel();
+                    this.cancel();
                     return;
                 }
 
                 Location referenceLoc = reference.getLocation().add(0, yOffset, 0);
-                Location nextLoc = MathUtils.ringPoint(referenceLoc, pitch, yaw, radius, radians);
+                Location nextLoc = MathUtils.ringPoint(referenceLoc, pitch, yaw, radius, this.radians);
                 Vector direction = fromTo(rotating.getLocation(), nextLoc).normalize();
-                rotating.setVelocity(direction.multiply(speed).add(new Vector(0, 0.1, 0)));
+                rotating.setVelocity(direction.multiply(this.speed).add(new Vector(0, 0.1, 0)));
 
-                radians += radianStep;
+                this.radians += this.radianStep;
 
-                if (radians >= 2 * Math.PI) {
-                    radians = 0;
+                if (this.radians >= 2 * Math.PI) {
+                    this.radians = 0;
                 }
             }
 

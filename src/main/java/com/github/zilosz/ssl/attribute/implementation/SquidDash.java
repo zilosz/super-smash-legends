@@ -1,20 +1,20 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
+import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
-import com.github.zilosz.ssl.utils.DisguiseUtils;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
-import com.github.zilosz.ssl.utils.entity.EntityUtils;
-import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
-import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
-import com.github.zilosz.ssl.utils.math.VectorUtils;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
-import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.kit.Kit;
+import com.github.zilosz.ssl.utils.DisguiseUtils;
+import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
+import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
+import com.github.zilosz.ssl.utils.math.VectorUtils;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.libraryaddict.disguise.DisguiseAPI;
 import me.libraryaddict.disguise.disguisetypes.Disguise;
 import me.libraryaddict.disguise.disguisetypes.DisguiseType;
@@ -36,15 +36,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SquidDash extends RightClickAbility {
+    private final Set<Item> particles = new HashSet<>();
     private Vector velocity;
-
     private BukkitTask dashTask;
     private int ticksDashing = -1;
-
     private BukkitTask invisibilityTask;
     private boolean invisible = false;
-
-    private final Set<Item> particles = new HashSet<>();
 
     public SquidDash(SSL plugin, Section config, Kit kit) {
         super(plugin, config, kit);
@@ -52,42 +49,6 @@ public class SquidDash extends RightClickAbility {
 
     private int getMaxDashTicks() {
         return this.config.getInt("MaxTicks");
-    }
-
-    private void resetDash() {
-        if (this.ticksDashing == -1) return;
-
-        this.ticksDashing = -1;
-        this.dashTask.cancel();
-
-        DisguiseAPI.undisguiseToAll(this.player);
-    }
-
-    private void unHidePlayer() {
-        this.invisibilityTask.cancel();
-        this.invisible = false;
-        this.plugin.getDamageManager().showEntityIndicator(this.player);
-        Bukkit.getOnlinePlayers().forEach(other -> other.showPlayer(this.player));
-        new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(EntityUtils.center(this.player), 1, 5, 0.5);
-        this.player.getWorld().playSound(this.player.getLocation(), Sound.WITHER_HURT, 1, 2);
-    }
-
-    private void reset() {
-
-        if (this.invisible) {
-            this.unHidePlayer();
-        }
-
-        this.resetDash();
-
-        this.particles.forEach(Item::remove);
-        this.particles.clear();
-    }
-
-    @Override
-    public void deactivate() {
-        this.reset();
-        super.deactivate();
     }
 
     private void stopDash() {
@@ -115,7 +76,14 @@ public class SquidDash extends RightClickAbility {
         this.invisible = true;
         this.plugin.getDamageManager().hideEntityIndicator(this.player);
         Bukkit.getOnlinePlayers().forEach(other -> other.hidePlayer(this.player));
-        int ticks = (int) YamlReader.incLin(this.config, "InvisibilityTicks", this.ticksDashing, this.getMaxDashTicks());
+
+        int ticks = (int) YamlReader.incLin(
+                this.config,
+                "InvisibilityTicks",
+                this.ticksDashing,
+                this.getMaxDashTicks()
+        );
+
         this.invisibilityTask = Bukkit.getScheduler().runTaskLater(this.plugin, this::unHidePlayer, ticks);
 
         this.resetDash();
@@ -127,7 +95,7 @@ public class SquidDash extends RightClickAbility {
     private void startDash() {
         this.sendUseMessage();
 
-        Vector direction =  this.player.getLocation().getDirection().setY(0).normalize();
+        Vector direction = this.player.getLocation().getDirection().setY(0).normalize();
         this.velocity = direction.multiply(this.config.getDouble("Velocity"));
 
         Disguise disguise = DisguiseUtils.applyDisguiseParams(this.player, new MobDisguise(DisguiseType.SQUID));
@@ -141,7 +109,7 @@ public class SquidDash extends RightClickAbility {
             }
 
             this.player.setVelocity(this.velocity);
-            this.player.getWorld().playSound(player.getLocation(), Sound.SPLASH2, 1, 1);
+            this.player.getWorld().playSound(this.player.getLocation(), Sound.SPLASH2, 1, 1);
 
             Section particleConfig = this.config.getSection("Particle");
 
@@ -172,6 +140,42 @@ public class SquidDash extends RightClickAbility {
         } else {
             this.stopDash();
         }
+    }
+
+    @Override
+    public void deactivate() {
+        this.reset();
+        super.deactivate();
+    }
+
+    private void reset() {
+
+        if (this.invisible) {
+            this.unHidePlayer();
+        }
+
+        this.resetDash();
+
+        this.particles.forEach(Item::remove);
+        this.particles.clear();
+    }
+
+    private void unHidePlayer() {
+        this.invisibilityTask.cancel();
+        this.invisible = false;
+        this.plugin.getDamageManager().showEntityIndicator(this.player);
+        Bukkit.getOnlinePlayers().forEach(other -> other.showPlayer(this.player));
+        new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(EntityUtils.center(this.player), 1, 5, 0.5);
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.WITHER_HURT, 1, 2);
+    }
+
+    private void resetDash() {
+        if (this.ticksDashing == -1) return;
+
+        this.ticksDashing = -1;
+        this.dashTask.cancel();
+
+        DisguiseAPI.undisguiseToAll(this.player);
     }
 
     @EventHandler

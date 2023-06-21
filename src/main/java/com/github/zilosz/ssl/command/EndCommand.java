@@ -15,7 +15,7 @@ public class EndCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        plugin.getGameManager().skipToState(new EndState(plugin));
+        this.plugin.getGameManager().skipToState(new EndState(this.plugin));
         return true;
     }
 }

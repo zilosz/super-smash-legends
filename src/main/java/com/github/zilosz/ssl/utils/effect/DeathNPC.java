@@ -1,10 +1,10 @@
 package com.github.zilosz.ssl.utils.effect;
 
-import com.github.zilosz.ssl.utils.entity.EntityUtils;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.kit.KitManager;
+import com.github.zilosz.ssl.utils.entity.EntityUtils;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.SkinTrait;
@@ -36,51 +36,6 @@ public class DeathNPC extends BukkitRunnable implements Listener {
         this.velocity = velocity;
     }
 
-    public void destroy() {
-        if (!this.npc.isSpawned()) return;
-
-        this.player.getWorld().playSound(this.npc.getStoredLocation(), Sound.WITHER_DEATH, 3, 1.5f);
-
-        KitManager kitManager = SSL.getInstance().getKitManager();
-        Color color = kitManager.getSelectedKit(this.player).getColor().getColor();
-
-        new ParticleBuilder(EnumParticle.REDSTONE)
-                .setRgb(color.getRed(), color.getGreen(), color.getBlue())
-                .boom(SSL.getInstance(), EntityUtils.center(this.npc.getEntity()), 5, 0.25, 50);
-
-        this.npc.destroy();
-
-        HandlerList.unregisterAll(this);
-        this.cancel();
-    }
-
-    @Override
-    public void run() {
-
-        if (ticks++ >= duration) {
-            destroy();
-            return;
-        }
-
-        npc.getEntity().setVelocity(new Vector(0, velocity, 0));
-        new ParticleBuilder(EnumParticle.SMOKE_LARGE).show(npc.getStoredLocation().subtract(0, 0.4, 0));
-        player.getWorld().playSound(npc.getStoredLocation(), Sound.FIREWORK_LAUNCH, 2, 2);
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onNormalDamage(EntityDamageEvent event) {
-        if (event.getEntity() == npc.getEntity()) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onCustomDamage(DamageEvent event) {
-        if (event.getVictim() == npc.getEntity()) {
-            event.setCancelled(true);
-        }
-    }
-
     public static DeathNPC spawn(SSL plugin, Player player) {
         Section death = plugin.getResources().getConfig().getSection("Death");
 
@@ -97,5 +52,49 @@ public class DeathNPC extends BukkitRunnable implements Listener {
         Bukkit.getPluginManager().registerEvents(deathNPC, plugin);
 
         return deathNPC;
+    }
+
+    @Override
+    public void run() {
+
+        if (this.ticks++ >= this.duration) {
+            this.destroy();
+            return;
+        }
+
+        this.npc.getEntity().setVelocity(new Vector(0, this.velocity, 0));
+        new ParticleBuilder(EnumParticle.SMOKE_LARGE).show(this.npc.getStoredLocation().subtract(0, 0.4, 0));
+        this.player.getWorld().playSound(this.npc.getStoredLocation(), Sound.FIREWORK_LAUNCH, 2, 2);
+    }
+
+    public void destroy() {
+        if (!this.npc.isSpawned()) return;
+
+        this.player.getWorld().playSound(this.npc.getStoredLocation(), Sound.WITHER_DEATH, 3, 1.5f);
+
+        KitManager kitManager = SSL.getInstance().getKitManager();
+        Color color = kitManager.getSelectedKit(this.player).getColor().getColor();
+
+        new ParticleBuilder(EnumParticle.REDSTONE).setRgb(color.getRed(), color.getGreen(), color.getBlue())
+                .boom(SSL.getInstance(), EntityUtils.center(this.npc.getEntity()), 5, 0.25, 50);
+
+        this.npc.destroy();
+
+        HandlerList.unregisterAll(this);
+        this.cancel();
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onNormalDamage(EntityDamageEvent event) {
+        if (event.getEntity() == this.npc.getEntity()) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onCustomDamage(DamageEvent event) {
+        if (event.getVictim() == this.npc.getEntity()) {
+            event.setCancelled(true);
+        }
     }
 }

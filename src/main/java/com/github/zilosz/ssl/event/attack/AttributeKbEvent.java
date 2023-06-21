@@ -13,10 +13,10 @@ import java.util.Optional;
 
 @Getter
 public class AttributeKbEvent extends CustomEvent implements Cancellable {
-    @Setter private boolean cancelled = false;
     private final LivingEntity victim;
     private final KbSettings kbSettings;
     private final Attribute attribute;
+    @Setter private boolean cancelled = false;
 
     public AttributeKbEvent(LivingEntity victim, KbSettings kbSettings, Attribute attribute) {
         this.victim = victim;

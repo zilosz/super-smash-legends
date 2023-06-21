@@ -21,17 +21,30 @@ public class ItemBuilder<T extends ItemMeta> implements Supplier<ItemStack> {
 
     public ItemBuilder(Material material) {
         this.material = material;
-        amount = 1;
-        data = 0;
+        this.amount = 1;
+        this.data = 0;
     }
 
     public ItemBuilder(ItemStack itemStack) {
-        material = itemStack.getType();
-        amount = itemStack.getAmount();
-        data = itemStack.getData().getData();
+        this.material = itemStack.getType();
+        this.amount = itemStack.getAmount();
+        this.data = itemStack.getData().getData();
 
         Optional.ofNullable(itemStack.getItemMeta().getDisplayName()).ifPresent(this::setName);
         Optional.ofNullable(itemStack.getItemMeta().getLore()).ifPresent(this::setLore);
+    }
+
+    public ItemBuilder<T> setName(String name) {
+        return this.applyMeta(meta -> meta.setDisplayName(MessageUtils.color(name)));
+    }
+
+    public ItemBuilder<T> setLore(List<String> lore) {
+        return this.applyMeta(meta -> meta.setLore(MessageUtils.color(lore)));
+    }
+
+    public ItemBuilder<T> applyMeta(Consumer<T> meta) {
+        this.meta = this.meta.andThen(meta);
+        return this;
     }
 
     public ItemBuilder<T> setAmount(int amount) {
@@ -44,16 +57,8 @@ public class ItemBuilder<T extends ItemMeta> implements Supplier<ItemStack> {
         return this;
     }
 
-    public ItemBuilder<T> setName(String name) {
-        return applyMeta(meta -> meta.setDisplayName(MessageUtils.color(name)));
-    }
-
-    public ItemBuilder<T> setLore(List<String> lore) {
-        return applyMeta(meta -> meta.setLore(MessageUtils.color(lore)));
-    }
-
     public ItemBuilder<T> addEnchantment(Enchantment enchantment) {
-        return applyMeta(meta -> meta.addEnchant(enchantment, 0, false));
+        return this.applyMeta(meta -> meta.addEnchant(enchantment, 0, false));
     }
 
     public ItemBuilder<T> setEnchanted(boolean isEnchanted) {
@@ -61,16 +66,11 @@ public class ItemBuilder<T extends ItemMeta> implements Supplier<ItemStack> {
         return this;
     }
 
-    public ItemBuilder<T> applyMeta(Consumer<T> meta) {
-        this.meta = this.meta.andThen(meta);
-        return this;
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public ItemStack get() {
-        ItemStack itemStack = new ItemStack(material, amount, data);
-        if (isEnchanted) itemStack.addUnsafeEnchantment(Enchantment.KNOCKBACK, 1);
+        ItemStack itemStack = new ItemStack(this.material, this.amount, this.data);
+        if (this.isEnchanted) itemStack.addUnsafeEnchantment(Enchantment.KNOCKBACK, 1);
         ItemMeta meta = itemStack.getItemMeta();
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
         meta.spigot().setUnbreakable(true);

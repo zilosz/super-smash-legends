@@ -23,10 +23,6 @@ public class Barrage extends Bow {
         super(plugin, config, kit);
     }
 
-    private int getStages() {
-        return this.config.getInt("Stages");
-    }
-
     @Override
     public void onStart() {
 
@@ -46,15 +42,8 @@ public class Barrage extends Bow {
         }, this.config.getInt("StageTicks"), this.config.getInt("StageTicks"));
     }
 
-    private void launch(double force, boolean first) {
-        BarrageArrow arrow = new BarrageArrow(this.plugin, this, this.config);
-        arrow.setSpeed(force * this.config.getDouble("MaxSpeed"));
-
-        if (first) {
-            arrow.setSpread(0);
-        }
-
-        arrow.launch();
+    private int getStages() {
+        return this.config.getInt("Stages");
     }
 
     @Override
@@ -64,6 +53,17 @@ public class Barrage extends Bow {
         int amount = (int) MathUtils.increasingLinear(1, arrowCount, this.getStages(), this.stage - 1);
         int interval = this.config.getInt("TicksBetweenShot");
         RunnableUtils.runTaskWithIntervals(this.plugin, amount - 1, interval, () -> this.launch(force, false));
+    }
+
+    private void launch(double force, boolean first) {
+        BarrageArrow arrow = new BarrageArrow(this.plugin, this, this.config);
+        arrow.setSpeed(force * this.config.getDouble("MaxSpeed"));
+
+        if (first) {
+            arrow.setSpread(0);
+        }
+
+        arrow.launch();
     }
 
     @Override
@@ -100,8 +100,7 @@ public class Barrage extends Bow {
 
         @Override
         public void onTargetHit(LivingEntity target) {
-            new ParticleBuilder(EnumParticle.REDSTONE)
-                    .setRgb(200, 200, 200)
+            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(200, 200, 200)
                     .boom(this.plugin, this.entity.getLocation(), 1.2, 0.4, 6);
         }
     }

@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 
 public class YamlReader {
 
-    public static List<Double> numbers(String numbers) {
-        return Arrays.stream(numbers.split(":")).map(Double::parseDouble).collect(Collectors.toList());
+    public static List<Location> locations(String world, List<String> locations) {
+        return locations.stream().map(loc -> location(world, loc)).collect(Collectors.toList());
     }
 
     public static Location location(String world, String location) {
@@ -29,8 +29,8 @@ public class YamlReader {
         return new Location(Bukkit.getWorld(world), parts.get(0), parts.get(1), parts.get(2), yaw, pitch);
     }
 
-    public static List<Location> locations(String world, List<String> locations) {
-        return locations.stream().map(loc -> location(world, loc)).collect(Collectors.toList());
+    public static List<Double> numbers(String numbers) {
+        return Arrays.stream(numbers.split(":")).map(Double::parseDouble).collect(Collectors.toList());
     }
 
     public static Vector vector(String vector) {
@@ -48,7 +48,8 @@ public class YamlReader {
     }
 
     public static Noise noise(Section section) {
-        return new Noise(Sound.valueOf(section.getString("Type")), section.getFloat("Volume"), section.getFloat("Pitch"));
+        Sound sound = Sound.valueOf(section.getString("Type"));
+        return new Noise(sound, section.getFloat("Volume"), section.getFloat("Pitch"));
     }
 
     public static double incLin(Section config, String stat, double val, double limit) {

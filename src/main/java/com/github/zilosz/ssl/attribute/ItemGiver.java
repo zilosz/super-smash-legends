@@ -1,8 +1,8 @@
 package com.github.zilosz.ssl.attribute;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.kit.Kit;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
@@ -16,22 +16,18 @@ public abstract class ItemGiver extends PassiveAbility {
     }
 
     @Override
-    public String getUseType() {
-        return "Passive";
-    }
-
-    @Override
     public void activate() {
         super.activate();
 
-        giveTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            ItemStack stack = player.getInventory().getItem(slot);
+        this.giveTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+            ItemStack stack = this.player.getInventory().getItem(this.slot);
+            int atOnce = this.config.getInt("AmountAtOnce");
 
-            if (stack == null || stack.getAmount() + config.getInt("AmountAtOnce") <= config.getInt("MaxAmount")) {
-                player.getInventory().addItem(hotbarItem.getItemStack());
-                player.playSound(player.getLocation(), Sound.ITEM_PICKUP, 1, 1);
+            if (stack == null || stack.getAmount() + atOnce <= this.config.getInt("MaxAmount")) {
+                this.player.getInventory().addItem(this.hotbarItem.getItemStack());
+                this.player.playSound(this.player.getLocation(), Sound.ITEM_PICKUP, 1, 1);
             }
-        }, config.getInt("TicksPerItem"), config.getInt("TicksPerItem"));
+        }, this.config.getInt("TicksPerItem"), this.config.getInt("TicksPerItem"));
     }
 
     @Override
@@ -42,5 +38,10 @@ public abstract class ItemGiver extends PassiveAbility {
         if (this.giveTask != null) {
             this.giveTask.cancel();
         }
+    }
+
+    @Override
+    public String getUseType() {
+        return "Passive";
     }
 }

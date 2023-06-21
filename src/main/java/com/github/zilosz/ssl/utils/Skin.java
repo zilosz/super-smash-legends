@@ -33,28 +33,11 @@ public class Skin {
         this.signature = signature;
     }
 
-    public void updatePrevious(String texture, String signature) {
-        this.previousTexture = texture;
-        this.previousSignature = signature;
-    }
-
-    public static void updateProfile(GameProfile gameProfile, String texture, String signature) {
-        gameProfile.getProperties().removeAll("textures");
-        gameProfile.getProperties().put("textures", new Property("textures", texture, signature));
-    }
-
-    public void applyToSkull(SkullMeta meta) {
-        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-        updateProfile(profile, this.texture, this.signature);
-
-        try {
-            Field profileField = meta.getClass().getDeclaredField("profile");
-            profileField.setAccessible(true);
-            profileField.set(meta, profile);
-
-        } catch (IllegalAccessException | NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        }
+    public static void apply(Plugin plugin, Player player, String texture, String signature) {
+        showToOthers(player, texture, signature);
+        Location oldLoc = player.getLocation();
+        player.teleport(new Location(Bukkit.getWorld("world"), 0, 120, 0));
+        showToSelf(plugin, player, () -> player.teleport(oldLoc));
     }
 
     private static void showToOthers(Player player, String texture, String signature) {
@@ -66,11 +49,27 @@ public class Skin {
         }
     }
 
+    private static BukkitTask showToSelf(Plugin plugin, Player player, Runnable onTp) {
+        sendAddRemovePackets(player);
+        return fakeRespawnAfterDelay(plugin, player, onTp);
+    }
+
+    public static void updateProfile(GameProfile gameProfile, String texture, String signature) {
+        gameProfile.getProperties().removeAll("textures");
+        gameProfile.getProperties().put("textures", new Property("textures", texture, signature));
+    }
+
     private static void sendAddRemovePackets(Player player) {
         EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
 
-        NmsUtils.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, nmsPlayer));
-        NmsUtils.sendPacket(player, new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, nmsPlayer));
+        NmsUtils.sendPacket(
+                player,
+                new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, nmsPlayer)
+        );
+        NmsUtils.sendPacket(
+                player,
+                new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, nmsPlayer)
+        );
 
     }
 
@@ -84,36 +83,9 @@ public class Skin {
                     nmsPlayer.dimension,
                     nmsPlayer.getWorld().getDifficulty(),
                     nmsPlayer.getWorld().getWorldData().getType(),
-                    nmsPlayer.playerInteractManager.getGameMode()));
+                    nmsPlayer.playerInteractManager.getGameMode()
+            ));
         }, 2);
-    }
-
-    private static BukkitTask showToSelf(Plugin plugin, Player player, Runnable onTp) {
-        sendAddRemovePackets(player);
-        return fakeRespawnAfterDelay(plugin, player, onTp);
-    }
-
-    public static BukkitTask applyAcrossTp(Plugin plugin, Player player, String texture, String signature, Runnable onTp) {
-        showToOthers(player, texture, signature);
-        return showToSelf(plugin, player, onTp);
-    }
-
-    public static void apply(Plugin plugin, Player player, String texture, String signature) {
-        showToOthers(player, texture, signature);
-        Location oldLoc = player.getLocation();
-        player.teleport(new Location(Bukkit.getWorld("world"), 0, 120, 0));
-        showToSelf(plugin, player, () -> player.teleport(oldLoc));
-    }
-
-    public BukkitTask applyAcrossTp(Plugin plugin, Player player, Runnable onTp) {
-        EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
-        GameProfile profile = nmsPlayer.getProfile();
-
-        Property property = profile.getProperties().get("textures").iterator().next();
-        this.previousSignature = property.getSignature();
-        this.previousTexture = property.getValue();
-
-        return applyAcrossTp(plugin, player, this.texture, this.signature, onTp);
     }
 
     public static Skin fromMojang(String playerName) {
@@ -134,5 +106,40 @@ public class Skin {
         } catch (IOException e) {
             return fromMojang("Notch");
         }
+    }
+
+    public void updatePrevious(String texture, String signature) {
+        this.previousTexture = texture;
+        this.previousSignature = signature;
+    }
+
+    public void applyToSkull(SkullMeta meta) {
+        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+        updateProfile(profile, this.texture, this.signature);
+
+        try {
+            Field profileField = meta.getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            profileField.set(meta, profile);
+
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public BukkitTask applyAcrossTp(Plugin plugin, Player player, Runnable onTp) {
+        EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
+        GameProfile profile = nmsPlayer.getProfile();
+
+        Property property = profile.getProperties().get("textures").iterator().next();
+        this.previousSignature = property.getSignature();
+        this.previousTexture = property.getValue();
+
+        return applyAcrossTp(plugin, player, this.texture, this.signature, onTp);
+    }
+
+    public static BukkitTask applyAcrossTp(Plugin plugin, Player player, String texture, String signature, Runnable onTp) {
+        showToOthers(player, texture, signature);
+        return showToSelf(plugin, player, onTp);
     }
 }

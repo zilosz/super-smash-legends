@@ -1,13 +1,13 @@
 package com.github.zilosz.ssl.game.state;
 
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
-import com.github.zilosz.ssl.utils.CollectionUtils;
-import com.github.zilosz.ssl.utils.math.VectorUtils;
-import com.github.zilosz.ssl.utils.message.Replacers;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.arena.Arena;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.kit.Kit;
+import com.github.zilosz.ssl.utils.CollectionUtils;
+import com.github.zilosz.ssl.utils.math.VectorUtils;
+import com.github.zilosz.ssl.utils.message.Replacers;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -27,29 +27,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 public class TutorialState extends GameState {
     private final Set<Player> playersInTutorial = new HashSet<>();
-    private final Map<UUID, BukkitTask> movers = new HashMap<>();
-    private final Map<UUID, BukkitTask> moveDelayers = new HashMap<>();
-    private final Map<UUID, BukkitTask> tutorialSchedulers = new HashMap<>();
-    private final Map<UUID, BukkitTask> ruleDisplayers = new HashMap<>();
-    private final Map<UUID, BukkitTask> skinChangers = new HashMap<>();
+
+    private final Map<Player, BukkitTask> movers = new HashMap<>();
+    private final Map<Player, BukkitTask> moveDelayers = new HashMap<>();
+    private final Map<Player, BukkitTask> tutorialSchedulers = new HashMap<>();
+    private final Map<Player, BukkitTask> ruleDisplayers = new HashMap<>();
+    private final Map<Player, BukkitTask> skinChangers = new HashMap<>();
+
     private BukkitTask skipTask;
 
     public TutorialState(SSL plugin) {
         super(plugin);
-    }
-
-    @Override
-    public String getConfigName() {
-        return "Tutorial";
-    }
-
-    @Override
-    public boolean isInArena() {
-        return true;
     }
 
     @Override
@@ -59,11 +50,6 @@ public class TutorialState extends GameState {
 
     @Override
     public boolean updatesKitSkins() {
-        return false;
-    }
-
-    @Override
-    public boolean allowsDamage() {
         return false;
     }
 
@@ -88,10 +74,7 @@ public class TutorialState extends GameState {
         ));
 
         Arena arena = this.plugin.getArenaManager().getArena();
-
-        Replacers replacers = new Replacers()
-                .add("ARENA", arena.getName())
-                .add("AUTHORS", arena.getAuthors());
+        Replacers replacers = new Replacers().add("ARENA", arena.getName()).add("AUTHORS", arena.getAuthors());
 
         if (!this.plugin.getGameManager().isSpectator(player)) {
             lines.add("");
@@ -102,45 +85,6 @@ public class TutorialState extends GameState {
 
         lines.add(this.getScoreboardLine());
         return replacers.replaceLines(lines);
-    }
-
-    private void stopPlayerAfterCompletion(Player player) {
-        player.setVelocity(new Vector(0, 0, 0));
-        player.setGameMode(GameMode.SURVIVAL);
-        player.setFlySpeed(0.1f);
-        this.playersInTutorial.remove(player);
-    }
-
-    private void stopPlayerDuringMovement(Player player) {
-        stopPlayerAfterCompletion(player);
-        UUID uuid = player.getUniqueId();
-        Optional.ofNullable(this.movers.remove(uuid)).ifPresent(BukkitTask::cancel);
-        Optional.ofNullable(this.moveDelayers.remove(uuid)).ifPresent(BukkitTask::cancel);
-        Optional.ofNullable(this.tutorialSchedulers.remove(uuid)).ifPresent(BukkitTask::cancel);
-    }
-
-    private void startTutorialMovement(Player player, List<Location> points, double speed, int from, int to) {
-
-        if (from == points.size() || points.size() <= 1) {
-            stopPlayerAfterCompletion(player);
-
-            if (playersInTutorial.size() == 0) {
-                plugin.getGameManager().advanceState();
-            }
-
-            return;
-        }
-
-        Vector velocity = VectorUtils.fromTo(points.get(from), points.get(to)).normalize().multiply(speed);
-        BukkitTask moveTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> player.setVelocity(velocity), 0, 0);
-        this.movers.put(player.getUniqueId(), moveTask);
-
-        int stepDuration = (int) ((points.get(from).distance(points.get(to))) / speed);
-
-        this.moveDelayers.put(player.getUniqueId(), Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            moveTask.cancel();
-            startTutorialMovement(player, points, speed, from + 1, (to + 1) % points.size());
-        }, stepDuration));
     }
 
     @Override
@@ -165,7 +109,7 @@ public class TutorialState extends GameState {
         Set<Player> players = gameManager.getAlivePlayers();
         this.playersInTutorial.addAll(players);
 
-        Arena arena = plugin.getArenaManager().getArena();
+        Arena arena = this.plugin.getArenaManager().getArena();
         List<Location> tutorialLocations = arena.getTutorialLocations();
 
         double totalDistance = tutorialLocations.get(0).distance(tutorialLocations.get(tutorialLocations.size() - 1));
@@ -176,36 +120,36 @@ public class TutorialState extends GameState {
 
         totalDistance += tutorialLocations.get(tutorialLocations.size() - 1).distance(tutorialLocations.get(0));
 
-        int tutorialDuration = plugin.getResources().getConfig().getInt("Game.Tutorial.DurationTicks");
+        int tutorialDuration = this.plugin.getResources().getConfig().getInt("Game.Tutorial.DurationTicks");
         double velocity = totalDistance / tutorialDuration;
-        int delay = plugin.getResources().getConfig().getInt("Game.Tutorial.DelayTicks");
+        int delay = this.plugin.getResources().getConfig().getInt("Game.Tutorial.DelayTicks");
 
-        List<String> rules = new Replacers()
-                .add("LIVES", plugin.getResources().getConfig().getInt("Game.Lives"))
-                .replaceLines(plugin.getResources().getConfig().getStringList("Rules"));
+        List<String> rules = new Replacers().add("LIVES", this.plugin.getResources().getConfig().getInt("Game.Lives"))
+                .replaceLines(this.plugin.getResources().getConfig().getStringList("Rules"));
 
         for (Player player : players) {
             Kit kit = this.plugin.getKitManager().getSelectedKit(player);
             player.setGameMode(GameMode.SPECTATOR);
 
-            this.skinChangers.put(player.getUniqueId(), kit.getSkin().applyAcrossTp(this.plugin, player, () -> {
+            this.skinChangers.put(player, kit.getSkin().applyAcrossTp(this.plugin, player, () -> {
                 player.teleport(tutorialLocations.get(0));
                 player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 2, 1);
                 player.setFlySpeed(0);
 
-                this.tutorialSchedulers.put(player.getUniqueId(), Bukkit.getScheduler().runTaskLater(this.plugin,
-                        () -> startTutorialMovement(player, tutorialLocations, velocity, 0, 1), delay));
+                this.tutorialSchedulers.put(player, Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+                    this.startTutorialMovement(player, tutorialLocations, velocity, 0, 1);
+                }, delay));
 
                 int ruleDelay = ((int) (double) tutorialDuration / (rules.size() + 1));
 
-                this.ruleDisplayers.put(player.getUniqueId(), new BukkitRunnable() {
+                this.ruleDisplayers.put(player, new BukkitRunnable() {
                     int i = 0;
 
                     @Override
                     public void run() {
 
                         if (this.i == rules.size()) {
-                            cancel();
+                            this.cancel();
                             return;
                         }
 
@@ -233,6 +177,52 @@ public class TutorialState extends GameState {
         }
     }
 
+    @Override
+    public String getConfigName() {
+        return "Tutorial";
+    }
+
+    @Override
+    public boolean isInArena() {
+        return true;
+    }
+
+    @Override
+    public boolean allowsDamage() {
+        return false;
+    }
+
+    private void stopPlayerAfterCompletion(Player player) {
+        player.setVelocity(new Vector(0, 0, 0));
+        player.setGameMode(GameMode.SURVIVAL);
+        player.setFlySpeed(0.1f);
+        this.playersInTutorial.remove(player);
+    }
+
+    private void startTutorialMovement(Player player, List<Location> points, double speed, int from, int to) {
+
+        if (from == points.size() || points.size() <= 1) {
+            this.stopPlayerAfterCompletion(player);
+
+            if (this.playersInTutorial.isEmpty()) {
+                this.plugin.getGameManager().advanceState();
+            }
+
+            return;
+        }
+
+        Vector velocity = VectorUtils.fromTo(points.get(from), points.get(to)).normalize().multiply(speed);
+        BukkitTask moveTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> player.setVelocity(velocity), 0, 0);
+        this.movers.put(player, moveTask);
+
+        int stepDuration = (int) ((points.get(from).distance(points.get(to))) / speed);
+
+        this.moveDelayers.put(player, Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+            moveTask.cancel();
+            this.startTutorialMovement(player, points, speed, from + 1, (to + 1) % points.size());
+        }, stepDuration));
+    }
+
     @EventHandler
     public void onTutorialQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
@@ -241,5 +231,12 @@ public class TutorialState extends GameState {
             this.playersInTutorial.remove(player);
             this.stopPlayerDuringMovement(player);
         }
+    }
+
+    private void stopPlayerDuringMovement(Player player) {
+        this.stopPlayerAfterCompletion(player);
+        Optional.ofNullable(this.movers.remove(player)).ifPresent(BukkitTask::cancel);
+        Optional.ofNullable(this.moveDelayers.remove(player)).ifPresent(BukkitTask::cancel);
+        Optional.ofNullable(this.tutorialSchedulers.remove(player)).ifPresent(BukkitTask::cancel);
     }
 }

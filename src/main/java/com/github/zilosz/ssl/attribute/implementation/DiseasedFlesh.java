@@ -35,14 +35,14 @@ public class DiseasedFlesh extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        player.getWorld().playSound(player.getEyeLocation(), Sound.ZOMBIE_HURT, 1, 1);
+        this.player.getWorld().playSound(this.player.getEyeLocation(), Sound.ZOMBIE_HURT, 1, 1);
 
-        FleshProjectile projectile = new FleshProjectile(plugin, this, config);
+        FleshProjectile projectile = new FleshProjectile(this.plugin, this, this.config);
         projectile.setSpread(0);
         projectile.launch();
 
-        for (int i = 1; i < config.getInt("Count"); i++) {
-            new FleshProjectile(plugin, this, config).launch();
+        for (int i = 1; i < this.config.getInt("Count"); i++) {
+            new FleshProjectile(this.plugin, this, this.config).launch();
         }
     }
 
@@ -58,14 +58,14 @@ public class DiseasedFlesh extends RightClickAbility {
         }
 
         @Override
-        public void onTargetHit(LivingEntity target) {
-            target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 1));
-            target.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 25, 1));
+        public void onTick() {
+            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(165, 42, 42).show(this.entity.getLocation());
         }
 
         @Override
-        public void onTick() {
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(165, 42, 42).show(this.entity.getLocation());
+        public void onTargetHit(LivingEntity target) {
+            target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 1));
+            target.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 25, 1));
         }
     }
 }

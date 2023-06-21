@@ -37,6 +37,10 @@ public class PlayerDatabase {
         }
     }
 
+    public <T> void set(UUID uuid, String key, T value) {
+        this.set(uuid, key, value, Updates.set(key, value));
+    }
+
     public <T> void set(UUID uuid, String key, T value, Bson update) {
         if (this.mongoCollection == null) return;
 
@@ -50,10 +54,6 @@ public class PlayerDatabase {
         } else {
             this.mongoCollection.updateOne(existing, update);
         }
-    }
-
-    public <T> void set(UUID uuid, String key, T value) {
-        this.set(uuid, key, value, Updates.set(key, value));
     }
 
     public void increment(UUID uuid, String key, Number value) {

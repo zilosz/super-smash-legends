@@ -19,13 +19,13 @@ public class AxeThrow extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new AxeProjectile(plugin, this, config.getSection("Projectile")).launch();
-        hotbarItem.hide();
+        new AxeProjectile(this.plugin, this, this.config.getSection("Projectile")).launch();
+        this.hotbarItem.hide();
     }
 
     @Override
     public void onCooldownEnd() {
-        hotbarItem.show();
+        this.hotbarItem.show();
     }
 
     public static class AxeProjectile extends ItemProjectile {

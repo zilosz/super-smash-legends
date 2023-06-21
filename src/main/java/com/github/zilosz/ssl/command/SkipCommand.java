@@ -17,7 +17,7 @@ public class SkipCommand implements CommandExecutor {
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
 
         if (strings.length == 1) {
-            GameManager gameManager = plugin.getGameManager();
+            GameManager gameManager = this.plugin.getGameManager();
             gameManager.findState(strings[0]).ifPresent(gameManager::skipToState);
             return true;
         }

@@ -1,12 +1,13 @@
 package com.github.zilosz.ssl.kit;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.database.PlayerDatabase;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.state.GameState;
 import com.github.zilosz.ssl.game.state.InGameState;
-import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.Skin;
 import com.github.zilosz.ssl.utils.file.YamlReader;
+import com.github.zilosz.ssl.utils.message.Chat;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
 import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
@@ -32,6 +33,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class KitManager implements Listener {
+    private static final String DEFAULT_KIT = "Barbarian";
+
     private final SSL plugin;
 
     private final Map<UUID, Kit> selectedKits = new HashMap<>();
@@ -44,15 +47,8 @@ public class KitManager implements Listener {
         this.plugin = plugin;
     }
 
-    private void setPodiumWool(Location beacon, int x, int z, Kit kit) {
-        Block block = beacon.clone().add(x, -1, z).getBlock();
-        block.setType(Material.WOOL);
-        block.setData(kit.getColor().getDyeColor().getWoolData());
-    }
-
-    private void setPodiumSlab(Location beacon, int x, int z) {
-        Block block = beacon.clone().add(x, 0, z).getBlock();
-        block.setType(Material.STEP);
+    public void setupKits() {
+        this.plugin.getResources().loadKits().forEach(this::setupKit);
     }
 
     private void setupKit(Kit kit) {
@@ -86,33 +82,39 @@ public class KitManager implements Listener {
         this.setPodiumWool(location, 0, -1, kit);
     }
 
-    public void setupKits() {
-        this.plugin.getResources().loadKits().forEach(this::setupKit);
+    private void setPodiumSlab(Location beacon, int x, int z) {
+        Block block = beacon.clone().add(x, 0, z).getBlock();
+        block.setType(Material.STEP);
     }
 
-    private static void updateAccessHologram(Hologram hologram, KitAccessType accessType, Kit kit) {
-        hologram.getLines().remove(0);
-        hologram.getLines().appendText(accessType.getHologram(kit));
+    private void setPodiumWool(Location beacon, int x, int z, Kit kit) {
+        Block block = beacon.clone().add(x, -1, z).getBlock();
+        block.setType(Material.WOOL);
+        block.setData(kit.getColor().getDyeColor().getWoolData());
     }
 
     public void createHolograms(Player player) {
-        kitHolograms.put(player.getUniqueId(), new HashMap<>());
+        this.kitHolograms.put(player.getUniqueId(), new HashMap<>());
 
-        kitsByName.forEach((name, kit) -> {
-            Location location = npcsByKit.get(name).getStoredLocation();
-            location.add(0, plugin.getResources().getConfig().getDouble("KitHologramHeight"), 0);
+        this.kitsByName.forEach((name, kit) -> {
+            Location location = this.npcsByKit.get(name).getStoredLocation();
+            location.add(0, this.plugin.getResources().getConfig().getDouble("KitHologramHeight"), 0);
 
-            Hologram hologram = HolographicDisplaysAPI.get(plugin).createHologram(location);
+            Hologram hologram = HolographicDisplaysAPI.get(this.plugin).createHologram(location);
             hologram.getLines().appendText("");
-            kitHolograms.get(player.getUniqueId()).put(name, hologram);
+            this.kitHolograms.get(player.getUniqueId()).put(name, hologram);
         });
     }
 
     public void updateHolograms(Player player) {
-        kitHolograms.get(player.getUniqueId()).forEach((kitName, holo) ->
-                updateAccessHologram(holo, getKitAccess(player, kitName), kitsByName.get(kitName)));
 
-        kitHolograms.forEach((otherUuid, holograms) -> {
+        this.kitHolograms.get(player.getUniqueId()).forEach((kitName, holo) -> updateAccessHologram(
+                holo,
+                this.getKitAccess(player, kitName),
+                this.kitsByName.get(kitName)
+        ));
+
+        this.kitHolograms.forEach((otherUuid, holograms) -> {
 
             if (!otherUuid.equals(player.getUniqueId())) {
 
@@ -124,32 +126,34 @@ public class KitManager implements Listener {
 
                 if (other.isOnline()) {
 
-                    for (Hologram holo : kitHolograms.get(player.getUniqueId()).values()) {
-                        holo.getVisibilitySettings().setIndividualVisibility((Player) other, VisibilitySettings.Visibility.HIDDEN);
+                    for (Hologram holo : this.kitHolograms.get(player.getUniqueId()).values()) {
+                        holo.getVisibilitySettings()
+                                .setIndividualVisibility((Player) other, VisibilitySettings.Visibility.HIDDEN);
                     }
                 }
             }
         });
     }
 
+    private static void updateAccessHologram(Hologram hologram, KitAccessType accessType, Kit kit) {
+        hologram.getLines().remove(0);
+        hologram.getLines().appendText(accessType.getHologram(kit));
+    }
+
+    public KitAccessType getKitAccess(Player player, String kit) {
+        boolean isSame = this.getSelectedKit(player).getConfigName().equals(kit);
+        return isSame ? KitAccessType.ALREADY_SELECTED : KitAccessType.ACCESS;
+    }
+
+    public Kit getSelectedKit(Player player) {
+        return this.selectedKits.get(player.getUniqueId());
+    }
+
     public void pullUserKit(Player player) {
-        String kitString = plugin.getPlayerDatabase().getOrDefault(player.getUniqueId(), "kit", "Barbarian", "Barbarian");
+        PlayerDatabase db = this.plugin.getPlayerDatabase();
+        String kitString = db.getOrDefault(player.getUniqueId(), "kit", DEFAULT_KIT, DEFAULT_KIT);
         Kit kit = this.kitsByName.get(kitString);
-        setKit(player, kit == null ? this.kitsByName.get("Barbarian") : kit);
-    }
-
-    public void wipePlayer(Player player) {
-        Optional.ofNullable(this.kitHolograms.remove(player.getUniqueId()))
-                .ifPresent(holograms -> holograms.values().forEach(Hologram::delete));
-
-        Optional.ofNullable(this.selectedKits.remove(player.getUniqueId())).ifPresent(kit -> {
-            kit.destroy();
-            this.plugin.getPlayerDatabase().set(player.getUniqueId(), "kit", kit.getConfigName());
-        });
-    }
-
-    public List<Kit> getKits() {
-        return new ArrayList<>(kitsByName.values());
+        this.setKit(player, kit == null ? this.kitsByName.get("Barbarian") : kit);
     }
 
     public void setKit(Player player, Kit kit) {
@@ -189,16 +193,22 @@ public class KitManager implements Listener {
         newKit.getHurtNoise().playForPlayer(player);
     }
 
-    public Kit getSelectedKit(Player player) {
-        return this.selectedKits.get(player.getUniqueId());
+    public void wipePlayer(Player player) {
+        Optional.ofNullable(this.kitHolograms.remove(player.getUniqueId()))
+                .ifPresent(holograms -> holograms.values().forEach(Hologram::delete));
+
+        Optional.ofNullable(this.selectedKits.remove(player.getUniqueId())).ifPresent(kit -> {
+            kit.destroy();
+            this.plugin.getPlayerDatabase().set(player.getUniqueId(), "kit", kit.getConfigName());
+        });
+    }
+
+    public List<Kit> getKits() {
+        return new ArrayList<>(this.kitsByName.values());
     }
 
     public Optional<Kit> getKitByName(String name) {
         return this.kitsByName.containsKey(name) ? Optional.of(this.kitsByName.get(name)) : Optional.empty();
-    }
-
-    public KitAccessType getKitAccess(Player player, String kit) {
-        return getSelectedKit(player).getConfigName().equals(kit) ? KitAccessType.ALREADY_SELECTED : KitAccessType.ACCESS;
     }
 
     public void destroyNpcs() {

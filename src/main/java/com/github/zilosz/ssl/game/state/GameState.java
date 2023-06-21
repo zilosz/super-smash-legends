@@ -1,9 +1,9 @@
 package com.github.zilosz.ssl.game.state;
 
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
-import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.game.GameManager;
+import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
@@ -38,15 +38,9 @@ public abstract class GameState implements Listener {
         this.plugin = plugin;
     }
 
-    public abstract String getConfigName();
-
-    public abstract boolean isInArena();
-
     public abstract boolean allowKitSelection();
 
     public abstract boolean updatesKitSkins();
-
-    public abstract boolean allowsDamage();
 
     public abstract boolean allowSpecCommand();
 
@@ -62,12 +56,14 @@ public abstract class GameState implements Listener {
     public abstract void end();
 
     public boolean isSame(GameState other) {
-        return getConfigName().equals(other.getConfigName());
+        return this.getConfigName().equals(other.getConfigName());
     }
+
+    public abstract String getConfigName();
 
     @EventHandler
     public void onPreJoin(AsyncPlayerPreLoginEvent event) {
-        if (Bukkit.getOnlinePlayers().size() >= plugin.getTeamManager().getAbsolutePlayerCap()) {
+        if (Bukkit.getOnlinePlayers().size() >= this.plugin.getTeamManager().getAbsolutePlayerCap()) {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_FULL, "The game is full!");
         }
     }
@@ -91,6 +87,8 @@ public abstract class GameState implements Listener {
             player.playSound(player.getLocation(), Sound.LEVEL_UP, 2, 1);
         }, 5);
     }
+
+    public abstract boolean isInArena();
 
     @EventHandler
     public void onGeneralQuit(PlayerQuitEvent event) {
@@ -136,6 +134,8 @@ public abstract class GameState implements Listener {
         }
     }
 
+    public abstract boolean allowsDamage();
+
     @EventHandler
     public void onChat(AsyncPlayerChatEvent event) {
         event.setFormat(MessageUtils.color("&9%s" + "» &7%s"));
@@ -151,7 +151,8 @@ public abstract class GameState implements Listener {
     @EventHandler
     public void onEntitySpawn(CreatureSpawnEvent event) {
         switch (event.getSpawnReason()) {
-            case NATURAL: case EGG:
+            case NATURAL:
+            case EGG:
                 event.setCancelled(true);
         }
     }

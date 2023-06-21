@@ -24,6 +24,10 @@ public class Effects {
         return firework;
     }
 
+    public static void itemBoom(Plugin plugin, Location center, ItemStack stack, double radius, double speed, int streaks) {
+        itemBoom(plugin, center, stack, radius, speed, streaks, null);
+    }
+
     public static void itemBoom(Plugin plugin, Location center, ItemStack stack, double radius, double speed, int streaks, BlockFace face) {
         for (int i = 0; i < streaks; i++) {
             Item item = center.getWorld().dropItem(center, stack);
@@ -31,9 +35,5 @@ public class Effects {
             item.setVelocity(VectorUtils.randVector(face).multiply(speed));
             Bukkit.getScheduler().runTaskLater(plugin, item::remove, (long) (radius / speed));
         }
-    }
-
-    public static void itemBoom(Plugin plugin, Location center, ItemStack stack, double radius, double speed, int streaks) {
-        itemBoom(plugin, center, stack, radius, speed, streaks, null);
     }
 }

@@ -1,8 +1,8 @@
 package com.github.zilosz.ssl.team;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.utils.inventory.CustomInventory;
 import com.github.zilosz.ssl.utils.ItemBuilder;
+import com.github.zilosz.ssl.utils.inventory.CustomInventory;
 import com.github.zilosz.ssl.utils.inventory.HasRandomOption;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.Replacers;
@@ -20,11 +20,6 @@ import java.util.stream.Collectors;
 public class TeamSelector extends CustomInventory<Team> implements HasRandomOption {
 
     @Override
-    public String getTitle() {
-        return "Team Selector";
-    }
-
-    @Override
     public List<Team> getItems() {
         return SSL.getInstance().getTeamManager().getTeamList().stream()
                 .sorted(Comparator.comparing(Team::getName))
@@ -35,8 +30,7 @@ public class TeamSelector extends CustomInventory<Team> implements HasRandomOpti
     public ItemStack getItemStack(Player player, Team team) {
         String players = team.getPlayers().stream().map(Player::getName).collect(Collectors.joining(", "));
 
-        Replacers replacers = new Replacers()
-                .add("SIZE", team.getSize())
+        Replacers replacers = new Replacers().add("SIZE", team.getSize())
                 .add("CAP", SSL.getInstance().getTeamManager().getTeamSize())
                 .add("PLAYERS", team.getSize() > 0 ? players : "&7&oNone");
 
@@ -45,11 +39,8 @@ public class TeamSelector extends CustomInventory<Team> implements HasRandomOpti
                 "&3&lPlayers: &7{PLAYERS}"
         ));
 
-        return new ItemBuilder<>(team.getItemStack())
-                .setName(team.getName())
-                .setEnchanted(team.hasPlayer(player))
-                .setLore(lore)
-                .get();
+        return new ItemBuilder<>(team.getItemStack()).setName(team.getName()).setEnchanted(team.hasPlayer(player))
+                .setLore(lore).get();
     }
 
     @Override
@@ -69,7 +60,7 @@ public class TeamSelector extends CustomInventory<Team> implements HasRandomOpti
         });
 
         player.closeInventory();
-        player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 0.5F);
+        player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 0.5f);
 
         if (chosenAtomic.get() == team) {
             Chat.TEAM.send(player, "&7You are no longer on a team.");
@@ -78,6 +69,11 @@ public class TeamSelector extends CustomInventory<Team> implements HasRandomOpti
             team.addPlayer(player);
             Chat.TEAM.send(player, String.format("&7You are now on the %s &7team.", team.getName()));
         }
+    }
+
+    @Override
+    public String getTitle() {
+        return "Team Selector";
     }
 
     @Override

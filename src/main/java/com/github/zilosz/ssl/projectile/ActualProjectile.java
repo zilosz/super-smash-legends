@@ -1,9 +1,9 @@
 package com.github.zilosz.ssl.projectile;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
@@ -18,14 +18,14 @@ public abstract class ActualProjectile<T extends Projectile> extends CustomProje
         this.removeOnBlockHit = true;
     }
 
-    public abstract T createProjectile(Location location);
-
     @Override
     public T createEntity(Location location) {
-        T projectile = createProjectile(location);
+        T projectile = this.createProjectile(location);
         projectile.setShooter(this.ability.getPlayer());
         return projectile;
     }
+
+    public abstract T createProjectile(Location location);
 
     @EventHandler
     public void onTargetHit(EntityDamageByEntityEvent event) {
@@ -39,8 +39,6 @@ public abstract class ActualProjectile<T extends Projectile> extends CustomProje
         }
     }
 
-    public void onGeneralHit() {}
-
     @EventHandler
     public void handleBlockHit(ProjectileHitEvent event) {
         if (event.getEntity() != this.entity) return;
@@ -52,6 +50,14 @@ public abstract class ActualProjectile<T extends Projectile> extends CustomProje
         double step = collisionConfig.getDouble("CheckStep");
         double faceAccuracy = collisionConfig.getDouble("FaceAccuracy");
 
-        this.handleBlockHitResult(BlockUtils.findBlockHitWithRay(this.entity, this.entity.getVelocity(), range, step, faceAccuracy));
+        this.handleBlockHitResult(BlockUtils.findBlockHitWithRay(
+                this.entity,
+                this.entity.getVelocity(),
+                range,
+                step,
+                faceAccuracy
+        ));
     }
+
+    public void onGeneralHit() {}
 }

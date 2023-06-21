@@ -2,6 +2,7 @@ package com.github.zilosz.ssl.utils.block;
 
 import lombok.Getter;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
@@ -12,37 +13,39 @@ public class BlockRay {
     private Location emptyDestination;
     @Getter private Block hitBlock;
 
+    public BlockRay(Location location) {
+        this(location, location.getDirection());
+    }
+
     public BlockRay(Location location, Vector direction) {
         this.location = location.clone();
         this.direction = direction.clone();
     }
 
-    public BlockRay(Location location) {
-        this(location, location.getDirection());
-    }
-
     public void cast(int range) {
-        BlockIterator iterator = new BlockIterator(location.getWorld(), location.toVector(), direction, 0, range);
-        emptyDestination = location.clone();
+        World world = this.location.getWorld();
+        BlockIterator iterator = new BlockIterator(world, this.location.toVector(), this.direction, 0, range);
+
+        this.emptyDestination = this.location.clone();
 
         while (iterator.hasNext()) {
-            hitBlock = iterator.next();
+            this.hitBlock = iterator.next();
 
-            if (!hitBlock.isEmpty()) {
+            if (!this.hitBlock.isEmpty()) {
                 break;
             }
 
-            emptyDestination = hitBlock.getLocation();
+            this.emptyDestination = this.hitBlock.getLocation();
         }
 
-        emptyDestination.setDirection(direction);
+        this.emptyDestination.setDirection(this.direction);
     }
 
     public Location getLocation() {
-        return location.clone();
+        return this.location.clone();
     }
 
     public Location getEmptyDestination() {
-        return emptyDestination.clone();
+        return this.emptyDestination.clone();
     }
 }

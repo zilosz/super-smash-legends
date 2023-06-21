@@ -15,6 +15,6 @@ public class DistanceSelector implements EntitySelector {
     @Override
     public Stream<Entity> getEntityStream(Location location) {
         return location.getWorld().getEntities().stream()
-                .filter(entity -> entity.getLocation().distanceSquared(location) <= distance * distance);
+                .filter(entity -> entity.getLocation().distanceSquared(location) <= this.distance * this.distance);
     }
 }

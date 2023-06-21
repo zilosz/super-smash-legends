@@ -1,6 +1,5 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
@@ -12,7 +11,9 @@ import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.DistanceSelector;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
+import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
@@ -45,28 +46,31 @@ public class SpringTrap extends RightClickAbility {
             this.overrideLocation = this.launcher.getLocation().setDirection(new Vector(0, -1, 0));
         }
 
-        private void displayEffect() {
-            for (int i = 0; i < 2; i++) {
-                new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).solidSphere(this.entity.getLocation(), config.getDouble("Radius"), 5, 0.5);
-            }
-        }
-
-        @Override
-        public void onTargetHit(LivingEntity target) {
-            displayEffect();
-        }
-
         @Override
         public void onBlockHit(BlockHitResult result) {
-            displayEffect();
+            this.displayEffect();
 
-            EntityFinder finder = new EntityFinder(this.plugin, new DistanceSelector(config.getDouble("Radius")));
+            EntityFinder finder = new EntityFinder(this.plugin, new DistanceSelector(this.config.getDouble("Radius")));
 
             finder.findAll(this.launcher, this.entity.getLocation()).forEach(target -> {
                 Vector direction = VectorUtils.fromTo(this.entity, target);
                 AttackSettings settings = new AttackSettings(this.config.getSection("Aoe"), direction);
                 this.plugin.getDamageManager().attack(target, this.ability, settings);
             });
+        }
+
+        @Override
+        public void onTargetHit(LivingEntity target) {
+            this.displayEffect();
+        }
+
+        private void displayEffect() {
+            Location loc = this.entity.getLocation();
+            double radius = this.config.getDouble("Radius");
+
+            for (int i = 0; i < 2; i++) {
+                new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).solidSphere(loc, radius, 5, 0.5);
+            }
         }
     }
 }

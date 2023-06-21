@@ -1,15 +1,15 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
+import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
+import com.github.zilosz.ssl.damage.DamageSettings;
+import com.github.zilosz.ssl.damage.KbSettings;
+import com.github.zilosz.ssl.event.CustomEvent;
+import com.github.zilosz.ssl.event.attack.AttackEvent;
+import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.damage.DamageSettings;
-import com.github.zilosz.ssl.damage.KbSettings;
-import com.github.zilosz.ssl.event.attack.AttackEvent;
-import com.github.zilosz.ssl.event.CustomEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import lombok.Getter;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
@@ -24,9 +24,10 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.Nullable;
 
 public class Rasengan extends RightClickAbility {
-    private BukkitTask task;
+    @Nullable private BukkitTask task;
     private boolean leapt = false;
 
     public Rasengan(SSL plugin, Section config, Kit kit) {
@@ -35,31 +36,46 @@ public class Rasengan extends RightClickAbility {
 
     @Override
     public boolean invalidate(PlayerInteractEvent event) {
-        return super.invalidate(event) || task != null;
+        return super.invalidate(event) || this.task != null;
     }
 
     @Override
     public void onClick(PlayerInteractEvent event) {
         RasenganStartEvent startEvent = new RasenganStartEvent(this);
         Bukkit.getPluginManager().callEvent(startEvent);
-        startEvent.apply(player, config.getInt("Speed"));
+        RasenganStartEvent.apply(this.player, this.config.getInt("Speed"));
 
         this.hotbarItem.hide();
 
-        task = new BukkitRunnable() {
+        this.task = new BukkitRunnable() {
             int ticksCharged = 0;
 
             @Override
             public void run() {
 
-                if (++ticksCharged >= config.getInt("Lifespan")) {
-                    reset();
+                if (++this.ticksCharged >= Rasengan.this.config.getInt("Lifespan")) {
+                    Rasengan.this.reset();
                     return;
                 }
 
-                display(player);
+                display(Rasengan.this.player);
             }
-        }.runTaskTimer(plugin, 1, 0);
+        }.runTaskTimer(this.plugin, 1, 0);
+    }
+
+    private void reset() {
+        if (this.task == null) return;
+
+        this.leapt = false;
+
+        this.task.cancel();
+        this.task = null;
+
+        this.startCooldown();
+        this.hotbarItem.show();
+
+        end(this.player);
+        this.player.removePotionEffect(PotionEffectType.SPEED);
     }
 
     public static void display(LivingEntity entity) {
@@ -71,21 +87,6 @@ public class Rasengan extends RightClickAbility {
         entity.getWorld().playSound(entity.getLocation(), Sound.BLAZE_HIT, 2, 1);
     }
 
-    private void reset() {
-        if (this.task == null) return;
-
-        this.leapt = false;
-
-        task.cancel();
-        task = null;
-
-        this.startCooldown();
-        this.hotbarItem.show();
-
-        end(player);
-        player.removePotionEffect(PotionEffectType.SPEED);
-    }
-
     @Override
     public void deactivate() {
         this.reset();
@@ -94,26 +95,18 @@ public class Rasengan extends RightClickAbility {
 
     @EventHandler
     public void onHandSwitch(PlayerItemHeldEvent event) {
-        if (event.getPlayer() == player && event.getNewSlot() != slot && task != null) {
-            reset();
-        }
-    }
-
-    public static void displayAttackEffect(LivingEntity victim) {
-        Location loc = EntityUtils.center(victim);
-
-        for (int i = 0; i < 3; i++) {
-            new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).setSpread(0.4f, 0.4f, 0.4f).show(loc);
+        if (event.getPlayer() == this.player && event.getNewSlot() != this.slot && this.task != null) {
+            this.reset();
         }
     }
 
     @EventHandler
     public void onMelee(AttackEvent event) {
         if (this.task == null) return;
-        if (event.getAttribute().getPlayer() != player) return;
+        if (event.getAttribute().getPlayer() != this.player) return;
         if (!(event.getAttribute() instanceof Melee)) return;
 
-        reset();
+        this.reset();
 
         DamageSettings damageSettings = event.getAttackSettings().getDamageSettings();
         damageSettings.setDamage(this.config.getDouble("Damage"));
@@ -124,6 +117,14 @@ public class Rasengan extends RightClickAbility {
 
         event.getVictim().getWorld().playSound(event.getVictim().getLocation(), Sound.EXPLODE, 3, 1);
         displayAttackEffect(event.getVictim());
+    }
+
+    public static void displayAttackEffect(LivingEntity victim) {
+        Location loc = EntityUtils.center(victim);
+
+        for (int i = 0; i < 3; i++) {
+            new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).setSpread(0.4f, 0.4f, 0.4f).show(loc);
+        }
     }
 
     @EventHandler
@@ -145,7 +146,7 @@ public class Rasengan extends RightClickAbility {
             this.rasengan = rasengan;
         }
 
-        public void apply(LivingEntity entity, int speed) {
+        public static void apply(LivingEntity entity, int speed) {
             entity.getWorld().playSound(entity.getLocation(), Sound.BLAZE_HIT, 0.5f, 1);
             entity.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, speed));
         }

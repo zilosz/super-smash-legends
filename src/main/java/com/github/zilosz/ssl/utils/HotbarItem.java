@@ -26,22 +26,22 @@ public class HotbarItem implements Listener {
         this.slot = slot;
     }
 
-    public void show() {
-        this.player.getInventory().setItem(this.slot, this.itemStack);
-    }
-
     public void register(Plugin plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         this.show();
     }
 
-    public void hide() {
-        this.player.getInventory().setItem(this.slot, null);
+    public void show() {
+        this.player.getInventory().setItem(this.slot, this.itemStack);
     }
 
     public void destroy() {
         HandlerList.unregisterAll(this);
         this.hide();
+    }
+
+    public void hide() {
+        this.player.getInventory().setItem(this.slot, null);
     }
 
     @EventHandler

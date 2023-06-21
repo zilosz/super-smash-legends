@@ -1,5 +1,6 @@
 package com.github.zilosz.ssl;
 
+import com.github.zilosz.ssl.arena.ArenaManager;
 import com.github.zilosz.ssl.command.DamageCommand;
 import com.github.zilosz.ssl.command.DummyCommand;
 import com.github.zilosz.ssl.command.EndCommand;
@@ -9,18 +10,17 @@ import com.github.zilosz.ssl.command.ReloadConfigCommand;
 import com.github.zilosz.ssl.command.SkipCommand;
 import com.github.zilosz.ssl.command.SpecCommand;
 import com.github.zilosz.ssl.command.StartCommand;
+import com.github.zilosz.ssl.damage.DamageManager;
 import com.github.zilosz.ssl.database.PlayerDatabase;
 import com.github.zilosz.ssl.game.GameManager;
+import com.github.zilosz.ssl.game.GameScoreboard;
+import com.github.zilosz.ssl.kit.KitManager;
 import com.github.zilosz.ssl.team.TeamManager;
 import com.github.zilosz.ssl.utils.WorldManager;
 import com.github.zilosz.ssl.utils.file.FileUtility;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import fr.minuskube.inv.InventoryManager;
-import com.github.zilosz.ssl.arena.ArenaManager;
-import com.github.zilosz.ssl.damage.DamageManager;
-import com.github.zilosz.ssl.game.GameScoreboard;
-import com.github.zilosz.ssl.kit.KitManager;
-import com.github.zilosz.ssl.utils.file.YamlReader;
 import io.github.thatkawaiisam.assemble.Assemble;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -52,6 +52,21 @@ public class SSL extends JavaPlugin {
     }
 
     @Override
+    public void onDisable() {
+
+        try {
+            this.gameManager.getState().end();
+        } catch (IllegalPluginAccessException ignored) {
+        }
+
+        this.kitManager.destroyNpcs();
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            this.kitManager.wipePlayer(player);
+        }
+    }
+
+    @Override
     public void onEnable() {
         instance = this;
 
@@ -68,7 +83,12 @@ public class SSL extends JavaPlugin {
         Section dbConfig = this.resources.getConfig().getSection("Database");
 
         if (dbConfig.getBoolean("Enabled")) {
-            this.playerDatabase.init(dbConfig.getString("Uri"), dbConfig.getString("Database"), dbConfig.getString("Collection"));
+
+            this.playerDatabase.init(
+                    dbConfig.getString("Uri"),
+                    dbConfig.getString("Database"),
+                    dbConfig.getString("Collection")
+            );
         }
 
         Bukkit.getPluginManager().registerEvents(this.kitManager, this);
@@ -93,19 +113,5 @@ public class SSL extends JavaPlugin {
         this.getCommand("loc").setExecutor(new LocCommand());
         this.getCommand("damage").setExecutor(new DamageCommand());
         this.getCommand("spec").setExecutor(new SpecCommand());
-    }
-
-    @Override
-    public void onDisable() {
-
-        try {
-            this.gameManager.getState().end();
-        } catch (IllegalPluginAccessException ignored) {}
-
-        this.kitManager.destroyNpcs();
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            this.kitManager.wipePlayer(player);
-        }
     }
 }

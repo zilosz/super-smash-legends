@@ -12,12 +12,12 @@ public class MathUtils {
         return chance > Math.random();
     }
 
-    public static double randRange(double min, double max) {
-        return Math.random() * (max - min) + min;
-    }
-
     public static double randSpread(double center, double spread) {
         return randRange(center - spread, center + spread);
+    }
+
+    public static double randRange(double min, double max) {
+        return Math.random() * (max - min) + min;
     }
 
     public static double roundToHalf(double n) {
@@ -36,6 +36,10 @@ public class MathUtils {
         return -x * (max - min) / rangeAtMin + max;
     }
 
+    public static Location ringPoint(Location center, double radius, double radians) {
+        return ringPoint(center, center.getPitch(), center.getYaw(), radius, radians);
+    }
+
     public static Location ringPoint(Location center, float pitch, float yaw, double radius, double radians) {
         Vector displacement = new Vector();
         displacement.setX(Math.cos(radians) * radius);
@@ -43,10 +47,6 @@ public class MathUtils {
         VectorUtils.aroundX(displacement, (pitch + 90) * Math.PI / 180);
         VectorUtils.aroundY(displacement, -yaw * Math.PI / 180);
         return center.clone().add(displacement);
-    }
-
-    public static Location ringPoint(Location center, double radius, double radians) {
-        return ringPoint(center, center.getPitch(), center.getYaw(), radius, radians);
     }
 
     public static double degToRad(double degrees) {

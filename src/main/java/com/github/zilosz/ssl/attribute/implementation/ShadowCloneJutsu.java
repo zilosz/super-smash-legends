@@ -1,6 +1,5 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
@@ -9,14 +8,16 @@ import com.github.zilosz.ssl.event.projectile.ProjectileLaunchEvent;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.team.Team;
 import com.github.zilosz.ssl.team.TeamPreference;
-import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.NmsUtils;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.DistanceSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.libraryaddict.disguise.DisguiseAPI;
 import me.libraryaddict.disguise.disguisetypes.PlayerDisguise;
 import net.minecraft.server.v1_8_R3.EntityLiving;
@@ -55,35 +56,41 @@ public class ShadowCloneJutsu extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        player.getWorld().playSound(player.getLocation(), Sound.BLAZE_HIT, 0.5f, 1);
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.BLAZE_HIT, 0.5f, 1);
 
-        Vector direction = player.getEyeLocation().getDirection();
-        player.setVelocity(direction.clone().multiply(-config.getDouble("Recoil")));
+        Vector direction = this.player.getEyeLocation().getDirection();
+        this.player.setVelocity(direction.clone().multiply(-this.config.getDouble("Recoil")));
 
-        Skeleton creature = player.getWorld().spawn(player.getLocation(), Skeleton.class);
+        Skeleton creature = this.player.getWorld().spawn(this.player.getLocation(), Skeleton.class);
         creature.setSkeletonType(Skeleton.SkeletonType.WITHER);
-        creature.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, config.getInt("Clone.Speed")));
-        creature.setMaxHealth(config.getInt("Clone.Health"));
+
+        creature.addPotionEffect(new PotionEffect(
+                PotionEffectType.SPEED,
+                Integer.MAX_VALUE,
+                this.config.getInt("Clone.Speed")
+        ));
+
+        creature.setMaxHealth(this.config.getInt("Clone.Health"));
         creature.getEquipment().setItemInHand(null);
         creature.setCustomName(MessageUtils.color("&8Shadow Clone"));
         creature.setCustomNameVisible(true);
 
         DisguiseAPI.disguiseEntity(creature, new PlayerDisguise(this.player.getName()));
 
-        ShadowClone clone = new ShadowClone(plugin, this, config, creature, clones);
-        plugin.getTeamManager().getPlayerTeam(player).addEntity(clone.creature);
-        clones.add(clone);
+        ShadowClone clone = new ShadowClone(this.plugin, this, this.config, creature, this.clones);
+        this.plugin.getTeamManager().getPlayerTeam(this.player).addEntity(clone.creature);
+        this.clones.add(clone);
 
-        if (clones.size() > config.getInt("Clone.Limit")) {
-            clones.get(0).destroy();
+        if (this.clones.size() > this.config.getInt("Clone.Limit")) {
+            this.clones.get(0).destroy();
         }
 
-        clone.creature.setVelocity(direction.multiply(config.getDouble("Clone.Velocity")));
+        clone.creature.setVelocity(direction.multiply(this.config.getDouble("Clone.Velocity")));
 
-        clone.runTaskTimer(plugin, 0, 10);
-        Bukkit.getPluginManager().registerEvents(clone, plugin);
+        clone.runTaskTimer(this.plugin, 0, 10);
+        Bukkit.getPluginManager().registerEvents(clone, this.plugin);
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
             if (clone.creature.isValid()) {
                 clone.destroy();
             }
@@ -93,7 +100,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
     @Override
     public void deactivate() {
         super.deactivate();
-        new ArrayList<>(clones).forEach(ShadowClone::destroy);
+        new ArrayList<>(this.clones).forEach(ShadowClone::destroy);
     }
 
     private static class ShadowClone extends BukkitRunnable implements Listener {
@@ -114,57 +121,49 @@ public class ShadowCloneJutsu extends RightClickAbility {
             this.clones = friends;
         }
 
-        private void destroy() {
-            this.cancel();
-
-            this.clones.remove(this);
-            this.creature.remove();
-
-            HandlerList.unregisterAll(this);
-            Optional.ofNullable(rasenganTask).ifPresent(BukkitTask::cancel);
-
-            this.creature.getWorld().playSound(this.creature.getLocation(), Sound.FIRE, 1, 1);
-            new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(this.creature.getLocation(), 1.5, 10, 0.1);
-            this.ability.getPlayer().playSound(this.ability.getPlayer().getLocation(), Sound.BLAZE_HIT, 2, 1);
-
-            this.plugin.getTeamManager().getPlayerTeam(this.ability.getPlayer()).removeEntity(this.creature);
-        }
-
-        private void endRasengan() {
-            rasenganTask.cancel();
-            Rasengan.end(this.creature);
-            this.creature.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, config.getInt("Clone.Speed")));
-        }
-
         @EventHandler
         public void onRasenganStart(Rasengan.RasenganStartEvent event) {
             if (event.getRasengan().getPlayer() != this.ability.getPlayer()) return;
 
-            event.apply(this.creature, config.getInt("Clone.Speed") + config.getInt("Clone.Rasengan.Speed"));
+            int speed = this.config.getInt("Clone.Speed");
+            int rasenganSpeed = this.config.getInt("Clone.Rasengan.Speed");
+
+            Rasengan.RasenganStartEvent.apply(this.creature, speed + rasenganSpeed);
             ShadowClone instance = this;
 
-            rasenganTask = new BukkitRunnable() {
+            this.rasenganTask = new BukkitRunnable() {
                 int ticksCharged = 0;
 
                 @Override
                 public void run() {
 
-                    if (++ticksCharged >= config.getInt("Clone.Rasengan.Lifespan")) {
-                        endRasengan();
+                    if (++this.ticksCharged >= ShadowClone.this.config.getInt("Clone.Rasengan.Lifespan")) {
+                        ShadowClone.this.endRasengan();
                         return;
                     }
 
                     Rasengan.display(instance.creature);
                 }
 
-            }.runTaskTimer(plugin, 0, 0);
+            }.runTaskTimer(this.plugin, 0, 0);
+        }
+
+        private void endRasengan() {
+            this.rasenganTask.cancel();
+            Rasengan.end(this.creature);
+
+            this.creature.addPotionEffect(new PotionEffect(
+                    PotionEffectType.SPEED,
+                    Integer.MAX_VALUE,
+                    this.config.getInt("Clone.Speed")
+            ));
         }
 
         @EventHandler
         public void onRasenshurikenDisplay(Rasenshuriken.RasenshurikenDisplayEvent event) {
             if (event.getRasenshuriken().getPlayer() != this.ability.getPlayer()) return;
 
-            double height = config.getDouble("Clone.Rasenshuriken.Height");
+            double height = this.config.getDouble("Clone.Rasenshuriken.Height");
             this.lastShurikenLocation = EntityUtils.top(this.creature).add(0, height, 0);
             Rasenshuriken.display(this.lastShurikenLocation, false, this.config);
         }
@@ -174,6 +173,22 @@ public class ShadowCloneJutsu extends RightClickAbility {
             if (event.getEntity() == this.creature) {
                 this.destroy();
             }
+        }
+
+        private void destroy() {
+            this.cancel();
+
+            this.clones.remove(this);
+            this.creature.remove();
+
+            HandlerList.unregisterAll(this);
+            Optional.ofNullable(this.rasenganTask).ifPresent(BukkitTask::cancel);
+
+            this.creature.getWorld().playSound(this.creature.getLocation(), Sound.FIRE, 1, 1);
+            new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(this.creature.getLocation(), 1.5, 10, 0.1);
+            this.ability.getPlayer().playSound(this.ability.getPlayer().getLocation(), Sound.BLAZE_HIT, 2, 1);
+
+            this.plugin.getTeamManager().getPlayerTeam(this.ability.getPlayer()).removeEntity(this.creature);
         }
 
         @EventHandler
@@ -216,7 +231,8 @@ public class ShadowCloneJutsu extends RightClickAbility {
 
         @Override
         public void run() {
-            EntityFinder finder = new EntityFinder(plugin, new DistanceSelector(config.getDouble("Clone.Vision")));
+            EntitySelector selector = new DistanceSelector(this.config.getDouble("Clone.Vision"));
+            EntityFinder finder = new EntityFinder(this.plugin, selector);
 
             finder.findClosest(this.ability.getPlayer(), this.creature.getLocation()).ifPresent(target -> {
                 this.target = target;
@@ -259,7 +275,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
                         settings = new AttackSettings(this.config.getSection("Clone.Rasengan"), step);
 
                         Rasengan.displayAttackEffect(this.creature);
-                        endRasengan();
+                        this.endRasengan();
                     }
 
                     if (this.plugin.getDamageManager().attack(target, this.ability, settings)) {

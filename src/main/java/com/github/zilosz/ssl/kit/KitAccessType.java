@@ -8,6 +8,7 @@ public enum KitAccessType {
         public String getLore(Kit kit) {
             return "&7You have access to this kit.";
         }
+
         @Override
         public String getHologram(Kit kit) {
             return "";
@@ -19,6 +20,7 @@ public enum KitAccessType {
         public String getLore(Kit kit) {
             return "&7This is your &dcurrent &7kit.";
         }
+
         @Override
         public String getHologram(Kit kit) {
             return MessageUtils.color("&dSelected");

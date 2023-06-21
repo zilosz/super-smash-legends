@@ -1,12 +1,12 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.PassiveAbility;
 import com.github.zilosz.ssl.event.attribute.EnergyEvent;
 import com.github.zilosz.ssl.kit.Kit;
-import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.entity.EntityUtils;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -34,7 +34,7 @@ public class Jetpack extends PassiveAbility {
 
         Vector direction = this.player.getEyeLocation().getDirection();
         double velocity = this.config.getDouble("Velocity");
-        Vector multiplier =  new Vector(velocity, 1, velocity);
+        Vector multiplier = new Vector(velocity, 1, velocity);
         this.player.setVelocity(direction.multiply(multiplier).setY(this.config.getDouble("VelocityY")));
 
         Location location = this.player.getLocation();

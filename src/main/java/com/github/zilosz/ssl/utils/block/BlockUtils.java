@@ -16,8 +16,14 @@ import org.bukkit.util.Vector;
 
 public class BlockUtils {
 
-    public static BlockFace toSimpleFace(BlockFace face) {
-        return face == null ? null : BlockFace.valueOf(face.name().split("_")[0]);
+    public static BlockHitResult findBlockHitByEntityBox(Entity entity, double accuracy) {
+        AxisAlignedBB box = NmsUtils.getEntity(entity).getBoundingBox();
+
+        if (entity.isOnGround()) {
+            return new BlockHitResult(BlockFace.UP, entity.getLocation().subtract(0, 1, 0).getBlock());
+        }
+
+        return findBlockHitByBox(entity.getLocation(), box.d - box.a, box.e - box.b, box.f - box.c, accuracy);
     }
 
     public static BlockHitResult findBlockHitByBox(Location bottomCenter, double xSize, double ySize, double zSize, double accuracy) {
@@ -40,21 +46,6 @@ public class BlockUtils {
         if (north.getType().isSolid()) return new BlockHitResult(BlockFace.NORTH, north);
 
         return null;
-    }
-
-    public static BlockHitResult findBlockHitByEntityBox(Entity entity, Location location, double accuracy) {
-        AxisAlignedBB box = NmsUtils.getEntity(entity).getBoundingBox();
-        return findBlockHitByBox(location, box.d - box.a, box.e - box.b, box.f - box.c, accuracy);
-    }
-
-    public static BlockHitResult findBlockHitByEntityBox(Entity entity, double accuracy) {
-        AxisAlignedBB box = NmsUtils.getEntity(entity).getBoundingBox();
-
-        if (entity.isOnGround()) {
-            return new BlockHitResult(BlockFace.UP, entity.getLocation().subtract(0, 1, 0).getBlock());
-        }
-
-        return findBlockHitByBox(entity.getLocation(), box.d - box.a, box.e - box.b, box.f - box.c, accuracy);
     }
 
     public static BlockHitResult findBlockHitWithRay(Entity entity, Vector direction, int rayRange, double rayStep, double faceAccuracy) {
@@ -87,6 +78,15 @@ public class BlockUtils {
         return new BlockHitResult(null, hitBlock);
     }
 
+    public static BlockFace toSimpleFace(BlockFace face) {
+        return face == null ? null : BlockFace.valueOf(face.name().split("_")[0]);
+    }
+
+    public static BlockHitResult findBlockHitByEntityBox(Entity entity, Location location, double accuracy) {
+        AxisAlignedBB box = NmsUtils.getEntity(entity).getBoundingBox();
+        return findBlockHitByBox(location, box.d - box.a, box.e - box.b, box.f - box.c, accuracy);
+    }
+
     public static void setBlockFast(Location loc, int blockId, byte data) {
         World nmsWorld = ((CraftWorld) loc.getWorld()).getHandle();
         Chunk nmsChunk = nmsWorld.getChunkAt(loc.getBlockX() >> 4, loc.getBlockZ() >> 4);
@@ -96,8 +96,9 @@ public class BlockUtils {
     }
 
     public static boolean isLocationInsideBox(Location location, AxisAlignedBB box) {
-        return MathUtils.isBetween(location.getX(), box.a, box.d)
-                && MathUtils.isBetween(location.getY(), box.b, box.e)
-                && MathUtils.isBetween(location.getZ(), box.c, box.f);
+        boolean betweenX = MathUtils.isBetween(location.getX(), box.a, box.d);
+        boolean betweenY = MathUtils.isBetween(location.getY(), box.b, box.e);
+        boolean betweenZ = MathUtils.isBetween(location.getZ(), box.c, box.f);
+        return betweenX && betweenY && betweenZ;
     }
 }

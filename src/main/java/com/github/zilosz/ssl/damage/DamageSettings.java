@@ -12,13 +12,13 @@ public class DamageSettings {
     private double damage;
     private boolean factorsArmor;
 
+    public DamageSettings(Section config) {
+        this(config.getDouble("Damage"), config.getOptionalBoolean("FactorsArmor").orElse(true));
+    }
+
     public DamageSettings(double damage, boolean factorsArmor) {
         this.damage = damage;
         this.factorsArmor = factorsArmor;
-    }
-
-    public DamageSettings(Section config) {
-        this(config.getDouble("Damage"), config.getOptionalBoolean("FactorsArmor").orElse(true));
     }
 
     public DamageSettings setDamage(double damage) {

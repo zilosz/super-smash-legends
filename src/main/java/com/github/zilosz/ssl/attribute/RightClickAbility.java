@@ -1,8 +1,8 @@
 package com.github.zilosz.ssl.attribute;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.kit.Kit;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public abstract class RightClickAbility extends ClickableAbility {

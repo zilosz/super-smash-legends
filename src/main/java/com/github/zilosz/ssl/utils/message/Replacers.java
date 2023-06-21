@@ -9,8 +9,8 @@ public class Replacers {
     private final Map<String, String> singles = new HashMap<>();
     private final Map<String, List<String>> multiples = new HashMap<>();
 
-    private static String wrap(String placeholder) {
-        return "{" + placeholder + "}";
+    public Replacers add(String placeholder, int replacement) {
+        return this.add(placeholder, String.valueOf(replacement));
     }
 
     public Replacers add(String placeholder, String replacement) {
@@ -18,8 +18,8 @@ public class Replacers {
         return this;
     }
 
-    public Replacers add(String placeholder, int replacement) {
-        return this.add(placeholder, String.valueOf(replacement));
+    private static String wrap(String placeholder) {
+        return "{" + placeholder + "}";
     }
 
     public Replacers add(String placeholder, double replacement) {
@@ -33,16 +33,6 @@ public class Replacers {
     public Replacers add(String placeholder, List<String> replacements) {
         this.multiples.put(wrap(placeholder), replacements);
         return this;
-    }
-
-    public String replace(String line) {
-        String newLine = line;
-
-        for (Map.Entry<String, String> single : this.singles.entrySet()) {
-            newLine = newLine.replace(single.getKey(), single.getValue());
-        }
-
-        return MessageUtils.color(newLine);
     }
 
     public List<String> replaceLines(List<String> lines) {
@@ -67,5 +57,15 @@ public class Replacers {
 
         newLines.replaceAll(this::replace);
         return newLines;
+    }
+
+    public String replace(String line) {
+        String newLine = line;
+
+        for (Map.Entry<String, String> single : this.singles.entrySet()) {
+            newLine = newLine.replace(single.getKey(), single.getValue());
+        }
+
+        return MessageUtils.color(newLine);
     }
 }

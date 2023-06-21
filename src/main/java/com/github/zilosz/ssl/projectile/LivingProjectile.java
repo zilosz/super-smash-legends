@@ -2,8 +2,8 @@ package com.github.zilosz.ssl.projectile;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -42,7 +42,7 @@ public abstract class LivingProjectile<T extends LivingEntity> extends EmulatedP
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
         if (event.getEntity() == this.entity) {
-            remove(ProjectileRemoveReason.ENTITY_DEATH);
+            this.remove(ProjectileRemoveReason.ENTITY_DEATH);
         }
     }
 }

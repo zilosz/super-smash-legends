@@ -1,6 +1,5 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
@@ -9,6 +8,7 @@ import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.LivingProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
@@ -28,31 +28,6 @@ public class BatWave extends RightClickAbility {
 
     public BatWave(SSL plugin, Section config, Kit kit) {
         super(plugin, config, kit);
-    }
-
-    private void addAndLaunch(BatProjectile projectile, Location location) {
-        this.batProjectiles.add(projectile);
-        projectile.setOverrideLocation(location);
-        projectile.launch();
-    }
-
-    private void onInactiveClick() {
-        this.sendUseMessage();
-
-        Location center = this.player.getEyeLocation();
-        Vector alt = this.player.getLocation().getDirection();
-
-        double width = this.config.getDouble("Width");
-        double height = this.config.getDouble("Height");
-        int count = this.config.getInt("BatCount");
-
-        Set<Location> locations = VectorUtils.getRectLocations(center, alt, width, height, count);
-        locations.forEach(loc -> this.addAndLaunch(new BatProjectile(this.plugin, this, this.config), loc));
-
-        this.resetTask = Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
-            this.reset();
-            this.startCooldown();
-        }, this.config.getInt("Lifespan"));
     }
 
     @Override
@@ -76,13 +51,29 @@ public class BatWave extends RightClickAbility {
         }
     }
 
-    @Override
-    public void run() {
-        super.run();
+    private void onInactiveClick() {
+        this.sendUseMessage();
 
-        if (this.state == BatWaveState.LEASHED) {
-            this.player.setVelocity(this.batProjectiles.iterator().next().getLaunchVelocity());
-        }
+        Location center = this.player.getEyeLocation();
+        Vector alt = this.player.getLocation().getDirection();
+
+        double width = this.config.getDouble("Width");
+        double height = this.config.getDouble("Height");
+        int count = this.config.getInt("BatCount");
+
+        Set<Location> locations = VectorUtils.getRectLocations(center, alt, width, height, count);
+        locations.forEach(loc -> this.addAndLaunch(new BatProjectile(this.plugin, this, this.config), loc));
+
+        this.resetTask = Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+            this.reset();
+            this.startCooldown();
+        }, this.config.getInt("Lifespan"));
+    }
+
+    private void addAndLaunch(BatProjectile projectile, Location location) {
+        this.batProjectiles.add(projectile);
+        projectile.setOverrideLocation(location);
+        projectile.launch();
     }
 
     private void reset() {
@@ -92,6 +83,15 @@ public class BatWave extends RightClickAbility {
 
         if (this.resetTask != null) {
             this.resetTask.cancel();
+        }
+    }
+
+    @Override
+    public void run() {
+        super.run();
+
+        if (this.state == BatWaveState.LEASHED) {
+            this.player.setVelocity(this.batProjectiles.iterator().next().getLaunchVelocity());
         }
     }
 
@@ -131,20 +131,20 @@ public class BatWave extends RightClickAbility {
             this.plugin.getTeamManager().getPlayerTeam(this.ability.getPlayer()).addEntity(this.bat);
         }
 
-        public void leash() {
-            this.bat.setLeashHolder(this.launcher);
-        }
-
-        public void unleash() {
-            this.bat.setLeashHolder(null);
-        }
-
         @Override
         public void onRemove(ProjectileRemoveReason reason) {
             super.onRemove(reason);
             this.unleash();
             this.bat.remove();
             this.plugin.getTeamManager().getPlayerTeam(this.ability.getPlayer()).removeEntity(this.bat);
+        }
+
+        public void unleash() {
+            this.bat.setLeashHolder(null);
+        }
+
+        public void leash() {
+            this.bat.setLeashHolder(this.launcher);
         }
 
         @EventHandler

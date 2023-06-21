@@ -4,7 +4,8 @@ import com.github.zilosz.ssl.kit.Kit;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter @Setter
+@Getter
+@Setter
 public class InGameProfile {
     private int lives;
     private int deaths = 0;

@@ -1,16 +1,16 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.DisguiseUtils;
-import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.effect.Effects;
+import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.libraryaddict.disguise.DisguiseAPI;
 import me.libraryaddict.disguise.disguisetypes.DisguiseType;
 import me.libraryaddict.disguise.disguisetypes.MobDisguise;
@@ -33,47 +33,47 @@ public class IncarnationSlam extends RightClickAbility {
 
     @Override
     public boolean invalidate(PlayerInteractEvent event) {
-        return super.invalidate(event) || active;
+        return super.invalidate(event) || this.active;
     }
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        active = true;
+        this.active = true;
 
         MobDisguise disguise = new MobDisguise(DisguiseType.SLIME);
-        ((SlimeWatcher) disguise.getWatcher()).setSize(config.getInt("SlimeSize"));
-        DisguiseAPI.disguiseToAll(player, DisguiseUtils.applyDisguiseParams(player, disguise));
+        ((SlimeWatcher) disguise.getWatcher()).setSize(this.config.getInt("SlimeSize"));
+        DisguiseAPI.disguiseToAll(this.player, DisguiseUtils.applyDisguiseParams(this.player, disguise));
 
-        Vector direction = player.getEyeLocation().getDirection();
-        player.setVelocity(direction.multiply(config.getDouble("Velocity")));
+        Vector direction = this.player.getEyeLocation().getDirection();
+        this.player.setVelocity(direction.multiply(this.config.getDouble("Velocity")));
 
-        player.getWorld().playSound(player.getLocation(), Sound.SLIME_WALK, 3, 0.75f);
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.SLIME_WALK, 3, 0.75f);
 
-        task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+        this.task = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
 
-            if (EntityUtils.isPlayerGrounded(player)) {
-                player.getWorld().playSound(player.getLocation(), Sound.IRONGOLEM_DEATH, 2, 2);
-                DisguiseAPI.undisguiseToAll(player);
-                startCooldown();
-                reset();
+            if (EntityUtils.isPlayerGrounded(this.player)) {
+                this.player.getWorld().playSound(this.player.getLocation(), Sound.IRONGOLEM_DEATH, 2, 2);
+                DisguiseAPI.undisguiseToAll(this.player);
+                this.startCooldown();
+                this.reset();
                 return;
             }
 
-            EntitySelector selector = new HitBoxSelector(config.getDouble("HitBox"));
+            EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
-            new EntityFinder(plugin, selector).findAll(player).forEach(target -> {
+            new EntityFinder(this.plugin, selector).findAll(this.player).forEach(target -> {
                 AttackSettings settings = new AttackSettings(this.config, this.player.getLocation().getDirection());
-                plugin.getDamageManager().attack(target, this, settings);
+                this.plugin.getDamageManager().attack(target, this, settings);
 
                 target.getWorld().playSound(target.getLocation(), Sound.SLIME_ATTACK, 2, 2);
-                Effects.itemBoom(plugin, target.getLocation(), new ItemStack(Material.SLIME_BALL), 4, 0.3, 5);
+                Effects.itemBoom(this.plugin, target.getLocation(), new ItemStack(Material.SLIME_BALL), 4, 0.3, 5);
             });
         }, 4, 0);
     }
 
     public void reset() {
-        active = false;
-        task.cancel();
+        this.active = false;
+        this.task.cancel();
         DisguiseAPI.undisguiseToAll(this.player);
     }
 
@@ -81,8 +81,8 @@ public class IncarnationSlam extends RightClickAbility {
     public void deactivate() {
         super.deactivate();
 
-        if (active) {
-            reset();
+        if (this.active) {
+            this.reset();
         }
     }
 }

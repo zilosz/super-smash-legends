@@ -18,7 +18,7 @@ public class FrigidSpear extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new SpearProjectile(plugin, this, config.getSection("Projectile")).launch();
+        new SpearProjectile(this.plugin, this, this.config.getSection("Projectile")).launch();
     }
 
     public static class SpearProjectile extends ItemProjectile {

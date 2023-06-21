@@ -27,9 +27,9 @@ public class ParticleBuilder {
     }
 
     public ParticleBuilder setSpread(float x, float y, float z) {
-        spreadX = x;
-        spreadY = y;
-        spreadZ = z;
+        this.spreadX = x;
+        this.spreadY = y;
+        this.spreadZ = z;
         return this;
     }
 
@@ -45,6 +45,18 @@ public class ParticleBuilder {
         return this;
     }
 
+    public void solidSphere(Location center, double radius, int particleCount, double radiusStep) {
+        for (double r = 0; r <= radius; r += radiusStep) {
+            this.hollowSphere(center, r, particleCount);
+        }
+    }
+
+    public void hollowSphere(Location center, double radius, int particleCount) {
+        for (int i = 0; i < particleCount; i++) {
+            this.show(center.clone().add(VectorUtils.randVector(this.face).multiply(radius)));
+        }
+    }
+
     public void show(Location location) {
         float x = (float) MathUtils.randSpread(location.getX(), this.spreadX);
         float y = (float) MathUtils.randSpread(location.getY(), this.spreadY);
@@ -54,34 +66,35 @@ public class ParticleBuilder {
         float green = this.g / 255f;
         float blue = this.b / 255f;
 
-        PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(this.particle, true, x, y, z, red, green, blue, 1, 0, 1);
+        PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(
+                this.particle,
+                true,
+                x,
+                y,
+                z,
+                red,
+                green,
+                blue,
+                1,
+                0,
+                1
+        );
+
         Bukkit.getOnlinePlayers().forEach(player -> NmsUtils.sendPacket(player, packet));
     }
 
-    public void hollowSphere(Location center, double radius, int particleCount) {
-        for (int i = 0; i < particleCount; i++) {
-            show(center.clone().add(VectorUtils.randVector(face).multiply(radius)));
-        }
+    public void ring(Location center, double radius, double gap) {
+        this.ring(center, center.getPitch(), center.getYaw(), radius, gap);
     }
 
-    public void solidSphere(Location center, double radius, int particleCount, double radiusStep) {
-        for (double r = 0; r <= radius; r += radiusStep) {
-            hollowSphere(center, r, particleCount);
-        }
+    public void ring(Location center, float pitch, float yaw, double radius, double gap) {
+        this.ring(center, pitch, yaw, radius, gap, 0);
     }
 
     public void ring(Location center, float pitch, float yaw, double radius, double gap, double startRadians) {
         for (double radians = startRadians; radians < 2 * Math.PI + startRadians; radians += 2 * Math.PI / gap) {
-            show(MathUtils.ringPoint(center, pitch, yaw, radius, radians));
+            this.show(MathUtils.ringPoint(center, pitch, yaw, radius, radians));
         }
-    }
-
-    public void ring(Location center, float pitch, float yaw, double radius, double gap) {
-        ring(center, pitch, yaw, radius, gap, 0);
-    }
-
-    public void ring(Location center, double radius, double gap) {
-        ring(center, center.getPitch(), center.getYaw(), radius, gap);
     }
 
     public void verticalRing(Location center, double radius, double gap) {
@@ -89,14 +102,14 @@ public class ParticleBuilder {
             Location loc = center.clone();
             loc.setPitch((float) ((Math.sin(radians) + 1) * 180));
             loc.setYaw(radians > Math.PI ? center.getYaw() : center.getYaw() - 180);
-            show(loc.add(loc.getDirection().multiply(radius)));
+            this.show(loc.add(loc.getDirection().multiply(radius)));
         }
     }
 
     public void boom(Plugin plugin, Location center, double radius, double radiusStep, int streaks) {
 
         for (int i = 0; i < streaks; i++) {
-            Vector step = VectorUtils.randVector(face).multiply(radiusStep);
+            Vector step = VectorUtils.randVector(this.face).multiply(radiusStep);
             Location curr = center.clone();
 
             new BukkitRunnable() {
@@ -110,7 +123,7 @@ public class ParticleBuilder {
                         return;
                     }
 
-                    show(curr);
+                    ParticleBuilder.this.show(curr);
                     curr.add(step);
                     this.stepped += radiusStep;
                 }

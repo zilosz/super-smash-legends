@@ -3,8 +3,8 @@ package com.github.zilosz.ssl.damage;
 import com.github.zilosz.ssl.Resources;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.kit.KitManager;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.utils.file.YamlReader;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -77,23 +77,6 @@ public class KbSettings {
         return this;
     }
 
-    public double getFinalKb(LivingEntity victim) {
-        double kbVal = this.kb;
-
-        if (this.factorsHealth) {
-            Resources resources = SSL.getInstance().getResources();
-            Section config = resources.getConfig().getSection("Damage");
-            kbVal *= YamlReader.decLin(config, "KbHealthMultiplier", victim.getHealth(), victim.getMaxHealth());
-        }
-
-        if (this.factorsKit && victim instanceof Player) {
-            KitManager kitManager = SSL.getInstance().getKitManager();
-            kbVal *= kitManager.getSelectedKit((Player) victim).getKb();
-        }
-
-        return kbVal;
-    }
-
     public Optional<Vector> getFinalKbVector(LivingEntity victim) {
         Vector dir = this.direction;
 
@@ -110,5 +93,22 @@ public class KbSettings {
         }
 
         return Optional.of(velocity);
+    }
+
+    public double getFinalKb(LivingEntity victim) {
+        double kbVal = this.kb;
+
+        if (this.factorsHealth) {
+            Resources resources = SSL.getInstance().getResources();
+            Section config = resources.getConfig().getSection("Damage");
+            kbVal *= YamlReader.decLin(config, "KbHealthMultiplier", victim.getHealth(), victim.getMaxHealth());
+        }
+
+        if (this.factorsKit && victim instanceof Player) {
+            KitManager kitManager = SSL.getInstance().getKitManager();
+            kbVal *= kitManager.getSelectedKit((Player) victim).getKb();
+        }
+
+        return kbVal;
     }
 }

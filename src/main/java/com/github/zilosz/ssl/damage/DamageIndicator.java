@@ -29,27 +29,28 @@ public class DamageIndicator extends BukkitRunnable {
         this.height = height;
     }
 
-    public void setGlobalVisibility(VisibilitySettings.Visibility visibility) {
-        this.hologram.getVisibilitySettings().setGlobalVisibility(visibility);
-    }
+    public static DamageIndicator create(SSL plugin, LivingEntity entity) {
+        Section heightConfig = plugin.getResources().getConfig().getSection("Damage.Indicator.Height");
+        double height = heightConfig.getDouble(entity instanceof Player ? "Player" : "Entity");
 
-    public void stackDamage(double damage) {
-        this.damage += damage;
-        line.setText(damageFormat(entity, this.damage));
-    }
+        Location loc = relativePosition(entity, height);
 
-    public void destroy() {
-        cancel();
-        hologram.delete();
-    }
+        Hologram hologram = HolographicDisplaysAPI.get(plugin).createHologram(loc);
+        TextHologramLine line = hologram.getLines().appendText(damageFormat(entity, 0));
 
-    @Override
-    public void run() {
-        hologram.setPosition(relativePosition(entity, height));
+        DamageIndicator indicator = new DamageIndicator(hologram, line, entity, height);
+        indicator.runTaskTimer(plugin, 0, 0);
 
-        if (!this.entity.isValid()) {
-            this.destroy();
+        if (entity instanceof Player) {
+            VisibilitySettings.Visibility hidden = VisibilitySettings.Visibility.HIDDEN;
+            hologram.getVisibilitySettings().setIndividualVisibility((Player) entity, hidden);
         }
+
+        return indicator;
+    }
+
+    private static Location relativePosition(LivingEntity entity, double height) {
+        return EntityUtils.top(entity).add(0, height, 0);
     }
 
     private static String damageFormat(LivingEntity entity, double damage) {
@@ -72,26 +73,26 @@ public class DamageIndicator extends BukkitRunnable {
         return MessageUtils.color(color + new DecimalFormat("#.#").format(damage));
     }
 
-    private static Location relativePosition(LivingEntity entity, double height) {
-        return EntityUtils.top(entity).add(0, height, 0);
+    public void setGlobalVisibility(VisibilitySettings.Visibility visibility) {
+        this.hologram.getVisibilitySettings().setGlobalVisibility(visibility);
     }
 
-    public static DamageIndicator create(SSL plugin, LivingEntity entity) {
-        Section heightConfig = plugin.getResources().getConfig().getSection("Damage.Indicator.Height");
-        double height = heightConfig.getDouble(entity instanceof Player ? "Player" : "Entity");
+    public void stackDamage(double damage) {
+        this.damage += damage;
+        this.line.setText(damageFormat(this.entity, this.damage));
+    }
 
-        Location loc = relativePosition(entity, height);
+    @Override
+    public void run() {
+        this.hologram.setPosition(relativePosition(this.entity, this.height));
 
-        Hologram hologram = HolographicDisplaysAPI.get(plugin).createHologram(loc);
-        TextHologramLine line = hologram.getLines().appendText(damageFormat(entity, 0));
-
-        DamageIndicator indicator = new DamageIndicator(hologram, line, entity, height);
-        indicator.runTaskTimer(plugin, 0, 0);
-
-        if (entity instanceof Player) {
-            hologram.getVisibilitySettings().setIndividualVisibility((Player) entity, VisibilitySettings.Visibility.HIDDEN);
+        if (!this.entity.isValid()) {
+            this.destroy();
         }
+    }
 
-        return indicator;
+    public void destroy() {
+        this.cancel();
+        this.hologram.delete();
     }
 }

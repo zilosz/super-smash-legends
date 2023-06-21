@@ -5,14 +5,15 @@ import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.ChargedRightClickBlockAbility;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.BlockProjectile;
+import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.FloatingEntity;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.MathUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import com.github.zilosz.ssl.utils.file.YamlReader;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -29,48 +30,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GaiaToss extends ChargedRightClickBlockAbility {
+    private final List<FloatingEntity<FallingBlock>> blocks = new ArrayList<>();
+    private final List<BukkitTask> positionUpdaters = new ArrayList<>();
     private int currSize;
     private int increments = -1;
-
     private BukkitTask soundTask;
     private BukkitTask sizeTask;
 
-    private final List<FloatingEntity<FallingBlock>> blocks = new ArrayList<>();
-    private final List<BukkitTask> positionUpdaters = new ArrayList<>();
-
     public GaiaToss(SSL plugin, Section config, Kit kit) {
         super(plugin, config, kit);
-    }
-
-    private int getMaxSize() {
-        return this.config.getInt("MinSize") + this.config.getInt("IncrementCount") * this.config.getInt("IncrementSize");
-    }
-
-    private void destroyBlocks() {
-        this.blocks.forEach(FloatingEntity::destroy);
-        this.blocks.clear();
-
-        this.positionUpdaters.forEach(BukkitTask::cancel);
-        this.positionUpdaters.clear();
-    }
-
-    private void reset(boolean cooldown) {
-        this.increments = -1;
-
-        this.soundTask.cancel();
-        this.sizeTask.cancel();
-
-        this.destroyBlocks();
-
-        if (cooldown) {
-            this.startCooldown();
-        }
-    }
-
-    private void playSound() {
-        for (FloatingEntity<FallingBlock> block : this.blocks) {
-            block.getEntity().getWorld().playSound(block.getEntity().getLocation(), Sound.DIG_GRASS, 1, 1);
-        }
     }
 
     @Override
@@ -113,7 +81,8 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
 
                     @Override
                     public FallingBlock createEntity(Location location) {
-                        FallingBlock entity = centerInGround.getWorld().spawnFallingBlock(location, finalType, block.getData());
+                        FallingBlock entity = centerInGround.getWorld()
+                                .spawnFallingBlock(location, finalType, block.getData());
                         entity.setHurtEntities(false);
                         entity.setDropItem(false);
                         return entity;
@@ -133,15 +102,25 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
         }, 0, (long) (this.maxChargeTicks / (this.config.getDouble("IncrementCount") + 1)));
     }
 
-    private void launch(boolean particles, double damage, double kb, double speed, FallingBlock block) {
-        GaiaTossProjectile projectile = new GaiaTossProjectile(this.plugin, this, this.config, particles);
-        projectile.setMaterial(block.getMaterial());
-        projectile.setData(block.getBlockData());
-        projectile.setOverrideLocation(block.getLocation().setDirection(this.player.getEyeLocation().getDirection()));
-        projectile.setSpeed(speed);
-        projectile.getAttackSettings().getDamageSettings().setDamage(damage);
-        projectile.getAttackSettings().getKbSettings().setKb(kb);
-        projectile.launch();
+    private int getMaxSize() {
+        return this.config.getInt("MinSize") + this.config.getInt("IncrementCount") * this.config.getInt("IncrementSize");
+    }
+
+    private void playSound() {
+        for (FloatingEntity<FallingBlock> block : this.blocks) {
+            block.getEntity().getWorld().playSound(block.getEntity().getLocation(), Sound.DIG_GRASS, 1, 1);
+        }
+    }
+
+    private void destroyBlocks() {
+        CollectionUtils.removeWhileIterating(this.blocks, FloatingEntity::destroy);
+        CollectionUtils.removeWhileIterating(this.positionUpdaters, BukkitTask::cancel);
+    }
+
+    @Override
+    public void onFailedCharge() {
+        this.playSound();
+        this.reset(true);
     }
 
     @Override
@@ -165,10 +144,15 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
         this.reset(true);
     }
 
-    @Override
-    public void onFailedCharge() {
-        this.playSound();
-        this.reset(true);
+    private void launch(boolean particles, double damage, double kb, double speed, FallingBlock block) {
+        GaiaTossProjectile projectile = new GaiaTossProjectile(this.plugin, this, this.config, particles);
+        projectile.setMaterial(block.getMaterial());
+        projectile.setData(block.getBlockData());
+        projectile.setOverrideLocation(block.getLocation().setDirection(this.player.getEyeLocation().getDirection()));
+        projectile.setSpeed(speed);
+        projectile.getAttackSettings().getDamageSettings().setDamage(damage);
+        projectile.getAttackSettings().getKbSettings().setKb(kb);
+        projectile.launch();
     }
 
     @Override
@@ -180,12 +164,31 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
         }
     }
 
+    private void reset(boolean cooldown) {
+        this.increments = -1;
+
+        this.soundTask.cancel();
+        this.sizeTask.cancel();
+
+        this.destroyBlocks();
+
+        if (cooldown) {
+            this.startCooldown();
+        }
+    }
+
     private static class GaiaTossProjectile extends BlockProjectile {
         private final boolean createParticles;
 
         public GaiaTossProjectile(SSL plugin, Ability ability, Section config, boolean createParticles) {
             super(plugin, ability, config);
             this.createParticles = createParticles;
+        }
+
+        @Override
+        public void onBlockHit(BlockHitResult result) {
+            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.EXPLODE, 2, 1);
+            new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).show(this.entity.getLocation());
         }
 
         @Override
@@ -201,12 +204,6 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
         public void onTargetHit(LivingEntity target) {
             this.entity.getWorld().playSound(this.entity.getLocation(), Sound.IRONGOLEM_DEATH, 2, 0.5f);
             new ParticleBuilder(EnumParticle.SMOKE_LARGE).boom(this.plugin, this.entity.getLocation(), 5, 0.5, 15);
-        }
-
-        @Override
-        public void onBlockHit(BlockHitResult result) {
-            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.EXPLODE, 2, 1);
-            new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).show(this.entity.getLocation());
         }
     }
 }

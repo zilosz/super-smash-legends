@@ -39,7 +39,9 @@ public class Melee extends Attribute implements Nameable {
         Vector direction = this.player.getEyeLocation().getDirection();
         double damage = this.plugin.getKitManager().getSelectedKit(this.player).getDamage();
 
-        this.plugin.getDamageManager().attack(victim, this, new AttackSettings(config, direction)
-                .modifyDamage(damageSettings -> damageSettings.setDamage(damage)));
+        AttackSettings settings = new AttackSettings(config, direction)
+                .modifyDamage(damageSettings -> damageSettings.setDamage(damage));
+
+        this.plugin.getDamageManager().attack(victim, this, settings);
     }
 }

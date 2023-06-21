@@ -1,20 +1,20 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.attribute.ClickableAbility;
 import com.github.zilosz.ssl.attribute.PassiveAbility;
+import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.event.attribute.JumpEvent;
 import com.github.zilosz.ssl.event.attribute.RegenEvent;
-import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.DisguiseUtils;
 import com.github.zilosz.ssl.utils.ItemBuilder;
 import com.github.zilosz.ssl.utils.Noise;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.libraryaddict.disguise.DisguiseAPI;
 import me.libraryaddict.disguise.disguisetypes.Disguise;
 import me.libraryaddict.disguise.disguisetypes.DisguiseType;
@@ -36,11 +36,6 @@ public class BatForm extends PassiveAbility {
 
     public BatForm(SSL plugin, Section config, Kit kit) {
         super(plugin, config, kit);
-    }
-
-    @Override
-    public String getUseType() {
-        return "Passive";
     }
 
     @EventHandler
@@ -72,9 +67,7 @@ public class BatForm extends PassiveAbility {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.BAT_HURT, 1, 0.5f);
 
         for (int i = 0; i < 3; i++) {
-            new ParticleBuilder(EnumParticle.SMOKE_LARGE)
-                    .setSpread(0.5f, 0.5f, 0.5f)
-                    .show(this.player.getLocation());
+            new ParticleBuilder(EnumParticle.SMOKE_LARGE).setSpread(0.5f, 0.5f, 0.5f).show(this.player.getLocation());
         }
 
         Disguise disguise = DisguiseUtils.applyDisguiseParams(this.player, new MobDisguise(DisguiseType.BAT));
@@ -83,12 +76,23 @@ public class BatForm extends PassiveAbility {
         this.oldJumpLimit = this.kit.getJump().getMaxCount();
         this.kit.getJump().setMaxCount(this.config.getInt("ExtraJumps"));
 
-        this.removedAttributes = this.kit.getAttributes().stream()
-                .filter(attr -> attr instanceof ClickableAbility)
+        this.removedAttributes = this.kit.getAttributes().stream().filter(ClickableAbility.class::isInstance)
                 .collect(Collectors.toSet());
+
         this.removedAttributes.forEach(Attribute::destroy);
 
         this.player.getInventory().setItem(0, new ItemBuilder<>(Material.GOLD_SWORD).get());
+    }
+
+    @Override
+    public void deactivate() {
+        this.reset();
+        super.deactivate();
+    }
+
+    @Override
+    public String getUseType() {
+        return "Passive";
     }
 
     private void reset() {
@@ -98,12 +102,6 @@ public class BatForm extends PassiveAbility {
         this.player.getInventory().remove(Material.GOLD_SWORD);
         this.kit.getJump().setMaxCount(this.oldJumpLimit);
         DisguiseAPI.undisguiseToAll(this.player);
-    }
-
-    @Override
-    public void deactivate() {
-        this.reset();
-        super.deactivate();
     }
 
     @EventHandler

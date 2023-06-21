@@ -10,7 +10,19 @@ public abstract class FloatingEntity<T extends Entity> {
     @Getter private T entity;
     private ArmorStand armorStand;
 
-    public abstract T createEntity(Location location);
+    public static <T extends Entity> FloatingEntity<T> fromEntity(T entity) {
+
+        FloatingEntity<T> floatingEntity = new FloatingEntity<>() {
+
+            @Override
+            public T createEntity(Location location) {
+                return entity;
+            }
+        };
+
+        floatingEntity.spawn(entity.getLocation());
+        return floatingEntity;
+    }
 
     public void spawn(Location location) {
         this.armorStand = location.getWorld().spawn(location, ArmorStand.class);
@@ -22,6 +34,8 @@ public abstract class FloatingEntity<T extends Entity> {
         this.entity = this.createEntity(location);
         this.armorStand.setPassenger(this.entity);
     }
+
+    public abstract T createEntity(Location location);
 
     public void destroy() {
         this.armorStand.remove();
@@ -35,19 +49,5 @@ public abstract class FloatingEntity<T extends Entity> {
         this.armorStand.eject();
         this.armorStand.teleport(location);
         this.armorStand.setPassenger(this.entity);
-    }
-
-    public static <T extends Entity> FloatingEntity<T> fromEntity(T entity) {
-
-        FloatingEntity<T> floatingEntity = new FloatingEntity<>() {
-
-            @Override
-            public T createEntity(Location location) {
-                return entity;
-            }
-        };
-
-        floatingEntity.spawn(entity.getLocation());
-        return floatingEntity;
     }
 }

@@ -1,13 +1,13 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.kit.Kit;
-import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.DistanceSelector;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -24,6 +24,13 @@ public class ShadowAmbush extends RightClickAbility {
         super(plugin, config, kit);
     }
 
+    @Override
+    public void onClick(PlayerInteractEvent event) {
+        new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(EntityUtils.center(this.player), 1.5, 15, 0.5);
+        EntityFinder finder = new EntityFinder(this.plugin, new DistanceSelector(this.config.getDouble("Range")));
+        finder.findClosest(this.player).ifPresentOrElse(this::teleport, this::fail);
+    }
+
     private void teleport(LivingEntity target) {
         Location targetLoc = target.getLocation();
         Vector targetDir = targetLoc.getDirection();
@@ -33,7 +40,9 @@ public class ShadowAmbush extends RightClickAbility {
         Block two = spotBehind.clone().add(0, 1, 0).getBlock();
 
         this.player.teleport(one.getType().isSolid() || two.getType().isSolid() ? targetLoc : spotBehind);
-        target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, this.config.getInt("BlindnessDuration"), 1));
+
+        int duration = this.config.getInt("BlindnessDuration");
+        target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, duration, 1));
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.WITHER_HURT, 1, 0.5f);
         new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(EntityUtils.center(this.player), 2.5, 15, 0.5);
@@ -41,12 +50,5 @@ public class ShadowAmbush extends RightClickAbility {
 
     private void fail() {
         this.player.playSound(this.player.getLocation(), Sound.WITHER_HURT, 1, 2f);
-    }
-
-    @Override
-    public void onClick(PlayerInteractEvent event) {
-        new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(EntityUtils.center(this.player), 1.5, 15, 0.5);
-        EntityFinder finder = new EntityFinder(this.plugin, new DistanceSelector(this.config.getDouble("Range")));
-        finder.findClosest(this.player).ifPresentOrElse(this::teleport, this::fail);
     }
 }

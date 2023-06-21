@@ -27,16 +27,16 @@ public class HatThrow extends RightClickAbility {
     @Override
     public void onClick(PlayerInteractEvent event) {
 
-        if (hatProjectile == null || hatProjectile.state == HatThrowState.INACTIVE) {
-            hatProjectile = new HatProjectile(plugin, this, config);
-            hatProjectile.setLifespan(config.getInt("TicksToReturn") + config.getInt("ExtraLifespan"));
-            hatProjectile.launch();
+        if (this.hatProjectile == null || this.hatProjectile.state == HatThrowState.INACTIVE) {
+            this.hatProjectile = new HatProjectile(this.plugin, this, this.config);
+            this.hatProjectile.setLifespan(this.config.getInt("TicksToReturn") + this.config.getInt("ExtraLifespan"));
+            this.hatProjectile.launch();
 
-        } else if (hatProjectile.state == HatThrowState.DISMOUNTED) {
-            hatProjectile.mount(player);
+        } else if (this.hatProjectile.state == HatThrowState.DISMOUNTED) {
+            this.hatProjectile.mount(this.player);
 
         } else {
-            hatProjectile.dismount();
+            this.hatProjectile.dismount();
         }
     }
 
@@ -58,7 +58,7 @@ public class HatThrow extends RightClickAbility {
             ArmorStand stand = location.getWorld().spawn(location, ArmorStand.class);
             stand.setArms(true);
             stand.setCanPickupItems(false);
-            stand.setItemInHand(YamlReader.stack(config.getSection("HatItem")));
+            stand.setItemInHand(YamlReader.stack(this.config.getSection("HatItem")));
             stand.setMarker(true);
             stand.setVisible(false);
             return stand;
@@ -69,27 +69,9 @@ public class HatThrow extends RightClickAbility {
             this.state = HatThrowState.DISMOUNTED;
         }
 
-        public void mount(Entity passenger) {
-            this.state = HatThrowState.MOUNTED;
-            this.entity.setPassenger(passenger);
-            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.CLICK, 2, 1);
-        }
-
-        public void dismount() {
-            this.state = HatThrowState.DISMOUNTED;
-            this.entity.eject();
-            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.CLICK, 2, 1);
-        }
-
-        private double speedFunction(int ticks) {
-            return -2 * ticks * this.launchSpeed / this.config.getInt("TicksToReturn") + this.launchSpeed;
-        }
-
         @Override
-        public void onTick() {
-            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.ITEM_PICKUP, 1, 1);
-            this.entity.setVelocity(this.launchVelocity.clone().multiply(speedFunction(this.ticksAlive)));
-            this.entity.setRightArmPose(new EulerAngle(0, this.ticksAlive * this.config.getDouble("RotationPerTick"), 0));
+        public void onBlockHit(BlockHitResult result) {
+            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.ZOMBIE_WOODBREAK, 2, 2);
         }
 
         @Override
@@ -102,8 +84,28 @@ public class HatThrow extends RightClickAbility {
         }
 
         @Override
-        public void onBlockHit(BlockHitResult result) {
-            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.ZOMBIE_WOODBREAK, 2, 2);
+        public void onTick() {
+            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.ITEM_PICKUP, 1, 1);
+            this.entity.setVelocity(this.launchVelocity.clone().multiply(this.speedFunction(this.ticksAlive)));
+
+            double height = this.ticksAlive * this.config.getDouble("RotationPerTick");
+            this.entity.setRightArmPose(new EulerAngle(0, height, 0));
+        }
+
+        private double speedFunction(int ticks) {
+            return -2 * ticks * this.launchSpeed / this.config.getInt("TicksToReturn") + this.launchSpeed;
+        }
+
+        public void mount(Entity passenger) {
+            this.state = HatThrowState.MOUNTED;
+            this.entity.setPassenger(passenger);
+            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.CLICK, 2, 1);
+        }
+
+        public void dismount() {
+            this.state = HatThrowState.DISMOUNTED;
+            this.entity.eject();
+            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.CLICK, 2, 1);
         }
     }
 }

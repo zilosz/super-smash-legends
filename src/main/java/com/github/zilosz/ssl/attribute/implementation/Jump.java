@@ -1,10 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.event.attribute.JumpEvent;
 import com.github.zilosz.ssl.kit.Kit;
+import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -13,11 +13,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 public class Jump extends Attribute {
     @Getter @Setter private int maxCount;
     private int countLeft;
-    private BukkitTask hitGroundTask;
+    @Nullable private BukkitTask hitGroundTask;
 
     public Jump(SSL plugin, Kit kit) {
         super(plugin, kit);
@@ -48,23 +49,19 @@ public class Jump extends Attribute {
         }
     }
 
-    public void replenish() {
-        this.countLeft = this.maxCount;
-        this.player.setAllowFlight(true);
-
-        if (this.hitGroundTask != null) {
-            this.hitGroundTask.cancel();
-            this.hitGroundTask = null;
-        }
-    }
-    
     @EventHandler
     public void onToggleFlight(PlayerToggleFlightEvent event) {
         if (event.getPlayer() != this.player) return;
 
         event.setCancelled(true);
 
-        JumpEvent jumpEvent = new JumpEvent(this.player, this.kit.getJumpPower(), this.kit.getJumpHeight(), this.kit.getJumpNoise());
+        JumpEvent jumpEvent = new JumpEvent(
+                this.player,
+                this.kit.getJumpPower(),
+                this.kit.getJumpHeight(),
+                this.kit.getJumpNoise()
+        );
+
         Bukkit.getPluginManager().callEvent(jumpEvent);
 
         if (jumpEvent.isCancelled()) return;
@@ -80,7 +77,7 @@ public class Jump extends Attribute {
         this.player.setVelocity(velocity);
 
         jumpEvent.getNoise().playForAll(this.player.getLocation());
-        
+
         if (--this.countLeft == 0) {
             this.player.setAllowFlight(false);
         }
@@ -91,6 +88,16 @@ public class Jump extends Attribute {
                     this.replenish();
                 }
             }, 0, 0);
+        }
+    }
+
+    public void replenish() {
+        this.countLeft = this.maxCount;
+        this.player.setAllowFlight(true);
+
+        if (this.hitGroundTask != null) {
+            this.hitGroundTask.cancel();
+            this.hitGroundTask = null;
         }
     }
 }

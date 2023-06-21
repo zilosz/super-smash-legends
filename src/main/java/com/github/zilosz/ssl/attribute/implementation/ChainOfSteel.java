@@ -1,7 +1,9 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
+import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
@@ -10,8 +12,6 @@ import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.kit.Kit;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -30,14 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChainOfSteel extends RightClickAbility {
+    private final List<FloatingEntity<FallingBlock>> entities = new ArrayList<>();
     private Vector direction;
     private FloatingEntity<Player> floatingEntity;
-
     private BukkitTask chainTask;
     private int chainTicks = 0;
-
-    private final List<FloatingEntity<FallingBlock>> entities = new ArrayList<>();
-
     private BukkitTask pullTask;
     private BukkitTask pullSoundTask;
     private BukkitTask effectRemoveTask;
@@ -50,56 +47,6 @@ public class ChainOfSteel extends RightClickAbility {
     public boolean invalidate(PlayerInteractEvent event) {
         return super.invalidate(event) || this.chainTicks > 0;
     }
-
-    private void reset(boolean cooldown) {
-        this.chainTicks = 0;
-        this.chainTask.cancel();
-
-        CollectionUtils.removeWhileIterating(this.entities, FloatingEntity::destroy);
-
-        if (this.floatingEntity != null) {
-            this.floatingEntity.destroy();
-        }
-
-        if (this.pullTask != null) {
-            this.pullTask.cancel();
-            this.pullSoundTask.cancel();
-            this.effectRemoveTask.cancel();
-        }
-
-        if (cooldown) {
-            this.startCooldown();
-        }
-    }
-
-    private void pullTowardsLocation(Location location) {
-        this.chainTask.cancel();
-        this.floatingEntity.destroy();
-
-        this.player.getWorld().playSound(location, Sound.IRONGOLEM_HIT, 1, 0.5f);
-
-        Vector pullVelocity = this.direction.clone().multiply(this.config.getDouble("PullSpeed"));
-        this.pullTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> this.player.setVelocity(pullVelocity), 0, 0);
-
-        this.pullSoundTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () ->
-                this.player.getWorld().playSound(this.player.getLocation(), Sound.STEP_LADDER, 2, 1), 0, 0);
-
-        double distance = location.distance(this.player.getLocation());
-        double travelTicks = distance / this.config.getInt("PullSpeed");
-        int ticksPerRemoval = (int) (travelTicks / this.entities.size());
-
-        this.effectRemoveTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
-
-            if (this.entities.isEmpty()) {
-                this.reset(true);
-
-            } else {
-                this.entities.remove(0).destroy();
-            }
-        }, ticksPerRemoval, ticksPerRemoval);
-    }
-
-
 
     @Override
     public void onClick(PlayerInteractEvent event) {
@@ -124,7 +71,8 @@ public class ChainOfSteel extends RightClickAbility {
 
                     @Override
                     public FallingBlock createEntity(Location location) {
-                        FallingBlock entity = location.getWorld().spawnFallingBlock(location, Material.IRON_FENCE, (byte) 0);
+                        FallingBlock entity = location.getWorld()
+                                .spawnFallingBlock(location, Material.IRON_FENCE, (byte) 0);
                         entity.setHurtEntities(false);
                         entity.setDropItem(false);
                         return entity;
@@ -156,6 +104,56 @@ public class ChainOfSteel extends RightClickAbility {
 
             this.chainTicks++;
         }, 0, 0);
+    }
+
+    private void reset(boolean cooldown) {
+        this.chainTicks = 0;
+        this.chainTask.cancel();
+
+        CollectionUtils.removeWhileIterating(this.entities, FloatingEntity::destroy);
+
+        if (this.floatingEntity != null) {
+            this.floatingEntity.destroy();
+        }
+
+        if (this.pullTask != null) {
+            this.pullTask.cancel();
+            this.pullSoundTask.cancel();
+            this.effectRemoveTask.cancel();
+        }
+
+        if (cooldown) {
+            this.startCooldown();
+        }
+    }
+
+    private void pullTowardsLocation(Location location) {
+        this.chainTask.cancel();
+        this.floatingEntity.destroy();
+
+        this.player.getWorld().playSound(location, Sound.IRONGOLEM_HIT, 1, 0.5f);
+
+        Vector pullVelocity = this.direction.clone().multiply(this.config.getDouble("PullSpeed"));
+        this.pullTask = Bukkit.getScheduler()
+                .runTaskTimer(this.plugin, () -> this.player.setVelocity(pullVelocity), 0, 0);
+
+        this.pullSoundTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+            this.player.getWorld().playSound(this.player.getLocation(), Sound.STEP_LADDER, 2, 1);
+        }, 0, 0);
+
+        double distance = location.distance(this.player.getLocation());
+        double travelTicks = distance / this.config.getInt("PullSpeed");
+        int ticksPerRemoval = (int) (travelTicks / this.entities.size());
+
+        this.effectRemoveTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+
+            if (this.entities.isEmpty()) {
+                this.reset(true);
+
+            } else {
+                this.entities.remove(0).destroy();
+            }
+        }, ticksPerRemoval, ticksPerRemoval);
     }
 
     @Override

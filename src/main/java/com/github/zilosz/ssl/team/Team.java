@@ -38,10 +38,6 @@ public class Team {
         this.players.add(player);
     }
 
-    public boolean hasPlayer(Player player) {
-        return this.players.contains(player);
-    }
-
     public void removePlayer(Player player) {
         this.players.remove(player);
     }
@@ -58,8 +54,8 @@ public class Team {
         return this.entities.contains(entity) || entity instanceof Player && this.hasPlayer((Player) entity);
     }
 
-    public int getSize() {
-        return this.players.size();
+    public boolean hasPlayer(Player player) {
+        return this.players.contains(player);
     }
 
     public boolean isEmpty() {
@@ -80,5 +76,9 @@ public class Team {
 
     public boolean canJoin(Player player) {
         return !this.hasPlayer(player) && this.getSize() < SSL.getInstance().getTeamManager().getTeamSize();
+    }
+
+    public int getSize() {
+        return this.players.size();
     }
 }

@@ -1,20 +1,20 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
+import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
 import com.github.zilosz.ssl.event.CustomEvent;
+import com.github.zilosz.ssl.kit.Kit;
+import com.github.zilosz.ssl.projectile.ItemProjectile;
+import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.DistanceSelector;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
-import com.github.zilosz.ssl.kit.Kit;
-import com.github.zilosz.ssl.projectile.ItemProjectile;
-import com.github.zilosz.ssl.utils.block.BlockHitResult;
-import com.github.zilosz.ssl.utils.file.YamlReader;
 import lombok.Getter;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
@@ -35,20 +35,6 @@ public class Rasenshuriken extends RightClickAbility {
 
     public Rasenshuriken(SSL plugin, Section config, Kit kit) {
         super(plugin, config, kit);
-    }
-
-    private void reset(boolean cooldown) {
-        if (this.ticksCharged == -1) return;
-
-        this.ticksCharged = -1;
-        this.task.cancel();
-        this.hotbarItem.show();
-
-        if (cooldown) {
-            this.startCooldown();
-        }
-
-        this.player.getWorld().playSound(this.player.getLocation(), Sound.FIRE_IGNITE, 3, 2);
     }
 
     @Override
@@ -78,29 +64,18 @@ public class Rasenshuriken extends RightClickAbility {
         }, 0, 0);
     }
 
-    @EventHandler
-    public void onPlayerAnimation(PlayerAnimationEvent event) {
-        if (event.getPlayer() != this.player || this.ticksCharged == -1) return;
+    private void reset(boolean cooldown) {
+        if (this.ticksCharged == -1) return;
 
-        Shuriken shuriken = new Shuriken(this.plugin, this, this.config.getSection("Projectile"));
-        this.lastLocation.setDirection(this.player.getEyeLocation().getDirection());
-        shuriken.setOverrideLocation(this.lastLocation);
-        shuriken.launch();
+        this.ticksCharged = -1;
+        this.task.cancel();
+        this.hotbarItem.show();
 
-        this.reset(true);
-    }
-
-    @Override
-    public void deactivate() {
-        super.deactivate();
-        this.reset(false);
-    }
-
-    @EventHandler
-    public void onHandSwitch(PlayerItemHeldEvent event) {
-        if (event.getPlayer() == this.player && event.getNewSlot() != this.slot && this.ticksCharged > -1) {
-            this.reset(true);
+        if (cooldown) {
+            this.startCooldown();
         }
+
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.FIRE_IGNITE, 3, 2);
     }
 
     public static void display(Location loc, boolean tilted, Section config) {
@@ -120,6 +95,31 @@ public class Rasenshuriken extends RightClickAbility {
         new ParticleBuilder(EnumParticle.REDSTONE).setRgb(173, 216, 230).hollowSphere(loc, radius, 5);
     }
 
+    @Override
+    public void deactivate() {
+        super.deactivate();
+        this.reset(false);
+    }
+
+    @EventHandler
+    public void onPlayerAnimation(PlayerAnimationEvent event) {
+        if (event.getPlayer() != this.player || this.ticksCharged == -1) return;
+
+        Shuriken shuriken = new Shuriken(this.plugin, this, this.config.getSection("Projectile"));
+        this.lastLocation.setDirection(this.player.getEyeLocation().getDirection());
+        shuriken.setOverrideLocation(this.lastLocation);
+        shuriken.launch();
+
+        this.reset(true);
+    }
+
+    @EventHandler
+    public void onHandSwitch(PlayerItemHeldEvent event) {
+        if (event.getPlayer() == this.player && event.getNewSlot() != this.slot && this.ticksCharged > -1) {
+            this.reset(true);
+        }
+    }
+
     public static class Shuriken extends ItemProjectile {
 
         public Shuriken(SSL plugin, Ability ability, Section config) {
@@ -131,6 +131,11 @@ public class Rasenshuriken extends RightClickAbility {
         @Override
         public void onLaunch() {
             this.entity.getWorld().playSound(this.entity.getLocation(), Sound.WITHER_IDLE, 0.5f, 1);
+        }
+
+        @Override
+        public void onBlockHit(BlockHitResult result) {
+            this.onHit(null);
         }
 
         @Override
@@ -148,11 +153,6 @@ public class Rasenshuriken extends RightClickAbility {
         @Override
         public void onTargetHit(LivingEntity target) {
             this.onHit(target);
-        }
-
-        @Override
-        public void onBlockHit(BlockHitResult result) {
-            this.onHit(null);
         }
 
         private void onHit(LivingEntity avoid) {

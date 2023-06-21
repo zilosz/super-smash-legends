@@ -61,7 +61,7 @@ Damage:
       Player: 1.5
   Melee:
     Kb: 1
-    KbY: 0.4
+    KbY: 0.55
     FactorsKit: false
     FactorsHealth: false
   MinKbHealthMultiplier: 1

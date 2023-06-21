@@ -10,18 +10,18 @@ public class HitBoxSelector implements EntitySelector {
     private final double y;
     private final double z;
 
+    public HitBoxSelector(double hitBox) {
+        this(hitBox, hitBox, hitBox);
+    }
+
     public HitBoxSelector(double x, double y, double z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
-    public HitBoxSelector(double hitBox) {
-        this(hitBox, hitBox, hitBox);
-    }
-
     @Override
     public Stream<Entity> getEntityStream(Location location) {
-        return location.getWorld().getNearbyEntities(location, x, y, z).stream();
+        return location.getWorld().getNearbyEntities(location, this.x, this.y, this.z).stream();
     }
 }

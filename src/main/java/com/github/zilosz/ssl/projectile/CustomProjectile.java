@@ -1,20 +1,20 @@
 package com.github.zilosz.ssl.projectile;
 
-import com.github.zilosz.ssl.damage.AttackSettings;
-import com.github.zilosz.ssl.event.projectile.ProjectileRemoveEvent;
-import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
-import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
-import com.github.zilosz.ssl.utils.math.VectorUtils;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.damage.AttackSettings;
 import com.github.zilosz.ssl.event.projectile.ProjectileHitBlockEvent;
 import com.github.zilosz.ssl.event.projectile.ProjectileLaunchEvent;
+import com.github.zilosz.ssl.event.projectile.ProjectileRemoveEvent;
 import com.github.zilosz.ssl.game.state.InGameState;
 import com.github.zilosz.ssl.utils.NmsUtils;
 import com.github.zilosz.ssl.utils.Reflector;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
+import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
+import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
+import com.github.zilosz.ssl.utils.math.VectorUtils;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityDestroy;
@@ -33,10 +33,9 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     protected final SSL plugin;
 
     @Getter protected final Ability ability;
+    protected final Section config;
     @Getter protected Player launcher;
     @Getter protected T entity;
-    protected final Section config;
-
     @Setter protected Location overrideLocation;
     @Getter @Setter protected Double speed;
 
@@ -62,19 +61,23 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         this.ability = ability;
         this.config = config;
 
-        launcher = ability.getPlayer();
-        attackSettings = new AttackSettings(config, null);
+        this.launcher = ability.getPlayer();
+        this.attackSettings = new AttackSettings(config, null);
 
-        spread = config.getFloat("Spread");
-        lifespan = config.getOptionalInt("Lifespan").orElse(Integer.MAX_VALUE);
-        hasGravity = config.getOptionalBoolean("HasGravity").orElse(true);
-        maxBounces = config.getInt("MaxBounces");
-        hitBox = config.getOptionalDouble("HitBox").orElse(defaultHitBox());
-        hitsMultiple = config.getBoolean("HitsMultiple");
-        removeOnEntityHit = config.getOptionalBoolean("RemoveOnEntityHit").orElse(true);
-        removeOnBlockHit = config.getOptionalBoolean("RemoveOnBlockHit").orElse(true);
-        distanceFromEye = config.getOptionalDouble("DistanceFromEye").orElse(1.0);
-        invisible = config.getBoolean("Invisible");
+        this.spread = config.getFloat("Spread");
+        this.lifespan = config.getOptionalInt("Lifespan").orElse(Integer.MAX_VALUE);
+        this.hasGravity = config.getOptionalBoolean("HasGravity").orElse(true);
+        this.maxBounces = config.getInt("MaxBounces");
+        this.hitBox = config.getOptionalDouble("HitBox").orElse(this.defaultHitBox());
+        this.hitsMultiple = config.getBoolean("HitsMultiple");
+        this.removeOnEntityHit = config.getOptionalBoolean("RemoveOnEntityHit").orElse(true);
+        this.removeOnBlockHit = config.getOptionalBoolean("RemoveOnBlockHit").orElse(true);
+        this.distanceFromEye = config.getOptionalDouble("DistanceFromEye").orElse(1.0);
+        this.invisible = config.getBoolean("Invisible");
+    }
+
+    public double defaultHitBox() {
+        return 0.8;
     }
 
     public Vector getLaunchVelocity() {
@@ -83,66 +86,49 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
 
     @SuppressWarnings("unchecked")
     public CustomProjectile<T> copy(Ability ability) {
-        return (CustomProjectile<T>) Reflector.newInstance(getClass(), this.plugin, ability, this.config);
+        return (CustomProjectile<T>) Reflector.newInstance(this.getClass(), this.plugin, ability, this.config);
     }
 
-    public double defaultHitBox() {
-        return 0.8;
+    public void launch() {
+        this.speed = this.speed == null ? this.config.getDouble("Speed") : this.speed;
+
+        ProjectileLaunchEvent projectileLaunchEvent = new ProjectileLaunchEvent(this, this.speed);
+        Bukkit.getPluginManager().callEvent(projectileLaunchEvent);
+
+        if (projectileLaunchEvent.isCancelled()) return;
+
+        Bukkit.getPluginManager().registerEvents(this, this.plugin);
+
+        Location location = this.overrideLocation == null ? this.ability
+                .getPlayer()
+                .getEyeLocation() : this.overrideLocation.clone();
+        location.setDirection(VectorUtils.getRandomVectorInDirection(location, this.spread));
+
+        location.add(location.getDirection().multiply(this.distanceFromEye));
+
+        this.launchSpeed = projectileLaunchEvent.getSpeed();
+        this.launchVelocity = location.getDirection().multiply(this.launchSpeed);
+
+        this.entity = this.createEntity(location);
+        this.applyEntityParams();
+        this.entity.setVelocity(this.launchVelocity);
+
+        this.config.getOptionalSection("LaunchSound")
+                .ifPresent(soundConfig -> YamlReader.noise(soundConfig).playForAll(location));
+
+        this.runTaskTimer(this.plugin, 0, 0);
+        this.onLaunch();
     }
 
     public abstract T createEntity(Location location);
 
     private void applyEntityParams() {
-        if (invisible) {
-            NmsUtils.broadcastPacket(new PacketPlayOutEntityDestroy(1, entity.getEntityId()));
+        if (this.invisible) {
+            NmsUtils.broadcastPacket(new PacketPlayOutEntityDestroy(1, this.entity.getEntityId()));
         }
     }
 
     public void onLaunch() {}
-
-    public void launch() {
-        speed = this.speed == null ? config.getDouble("Speed") : this.speed;
-
-        ProjectileLaunchEvent projectileLaunchEvent = new ProjectileLaunchEvent(this, speed);
-        Bukkit.getPluginManager().callEvent(projectileLaunchEvent);
-
-        if (projectileLaunchEvent.isCancelled()) return;
-
-        Bukkit.getPluginManager().registerEvents(this, plugin);
-
-        Location location = overrideLocation == null ? ability.getPlayer().getEyeLocation() : overrideLocation.clone();
-        location.setDirection(VectorUtils.getRandomVectorInDirection(location, this.spread));
-
-        location.add(location.getDirection().multiply(distanceFromEye));
-
-        launchSpeed = projectileLaunchEvent.getSpeed();
-        launchVelocity = location.getDirection().multiply(launchSpeed);
-
-        entity = createEntity(location);
-        applyEntityParams();
-        entity.setVelocity(launchVelocity);
-
-        config.getOptionalSection("LaunchSound").ifPresent(soundConfig -> YamlReader.noise(soundConfig).playForAll(location));
-
-        runTaskTimer(plugin, 0, 0);
-        onLaunch();
-    }
-
-    public void onRemove(ProjectileRemoveReason reason) {}
-
-    public void remove(ProjectileRemoveReason reason) {
-        ProjectileRemoveEvent event = new ProjectileRemoveEvent(this, reason);
-        Bukkit.getPluginManager().callEvent(event);
-
-        if (!event.isCancelled()) {
-            HandlerList.unregisterAll(this);
-            this.entity.remove();
-            this.cancel();
-            this.onRemove(reason);
-        }
-    }
-
-    public void onBlockHit(BlockHitResult result) {}
 
     protected void handleBlockHitResult(BlockHitResult result) {
         if (result == null) return;
@@ -152,20 +138,22 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
 
         this.onBlockHit(result);
 
-        config.getOptionalSection("BlockHitSound").ifPresent(section -> YamlReader.noise(section).playForAll(entity.getLocation()));
+        this.config.getOptionalSection("BlockHitSound")
+                .ifPresent(section -> YamlReader.noise(section).playForAll(this.entity.getLocation()));
 
         if (result.getFace() == null) return;
 
-        if (++timesBounced > maxBounces) {
+        ++this.timesBounced;
+        if (this.timesBounced > this.maxBounces) {
 
-            if (removeOnBlockHit) {
-                remove(ProjectileRemoveReason.HIT_BLOCK);
+            if (this.removeOnBlockHit) {
+                this.remove(ProjectileRemoveReason.HIT_BLOCK);
             }
 
             return;
         }
 
-        Vector velocity = hasGravity ? launchVelocity : entity.getVelocity();
+        Vector velocity = this.hasGravity ? this.launchVelocity : this.entity.getVelocity();
 
         switch (result.getFace()) {
 
@@ -184,46 +172,36 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         }
 
         if (this instanceof ActualProjectile) {
-            entity = createEntity(entity.getLocation());
-            applyEntityParams();
+            this.entity = this.createEntity(this.entity.getLocation());
+            this.applyEntityParams();
         }
 
-        setVelocity(velocity);
+        this.setVelocity(velocity);
     }
 
-    public void onTick() {}
+    public void onBlockHit(BlockHitResult result) {}
 
-    public void onTargetHit(LivingEntity target) {}
+    public void remove(ProjectileRemoveReason reason) {
+        ProjectileRemoveEvent event = new ProjectileRemoveEvent(this, reason);
+        Bukkit.getPluginManager().callEvent(event);
 
-    protected void handleTargetHit(LivingEntity target) {
-        this.attackSettings.modifyKb(kb -> kb.setDirection(this.entity.getVelocity()));
-
-        if (!this.plugin.getDamageManager().attack(target, this.ability, this.attackSettings)) return;
-
-        this.launcher.playSound(this.launcher.getLocation(), Sound.SUCCESSFUL_HIT, 2, 1);
-        this.config.getOptionalSection("TargetHitSound").ifPresent(sound -> YamlReader.noise(sound).playForAll(this.entity.getLocation()));
-
-        this.onTargetHit(target);
-
-        if (this.removeOnEntityHit) {
-            this.remove(ProjectileRemoveReason.HIT_ENTITY);
+        if (!event.isCancelled()) {
+            HandlerList.unregisterAll(this);
+            this.entity.remove();
+            this.cancel();
+            this.onRemove(reason);
         }
     }
 
-    protected EntityFinder getFinder() {
-        return new EntityFinder(plugin, new HitBoxSelector(hitBox));
-    }
-
-    protected void searchForHit() {
-        EntityFinder finder = getFinder();
-
-        if (hitsMultiple) {
-            finder.findAll(launcher, entity.getLocation()).forEach(this::handleTargetHit);
-
+    public void setVelocity(Vector velocity) {
+        if (this.hasGravity) {
+            this.entity.setVelocity(velocity);
         } else {
-            finder.findClosest(launcher, entity.getLocation()).ifPresent(this::handleTargetHit);
+            this.launchVelocity = velocity;
         }
     }
+
+    public void onRemove(ProjectileRemoveReason reason) {}
 
     @Override
     public void run() {
@@ -236,7 +214,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         } else if (!(this.plugin.getGameManager().getState() instanceof InGameState)) {
             reason = ProjectileRemoveReason.DEACTIVATION;
 
-        } else if (this.ticksAlive >= lifespan) {
+        } else if (this.ticksAlive >= this.lifespan) {
             reason = ProjectileRemoveReason.LIFESPAN;
         }
 
@@ -256,11 +234,38 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         this.onTick();
     }
 
-    public void setVelocity(Vector velocity) {
-        if (hasGravity) {
-            entity.setVelocity(velocity);
+    protected void searchForHit() {
+        EntityFinder finder = this.getFinder();
+
+        if (this.hitsMultiple) {
+            finder.findAll(this.launcher, this.entity.getLocation()).forEach(this::handleTargetHit);
+
         } else {
-            launchVelocity = velocity;
+            finder.findClosest(this.launcher, this.entity.getLocation()).ifPresent(this::handleTargetHit);
         }
     }
+
+    public void onTick() {}
+
+    protected EntityFinder getFinder() {
+        return new EntityFinder(this.plugin, new HitBoxSelector(this.hitBox));
+    }
+
+    protected void handleTargetHit(LivingEntity target) {
+        this.attackSettings.modifyKb(kb -> kb.setDirection(this.entity.getVelocity()));
+
+        if (!this.plugin.getDamageManager().attack(target, this.ability, this.attackSettings)) return;
+
+        this.launcher.playSound(this.launcher.getLocation(), Sound.SUCCESSFUL_HIT, 2, 1);
+        this.config.getOptionalSection("TargetHitSound")
+                .ifPresent(sound -> YamlReader.noise(sound).playForAll(this.entity.getLocation()));
+
+        this.onTargetHit(target);
+
+        if (this.removeOnEntityHit) {
+            this.remove(ProjectileRemoveReason.HIT_ENTITY);
+        }
+    }
+
+    public void onTargetHit(LivingEntity target) {}
 }

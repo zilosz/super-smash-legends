@@ -1,13 +1,13 @@
 package com.github.zilosz.ssl.utils.inventory;
 
-import fr.minuskube.inv.ClickableItem;
-import fr.minuskube.inv.SmartInventory;
-import fr.minuskube.inv.content.InventoryContents;
-import fr.minuskube.inv.content.InventoryProvider;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.ItemBuilder;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
+import fr.minuskube.inv.ClickableItem;
+import fr.minuskube.inv.SmartInventory;
+import fr.minuskube.inv.content.InventoryContents;
+import fr.minuskube.inv.content.InventoryProvider;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -20,14 +20,6 @@ import java.util.function.Consumer;
 public abstract class CustomInventory<T> implements InventoryProvider {
     private static final int MAX_ROWS = 5;
     private static final int MAX_COLUMNS = 7;
-
-    public abstract String getTitle();
-
-    public abstract List<T> getItems();
-
-    public abstract ItemStack getItemStack(Player player, T item);
-
-    public abstract void onItemClick(Player player, T item, InventoryClickEvent event);
 
     @Override
     public void init(Player player, InventoryContents contents) {
@@ -65,8 +57,19 @@ public abstract class CustomInventory<T> implements InventoryProvider {
         contents.fillBorders(clickableItem);
 
         while (c <= this.getColumnCount() - 1) {
-            contents.set(r, c++, clickableItem);
+            contents.set(r, c, clickableItem);
+            c++;
         }
+    }
+
+    public abstract List<T> getItems();
+
+    public abstract ItemStack getItemStack(Player player, T item);
+
+    public abstract void onItemClick(Player player, T item, InventoryClickEvent event);
+
+    public int getColumnCount() {
+        return MAX_COLUMNS + 2;
     }
 
     @Override
@@ -92,14 +95,6 @@ public abstract class CustomInventory<T> implements InventoryProvider {
         }));
     }
 
-    public int getRowCount() {
-        return Math.min(MAX_ROWS, (int) Math.ceil(this.getItems().size() / 7.0)) + 2;
-    }
-
-    public int getColumnCount() {
-        return MAX_COLUMNS + 2;
-    }
-
     public SmartInventory build() {
         return SmartInventory.builder()
                 .provider(this)
@@ -109,4 +104,10 @@ public abstract class CustomInventory<T> implements InventoryProvider {
                 .title(MessageUtils.color(this.getTitle()))
                 .build();
     }
+
+    public int getRowCount() {
+        return Math.min(MAX_ROWS, (int) Math.ceil(this.getItems().size() / 7.0)) + 2;
+    }
+
+    public abstract String getTitle();
 }

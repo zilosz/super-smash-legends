@@ -3,9 +3,10 @@ package com.github.zilosz.ssl.damage;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
+import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
 import com.github.zilosz.ssl.game.InGameProfile;
-import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
+import com.github.zilosz.ssl.utils.CollectionUtils;
 import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
@@ -38,11 +39,6 @@ public class DamageManager {
         return this.lastDamagingAttributes.get(entity);
     }
 
-    public void destroyIndicator(LivingEntity entity) {
-        Optional.ofNullable(this.indicators.remove(entity)).ifPresent(DamageIndicator::destroy);
-        Optional.ofNullable(this.indicatorRemovers.remove(entity)).ifPresent(BukkitTask::cancel);
-    }
-
     public void updateIndicator(LivingEntity entity, double damage) {
         DamageIndicator indicator;
 
@@ -62,7 +58,14 @@ public class DamageManager {
         indicator.stackDamage(damage);
 
         int comboDuration = this.plugin.getResources().getConfig().getInt("Damage.Indicator.ComboDuration");
-        this.indicatorRemovers.put(entity, Bukkit.getScheduler().runTaskLater(this.plugin, () -> this.destroyIndicator(entity), comboDuration));
+
+        this.indicatorRemovers.put(entity, Bukkit.getScheduler()
+                .runTaskLater(this.plugin, () -> this.destroyIndicator(entity), comboDuration));
+    }
+
+    public void destroyIndicator(LivingEntity entity) {
+        Optional.ofNullable(this.indicators.remove(entity)).ifPresent(DamageIndicator::destroy);
+        Optional.ofNullable(this.indicatorRemovers.remove(entity)).ifPresent(BukkitTask::cancel);
     }
 
     public void hideEntityIndicator(LivingEntity entity) {
@@ -77,21 +80,6 @@ public class DamageManager {
 
         Optional.ofNullable(this.indicators.get(entity))
                 .ifPresent(indicator -> indicator.setGlobalVisibility(VisibilitySettings.Visibility.VISIBLE));
-    }
-
-    private void cancelDamageSourceRemover(LivingEntity entity) {
-        Optional.ofNullable(this.damageSourceRemovers.get(entity)).ifPresent(BukkitTask::cancel);
-    }
-
-    private void destroyImmunityRemover(LivingEntity entity, Attribute attribute) {
-        Optional.ofNullable(this.immunityRemovers.get(entity))
-                .flatMap(removersByAttribute -> Optional.ofNullable(removersByAttribute.remove(attribute)))
-                .ifPresent(BukkitTask::cancel);
-    }
-
-    public void removeDamageSource(LivingEntity entity) {
-        this.lastDamagingAttributes.remove(entity);
-        this.cancelDamageSourceRemover(entity);
     }
 
     public boolean attack(LivingEntity victim, Attribute attribute, AttackSettings attackSettings) {
@@ -139,8 +127,10 @@ public class DamageManager {
         this.cancelDamageSourceRemover(victim);
         int damageLifetime = this.plugin.getResources().getConfig().getInt("Damage.Lifetime");
 
-        this.damageSourceRemovers.put(victim, Bukkit.getScheduler()
-                .runTaskLater(this.plugin, () -> this.removeDamageSource(victim), damageLifetime));
+        this.damageSourceRemovers.put(
+                victim,
+                Bukkit.getScheduler().runTaskLater(this.plugin, () -> this.removeDamageSource(victim), damageLifetime)
+        );
 
         this.immunityRemovers.putIfAbsent(victim, new HashMap<>());
         this.destroyImmunityRemover(victim, attribute);
@@ -156,6 +146,21 @@ public class DamageManager {
         return true;
     }
 
+    private void cancelDamageSourceRemover(LivingEntity entity) {
+        Optional.ofNullable(this.damageSourceRemovers.get(entity)).ifPresent(BukkitTask::cancel);
+    }
+
+    public void removeDamageSource(LivingEntity entity) {
+        this.lastDamagingAttributes.remove(entity);
+        this.cancelDamageSourceRemover(entity);
+    }
+
+    private void destroyImmunityRemover(LivingEntity entity, Attribute attribute) {
+        Optional.ofNullable(this.immunityRemovers.get(entity))
+                .flatMap(removersByAttribute -> Optional.ofNullable(removersByAttribute.remove(attribute)))
+                .ifPresent(BukkitTask::cancel);
+    }
+
     public void clearImmunities(LivingEntity entity) {
         Optional.ofNullable(this.immunities.get(entity)).ifPresent(immunities -> {
             immunities.forEach(attribute -> this.destroyImmunityRemover(entity, attribute));
@@ -164,21 +169,17 @@ public class DamageManager {
     }
 
     public void reset() {
-        this.indicators.values().forEach(DamageIndicator::destroy);
-        this.indicators.clear();
+        CollectionUtils.removeWhileIteratingFromMap(this.indicators, DamageIndicator::destroy);
+        CollectionUtils.removeWhileIteratingFromMap(this.indicatorRemovers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingFromMap(this.damageSourceRemovers, BukkitTask::cancel);
 
-        this.indicatorRemovers.values().forEach(BukkitTask::cancel);
-        this.indicators.clear();
+        CollectionUtils.removeWhileIteratingFromMap(
+                this.immunityRemovers,
+                map -> CollectionUtils.removeWhileIteratingFromMap(map, BukkitTask::cancel)
+        );
 
         this.entitiesWithInvisibleIndicator.clear();
         this.lastDamagingAttributes.clear();
-
-        this.damageSourceRemovers.values().forEach(BukkitTask::cancel);
-        this.damageSourceRemovers.clear();
-
         this.immunities.clear();
-
-        this.immunityRemovers.values().forEach(map -> map.values().forEach(BukkitTask::cancel));
-        this.immunityRemovers.clear();
     }
 }

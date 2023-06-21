@@ -1,12 +1,12 @@
 package com.github.zilosz.ssl.attribute;
 
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
-import com.github.zilosz.ssl.event.attribute.AbilityUseEvent;
-import com.github.zilosz.ssl.utils.message.Chat;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.event.attribute.AbilityUseEvent;
 import com.github.zilosz.ssl.kit.Kit;
+import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Bukkit;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -22,38 +22,44 @@ public abstract class ClickableAbility extends Ability {
     public ClickableAbility(SSL plugin, Section config, Kit kit) {
         super(plugin, config, kit);
 
-        cooldown = config.getInt("Cooldown");
-        energyCost = config.getFloat("EnergyCost");
-        autoStartCooldown = config.getOptionalBoolean("AutoStartCooldown").orElse(true);
-        autoSendUseMessage = config.getOptionalBoolean("AutoSendUseMessage").orElse(true);
+        this.cooldown = config.getInt("Cooldown");
+        this.energyCost = config.getFloat("EnergyCost");
+        this.autoStartCooldown = config.getOptionalBoolean("AutoStartCooldown").orElse(true);
+        this.autoSendUseMessage = config.getOptionalBoolean("AutoSendUseMessage").orElse(true);
     }
 
-    public boolean invalidate(PlayerInteractEvent event) {
-        return player.getExp() < energyCost || cooldownLeft > 0;
+    @Override
+    public void activate() {
+        super.activate();
+        this.hotbarItem.setAction(this::onClickAttempt);
     }
-
-    public abstract void onClick(PlayerInteractEvent event);
 
     public void onClickAttempt(PlayerInteractEvent event) {
-        if (invalidate(event)) return;
+        if (this.invalidate(event)) return;
 
         AbilityUseEvent abilityUseEvent = new AbilityUseEvent(this);
         Bukkit.getPluginManager().callEvent(abilityUseEvent);
 
         if (abilityUseEvent.isCancelled()) return;
 
-        onClick(event);
+        this.onClick(event);
 
-        if (autoSendUseMessage) {
-            sendUseMessage();
+        if (this.autoSendUseMessage) {
+            this.sendUseMessage();
         }
 
-        if (autoStartCooldown) {
-            startCooldown();
+        if (this.autoStartCooldown) {
+            this.startCooldown();
         }
 
-        player.setExp(player.getExp() - energyCost);
+        this.player.setExp(this.player.getExp() - this.energyCost);
     }
+
+    public boolean invalidate(PlayerInteractEvent event) {
+        return this.player.getExp() < this.energyCost || this.cooldownLeft > 0;
+    }
+
+    public abstract void onClick(PlayerInteractEvent event);
 
     public void sendUseMessage() {
         Chat.ABILITY.send(this.player, String.format("&7You used %s&7.", this.getDisplayName()));
@@ -64,31 +70,12 @@ public abstract class ClickableAbility extends Ability {
     }
 
     @Override
-    public void activate() {
-        super.activate();
-        hotbarItem.setAction(this::onClickAttempt);
-    }
-
-    @Override
-    public void deactivate() {
-        super.deactivate();
-        this.cooldownLeft = 0;
-    }
-
-    public void onCooldownEnd() {}
-
-    protected void onTick() {}
-
-    @Override
     public void run() {
         this.onTick();
 
-        if (this.cooldownLeft > 0) {
-
-            if (--this.cooldownLeft == 0) {
-                this.onCooldownEnd();
-                Chat.ABILITY.send(this.player, String.format("&7You can use %s&7.", this.getDisplayName()));
-            }
+        if (this.cooldownLeft > 0 && --this.cooldownLeft == 0) {
+            this.onCooldownEnd();
+            Chat.ABILITY.send(this.player, String.format("&7You can use %s&7.", this.getDisplayName()));
         }
 
         if (this.slot != this.player.getInventory().getHeldItemSlot()) return;
@@ -112,5 +99,15 @@ public abstract class ClickableAbility extends Ability {
         }
 
         ActionBarAPI.sendActionBar(this.player, MessageUtils.color(message));
+    }
+
+    protected void onTick() {}
+
+    public void onCooldownEnd() {}
+
+    @Override
+    public void deactivate() {
+        super.deactivate();
+        this.cooldownLeft = 0;
     }
 }

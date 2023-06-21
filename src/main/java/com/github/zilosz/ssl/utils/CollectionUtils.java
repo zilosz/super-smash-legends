@@ -1,7 +1,7 @@
 package com.github.zilosz.ssl.utils;
 
-import com.google.common.collect.Lists;
 import com.github.zilosz.ssl.utils.math.MathUtils;
+import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -12,6 +12,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class CollectionUtils {
+
+    public static <T> List<List<T>> getRankedGroups(Iterable<T> elements, Comparator<T> comparator) {
+        return getRankedGroups(elements, comparator, Integer.MAX_VALUE);
+    }
 
     public static <T> List<List<T>> getRankedGroups(Iterable<T> elements, Comparator<T> comparator, int maxElements) {
         List<List<T>> ranked = new ArrayList<>();
@@ -33,7 +37,8 @@ public class CollectionUtils {
 
             currGroup.add(list.get(i));
 
-            if (++totalAdded == maxElements) {
+            ++totalAdded;
+            if (totalAdded == maxElements) {
                 break;
             }
         }
@@ -42,8 +47,8 @@ public class CollectionUtils {
         return ranked;
     }
 
-    public static <T> List<List<T>> getRankedGroups(Iterable<T> elements, Comparator<T> comparator) {
-        return getRankedGroups(elements, comparator, Integer.MAX_VALUE);
+    public static <T> List<T> findByHighestInt(Iterable<T> items, Function<T, Integer> key) {
+        return findByHighestDouble(items, key.andThen(Integer::doubleValue));
     }
 
     public static <T> List<T> findByHighestDouble(Iterable<T> items, Function<T, Double> key) {
@@ -66,10 +71,6 @@ public class CollectionUtils {
         return highestList;
     }
 
-    public static <T> List<T> findByHighestInt(Iterable<T> items, Function<T, Integer> key) {
-        return findByHighestDouble(items, key.andThen(Integer::doubleValue));
-    }
-
     public static <T> T selectRandom(List<T> items) {
         return items.get((int) MathUtils.randRange(0, items.size()));
     }
@@ -78,13 +79,8 @@ public class CollectionUtils {
         return items[(int) MathUtils.randRange(0, items.length)];
     }
 
-    public static <T> void removeWhileIterating(Iterable<T> iterable, Consumer<T> action) {
-        Iterator<T> iterator = iterable.iterator();
-
-        while (iterator.hasNext()) {
-            action.accept(iterator.next());
-            iterator.remove();
-        }
+    public static <K, V> void removeWhileIteratingFromMap(Map<K, V> map, Consumer<V> valueAction) {
+        removeWhileIteratingFromMap(map, key -> {}, valueAction);
     }
 
     public static <K, V> void removeWhileIteratingFromMap(Map<K, V> map, Consumer<K> keyAction, Consumer<V> valueAction) {
@@ -94,7 +90,12 @@ public class CollectionUtils {
         });
     }
 
-    public static <K, V> void removeWhileIteratingFromMap(Map<K, V> map, Consumer<V> valueAction) {
-        removeWhileIteratingFromMap(map, key -> {}, valueAction);
+    public static <T> void removeWhileIterating(Iterable<T> iterable, Consumer<T> action) {
+        Iterator<T> iterator = iterable.iterator();
+
+        while (iterator.hasNext()) {
+            action.accept(iterator.next());
+            iterator.remove();
+        }
     }
 }

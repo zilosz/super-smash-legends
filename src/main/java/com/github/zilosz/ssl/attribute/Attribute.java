@@ -13,8 +13,8 @@ public class Attribute implements Listener {
     protected final SSL plugin;
     @Getter protected final Kit kit;
     @Getter protected Player player;
-    private BukkitTask task;
     protected int period;
+    private BukkitTask task;
     @Getter private boolean enabled;
 
     public Attribute(SSL plugin, Kit kit) {
@@ -31,6 +31,17 @@ public class Attribute implements Listener {
         this.task = Bukkit.getScheduler().runTaskTimer(this.plugin, this::run, 0, this.period);
     }
 
+    public void run() {}
+
+    public void equip() {
+        this.player = this.kit.getPlayer();
+    }
+
+    public void destroy() {
+        this.deactivate();
+        this.unequip();
+    }
+
     public void deactivate() {
         if (!this.enabled) return;
 
@@ -42,16 +53,5 @@ public class Attribute implements Listener {
         }
     }
 
-    public void equip() {
-        this.player = this.kit.getPlayer();
-    }
-
     public void unequip() {}
-
-    public void destroy() {
-        this.deactivate();
-        this.unequip();
-    }
-
-    public void run() {}
 }

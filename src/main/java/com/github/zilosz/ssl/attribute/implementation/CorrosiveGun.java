@@ -26,9 +26,13 @@ public class CorrosiveGun extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        RunnableUtils.runTaskWithIntervals(plugin, config.getInt("Count"), config.getInt("Interval"), () -> {
-            new SkullProjectile(plugin, this, config).launch();
-            player.setVelocity(player.getEyeLocation().getDirection().multiply(-config.getDouble("Recoil")));
+        int count = this.config.getInt("Count");
+        int interval = this.config.getInt("Interval");
+        double recoil = this.config.getDouble("Recoil");
+
+        RunnableUtils.runTaskWithIntervals(this.plugin, count, interval, () -> {
+            new SkullProjectile(this.plugin, this, this.config).launch();
+            this.player.setVelocity(this.player.getEyeLocation().getDirection().multiply(-recoil));
         });
     }
 
@@ -52,27 +56,27 @@ public class CorrosiveGun extends RightClickAbility {
         }
 
         @Override
-        public void onTargetHit(LivingEntity victim) {
-            new ParticleBuilder(EnumParticle.SMOKE_LARGE).boom(this.plugin, this.entity.getLocation(), 3.5, 0.5, 6);
-        }
-
-        @Override
         public void onTick() {
             for (int i = 0; i < 2; i++) {
                 new ParticleBuilder(EnumParticle.FLAME).show(this.entity.getLocation());
             }
         }
 
+        @Override
+        public void onTargetHit(LivingEntity victim) {
+            new ParticleBuilder(EnumParticle.SMOKE_LARGE).boom(this.plugin, this.entity.getLocation(), 3.5, 0.5, 6);
+        }
+
         @EventHandler
         public void onEntityExplode(EntityExplodeEvent event) {
-            if (event.getEntity() == entity) {
+            if (event.getEntity() == this.entity) {
                 event.setCancelled(true);
             }
         }
 
         @EventHandler
         public void onExplosionPrime(ExplosionPrimeEvent event) {
-            if (event.getEntity() == entity) {
+            if (event.getEntity() == this.entity) {
                 event.setCancelled(true);
             }
         }

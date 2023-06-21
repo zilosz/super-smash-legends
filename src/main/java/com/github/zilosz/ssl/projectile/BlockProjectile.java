@@ -1,8 +1,8 @@
 package com.github.zilosz.ssl.projectile;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,9 +16,8 @@ public class BlockProjectile extends EmulatedProjectile<FallingBlock> {
 
     public BlockProjectile(SSL plugin, Ability ability, Section config) {
         super(plugin, ability, config);
-
-        material = Material.valueOf(config.getOptionalString("Block.Material").orElse("OBSIDIAN"));
-        data = config.getOptionalByte("Block.Data").orElse((byte) 0);
+        this.material = Material.valueOf(config.getOptionalString("Block.Material").orElse("OBSIDIAN"));
+        this.data = config.getOptionalByte("Block.Data").orElse((byte) 0);
     }
 
     @Override
@@ -28,7 +27,7 @@ public class BlockProjectile extends EmulatedProjectile<FallingBlock> {
 
     @Override
     public FallingBlock createEntity(Location location) {
-        FallingBlock block = location.getWorld().spawnFallingBlock(location, material, data);
+        FallingBlock block = location.getWorld().spawnFallingBlock(location, this.material, this.data);
         block.setDropItem(false);
         block.setHurtEntities(false);
         return block;
@@ -36,7 +35,7 @@ public class BlockProjectile extends EmulatedProjectile<FallingBlock> {
 
     @EventHandler
     public void onSolidify(EntityChangeBlockEvent event) {
-        if (event.getEntity() == entity) {
+        if (event.getEntity() == this.entity) {
             event.setCancelled(true);
         }
     }

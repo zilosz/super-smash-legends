@@ -1,8 +1,8 @@
 package com.github.zilosz.ssl.command;
 
-import com.github.zilosz.ssl.kit.KitSelector;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.kit.KitManager;
+import com.github.zilosz.ssl.kit.KitSelector;
 import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.message.Chat;
 import org.apache.commons.lang.StringUtils;
@@ -33,7 +33,7 @@ public class KitCommand implements CommandExecutor {
             if (strings.length == 0) {
                 new KitSelector().build().open(player);
 
-            } else  {
+            } else {
                 KitManager kitManager = this.plugin.getKitManager();
                 String name = StringUtils.capitalize(strings[0].toLowerCase());
 

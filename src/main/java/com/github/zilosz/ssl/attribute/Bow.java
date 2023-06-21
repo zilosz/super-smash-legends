@@ -1,8 +1,8 @@
 package com.github.zilosz.ssl.attribute;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.kit.Kit;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityShootBowEvent;
@@ -22,8 +22,6 @@ public abstract class Bow extends PassiveAbility {
         return "Bow";
     }
 
-    public void onStart() {}
-
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         if (event.getPlayer() != this.player) return;
@@ -37,7 +35,7 @@ public abstract class Bow extends PassiveAbility {
         this.onStart();
     }
 
-    public void onChargeTick() {}
+    public void onStart() {}
 
     @Override
     public void run() {
@@ -49,14 +47,7 @@ public abstract class Bow extends PassiveAbility {
         }
     }
 
-    public void onFinish() {}
-
-    public void finish() {
-        this.ticksCharging = 0;
-        this.onFinish();
-    }
-
-    public void onShot(double force) {}
+    public void onChargeTick() {}
 
     @EventHandler
     public void onShoot(EntityShootBowEvent event) {
@@ -66,6 +57,15 @@ public abstract class Bow extends PassiveAbility {
         this.onShot(event.getForce());
         this.finish();
     }
+
+    public void onShot(double force) {}
+
+    public void finish() {
+        this.ticksCharging = 0;
+        this.onFinish();
+    }
+
+    public void onFinish() {}
 
     @EventHandler
     public void onSwitchItemSlot(PlayerItemHeldEvent event) {

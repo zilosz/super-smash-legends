@@ -21,12 +21,12 @@ public enum Chat {
         this.prefix = prefix;
     }
 
-    public String get(String message) {
-        return MessageUtils.color(this.prefix + message);
-    }
-
     public void send(CommandSender player, String message) {
         player.sendMessage(this.get(message));
+    }
+
+    public String get(String message) {
+        return MessageUtils.color(this.prefix + message);
     }
 
     public void broadcast(String message) {

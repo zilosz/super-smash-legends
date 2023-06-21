@@ -1,18 +1,18 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
 import com.github.zilosz.ssl.kit.Kit;
-import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
-import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
 import com.github.zilosz.ssl.utils.math.MathUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -21,11 +21,12 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.Nullable;
 
 public class Earthquake extends RightClickAbility {
     private BukkitTask quakeTask;
     private BukkitTask uprootTask;
-    private BukkitTask stopTask;
+    @Nullable private BukkitTask stopTask;
 
     public Earthquake(SSL plugin, Section config, Kit kit) {
         super(plugin, config, kit);
@@ -43,7 +44,7 @@ public class Earthquake extends RightClickAbility {
         double horizontal = this.config.getDouble("HorizontalRange");
         double vertical = this.config.getDouble("VerticalRange");
 
-        this.quakeTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+        this.quakeTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
             if (!EntityUtils.isPlayerGrounded(this.player)) return;
 
             Location location = this.player.getLocation().add(0, 0.3, 0);

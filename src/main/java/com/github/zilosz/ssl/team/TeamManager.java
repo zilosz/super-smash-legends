@@ -30,20 +30,16 @@ public class TeamManager {
         }
     }
 
-    public int getTeamSize() {
-        return this.plugin.getResources().getConfig().getInt("Game.TeamSize");
-    }
-
     public int getAbsolutePlayerCap() {
         return ColorType.values().length * this.getTeamSize();
     }
 
-    public List<Team> getTeamList() {
-        return Collections.unmodifiableList(this.teamList);
+    public int getTeamSize() {
+        return this.plugin.getResources().getConfig().getInt("Game.TeamSize");
     }
 
-    public Team getPlayerTeam(Player player) {
-        return this.teamsByEntity.get(player.getUniqueId());
+    public List<Team> getTeamList() {
+        return Collections.unmodifiableList(this.teamList);
     }
 
     public boolean doesPlayerHaveTeam(Player player) {
@@ -59,6 +55,10 @@ public class TeamManager {
             return this.plugin.getGameManager().getProfile(player).getKit().getColor().getChatSymbol();
         }
         return this.getPlayerTeam(player).getColorType().getChatSymbol();
+    }
+
+    public Team getPlayerTeam(Player player) {
+        return this.teamsByEntity.get(player.getUniqueId());
     }
 
     public void assignPlayer(Player player) {
@@ -96,7 +96,8 @@ public class TeamManager {
     }
 
     public void wipePlayer(Player player) {
-        Optional.ofNullable(this.teamsByEntity.remove(player.getUniqueId())).ifPresent(team -> team.removePlayer(player));
+        Optional.ofNullable(this.teamsByEntity.remove(player.getUniqueId()))
+                .ifPresent(team -> team.removePlayer(player));
     }
 
     public Optional<Team> findEntityTeam(LivingEntity entity) {

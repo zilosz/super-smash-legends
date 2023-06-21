@@ -1,12 +1,12 @@
 package com.github.zilosz.ssl.kit;
 
-import com.github.zilosz.ssl.utils.inventory.CustomInventory;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.attribute.ClickableAbility;
 import com.github.zilosz.ssl.attribute.PassiveAbility;
 import com.github.zilosz.ssl.utils.ItemBuilder;
+import com.github.zilosz.ssl.utils.inventory.CustomInventory;
 import com.github.zilosz.ssl.utils.inventory.HasRandomOption;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.Replacers;
@@ -25,13 +25,11 @@ import java.util.stream.Collectors;
 public class KitSelector extends CustomInventory<Kit> implements HasRandomOption {
 
     @Override
-    public String getTitle() {
-        return "Kit Selector";
-    }
-
-    @Override
     public List<Kit> getItems() {
-        return SSL.getInstance().getKitManager().getKits().stream()
+        return SSL.getInstance()
+                .getKitManager()
+                .getKits()
+                .stream()
                 .sorted(Comparator.comparing(Kit::getConfigName))
                 .collect(Collectors.toList());
     }
@@ -59,8 +57,7 @@ public class KitSelector extends CustomInventory<Kit> implements HasRandomOption
         KitManager kitManager = SSL.getInstance().getKitManager();
         KitAccessType accessType = kitManager.getKitAccess(player, kit.getConfigName());
 
-        Replacers replacers = new Replacers()
-                .add("STATUS", accessType.getLore(kit))
+        Replacers replacers = new Replacers().add("STATUS", accessType.getLore(kit))
                 .add("REGEN", kit.getRegen())
                 .add("ARMOR", kit.getArmor())
                 .add("DAMAGE", kit.getDamage())
@@ -97,8 +94,7 @@ public class KitSelector extends CustomInventory<Kit> implements HasRandomOption
             replacers.add("ENERGY", kit.getEnergy());
         }
 
-        return new ItemBuilder<SkullMeta>(Material.SKULL_ITEM)
-                .setData(3)
+        return new ItemBuilder<SkullMeta>(Material.SKULL_ITEM).setData(3)
                 .applyMeta(meta -> kit.getSkin().applyToSkull(meta))
                 .setEnchanted(accessType == KitAccessType.ALREADY_SELECTED)
                 .setName("&l" + kit.getBoldedDisplayName())
@@ -110,6 +106,11 @@ public class KitSelector extends CustomInventory<Kit> implements HasRandomOption
     public void onItemClick(Player player, Kit kit, InventoryClickEvent event) {
         SSL.getInstance().getKitManager().setKit(player, kit);
         player.closeInventory();
+    }
+
+    @Override
+    public String getTitle() {
+        return "Kit Selector";
     }
 
     @Override

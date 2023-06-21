@@ -1,14 +1,14 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.ChargedRightClickAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
-import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
+import com.github.zilosz.ssl.utils.file.YamlReader;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -23,29 +23,28 @@ public class Thunderbolt extends ChargedRightClickAbility {
 
     @Override
     public void onChargeTick() {
-        player.getWorld().playSound(player.getLocation(), Sound.CREEPER_HISS, 1, 2);
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.CREEPER_HISS, 1, 2);
     }
 
-    private void endEffect(Location location) {
-        location.getWorld().strikeLightningEffect(location);
-        location.getWorld().playSound(location, Sound.AMBIENCE_THUNDER, 4, 0.5f);
-        new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 255, 0).boom(plugin, location, 5, 0.5, 18);
+    @Override
+    public void onFailedCharge() {
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.AMBIENCE_THUNDER, 1, 2);
     }
 
     @Override
     public void onSuccessfulCharge() {
-        player.getWorld().playSound(player.getLocation(), Sound.AMBIENCE_THUNDER, 2, 0.5f);
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.AMBIENCE_THUNDER, 2, 0.5f);
 
-        EntityFinder finder = new EntityFinder(plugin, new HitBoxSelector(config.getDouble("HitBox")));
+        EntityFinder finder = new EntityFinder(this.plugin, new HitBoxSelector(this.config.getDouble("HitBox")));
 
-        int ticks = ticksCharging - minChargeTicks;
-        int max = maxChargeTicks - minChargeTicks;
+        int ticks = this.ticksCharging - this.minChargeTicks;
+        int max = this.maxChargeTicks - this.minChargeTicks;
 
-        double damage = YamlReader.incLin(config, "Damage", ticks, max);
-        double kb = YamlReader.incLin(config, "Kb", ticks, max);
-        double range = YamlReader.incLin(config, "Range", ticks, max);
+        double damage = YamlReader.incLin(this.config, "Damage", ticks, max);
+        double kb = YamlReader.incLin(this.config, "Kb", ticks, max);
+        double range = YamlReader.incLin(this.config, "Range", ticks, max);
 
-        Location location = player.getEyeLocation();
+        Location location = this.player.getEyeLocation();
         Vector step = location.getDirection().multiply(0.25);
 
         boolean found = false;
@@ -54,17 +53,17 @@ public class Thunderbolt extends ChargedRightClickAbility {
         while (true) {
 
             if (stepped > range || location.getBlock().getType().isSolid() || found) {
-                endEffect(location);
+                this.endEffect(location);
                 break;
             }
 
-            for (LivingEntity target : finder.findAll(player, location)) {
+            for (LivingEntity target : finder.findAll(this.player, location)) {
 
                 AttackSettings settings = new AttackSettings(this.config, step)
                         .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
                         .modifyKb(kbSettings -> kbSettings.setKb(kb));
 
-                if (plugin.getDamageManager().attack(target, this, settings)) {
+                if (this.plugin.getDamageManager().attack(target, this, settings)) {
                     found = true;
                     break;
                 }
@@ -77,8 +76,9 @@ public class Thunderbolt extends ChargedRightClickAbility {
         }
     }
 
-    @Override
-    public void onFailedCharge() {
-        player.getWorld().playSound(player.getLocation(), Sound.AMBIENCE_THUNDER, 1, 2);
+    private void endEffect(Location location) {
+        location.getWorld().strikeLightningEffect(location);
+        location.getWorld().playSound(location, Sound.AMBIENCE_THUNDER, 4, 0.5f);
+        new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 255, 0).boom(this.plugin, location, 5, 0.5, 18);
     }
 }

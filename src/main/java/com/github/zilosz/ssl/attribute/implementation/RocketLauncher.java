@@ -1,19 +1,19 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
+import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.ChargedRightClickAbility;
-import com.github.zilosz.ssl.utils.CollectionUtils;
-import com.github.zilosz.ssl.utils.effect.ColorType;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
-import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
-import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.damage.DamageSettings;
 import com.github.zilosz.ssl.damage.KbSettings;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
+import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
+import com.github.zilosz.ssl.utils.effect.ColorType;
+import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.file.YamlReader;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -35,18 +35,19 @@ public class RocketLauncher extends ChargedRightClickAbility {
 
     @Override
     public void onInitialClick(PlayerInteractEvent event) {
-        pitch = 0.5f;
+        this.pitch = 0.5f;
     }
 
     @Override
     public void onChargeTick() {
-        player.getWorld().playSound(player.getLocation(), Sound.ZOMBIE_METAL, 0.5f, pitch += 1.5 / maxChargeTicks);
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_METAL, 0.5f, this.pitch);
+        this.pitch += 1.5 / this.maxChargeTicks;
     }
 
     @Override
     public void onSuccessfulCharge() {
-        Section main = config.getSection("Rocket");
-        Rocket rocket = new Rocket(plugin, this, main);
+        Section main = this.config.getSection("Rocket");
+        Rocket rocket = new Rocket(this.plugin, this, main);
 
         DamageSettings damageSettings = rocket.getAttackSettings().getDamageSettings();
         damageSettings.setDamage(YamlReader.incLin(main, "Damage", this.ticksCharging, this.maxChargeTicks));
@@ -54,7 +55,7 @@ public class RocketLauncher extends ChargedRightClickAbility {
         KbSettings kbSettings = rocket.getAttackSettings().getKbSettings();
         kbSettings.setKb(YamlReader.incLin(main, "Kb", this.ticksCharging, this.maxChargeTicks));
 
-        rocket.setSpeed(YamlReader.incLin(main, "Speed", ticksCharging, maxChargeTicks));
+        rocket.setSpeed(YamlReader.incLin(main, "Speed", this.ticksCharging, this.maxChargeTicks));
         rocket.launch();
     }
 
@@ -63,6 +64,22 @@ public class RocketLauncher extends ChargedRightClickAbility {
 
         public Rocket(SSL plugin, Ability ability, Section config) {
             super(plugin, ability, config);
+        }
+
+        @Override
+        public void onBlockHit(BlockHitResult result) {
+            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.EXPLODE, 3, 1);
+
+            for (int i = 0; i < 3; i++) {
+                new ParticleBuilder(EnumParticle.EXPLOSION_NORMAL).show(this.entity.getLocation());
+            }
+
+            if (result.getFace() == BlockFace.UP || result.getFace() == BlockFace.DOWN) {
+                Location location = this.entity.getLocation().setDirection(this.entity.getVelocity());
+                float pitch = this.config.getFloat("Shrapnel.Pitch");
+                location.setPitch(result.getFace() == BlockFace.UP ? -pitch : pitch);
+                this.launchShrapnel(location.getDirection(), null);
+            }
         }
 
         @Override
@@ -77,25 +94,33 @@ public class RocketLauncher extends ChargedRightClickAbility {
             }
         }
 
+        @Override
+        public void onTargetHit(LivingEntity target) {
+            this.launchShrapnel(this.entity.getVelocity(), target);
+        }
+
         private void launchShrapnel(Vector direction, LivingEntity toAvoid) {
             this.entity.getWorld().playSound(this.entity.getLocation(), Sound.FIREWORK_LAUNCH, 3, 1);
 
             Location location = this.entity.getLocation().add(0, 0.5, 0).setDirection(direction);
-            float yaw = location.getYaw() - config.getFloat("Shrapnel.YawSpread") / 2;
+            float yaw = location.getYaw() - this.config.getFloat("Shrapnel.YawSpread") / 2;
 
-            for (int i = 0; i < config.getInt("Shrapnel.Count"); i++) {
+            for (int i = 0; i < this.config.getInt("Shrapnel.Count"); i++) {
                 Location launchLocation = location.clone();
                 launchLocation.setYaw(yaw);
 
                 Color colorType = CollectionUtils.selectRandom(ColorType.values()).getColor();
 
-                ParticleBuilder particle = new ParticleBuilder(EnumParticle.REDSTONE)
-                        .setRgb(colorType.getRed(), colorType.getGreen(), colorType.getBlue());
+                ParticleBuilder particle = new ParticleBuilder(EnumParticle.REDSTONE).setRgb(
+                        colorType.getRed(),
+                        colorType.getGreen(),
+                        colorType.getBlue()
+                );
 
-                Section shrapnelConfig = config.getSection("Shrapnel");
+                Section shrapnelConfig = this.config.getSection("Shrapnel");
                 Shrapnel shrapnel = new Shrapnel(this.plugin, this.ability, shrapnelConfig, particle, toAvoid);
 
-                double multiplier =  config.getDouble("Shrapnel.Multiplier");
+                double multiplier = this.config.getDouble("Shrapnel.Multiplier");
 
                 DamageSettings damageSettings = shrapnel.getAttackSettings().getDamageSettings();
                 damageSettings.setDamage(damageSettings.getDamage() * multiplier);
@@ -108,29 +133,8 @@ public class RocketLauncher extends ChargedRightClickAbility {
 
                 shrapnel.launch();
 
-                yaw += config.getFloat("Shrapnel.YawSpread") / config.getInt("Shrapnel.Count");
+                yaw += this.config.getFloat("Shrapnel.YawSpread") / this.config.getInt("Shrapnel.Count");
             }
-        }
-
-        @Override
-        public void onBlockHit(BlockHitResult result) {
-            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.EXPLODE, 3, 1);
-
-            for (int i = 0; i < 3; i++) {
-                new ParticleBuilder(EnumParticle.EXPLOSION_NORMAL).show(this.entity.getLocation());
-            }
-
-            if (result.getFace() == BlockFace.UP || result.getFace() == BlockFace.DOWN) {
-                Location location = this.entity.getLocation().setDirection(this.entity.getVelocity());
-                float pitch = config.getFloat("Shrapnel.Pitch");
-                location.setPitch(result.getFace() == BlockFace.UP ? -pitch : pitch);
-                launchShrapnel(location.getDirection(), null);
-            }
-        }
-
-        @Override
-        public void onTargetHit(LivingEntity target) {
-            launchShrapnel(this.entity.getVelocity(), target);
         }
     }
 
@@ -145,14 +149,8 @@ public class RocketLauncher extends ChargedRightClickAbility {
         }
 
         @Override
-        public EntityFinder getFinder() {
-            EntityFinder finder = super.getFinder();
-
-            if (toAvoid != null) {
-                finder.avoid(toAvoid);
-            }
-
-            return finder;
+        public void onBlockHit(BlockHitResult result) {
+            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.EXPLODE, 1, 1);
         }
 
         @Override
@@ -163,8 +161,14 @@ public class RocketLauncher extends ChargedRightClickAbility {
         }
 
         @Override
-        public void onBlockHit(BlockHitResult result) {
-            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.EXPLODE, 1, 1);
+        public EntityFinder getFinder() {
+            EntityFinder finder = super.getFinder();
+
+            if (this.toAvoid != null) {
+                finder.avoid(this.toAvoid);
+            }
+
+            return finder;
         }
     }
 }

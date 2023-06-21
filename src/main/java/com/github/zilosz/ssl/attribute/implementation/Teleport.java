@@ -1,11 +1,11 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.block.BlockRay;
+import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Sound;

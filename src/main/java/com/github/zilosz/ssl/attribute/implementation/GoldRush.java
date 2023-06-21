@@ -1,15 +1,15 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
-import com.github.zilosz.ssl.utils.message.Chat;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.PassiveAbility;
 import com.github.zilosz.ssl.event.attribute.AbilityUseEvent;
 import com.github.zilosz.ssl.event.attribute.EnergyEvent;
 import com.github.zilosz.ssl.event.attribute.JumpEvent;
 import com.github.zilosz.ssl.kit.Kit;
+import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
+import com.github.zilosz.ssl.utils.message.Chat;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -22,8 +22,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class GoldRush extends PassiveAbility {
     private List<Material> passableMaterials;
@@ -37,16 +37,21 @@ public class GoldRush extends PassiveAbility {
     }
 
     @Override
-    public String getUseType() {
-        return "Sneak";
+    public void activate() {
+        super.activate();
+        List<String> strings = this.config.getStringList("PassableMaterials");
+        this.passableMaterials = strings.stream().map(Material::valueOf).collect(Collectors.toList());
     }
 
     @Override
-    public void activate() {
-        super.activate();
+    public void deactivate() {
+        super.deactivate();
+        this.reset();
+    }
 
-        this.passableMaterials = new ArrayList<>();
-        this.config.getStringList("PassableMaterials").forEach(name -> this.passableMaterials.add(Material.valueOf(name)));
+    @Override
+    public String getUseType() {
+        return "Sneak";
     }
 
     private void reset() {
@@ -76,18 +81,28 @@ public class GoldRush extends PassiveAbility {
         this.kit.getJump().replenish();
     }
 
-    @Override
-    public void deactivate() {
-        super.deactivate();
-        this.reset();
-    }
-
     private boolean isPassable(Location location) {
         return this.passableMaterials.contains(location.getBlock().getType());
     }
 
-    private void teleport(Location location) {
-        this.player.teleport(location.subtract(0, this.config.getDouble("Depth"), 0));
+    @EventHandler
+    public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
+        if (event.getPlayer() != this.player) return;
+        if (this.player.isSneaking()) return;
+
+        if (this.isMining) {
+            this.reset();
+            return;
+        }
+
+        if (this.player.getExp() < 1) return;
+
+        if (!EntityUtils.isPlayerGrounded(this.player)) {
+            Chat.ABILITY.send(this.player, "&7You must be grounded to mine.");
+            return;
+        }
+
+        this.startMining();
     }
 
     private void startMining() {
@@ -97,8 +112,10 @@ public class GoldRush extends PassiveAbility {
 
         this.player.setExp(0);
         this.player.setGameMode(GameMode.SPECTATOR);
-        this.player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 10_000, this.config.getInt("Blindness")));
         this.teleport(this.player.getLocation());
+
+        int blindness = this.config.getInt("Blindness");
+        this.player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 10_000, blindness));
 
         this.resetTask = Bukkit.getScheduler().runTaskLater(this.plugin, this::reset, this.config.getInt("MaxTicks"));
 
@@ -140,24 +157,8 @@ public class GoldRush extends PassiveAbility {
         }, ticksPerParticle, ticksPerParticle);
     }
 
-    @EventHandler
-    public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
-        if (event.getPlayer() != this.player) return;
-        if (this.player.isSneaking()) return;
-
-        if (this.isMining) {
-            this.reset();
-            return;
-        }
-
-        if (this.player.getExp() < 1) return;
-
-        if (!EntityUtils.isPlayerGrounded(this.player)) {
-            Chat.ABILITY.send(this.player, "&7You must be grounded to start mining.");
-            return;
-        }
-
-        this.startMining();
+    private void teleport(Location location) {
+        this.player.teleport(location.subtract(0, this.config.getDouble("Depth"), 0));
     }
 
     @EventHandler

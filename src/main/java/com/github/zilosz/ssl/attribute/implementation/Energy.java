@@ -19,15 +19,15 @@ public class Energy extends Attribute {
     }
 
     @Override
-    public void deactivate() {
-        super.deactivate();
-        this.player.setExp(0);
-    }
-
-    @Override
     public void run() {
         EnergyEvent energyEvent = new EnergyEvent(this.player, this.kit.getEnergy() / 20);
         Bukkit.getPluginManager().callEvent(energyEvent);
         this.player.setExp(Math.min(1, this.player.getExp() + energyEvent.getEnergy()));
+    }
+
+    @Override
+    public void deactivate() {
+        super.deactivate();
+        this.player.setExp(0);
     }
 }

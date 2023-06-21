@@ -1,15 +1,15 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
+import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.PassiveAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.KbSettings;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
+import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.math.MathUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.damage.KbSettings;
-import com.github.zilosz.ssl.kit.Kit;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -36,11 +36,6 @@ public class BlindingFists extends PassiveAbility {
     }
 
     @Override
-    public String getUseType() {
-        return "Melee";
-    }
-
-    @Override
     public void deactivate() {
         super.deactivate();
         this.chainCounts.clear();
@@ -49,9 +44,9 @@ public class BlindingFists extends PassiveAbility {
         this.chainResetters.clear();
     }
 
-    private void resetChains() {
-        this.chainCounts.clear();
-        this.player.removePotionEffect(PotionEffectType.SPEED);
+    @Override
+    public String getUseType() {
+        return "Melee";
     }
 
     @EventHandler
@@ -59,6 +54,11 @@ public class BlindingFists extends PassiveAbility {
         if (event.getEntity() == this.player && event.getDamager() instanceof LivingEntity) {
             this.resetChains();
         }
+    }
+
+    private void resetChains() {
+        this.chainCounts.clear();
+        this.player.removePotionEffect(PotionEffectType.SPEED);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

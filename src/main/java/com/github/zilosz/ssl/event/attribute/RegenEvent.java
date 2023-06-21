@@ -20,7 +20,7 @@ public class RegenEvent extends CustomEvent {
 
         RegenEvent event = new RegenEvent(player, regen);
         Bukkit.getPluginManager().callEvent(event);
-        player.setHealth(Math.min(20, player.getHealth() + event.getRegen()));
+        player.setHealth(Math.min(20, player.getHealth() + event.regen));
 
         return true;
     }

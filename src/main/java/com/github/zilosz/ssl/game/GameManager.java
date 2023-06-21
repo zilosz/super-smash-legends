@@ -1,14 +1,14 @@
 package com.github.zilosz.ssl.game;
 
+import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.game.state.EndState;
 import com.github.zilosz.ssl.game.state.GameState;
 import com.github.zilosz.ssl.game.state.InGameState;
 import com.github.zilosz.ssl.game.state.LobbyState;
-import com.github.zilosz.ssl.game.state.TutorialState;
-import com.github.zilosz.ssl.utils.message.Chat;
-import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.game.state.PreGameState;
+import com.github.zilosz.ssl.game.state.TutorialState;
 import com.github.zilosz.ssl.kit.Kit;
+import com.github.zilosz.ssl.utils.message.Chat;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -31,24 +31,21 @@ public class GameManager {
     private final SSL plugin;
 
     private final List<GameState> states = new ArrayList<>();
-    private int stateIdx = 0;
-
     private final Map<UUID, InGameProfile> profiles = new HashMap<>();
     private final Set<Player> willSpectate = new HashSet<>();
-
+    private final Set<Player> spectators = new HashSet<>();
+    private int stateIdx = 0;
     private BukkitTask tickTask;
     @Getter private int ticksActive = 0;
-
-    private final Set<Player> spectators = new HashSet<>();
 
     public GameManager(SSL plugin) {
         this.plugin = plugin;
 
-        states.add(new LobbyState(plugin));
-        states.add(new TutorialState(plugin));
-        states.add(new PreGameState(plugin));
-        states.add(new InGameState(plugin));
-        states.add(new EndState(plugin));
+        this.states.add(new LobbyState(plugin));
+        this.states.add(new TutorialState(plugin));
+        this.states.add(new PreGameState(plugin));
+        this.states.add(new InGameState(plugin));
+        this.states.add(new EndState(plugin));
     }
 
     public void addFutureSpectator(Player player) {
@@ -63,47 +60,47 @@ public class GameManager {
         return this.willSpectate.contains(player);
     }
 
-    public GameState getState() {
-        return states.get(stateIdx);
-    }
-
-    public void activateState() {
-        getState().start();
-        Bukkit.getPluginManager().registerEvents(getState(), plugin);
+    public void advanceState() {
+        this.endState();
+        this.stateIdx = (this.stateIdx + 1) % this.states.size();
+        this.activateState();
     }
 
     public void endState() {
-        getState().end();
-        HandlerList.unregisterAll(getState());
+        this.getState().end();
+        HandlerList.unregisterAll(this.getState());
     }
 
-    public void advanceState() {
-        endState();
-        stateIdx = (stateIdx + 1) % states.size();
-        activateState();
+    public void activateState() {
+        this.getState().start();
+        Bukkit.getPluginManager().registerEvents(this.getState(), this.plugin);
+    }
+
+    public GameState getState() {
+        return this.states.get(this.stateIdx);
     }
 
     public void skipToState(GameState state) {
 
-        if (getState().isSame(state)) {
+        if (this.getState().isSame(state)) {
             Chat.GAME.broadcast("&7Cannot skip to the current state.");
             return;
         }
 
-        endState();
+        this.endState();
 
-        while (!getState().isSame(state)) {
-            stateIdx = (stateIdx + 1) % states.size();
-            activateState();
+        while (!this.getState().isSame(state)) {
+            this.stateIdx = (this.stateIdx + 1) % this.states.size();
+            this.activateState();
 
-            if (!getState().isSame(state)) {
-                endState();
+            if (!this.getState().isSame(state)) {
+                this.endState();
             }
         }
     }
 
     public Optional<GameState> findState(String name) {
-        return states.stream().filter(state -> state.getConfigName().equalsIgnoreCase(name)).findAny();
+        return this.states.stream().filter(state -> state.getConfigName().equalsIgnoreCase(name)).findAny();
     }
 
     public void startTicks() {
@@ -116,14 +113,6 @@ public class GameManager {
         this.profiles.put(player.getUniqueId(), new InGameProfile(lives, kit));
     }
 
-    public InGameProfile getProfile(Player player) {
-        return this.profiles.get(player.getUniqueId());
-    }
-
-    public boolean isPlayerAlive(Player player) {
-        return !this.isSpectator(player) && this.getProfile(player).getLives() > 0;
-    }
-
     public Set<Player> getAlivePlayers() {
         return this.profiles.keySet().stream()
                 .map(Bukkit::getOfflinePlayer)
@@ -133,18 +122,16 @@ public class GameManager {
                 .collect(Collectors.toSet());
     }
 
-    public void addSpectator(Player player) {
-        player.setGameMode(GameMode.SPECTATOR);
-        this.spectators.add(player);
-    }
-
-    public void removeSpectator(Player player) {
-        player.setGameMode(GameMode.SURVIVAL);
-        this.spectators.remove(player);
+    public boolean isPlayerAlive(Player player) {
+        return !this.isSpectator(player) && this.getProfile(player).getLives() > 0;
     }
 
     public boolean isSpectator(Player player) {
         return this.spectators.contains(player);
+    }
+
+    public InGameProfile getProfile(Player player) {
+        return this.profiles.get(player.getUniqueId());
     }
 
     public void reset() {
@@ -156,5 +143,15 @@ public class GameManager {
         if (this.tickTask != null) {
             this.tickTask.cancel();
         }
+    }
+
+    public void removeSpectator(Player player) {
+        player.setGameMode(GameMode.SURVIVAL);
+        this.spectators.remove(player);
+    }
+
+    public void addSpectator(Player player) {
+        player.setGameMode(GameMode.SPECTATOR);
+        this.spectators.add(player);
     }
 }

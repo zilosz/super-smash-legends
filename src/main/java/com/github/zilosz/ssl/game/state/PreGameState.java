@@ -24,16 +24,6 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
     }
 
     @Override
-    public String getConfigName() {
-        return "PreGame";
-    }
-
-    @Override
-    public boolean isInArena() {
-        return true;
-    }
-
-    @Override
     public boolean allowKitSelection() {
         return true;
     }
@@ -41,11 +31,6 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
     @Override
     public boolean updatesKitSkins() {
         return true;
-    }
-
-    @Override
-    public boolean allowsDamage() {
-        return false;
     }
 
     @Override
@@ -69,10 +54,7 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
         ));
 
         Arena arena = this.plugin.getArenaManager().getArena();
-
-        Replacers replacers = new Replacers()
-                .add("ARENA", arena.getName())
-                .add("AUTHORS", arena.getAuthors());
+        Replacers replacers = new Replacers().add("ARENA", arena.getName()).add("AUTHORS", arena.getAuthors());
 
         if (!this.plugin.getGameManager().isSpectator(player)) {
             lines.add("");
@@ -95,29 +77,31 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
             player.setFlying(true);
         }
 
-        startCountdown = new BukkitRunnable() {
-            int secondsLeft = plugin.getResources().getConfig().getInt("Game.StartWaitSeconds");
+        this.startCountdown = new BukkitRunnable() {
+            int secondsLeft = PreGameState.this.plugin.getResources().getConfig().getInt("Game.StartWaitSeconds");
+            final double pitchStep = 1.5 / this.secondsLeft;
             float pitch = 0.5f;
-            final double pitchStep = 1.5 / secondsLeft;
 
             @Override
             public void run() {
 
-                if (secondsLeft == 0) {
-                    plugin.getGameManager().advanceState();
+                if (this.secondsLeft == 0) {
+                    PreGameState.this.plugin.getGameManager().advanceState();
                     return;
                 }
 
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    TitleAPI.sendTitle(player, MessageUtils.color("&7Starting in..."), MessageUtils.color("&5&l" + secondsLeft), 4, 12, 4);
-                    player.playSound(player.getLocation(), Sound.CLICK, 1, pitch);
+                    String title = MessageUtils.color("&7Starting in...");
+                    TitleAPI.sendTitle(player, title, MessageUtils.color("&5&l" + this.secondsLeft), 4, 12, 4);
+
+                    player.playSound(player.getLocation(), Sound.CLICK, 1, this.pitch);
                 }
 
-                pitch += pitchStep;
-                secondsLeft--;
+                this.pitch += this.pitchStep;
+                this.secondsLeft--;
             }
 
-        }.runTaskTimer(plugin, 40, 20);
+        }.runTaskTimer(this.plugin, 40, 20);
     }
 
     @Override
@@ -132,6 +116,21 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
                 player.setFlying(false);
             }
         }
+    }
+
+    @Override
+    public String getConfigName() {
+        return "PreGame";
+    }
+
+    @Override
+    public boolean isInArena() {
+        return true;
+    }
+
+    @Override
+    public boolean allowsDamage() {
+        return false;
     }
 
     @Override

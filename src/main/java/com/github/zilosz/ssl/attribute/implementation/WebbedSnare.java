@@ -1,6 +1,5 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
@@ -12,6 +11,7 @@ import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -33,21 +33,13 @@ public class WebbedSnare extends RightClickAbility {
         super(plugin, config, kit);
     }
 
-    private void launch(Location source, boolean first) {
-        SnareProjectile projectile = new SnareProjectile(this.plugin, this, this.config.getSection("Projectile"));
-        projectile.setOverrideLocation(source);
-
-        if (first) {
-            projectile.setSpread(0);
-        }
-
-        projectile.launch();
-    }
-
     @Override
     public void onClick(PlayerInteractEvent event) {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SPIDER_DEATH, 2, 2);
-        this.player.setVelocity(this.player.getEyeLocation().getDirection().multiply(this.config.getDouble("Velocity")));
+
+        this.player.setVelocity(this.player.getEyeLocation()
+                .getDirection()
+                .multiply(this.config.getDouble("Velocity")));
 
         this.hitEntities = new HashSet<>();
 
@@ -62,6 +54,17 @@ public class WebbedSnare extends RightClickAbility {
         for (Vector vector : VectorUtils.getConicVectors(source, angle, count)) {
             this.launch(source.setDirection(vector), false);
         }
+    }
+
+    private void launch(Location source, boolean first) {
+        SnareProjectile projectile = new SnareProjectile(this.plugin, this, this.config.getSection("Projectile"));
+        projectile.setOverrideLocation(source);
+
+        if (first) {
+            projectile.setSpread(0);
+        }
+
+        projectile.launch();
     }
 
     @EventHandler
@@ -83,6 +86,11 @@ public class WebbedSnare extends RightClickAbility {
         }
 
         @Override
+        public void onBlockHit(BlockHitResult result) {
+            this.turnIntoWeb(null);
+        }
+
+        @Override
         public void onTick() {
 
             if (this.entity.getLocation().getBlock().getType() == Material.WEB) {
@@ -91,6 +99,12 @@ public class WebbedSnare extends RightClickAbility {
             } else if (this.ticksAlive % 2 == 0) {
                 new ParticleBuilder(EnumParticle.SNOWBALL).show(this.entity.getLocation());
             }
+        }
+
+        @Override
+        public void onTargetHit(LivingEntity target) {
+            this.turnIntoWeb(target);
+            target.setVelocity(new Vector(0, 0, 0));
         }
 
         private void turnIntoWeb(LivingEntity target) {
@@ -110,17 +124,6 @@ public class WebbedSnare extends RightClickAbility {
                     this.webBlock.setType(Material.AIR);
                 }
             }, duration);
-        }
-
-        @Override
-        public void onTargetHit(LivingEntity target) {
-            this.turnIntoWeb(target);
-            target.setVelocity(new Vector(0, 0, 0));
-        }
-
-        @Override
-        public void onBlockHit(BlockHitResult result) {
-            this.turnIntoWeb(null);
         }
     }
 }

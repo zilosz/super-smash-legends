@@ -1,28 +1,28 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
+import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
 import com.github.zilosz.ssl.event.attribute.AbilityUseEvent;
 import com.github.zilosz.ssl.event.projectile.ProjectileHitBlockEvent;
+import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.CustomProjectile;
+import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.team.TeamPreference;
+import com.github.zilosz.ssl.utils.block.BlockHitResult;
+import com.github.zilosz.ssl.utils.block.BlockRay;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.DistanceSelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
-import com.github.zilosz.ssl.utils.math.VectorUtils;
-import com.github.zilosz.ssl.utils.message.Chat;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
-import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
-import com.github.zilosz.ssl.kit.Kit;
-import com.github.zilosz.ssl.projectile.ItemProjectile;
-import com.github.zilosz.ssl.utils.block.BlockHitResult;
-import com.github.zilosz.ssl.utils.block.BlockRay;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.MathUtils;
+import com.github.zilosz.ssl.utils.math.VectorUtils;
+import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
 import me.filoghost.holographicdisplays.api.hologram.line.TextHologramLine;
@@ -72,6 +72,62 @@ public class Boombox extends RightClickAbility {
         return !this.canPlace;
     }
 
+    @Override
+    public void onClick(PlayerInteractEvent event) {
+        this.isPlaced = true;
+
+        Location source = this.player.getEyeLocation();
+        BlockRay blockRay = new BlockRay(source);
+        blockRay.cast(this.config.getInt("PlaceReach"));
+        this.block = blockRay.getEmptyDestination().getBlock();
+        this.block.setType(Material.JUKEBOX);
+
+        this.player.getWorld().playSound(this.block.getLocation(), Sound.DIG_WOOD, 2, 1);
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.NOTE_SNARE_DRUM, 3, 0.5f);
+
+        Location above = this.block.getLocation().add(0.5, 1.7, 0.5);
+        this.hologram = HolographicDisplaysAPI.get(this.plugin).createHologram(above);
+        String color = this.kit.getColor().getChatSymbol();
+        String title = String.format("&f%s's %s&lBoombox", this.player.getName(), color);
+        this.hologram.getLines().appendText(MessageUtils.color(title));
+
+        this.health = this.getMaxHealth();
+        this.updateHealth(0);
+
+        double healthLossPerTick = this.health / this.config.getInt("MaxDuration");
+        this.healthTask = Bukkit.getScheduler()
+                .runTaskTimer(this.plugin, () -> this.updateHealth(healthLossPerTick), 1, 1);
+    }
+
+    @Override
+    public void deactivate() {
+        this.reset(false);
+        super.deactivate();
+    }
+
+    private double getMaxHealth() {
+        return this.config.getDouble("Health");
+    }
+
+    private void updateHealth(double loss) {
+        this.health -= loss;
+
+        if (this.health <= 0) {
+            this.reset(true);
+            return;
+        }
+
+        this.player.setExp((float) (this.health / this.getMaxHealth()));
+        String bar = MessageUtils.progressBar("|", "|", "&a", "&c", this.health, this.getMaxHealth(), 20);
+
+        if (this.hologram.getLines().size() == 1) {
+            this.healthLine = this.hologram.getLines().insertText(0, bar);
+
+        } else {
+            this.healthLine.setText(bar);
+        }
+    }
+
     private void reset(boolean startCanPlaceTask) {
         if (!this.isPlaced) return;
 
@@ -114,59 +170,20 @@ public class Boombox extends RightClickAbility {
         this.player.getWorld().playSound(this.block.getLocation(), Sound.ZOMBIE_WOODBREAK, 1, 0.8f);
     }
 
-    @Override
-    public void deactivate() {
-        this.reset(false);
-        super.deactivate();
-    }
+    @EventHandler
+    public void onProjectileHitBlock(ProjectileHitBlockEvent event) {
+        if (!this.isPlaced) return;
+        if (!(event.getResult().getBlock().equals(this.block))) return;
 
-    private double getMaxHealth() {
-        return this.config.getDouble("Health");
-    }
+        CustomProjectile<? extends Entity> projectile = event.getProjectile();
 
-    private void updateHealth(double loss) {
-        this.health -= loss;
-
-        if (this.health <= 0) {
-            this.reset(true);
-            return;
-        }
-
-        this.player.setExp((float) (this.health / this.getMaxHealth()));
-        String bar = MessageUtils.progressBar("|", "|", "&a", "&c", this.health, this.getMaxHealth(), 20);
-
-        if (this.hologram.getLines().size() == 1) {
-            this.healthLine = this.hologram.getLines().insertText(0, bar);
+        if (projectile instanceof MixTapeDrop.MixTapeProjectile) {
+            this.explode();
 
         } else {
-            this.healthLine.setText(bar);
+            this.updateHealth(projectile.getAttackSettings().getDamageSettings().getDamage());
+            this.player.getWorld().playSound(this.block.getLocation(), Sound.ZOMBIE_WOODBREAK, 1, 1.5f);
         }
-    }
-
-    @Override
-    public void onClick(PlayerInteractEvent event) {
-        this.isPlaced = true;
-
-        Location source = this.player.getEyeLocation();
-        BlockRay blockRay = new BlockRay(source);
-        blockRay.cast(this.config.getInt("PlaceReach"));
-        this.block = blockRay.getEmptyDestination().getBlock();
-        this.block.setType(Material.JUKEBOX);
-
-        this.player.getWorld().playSound(this.block.getLocation(), Sound.DIG_WOOD, 2, 1);
-        this.player.getWorld().playSound(this.player.getLocation(), Sound.NOTE_SNARE_DRUM, 3, 0.5f);
-
-        Location above = this.block.getLocation().add(0.5, 1.7, 0.5);
-        this.hologram = HolographicDisplaysAPI.get(this.plugin).createHologram(above);
-        String color = this.kit.getColor().getChatSymbol();
-        String title = String.format("&f%s's %s&lBoombox", this.player.getName(), color);
-        this.hologram.getLines().appendText(MessageUtils.color(title));
-
-        this.health = this.getMaxHealth();
-        this.updateHealth(0);
-
-        double healthLossPerTick = this.health / this.config.getInt("MaxDuration");
-        this.healthTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> this.updateHealth(healthLossPerTick), 1, 1);
     }
 
     private void explode() {
@@ -182,8 +199,8 @@ public class Boombox extends RightClickAbility {
         double radius = mixTapeConfig.getDouble("Radius");
         EntitySelector selector = new DistanceSelector(radius);
 
-        EntityFinder finder = new EntityFinder(this.plugin, selector)
-                .setTeamPreference(TeamPreference.ANY).setAvoidsUser(false);
+        EntityFinder finder = new EntityFinder(this.plugin, selector).setTeamPreference(TeamPreference.ANY)
+                .setAvoidsUser(false);
 
         Location center = this.block.getLocation().add(0.5, 0.5, 0.5);
 
@@ -202,34 +219,6 @@ public class Boombox extends RightClickAbility {
         });
 
         this.reset(true);
-    }
-
-    @EventHandler
-    public void onProjectileHitBlock(ProjectileHitBlockEvent event) {
-        if (!this.isPlaced) return;
-        if (!(event.getResult().getBlock().equals(this.block))) return;
-
-        CustomProjectile<? extends Entity> projectile = event.getProjectile();
-
-        if (projectile instanceof MixTapeDrop.MixTapeProjectile) {
-            this.explode();
-
-        } else {
-            this.updateHealth(projectile.getAttackSettings().getDamageSettings().getDamage());
-            this.player.getWorld().playSound(this.block.getLocation(), Sound.ZOMBIE_WOODBREAK, 1, 1.5f);
-        }
-    }
-
-    private void launch(boolean first, Location source) {
-        Section settings = this.config.getSection("Projectile");
-        MusicDiscProjectile projectile = new MusicDiscProjectile(this.plugin, this, settings);
-        projectile.setOverrideLocation(source);
-
-        if (first) {
-            projectile.setSpread(0);
-        }
-
-        projectile.launch();
     }
 
     @EventHandler
@@ -263,8 +252,8 @@ public class Boombox extends RightClickAbility {
         this.player.getWorld().playSound(this.block.getLocation(), Sound.NOTE_PLING, 2, pitch);
 
         for (int i = 0; i < 5; i++) {
-            new ParticleBuilder(EnumParticle.NOTE)
-                    .setSpread(0.3f, 0.3f, 0.3f).show(this.block.getLocation().add(0, 1.4, 0));
+            new ParticleBuilder(EnumParticle.NOTE).setSpread(0.3f, 0.3f, 0.3f)
+                    .show(this.block.getLocation().add(0, 1.4, 0));
         }
 
         Vector direction = this.player.getEyeLocation().getDirection();
@@ -280,9 +269,22 @@ public class Boombox extends RightClickAbility {
             this.launch(false, loc);
         }
 
-        if (++this.charge == maxPunches) {
+        ++this.charge;
+        if (this.charge == maxPunches) {
             this.reset(true);
         }
+    }
+
+    private void launch(boolean first, Location source) {
+        Section settings = this.config.getSection("Projectile");
+        MusicDiscProjectile projectile = new MusicDiscProjectile(this.plugin, this, settings);
+        projectile.setOverrideLocation(source);
+
+        if (first) {
+            projectile.setSpread(0);
+        }
+
+        projectile.launch();
     }
 
     @EventHandler
@@ -324,23 +326,23 @@ public class Boombox extends RightClickAbility {
         }
 
         @Override
-        public void onTick() {
-            new ParticleBuilder(EnumParticle.FIREWORKS_SPARK).show(this.entity.getLocation());
-        }
-
-        private void showEffect() {
-            new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).show(this.entity.getLocation());
-            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.NOTE_PLING, 2, 2);
-        }
-
-        @Override
         public void onBlockHit(BlockHitResult result) {
             this.showEffect();
         }
 
         @Override
+        public void onTick() {
+            new ParticleBuilder(EnumParticle.FIREWORKS_SPARK).show(this.entity.getLocation());
+        }
+
+        @Override
         public void onTargetHit(LivingEntity target) {
             this.showEffect();
+        }
+
+        private void showEffect() {
+            new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).show(this.entity.getLocation());
+            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.NOTE_PLING, 2, 2);
         }
     }
 }

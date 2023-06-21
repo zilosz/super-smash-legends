@@ -19,8 +19,11 @@ public class WorldManager {
     private final Map<String, EditSession> worlds = new HashMap<>();
 
     public void createWorld(String name, File schematic, Vector paste) {
+
         WorldCreator config = WorldCreator.name(name)
-                .type(WorldType.FLAT).generateStructures(false).generatorSettings("3;minecraft:air;2");
+                .type(WorldType.FLAT)
+                .generateStructures(false)
+                .generatorSettings("3;minecraft:air;2");
 
         com.sk89q.worldedit.Vector weVector = new com.sk89q.worldedit.Vector(paste.getX(), paste.getY(), paste.getZ());
 

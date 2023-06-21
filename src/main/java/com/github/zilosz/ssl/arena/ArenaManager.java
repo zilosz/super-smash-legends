@@ -19,24 +19,24 @@ public class ArenaManager {
     }
 
     public void setupArenas() {
-        arenas = plugin.getResources().loadArenas();
+        this.arenas = this.plugin.getResources().loadArenas();
     }
 
     public List<Arena> getArenas() {
-        return Collections.unmodifiableList(arenas);
+        return Collections.unmodifiableList(this.arenas);
     }
 
     public Optional<Arena> getChosenArena(Player player) {
-        return arenas.stream().filter(arena -> arena.isVotedFor(player)).findAny();
+        return this.arenas.stream().filter(arena -> arena.isVotedBy(player)).findAny();
     }
 
     public void setupArena() {
-        List<Arena> bestArenas = CollectionUtils.findByHighestInt(arenas, Arena::getTotalVotes);
-        arena = bestArenas.size() == 1 ? bestArenas.get(0) : CollectionUtils.selectRandom(bestArenas);
-        arena.create();
+        List<Arena> bestArenas = CollectionUtils.findByHighestInt(this.arenas, Arena::getTotalVotes);
+        this.arena = bestArenas.size() == 1 ? bestArenas.get(0) : CollectionUtils.selectRandom(bestArenas);
+        this.arena.create();
     }
 
     public void wipePlayer(Player player) {
-        arenas.forEach(arena -> arena.wipeVote(player));
+        this.arenas.forEach(arena -> arena.wipeVote(player));
     }
 }

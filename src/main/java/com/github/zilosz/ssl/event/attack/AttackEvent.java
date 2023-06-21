@@ -13,10 +13,10 @@ import java.util.Optional;
 
 @Getter
 public class AttackEvent extends CustomEvent implements Cancellable {
-    @Setter private boolean cancelled = false;
     private final LivingEntity victim;
     private final AttackSettings attackSettings;
     private final Attribute attribute;
+    @Setter private boolean cancelled = false;
 
     public AttackEvent(LivingEntity victim, AttackSettings attackSettings, Attribute attribute) {
         this.victim = victim;

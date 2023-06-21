@@ -5,33 +5,32 @@ import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.attribute.implementation.Energy;
 import com.github.zilosz.ssl.attribute.implementation.Jump;
-import com.github.zilosz.ssl.utils.Noise;
-import com.github.zilosz.ssl.utils.effect.ColorType;
-import com.github.zilosz.ssl.utils.message.MessageUtils;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import com.github.zilosz.ssl.attribute.implementation.Melee;
 import com.github.zilosz.ssl.attribute.implementation.Regeneration;
+import com.github.zilosz.ssl.utils.Noise;
 import com.github.zilosz.ssl.utils.Reflector;
 import com.github.zilosz.ssl.utils.Skin;
+import com.github.zilosz.ssl.utils.effect.ColorType;
 import com.github.zilosz.ssl.utils.file.YamlReader;
+import com.github.zilosz.ssl.utils.message.MessageUtils;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.IntStream;
 
 public class Kit {
     private static final SSL plugin = SSL.getInstance();
 
     private final Section config;
+
     private final List<Attribute> attributes = new ArrayList<>();
+    @Getter private final Jump jump;
+    @Getter private final Skin skin;
 
     @Getter private Player player;
-    @Getter private final Jump jump;
-
-    @Getter private final Skin skin;
 
     @SuppressWarnings("unchecked")
     public Kit(Section config) {
@@ -39,35 +38,36 @@ public class Kit {
 
         this.skin = Skin.fromMojang(this.getSkinName());
 
-        jump = new Jump(SSL.getInstance(), this);
-        attributes.add(jump);
+        this.jump = new Jump(SSL.getInstance(), this);
+        this.attributes.add(this.jump);
 
-        attributes.add(new Regeneration(plugin, this));
-        attributes.add(new Melee(plugin, this));
+        this.attributes.add(new Regeneration(plugin, this));
+        this.attributes.add(new Melee(plugin, this));
 
         if (config.isNumber("Energy")) {
-            attributes.add(new Energy(plugin, this));
+            this.attributes.add(new Energy(plugin, this));
         }
 
-        IntStream.range(0, 9).forEach(slot -> config.getOptionalSection("Abilities." + slot).ifPresent(abilityConfig -> {
-            String name = Ability.class.getPackageName() + ".implementation." + abilityConfig.getString("ConfigName");
-            Class<? extends Ability> clazz = (Class<? extends Ability>) Reflector.loadClass(name);
-            Ability ability = Reflector.newInstance(clazz, plugin, abilityConfig, this);
-            ability.setSlot(slot);
-            attributes.add(ability);
-        }));
+        for (int i = 0; i < 9; i++) {
+            int finalI = i;
+
+            config.getOptionalSection("Abilities." + i).ifPresent(abilityConfig -> {
+                String configName = abilityConfig.getString("ConfigName");
+                String name = Ability.class.getPackageName() + ".implementation." + configName;
+                Class<? extends Ability> clazz = (Class<? extends Ability>) Reflector.loadClass(name);
+                Ability ability = Reflector.newInstance(clazz, plugin, abilityConfig, this);
+                ability.setSlot(finalI);
+                this.attributes.add(ability);
+            });
+        }
+    }
+
+    public String getSkinName() {
+        return this.config.getString("Skin");
     }
 
     public String getConfigName() {
         return this.config.getString("ConfigName");
-    }
-
-    public ColorType getColor() {
-        try {
-            return ColorType.valueOf(this.config.getString("Color"));
-        } catch (IllegalArgumentException e) {
-            return ColorType.WHITE;
-        }
     }
 
     public List<String> getDescription() {
@@ -78,40 +78,48 @@ public class Kit {
         return MessageUtils.color(this.getColor().getChatSymbol() + this.config.getString("Name"));
     }
 
+    public ColorType getColor() {
+        try {
+            return ColorType.valueOf(this.config.getString("Color"));
+        } catch (IllegalArgumentException e) {
+            return ColorType.WHITE;
+        }
+    }
+
     public String getBoldedDisplayName() {
         return MessageUtils.color(this.getColor().getChatSymbol() + "&l" + this.config.getString("Name"));
     }
 
     public double getRegen() {
-        return config.getDouble("Regen");
+        return this.config.getDouble("Regen");
     }
 
     public double getArmor() {
-        return config.getDouble("Armor");
+        return this.config.getDouble("Armor");
     }
 
     public double getDamage() {
-        return config.getDouble("Damage");
+        return this.config.getDouble("Damage");
     }
 
     public double getKb() {
-        return config.getDouble("Kb");
+        return this.config.getDouble("Kb");
     }
 
     public double getJumpPower() {
-        return config.getDouble("Jump.Power");
+        return this.config.getDouble("Jump.Power");
     }
 
     public double getJumpHeight() {
-        return config.getDouble("Jump.Height");
+        return this.config.getDouble("Jump.Height");
     }
 
     public int getJumpCount() {
-        return config.getOptionalInt("Jump.Count").orElse(1);
+        return this.config.getOptionalInt("Jump.Count").orElse(1);
     }
 
     public Noise getJumpNoise() {
-        return YamlReader.noise(config.getSection("Jump.Sound"));
+        return YamlReader.noise(this.config.getSection("Jump.Sound"));
     }
 
     public Noise getHurtNoise() {
@@ -123,35 +131,31 @@ public class Kit {
     }
 
     public float getEnergy() {
-        return config.getFloat("Energy");
-    }
-
-    public String getSkinName() {
-        return this.config.getString("Skin");
+        return this.config.getFloat("Energy");
     }
 
     public List<Attribute> getAttributes() {
-        return Collections.unmodifiableList(attributes);
+        return Collections.unmodifiableList(this.attributes);
     }
 
     public void equip(Player player) {
         this.player = player;
-        giveItems();
+        this.giveItems();
     }
 
     public void giveItems() {
-        attributes.forEach(Attribute::equip);
+        this.attributes.forEach(Attribute::equip);
     }
 
     public void activate() {
-        attributes.forEach(Attribute::activate);
+        this.attributes.forEach(Attribute::activate);
     }
 
     public void deactivate() {
-        attributes.forEach(Attribute::deactivate);
+        this.attributes.forEach(Attribute::deactivate);
     }
 
     public void destroy() {
-        attributes.forEach(Attribute::destroy);
+        this.attributes.forEach(Attribute::destroy);
     }
 }

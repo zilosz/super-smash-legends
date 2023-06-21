@@ -6,7 +6,8 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-@Getter @Setter
+@Getter
+@Setter
 public class Noise {
     private Sound sound;
     private float volume;

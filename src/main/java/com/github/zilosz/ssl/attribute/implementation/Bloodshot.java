@@ -22,9 +22,12 @@ public class Bloodshot extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        RunnableUtils.runTaskWithIntervals(plugin,
-                config.getInt("Count"), config.getInt("Interval"),
-                () -> new BloodProjectile(plugin, this, config.getSection("Projectile")).launch());
+        RunnableUtils.runTaskWithIntervals(
+                this.plugin,
+                this.config.getInt("Count"),
+                this.config.getInt("Interval"),
+                () -> new BloodProjectile(this.plugin, this, this.config.getSection("Projectile")).launch()
+        );
     }
 
     public static class BloodProjectile extends ItemProjectile {
@@ -40,7 +43,11 @@ public class Bloodshot extends RightClickAbility {
 
         @Override
         public void onTargetHit(LivingEntity target) {
-            target.addPotionEffect(new PotionEffect(PotionEffectType.POISON, config.getInt("PoisonDuration"), config.getInt("PoisonLevel")));
+            target.addPotionEffect(new PotionEffect(
+                    PotionEffectType.POISON,
+                    this.config.getInt("PoisonDuration"),
+                    this.config.getInt("PoisonLevel")
+            ));
             new ParticleBuilder(EnumParticle.REDSTONE).boom(this.plugin, this.entity.getLocation(), 3, 0.3, 7);
         }
     }
