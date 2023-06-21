@@ -1396,7 +1396,7 @@ Webman:
         - "&7&oFists &rchains and breaks webs."
       Cooldown: 120
       Damage: 6
-      Kb: 1.4
+      Kb: 1.5
       KbY: 1
     1:
       ConfigName: WebGrapple

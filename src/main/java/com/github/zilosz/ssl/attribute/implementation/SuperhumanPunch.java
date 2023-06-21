@@ -44,6 +44,16 @@ public class SuperhumanPunch extends RightClickAbility {
         }
     }
 
+    @Override
+    public void deactivate() {
+        super.deactivate();
+        this.hit = false;
+
+        if (this.particleTask != null) {
+            this.particleTask.cancel();
+        }
+    }
+
     @EventHandler
     public void onUseEntity(PlayerInteractAtEntityEvent event) {
         if (event.getPlayer() != this.player) return;
