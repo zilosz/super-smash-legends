@@ -1,6 +1,7 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.attribute.PassiveAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
 import com.github.zilosz.ssl.damage.KbSettings;
@@ -13,7 +14,6 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
@@ -70,8 +70,10 @@ public class BlindingFists extends PassiveAbility {
             return;
         }
 
-        if (event.getAttribute().getPlayer() != this.player) return;
-        if (!(event.getAttribute() instanceof Melee)) return;
+        Attribute attribute = event.getAttribute();
+
+        if (attribute.getPlayer() != this.player) return;
+        if (!(attribute instanceof Melee) && !(attribute instanceof SuperhumanPunch)) return;
 
         int maxChain = this.config.getInt("MaxChain");
 
@@ -82,23 +84,10 @@ public class BlindingFists extends PassiveAbility {
             double pitch = MathUtils.increasingLinear(0.5, 2, maxChain - 1, currChain - 1);
             this.player.playSound(this.player.getLocation(), Sound.ZOMBIE_REMEDY, 0.5f, (float) pitch);
 
-            Location center = EntityUtils.center(event.getVictim());
+            Location center = EntityUtils.center(victim);
             new ParticleBuilder(EnumParticle.REDSTONE).boom(this.plugin, center, 1.5, 0.375, 5);
 
-            for (int x = -1; x <= 1; x++) {
-
-                for (int y = -1; y <= 2; y++) {
-
-                    for (int z = -1; z <= 1; z++) {
-                        Location location = victim.getLocation().clone().add(x, y, z);
-
-                        if (location.getBlock().getType() == Material.WEB) {
-                            location.getBlock().setType(Material.AIR);
-                            location.getWorld().playSound(location, Sound.ITEM_BREAK, 1, 1);
-                        }
-                    }
-                }
-            }
+            WebbedSnare.tryWebRemoval(victim);
 
             if (currChain == 1) {
                 this.player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10_000, 1));

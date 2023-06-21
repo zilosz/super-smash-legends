@@ -1385,10 +1385,24 @@ Webman:
     Pitch: 1
   Abilities:
     0:
+      ConfigName: SuperhumanPunch
+      Name: "Superhuman Punch"
+      Item:
+        Material: DIAMOND_AXE
+      Description:
+        - "&7Webman winds up a lethal punch that"
+        - "&7does increased damage and knock-back."
+        - "&7It works in tandem with &oBlinding"
+        - "&7&oFists &rchains and breaks webs."
+      Cooldown: 120
+      Damage: 6
+      Kb: 1.4
+      KbY: 1
+    1:
       ConfigName: WebGrapple
       Name: "Web Grapple"
       Item:
-        Material: DIAMOND_AXE
+        Material: GOLD_BARDING
       Description:
         - "&7Webman can shoot webbing forwards that"
         - "&7functions as a grappling hook. The webs"
@@ -1397,7 +1411,7 @@ Webman:
         - "&7enemies that they hit."
       Cooldown: 70
       Projectile:
-        Speed: 2.3
+        Speed: 2.5
         PullSpeed: 2
         Damage: 5
         Kb: 1.5
@@ -1406,11 +1420,11 @@ Webman:
         ExtraY: 0.4
         Item:
           Material: WEB
-    1:
+    2:
       ConfigName: WebbedSnare
       Name: "Webbed Snare"
       Item:
-        Material: GOLD_SPADE
+        Material: IRON_SPADE
       Description:
         - "&7Given Webman's spider origins, he can"
         - "&7shoot webbing backwards that latches onto"
@@ -1428,7 +1442,7 @@ Webman:
         WebDuration: 40
         Item:
           Material: WEB
-    2:
+    3:
       ConfigName: BlindingFists
       Name: "Blinding Fists"
       Item:
@@ -1441,9 +1455,9 @@ Webman:
         - "&7begins."
       MaxChain: 5
       ChainDuration: 80
-      MaxDamageMultiplier: 1.5
-      MaxKbMultiplier: 2.5
-      MaxKbYMultiplier: 2.5
+      MaxDamageMultiplier: 1.3
+      MaxKbMultiplier: 2
+      MaxKbYMultiplier: 2
       Speed: 1
 Mermaid:
   ConfigName: Mermaid

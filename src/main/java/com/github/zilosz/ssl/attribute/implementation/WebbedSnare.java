@@ -33,13 +33,30 @@ public class WebbedSnare extends RightClickAbility {
         super(plugin, config, kit);
     }
 
+    public static void tryWebRemoval(LivingEntity victim) {
+
+        for (int x = -1; x <= 1; x++) {
+
+            for (int y = -1; y <= 2; y++) {
+
+                for (int z = -1; z <= 1; z++) {
+                    Location location = victim.getLocation().clone().add(x, y, z);
+
+                    if (location.getBlock().getType() == Material.WEB) {
+                        location.getBlock().setType(Material.AIR);
+                        location.getWorld().playSound(location, Sound.ITEM_BREAK, 1, 1);
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public void onClick(PlayerInteractEvent event) {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SPIDER_DEATH, 2, 2);
 
-        this.player.setVelocity(this.player.getEyeLocation()
-                .getDirection()
-                .multiply(this.config.getDouble("Velocity")));
+        double velocity = this.config.getDouble("Velocity");
+        this.player.setVelocity(this.player.getEyeLocation().getDirection().multiply(velocity));
 
         this.hitEntities = new HashSet<>();
 

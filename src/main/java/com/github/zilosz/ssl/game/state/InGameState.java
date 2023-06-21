@@ -403,8 +403,6 @@ public class InGameState extends GameState {
             DeathNPC.spawn(this.plugin, died);
         }
 
-        died.setGameMode(GameMode.SPECTATOR);
-
         InGameProfile profile = this.plugin.getGameManager().getProfile(died);
         profile.setLives(profile.getLives() - 1);
         profile.setDeaths(profile.getDeaths() + 1);
@@ -423,8 +421,8 @@ public class InGameState extends GameState {
         String diedName = this.plugin.getTeamManager().getPlayerColor(died) + died.getName();
 
         if (killingAttribute == null) {
-            tpLocation = waitLocation;
             deathMessage = String.format("%s &7died.", diedName);
+            tpLocation = waitLocation;
 
         } else {
             Player killer = killingAttribute.getPlayer();
@@ -445,10 +443,11 @@ public class InGameState extends GameState {
                 deathMessage = String.format("%s &7was killed by %s.", diedName, killerName);
             }
 
-            tpLocation = killer.equals(died) ? waitLocation : killer.getLocation();
+            tpLocation = killer.getLocation();
         }
 
         Chat.DEATH.broadcast(deathMessage);
+        died.setGameMode(GameMode.SPECTATOR);
 
         if (teleportPlayer) {
             died.teleport(tpLocation);
