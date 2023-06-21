@@ -4,6 +4,7 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
 import com.github.zilosz.ssl.damage.DamageSettings;
+import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.projectile.ProjectileLaunchEvent;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.team.Team;
@@ -37,7 +38,6 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -64,11 +64,8 @@ public class ShadowCloneJutsu extends RightClickAbility {
         Skeleton creature = this.player.getWorld().spawn(this.player.getLocation(), Skeleton.class);
         creature.setSkeletonType(Skeleton.SkeletonType.WITHER);
 
-        creature.addPotionEffect(new PotionEffect(
-                PotionEffectType.SPEED,
-                Integer.MAX_VALUE,
-                this.config.getInt("Clone.Speed")
-        ));
+        int speed = this.config.getInt("Clone.Speed");
+        new PotionEffectEvent(creature, PotionEffectType.SPEED, Integer.MAX_VALUE, speed).apply();
 
         creature.setMaxHealth(this.config.getInt("Clone.Health"));
         creature.getEquipment().setItemInHand(null);
@@ -152,11 +149,8 @@ public class ShadowCloneJutsu extends RightClickAbility {
             this.rasenganTask.cancel();
             Rasengan.end(this.creature);
 
-            this.creature.addPotionEffect(new PotionEffect(
-                    PotionEffectType.SPEED,
-                    Integer.MAX_VALUE,
-                    this.config.getInt("Clone.Speed")
-            ));
+            int speed = this.config.getInt("Clone.Speed");
+            new PotionEffectEvent(this.creature, PotionEffectType.SPEED, Integer.MAX_VALUE, speed).apply();
         }
 
         @EventHandler

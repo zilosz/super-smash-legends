@@ -2,6 +2,7 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
+import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
@@ -14,7 +15,6 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
@@ -42,7 +42,7 @@ public class ShadowAmbush extends RightClickAbility {
         this.player.teleport(one.getType().isSolid() || two.getType().isSolid() ? targetLoc : spotBehind);
 
         int duration = this.config.getInt("BlindnessDuration");
-        target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, duration, 1));
+        new PotionEffectEvent(target, PotionEffectType.BLINDNESS, duration, 1).apply();
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.WITHER_HURT, 1, 0.5f);
         new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(EntityUtils.center(this.player), 2.5, 15, 0.5);

@@ -2,6 +2,7 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.PassiveAbility;
+import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attribute.AbilityUseEvent;
 import com.github.zilosz.ssl.event.attribute.EnergyEvent;
 import com.github.zilosz.ssl.event.attribute.JumpEvent;
@@ -18,7 +19,6 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -115,7 +115,7 @@ public class GoldRush extends PassiveAbility {
         this.teleport(this.player.getLocation());
 
         int blindness = this.config.getInt("Blindness");
-        this.player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 10_000, blindness));
+        new PotionEffectEvent(this.player, PotionEffectType.BLINDNESS, 10_000, blindness).apply();
 
         this.resetTask = Bukkit.getScheduler().runTaskLater(this.plugin, this::reset, this.config.getInt("MaxTicks"));
 

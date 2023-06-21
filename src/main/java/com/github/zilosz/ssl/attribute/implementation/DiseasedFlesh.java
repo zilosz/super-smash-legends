@@ -3,6 +3,7 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
+import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.CollectionUtils;
@@ -14,7 +15,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Arrays;
@@ -24,9 +24,10 @@ public class DiseasedFlesh extends RightClickAbility {
 
     private static final List<Material> ITEMS = Arrays.asList(
             Material.ROTTEN_FLESH,
-            Material.ROTTEN_FLESH,
             Material.SAND,
-            Material.SPIDER_EYE
+            Material.SPIDER_EYE,
+            Material.FERMENTED_SPIDER_EYE,
+            Material.BONE
     );
 
     public DiseasedFlesh(SSL plugin, Section config, Kit kit) {
@@ -64,8 +65,8 @@ public class DiseasedFlesh extends RightClickAbility {
 
         @Override
         public void onTargetHit(LivingEntity target) {
-            target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 1));
-            target.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 25, 1));
+            new PotionEffectEvent(target, PotionEffectType.BLINDNESS, 20, 1).apply();
+            new PotionEffectEvent(target, PotionEffectType.WITHER, 20, 1).apply();
         }
     }
 }

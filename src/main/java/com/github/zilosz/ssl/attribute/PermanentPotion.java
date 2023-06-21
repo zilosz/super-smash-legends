@@ -1,9 +1,9 @@
 package com.github.zilosz.ssl.attribute;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.kit.Kit;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public abstract class PermanentPotion extends PassiveAbility {
@@ -16,7 +16,7 @@ public abstract class PermanentPotion extends PassiveAbility {
     public void activate() {
         super.activate();
         int amplifier = this.config.getInt("Amplifier");
-        this.player.addPotionEffect(new PotionEffect(this.getEffectType(), Integer.MAX_VALUE, amplifier));
+        new PotionEffectEvent(this.player, this.getEffectType(), 10_000, amplifier).apply();
     }
 
     public abstract PotionEffectType getEffectType();

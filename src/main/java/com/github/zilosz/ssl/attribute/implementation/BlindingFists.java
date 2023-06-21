@@ -5,6 +5,7 @@ import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.attribute.PassiveAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
 import com.github.zilosz.ssl.damage.KbSettings;
+import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
@@ -19,7 +20,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -90,7 +90,7 @@ public class BlindingFists extends PassiveAbility {
             WebbedSnare.tryWebRemoval(victim);
 
             if (currChain == 1) {
-                this.player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10_000, 1));
+                new PotionEffectEvent(this.player, PotionEffectType.SPEED, 10_000, 1).apply();
             }
         }
 

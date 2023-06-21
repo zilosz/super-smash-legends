@@ -2,6 +2,7 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.PassiveAbility;
+import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.event.attribute.EnergyEvent;
 import com.github.zilosz.ssl.event.attribute.RegenEvent;
@@ -12,7 +13,6 @@ import org.bukkit.Color;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class StickySituation extends PassiveAbility {
@@ -46,11 +46,8 @@ public class StickySituation extends PassiveAbility {
 
         this.active = true;
 
-        this.player.addPotionEffect(new PotionEffect(
-                PotionEffectType.SPEED,
-                Integer.MAX_VALUE,
-                this.config.getInt("Speed")
-        ));
+        int speed = this.config.getInt("Speed");
+        new PotionEffectEvent(this.player, PotionEffectType.SPEED, Integer.MAX_VALUE, speed);
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_PIG_ANGRY, 1, 1);
 

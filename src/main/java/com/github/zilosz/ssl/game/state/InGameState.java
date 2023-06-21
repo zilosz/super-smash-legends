@@ -316,6 +316,8 @@ public class InGameState extends GameState {
             return;
         }
 
+        Bukkit.broadcastMessage("damage");
+
         if (victim instanceof Player) {
             Player player = (Player) event.getEntity();
             boolean isAlive = this.plugin.getGameManager().isPlayerAlive(player);

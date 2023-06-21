@@ -574,13 +574,13 @@ Deadmortal:
         - "&7items that can grant healing benefits"
         - "&7and/or inflict an array of status effects,"
         - "&7some much more deadly than others."
-      Cooldown: 140
-      Speed: 1.2
-      Spread: 8.5
+      Cooldown: 120
+      Speed: 1.4
+      Spread: 8
       Count: 7
       ImmunityTicks: 0
       Damage: 1
-      Kb: 1.05
+      Kb: 1.1
       KbY: 0.5
     1:
       ConfigName: CorrosiveGun
@@ -592,11 +592,11 @@ Deadmortal:
         - "&7rapidly fire a series of poisoned"
         - "&7bullets. The gun's sheer power"
         - "&7creates recoil, however."
-      Cooldown: 110
+      Cooldown: 120
       Speed: 1.2
       Interval: 3
       Recoil: 0.7
-      Count: 4
+      Count: 5
       Damage: 3.5
       Kb: 1.25
       KbY: 0.5
@@ -618,7 +618,7 @@ Deadmortal:
         - "&7Use your superhuman powers to teleport"
         - "&7in the direction you're facing. Can be"
         - "&7used to cover space and escape the void."
-      Cooldown: 145
+      Cooldown: 140
       Range: 15
     3:
       ConfigName: Bloodlust
@@ -626,8 +626,29 @@ Deadmortal:
       Item:
         Material: APPLE
       Description:
-        - "&7Health when you melee."
-      Regen: 0.5
+        - "&7Deadmortal can regenerate a sliver of"
+        - "&7health each time he punches opponents."
+      Regen: 0.8
+    4:
+      ConfigName: HazmatSkin
+      Name: "Hazmat Skin"
+      Item:
+        Material: ROTTEN_FLESH
+      Description:
+        - "&7Deadmortal's mutant body grants him"
+        - "&7protection from negative potion effects,"
+        - "&7fire, and related illnesses."
+      ResistedPotionEffects:
+        - BLINDNESS
+        - POISON
+        - WITHER
+        - SLOWNESS
+        - CONFUSION
+        - HARM
+        - HUNGER
+        - SLOW
+        - SLOW_DIGGING
+        - WEAKNESS
 Tank:
   ConfigName: Tank
   Name: "Tank"
@@ -1393,7 +1414,7 @@ Webman:
         - "&7Webman winds up a lethal punch that"
         - "&7does increased damage and knock-back."
         - "&7It works in tandem with &oBlinding"
-        - "&7&oFists &rchains and breaks webs."
+        - "&7&oFists &7chains and breaks webs."
       Cooldown: 120
       Damage: 6
       Kb: 1.5
@@ -1409,7 +1430,7 @@ Webman:
         - "&7stick to solid surfaces to propel Webman"
         - "&7forwards at a rapid pace and hurt any"
         - "&7enemies that they hit."
-      Cooldown: 70
+      Cooldown: 60
       Projectile:
         Speed: 2.5
         PullSpeed: 2

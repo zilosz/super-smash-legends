@@ -38,6 +38,8 @@ public abstract class GameState implements Listener {
         this.plugin = plugin;
     }
 
+    public abstract String getConfigName();
+
     public abstract boolean allowKitSelection();
 
     public abstract boolean updatesKitSkins();
@@ -58,8 +60,6 @@ public abstract class GameState implements Listener {
     public boolean isSame(GameState other) {
         return this.getConfigName().equals(other.getConfigName());
     }
-
-    public abstract String getConfigName();
 
     @EventHandler
     public void onPreJoin(AsyncPlayerPreLoginEvent event) {

@@ -5,6 +5,7 @@ import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.DamageSettings;
 import com.github.zilosz.ssl.damage.KbSettings;
 import com.github.zilosz.ssl.event.CustomEvent;
+import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
@@ -20,7 +21,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -148,7 +148,7 @@ public class Rasengan extends RightClickAbility {
 
         public static void apply(LivingEntity entity, int speed) {
             entity.getWorld().playSound(entity.getLocation(), Sound.BLAZE_HIT, 0.5f, 1);
-            entity.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, speed));
+            new PotionEffectEvent(entity, PotionEffectType.SPEED, Integer.MAX_VALUE, speed).apply();
         }
     }
 }

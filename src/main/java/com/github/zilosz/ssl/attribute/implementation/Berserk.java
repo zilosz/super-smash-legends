@@ -2,6 +2,7 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
+import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.effect.Effects;
@@ -14,7 +15,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Firework;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -42,7 +42,7 @@ public class Berserk extends RightClickAbility {
         this.kit.getJump().setMaxCount(this.ogJumps + this.config.getInt("ExtraJumps"));
 
         int speed = this.config.getInt("Speed");
-        this.player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, speed));
+        new PotionEffectEvent(this.player, PotionEffectType.SPEED, Integer.MAX_VALUE, speed).apply();
 
         this.firework = Effects.launchFirework(this.player.getLocation(), Color.RED, 1);
         ParticleBuilder particle = new ParticleBuilder(EnumParticle.REDSTONE);

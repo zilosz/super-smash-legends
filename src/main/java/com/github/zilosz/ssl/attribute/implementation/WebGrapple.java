@@ -4,6 +4,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
+import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
@@ -20,7 +21,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
@@ -72,7 +72,7 @@ public class WebGrapple extends RightClickAbility {
         public Item createEntity(Location location) {
             Item item = super.createEntity(location);
             this.bat = location.getWorld().spawn(this.launcher.getEyeLocation(), Bat.class);
-            this.bat.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 10_000, 1));
+            new PotionEffectEvent(this.bat, PotionEffectType.INVISIBILITY, 10_000, 1);
             this.bat.setLeashHolder(item);
             this.launcher.setPassenger(this.bat);
             return item;
