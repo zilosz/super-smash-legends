@@ -392,7 +392,7 @@ Drakula:
         - "&7enemies from a distance and pull"
         - "&7yourself if needed. The bats are"
         - "&7stronger than you think!"
-      Cooldown: 140
+      Cooldown: 100
       AutoStartCooldown: false
       AutoSendUseMessage: false
       RemoveOnLongCollision: false
@@ -406,7 +406,7 @@ Drakula:
       Damage: 2.5
       Width: 4
       Height: 4
-      Lifespan: 90
+      Lifespan: 80
       HitsMultiple: true
       HasGravity: false
       TargetHitSound:
@@ -797,20 +797,23 @@ Miner:
       ConfigName: DrillTornado
       Name: "Drill Tornado"
       Item:
-        Material: IRON_SWORD
+        Material: GOLD_AXE
       Description:
         - "&7Miner can turn himself into a human-tornado"
         - "&7at will. Know that you don't want to cross"
         - "&7paths with him when he's using this ability!"
-      Cooldown: 160
-      MaxChargeTicks: 20
-      Velocity: 1.1
-      HitBox: 1.6
+      AutoStartCooldown: false
+      Cooldown: 140
+      Velocity: 1.25
+      HitBox: 1.75
       Damage: 5.5
       Kb: 2.4
       KbY: 0.5
+      PrepareTicks: 20
+      Duration: 40
       ParticleGap: 0.18
       ShowExp: false
+      ImmunityTicks: 20
     2:
       ConfigName: GoldRush
       Name: "Gold Rush"
