@@ -26,7 +26,7 @@ public class TeamManager {
 
     private void loadTeams() {
         for (ColorType colorType : ColorType.values()) {
-            this.teamList.add(new Team(this.plugin, colorType));
+            this.teamList.add(new Team(colorType));
         }
     }
 

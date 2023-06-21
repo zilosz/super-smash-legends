@@ -19,13 +19,15 @@ public class WorldManager {
     private final Map<String, EditSession> worlds = new HashMap<>();
 
     public void createWorld(String name, File schematic, Vector paste) {
-        WorldCreator config = WorldCreator.name(name).type(WorldType.FLAT).generateStructures(false).generatorSettings("3;minecraft:air;2");
+        WorldCreator config = WorldCreator.name(name)
+                .type(WorldType.FLAT).generateStructures(false).generatorSettings("3;minecraft:air;2");
+
         com.sk89q.worldedit.Vector weVector = new com.sk89q.worldedit.Vector(paste.getX(), paste.getY(), paste.getZ());
 
         try {
             Schematic schem = ClipboardFormat.SCHEMATIC.load(schematic);
             EditSession editSession = schem.paste(new BukkitWorld(Bukkit.createWorld(config)), weVector);
-            worlds.put(name, editSession);
+            this.worlds.put(name, editSession);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -33,6 +35,6 @@ public class WorldManager {
     }
 
     public void resetWorld(String name) {
-        Optional.ofNullable(worlds.remove(name)).ifPresent(session -> session.undo(session));
+        Optional.ofNullable(this.worlds.remove(name)).ifPresent(session -> session.undo(session));
     }
 }

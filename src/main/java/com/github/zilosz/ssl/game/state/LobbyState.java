@@ -5,6 +5,7 @@ import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.kit.KitSelector;
 import com.github.zilosz.ssl.team.TeamSelector;
+import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.Replacers;
 import com.github.zilosz.ssl.Resources;
@@ -350,16 +351,13 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
 
     @Override
     public void end() {
-        this.holograms.forEach(Hologram::delete);
-        this.holograms.clear();
+        CollectionUtils.removeWhileIterating(this.holograms, Hologram::delete);
+        CollectionUtils.removeWhileIterating(this.hotbarItems, HotbarItem::destroy);
 
         this.stopCountdownTask(false);
 
         Chat.GAME.broadcast("&7The game is starting...");
         this.plugin.getGameManager().startTicks();
-
-        this.hotbarItems.forEach(HotbarItem::destroy);
-        this.hotbarItems.clear();
 
         this.plugin.getArenaManager().setupArena();
         Arena arena = this.plugin.getArenaManager().getArena();

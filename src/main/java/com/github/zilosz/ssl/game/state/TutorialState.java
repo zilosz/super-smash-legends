@@ -1,6 +1,7 @@
 package com.github.zilosz.ssl.game.state;
 
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
+import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
 import com.github.zilosz.ssl.SSL;
@@ -219,22 +220,13 @@ public class TutorialState extends GameState {
 
     @Override
     public void end() {
-        this.movers.values().forEach(BukkitTask::cancel);
-        this.movers.clear();
+        CollectionUtils.removeWhileIteratingFromMap(this.movers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingFromMap(this.ruleDisplayers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingFromMap(this.tutorialSchedulers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingFromMap(this.moveDelayers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingFromMap(this.skinChangers, BukkitTask::cancel);
 
-        this.ruleDisplayers.values().forEach(BukkitTask::cancel);
-        this.ruleDisplayers.clear();
-
-        this.tutorialSchedulers.values().forEach(BukkitTask::cancel);
-        this.tutorialSchedulers.clear();
-
-        this.moveDelayers.values().forEach(BukkitTask::cancel);
-        this.moveDelayers.clear();
-
-        this.skinChangers.values().forEach(BukkitTask::cancel);
-        this.skinChangers.clear();
-
-        new ArrayList<>(this.playersInTutorial).forEach(this::stopPlayerAfterCompletion);
+        new HashSet<>(this.playersInTutorial).forEach(this::stopPlayerAfterCompletion);
 
         if (this.skipTask != null) {
             this.skipTask.cancel();

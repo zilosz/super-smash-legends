@@ -6,6 +6,7 @@ import com.connorlinfoot.titleapi.TitleAPI;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.attribute.Nameable;
 import com.github.zilosz.ssl.team.TeamManager;
+import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.SoundCanceller;
 import com.github.zilosz.ssl.utils.effect.DeathNPC;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
@@ -312,15 +313,8 @@ public class InGameState extends GameState {
     public void end() {
         this.gameTimer.cancel();
 
-        this.skinRestorers.forEach(BukkitTask::cancel);
-        this.skinRestorers.clear();
-
-        this.respawnTasks.forEach((player, respawnTask) -> {
-            this.respawnPlayer(player);
-            respawnTask.cancel();
-        });
-
-        this.respawnTasks.clear();
+        CollectionUtils.removeWhileIterating(this.skinRestorers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingFromMap(this.respawnTasks, this::respawnPlayer, BukkitTask::cancel);
 
         ProtocolLibrary.getProtocolManager().removePacketListener(this.meleeSoundCanceller);
 

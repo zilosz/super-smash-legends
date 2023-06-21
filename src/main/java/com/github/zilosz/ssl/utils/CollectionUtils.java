@@ -5,7 +5,10 @@ import com.github.zilosz.ssl.utils.math.MathUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class CollectionUtils {
@@ -43,7 +46,7 @@ public class CollectionUtils {
         return getRankedGroups(elements, comparator, Integer.MAX_VALUE);
     }
 
-    public static <T> List<T> findByHighestDouble(List<T> items, Function<T, Double> key) {
+    public static <T> List<T> findByHighestDouble(Iterable<T> items, Function<T, Double> key) {
         List<T> highestList = new ArrayList<>();
         double highestScore = Integer.MIN_VALUE;
 
@@ -63,7 +66,7 @@ public class CollectionUtils {
         return highestList;
     }
 
-    public static <T> List<T> findByHighestInt(List<T> items, Function<T, Integer> key) {
+    public static <T> List<T> findByHighestInt(Iterable<T> items, Function<T, Integer> key) {
         return findByHighestDouble(items, key.andThen(Integer::doubleValue));
     }
 
@@ -73,5 +76,25 @@ public class CollectionUtils {
 
     public static <T> T selectRandom(T[] items) {
         return items[(int) MathUtils.randRange(0, items.length)];
+    }
+
+    public static <T> void removeWhileIterating(Iterable<T> iterable, Consumer<T> action) {
+        Iterator<T> iterator = iterable.iterator();
+
+        while (iterator.hasNext()) {
+            action.accept(iterator.next());
+            iterator.remove();
+        }
+    }
+
+    public static <K, V> void removeWhileIteratingFromMap(Map<K, V> map, Consumer<K> keyAction, Consumer<V> valueAction) {
+        removeWhileIterating(map.entrySet(), entry -> {
+            keyAction.accept(entry.getKey());
+            valueAction.accept(entry.getValue());
+        });
+    }
+
+    public static <K, V> void removeWhileIteratingFromMap(Map<K, V> map, Consumer<V> valueAction) {
+        removeWhileIteratingFromMap(map, key -> {}, valueAction);
     }
 }

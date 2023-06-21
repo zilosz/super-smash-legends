@@ -17,14 +17,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Team {
-    private final SSL plugin;
     @Getter private final ColorType colorType;
     private final Set<Player> players = new HashSet<>();
     private final Set<LivingEntity> entities = new HashSet<>();
     @Getter @Setter private int lifespan;
 
-    public Team(SSL plugin, ColorType colorType) {
-        this.plugin = plugin;
+    public Team(ColorType colorType) {
         this.colorType = colorType;
     }
 
@@ -77,10 +75,10 @@ public class Team {
     }
 
     public boolean isAlive() {
-        return this.players.stream().allMatch(player -> this.plugin.getGameManager().isPlayerAlive(player));
+        return this.players.stream().allMatch(player -> SSL.getInstance().getGameManager().isPlayerAlive(player));
     }
 
     public boolean canJoin(Player player) {
-        return !this.hasPlayer(player) && this.getSize() < this.plugin.getTeamManager().getTeamSize();
+        return !this.hasPlayer(player) && this.getSize() < SSL.getInstance().getTeamManager().getTeamSize();
     }
 }
