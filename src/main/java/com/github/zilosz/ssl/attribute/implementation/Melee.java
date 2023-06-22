@@ -29,7 +29,6 @@ public class Melee extends Attribute implements Nameable {
     public void onDamage(EntityDamageByEntityEvent event) {
         if (event.getDamager() != this.player) return;
         if (!(event.getEntity() instanceof LivingEntity)) return;
-        if (event.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK) return;
 
         event.setCancelled(true);
 
