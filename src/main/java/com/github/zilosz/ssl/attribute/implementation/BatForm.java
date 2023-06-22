@@ -9,7 +9,7 @@ import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
 import com.github.zilosz.ssl.event.attribute.RegenEvent;
 import com.github.zilosz.ssl.kit.Kit;
-import com.github.zilosz.ssl.utils.DisguiseUtils;
+import com.github.zilosz.ssl.utils.entity.DisguiseUtils;
 import com.github.zilosz.ssl.utils.ItemBuilder;
 import com.github.zilosz.ssl.utils.Noise;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;

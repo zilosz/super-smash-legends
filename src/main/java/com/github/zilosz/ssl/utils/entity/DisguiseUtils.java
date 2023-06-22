@@ -1,4 +1,4 @@
-package com.github.zilosz.ssl.utils;
+package com.github.zilosz.ssl.utils.entity;
 
 import me.libraryaddict.disguise.disguisetypes.Disguise;
 import org.bukkit.entity.Entity;

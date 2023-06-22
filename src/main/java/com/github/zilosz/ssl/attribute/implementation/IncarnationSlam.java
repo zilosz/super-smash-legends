@@ -4,7 +4,7 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
 import com.github.zilosz.ssl.kit.Kit;
-import com.github.zilosz.ssl.utils.DisguiseUtils;
+import com.github.zilosz.ssl.utils.entity.DisguiseUtils;
 import com.github.zilosz.ssl.utils.effect.Effects;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
