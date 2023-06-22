@@ -1580,7 +1580,7 @@ Mermaid:
       Description:
         - "&7Send forth a fish that leaps onto the"
         - "&7target, latching on like a piranha."
-        - "&7target struggles to move for a"
+        - "&7The target struggles to move for a"
         - "&7temporary period of time while the"
         - "&7fish is latched on."
       Cooldown: 120

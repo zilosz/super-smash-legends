@@ -58,6 +58,8 @@ public class SuperhumanPunch extends RightClickAbility {
     public void onUseEntity(PlayerInteractAtEntityEvent event) {
         if (event.getPlayer() != this.player) return;
         if (!(event.getRightClicked() instanceof LivingEntity)) return;
+        if (this.player.getInventory().getHeldItemSlot() != this.hotbarItem.getSlot()) return;
+        if (this.cooldownLeft > 0) return;
 
         this.hit = true;
         this.victim = (LivingEntity) event.getRightClicked();
@@ -68,6 +70,10 @@ public class SuperhumanPunch extends RightClickAbility {
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SPIDER_DEATH, 2, 2);
         this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_WOODBREAK, 0.5f, 2);
+
+        if (this.particleTask != null) {
+            this.particleTask.cancel();
+        }
 
         this.particleTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
 

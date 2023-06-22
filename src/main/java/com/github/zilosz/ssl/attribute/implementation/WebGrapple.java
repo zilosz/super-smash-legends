@@ -72,7 +72,7 @@ public class WebGrapple extends RightClickAbility {
         public Item createEntity(Location location) {
             Item item = super.createEntity(location);
             this.bat = location.getWorld().spawn(this.launcher.getEyeLocation(), Bat.class);
-            new PotionEffectEvent(this.bat, PotionEffectType.INVISIBILITY, 10_000, 1);
+            new PotionEffectEvent(this.bat, PotionEffectType.INVISIBILITY, 10_000, 1).apply();
             this.bat.setLeashHolder(item);
             this.launcher.setPassenger(this.bat);
             return item;
