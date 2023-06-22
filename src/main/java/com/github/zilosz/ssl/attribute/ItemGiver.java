@@ -42,6 +42,6 @@ public abstract class ItemGiver extends PassiveAbility {
 
     @Override
     public String getUseType() {
-        return "Passive";
+        return "&oSimply &oExist";
     }
 }

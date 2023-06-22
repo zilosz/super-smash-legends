@@ -34,7 +34,7 @@ public class HazmatSkin extends PermanentPotion {
 
     @Override
     public String getUseType() {
-        return "Potion-Effect/Passive";
+        return "&oSimply &oExist";
     }
 
     @EventHandler

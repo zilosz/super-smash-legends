@@ -29,6 +29,6 @@ public abstract class PermanentPotion extends PassiveAbility {
 
     @Override
     public String getUseType() {
-        return "Potion Effect";
+        return "&oSimply &oExist";
     }
 }

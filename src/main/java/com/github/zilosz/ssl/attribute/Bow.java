@@ -19,7 +19,7 @@ public abstract class Bow extends PassiveAbility {
 
     @Override
     public String getUseType() {
-        return "Bow";
+        return "Charge Bow";
     }
 
     @EventHandler

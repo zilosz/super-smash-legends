@@ -92,7 +92,7 @@ public class BatForm extends PassiveAbility {
 
     @Override
     public String getUseType() {
-        return "Passive";
+        return "&oSimply &oExist";
     }
 
     private void reset() {

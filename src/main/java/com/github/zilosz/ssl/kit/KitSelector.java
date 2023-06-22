@@ -3,8 +3,6 @@ package com.github.zilosz.ssl.kit;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.Attribute;
-import com.github.zilosz.ssl.attribute.ClickableAbility;
-import com.github.zilosz.ssl.attribute.PassiveAbility;
 import com.github.zilosz.ssl.utils.ItemBuilder;
 import com.github.zilosz.ssl.utils.inventory.CustomInventory;
 import com.github.zilosz.ssl.utils.inventory.HasRandomOption;
@@ -44,13 +42,7 @@ public class KitSelector extends CustomInventory<Kit> implements HasRandomOption
                 Ability ability = (Ability) attribute;
                 String useType = ability.getUseType();
                 String displayName = ability.getDisplayName();
-
-                if (ability instanceof ClickableAbility) {
-                    abilityUses.add(String.format("&6%s &7to use %s&7", useType, displayName));
-
-                } else if (ability instanceof PassiveAbility) {
-                    abilityUses.add(String.format("%s: &6%s&7", displayName, useType));
-                }
+                abilityUses.add(String.format("&6%s &7to use %s&7", useType, displayName));
             }
         }
 

@@ -30,7 +30,7 @@ public class StickySituation extends PassiveAbility {
 
     @Override
     public String getUseType() {
-        return "Low Health";
+        return "Enter Low Health";
     }
 
     public void reset() {
