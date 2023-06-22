@@ -2,7 +2,7 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Attribute;
-import com.github.zilosz.ssl.event.attribute.JumpEvent;
+import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import lombok.Getter;
@@ -55,7 +55,7 @@ public class Jump extends Attribute {
 
         event.setCancelled(true);
 
-        JumpEvent jumpEvent = new JumpEvent(
+        DoubleJumpEvent jumpEvent = new DoubleJumpEvent(
                 this.player,
                 this.kit.getJumpPower(),
                 this.kit.getJumpHeight(),

@@ -4,7 +4,7 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
-import com.github.zilosz.ssl.event.attribute.JumpEvent;
+import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
@@ -126,7 +126,7 @@ public class HungryFish extends RightClickAbility {
                 }
 
                 @EventHandler
-                public void onJump(JumpEvent event) {
+                public void onJump(DoubleJumpEvent event) {
                     if (event.getPlayer() == target) {
                         event.setNoise(noise);
                     }

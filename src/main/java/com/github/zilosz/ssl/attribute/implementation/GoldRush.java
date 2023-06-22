@@ -5,7 +5,7 @@ import com.github.zilosz.ssl.attribute.PassiveAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attribute.AbilityUseEvent;
 import com.github.zilosz.ssl.event.attribute.EnergyEvent;
-import com.github.zilosz.ssl.event.attribute.JumpEvent;
+import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
@@ -169,7 +169,7 @@ public class GoldRush extends PassiveAbility {
     }
 
     @EventHandler
-    public void onJump(JumpEvent event) {
+    public void onJump(DoubleJumpEvent event) {
         if (event.getPlayer() == this.player && this.isMining) {
             event.setCancelled(true);
         }

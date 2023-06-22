@@ -36,7 +36,7 @@ public class DiseasedFlesh extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        this.player.getWorld().playSound(this.player.getEyeLocation(), Sound.ZOMBIE_HURT, 1, 1);
+        this.player.getWorld().playSound(this.player.getEyeLocation(), Sound.ZOMBIE_PIG_HURT, 1, 2);
 
         FleshProjectile projectile = new FleshProjectile(this.plugin, this, this.config);
         projectile.setSpread(0);

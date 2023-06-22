@@ -6,7 +6,7 @@ import com.github.zilosz.ssl.attribute.ClickableAbility;
 import com.github.zilosz.ssl.attribute.PassiveAbility;
 import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
-import com.github.zilosz.ssl.event.attribute.JumpEvent;
+import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
 import com.github.zilosz.ssl.event.attribute.RegenEvent;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.DisguiseUtils;
@@ -128,7 +128,7 @@ public class BatForm extends PassiveAbility {
     }
 
     @EventHandler
-    public void onJump(JumpEvent event) {
+    public void onJump(DoubleJumpEvent event) {
         if (event.getPlayer() != this.player) return;
         if (!this.isBat) return;
 
