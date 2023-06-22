@@ -11,7 +11,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public class HotbarItem implements Listener {
@@ -43,10 +42,6 @@ public class HotbarItem implements Listener {
 
     public void hide() {
         this.player.getInventory().setItem(this.slot, null);
-    }
-
-    public void modifyRealStack(Consumer<ItemStack> stackConsumer) {
-        Optional.ofNullable(this.player.getInventory().getItem(this.slot)).ifPresent(stackConsumer);
     }
 
     @EventHandler

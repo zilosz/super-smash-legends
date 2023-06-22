@@ -8,7 +8,6 @@ import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Bukkit;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.text.DecimalFormat;
@@ -33,7 +32,6 @@ public abstract class ClickableAbility extends Ability {
     public void activate() {
         super.activate();
         this.hotbarItem.setAction(this::onClickAttempt);
-        this.enchantItem();
     }
 
     public void onClickAttempt(PlayerInteractEvent event) {
@@ -57,10 +55,6 @@ public abstract class ClickableAbility extends Ability {
         this.player.setExp(this.player.getExp() - this.energyCost);
     }
 
-    private void enchantItem() {
-        this.hotbarItem.modifyRealStack(stack -> stack.addUnsafeEnchantment(Enchantment.KNOCKBACK, 1));
-    }
-
     public boolean invalidate(PlayerInteractEvent event) {
         return this.player.getExp() < this.energyCost || this.cooldownLeft > 0;
     }
@@ -73,11 +67,6 @@ public abstract class ClickableAbility extends Ability {
 
     public void startCooldown() {
         this.cooldownLeft = this.cooldown;
-        this.disenchantItem();
-    }
-
-    private void disenchantItem() {
-        this.hotbarItem.modifyRealStack(stack -> stack.removeEnchantment(Enchantment.KNOCKBACK));
     }
 
     @Override
@@ -86,7 +75,6 @@ public abstract class ClickableAbility extends Ability {
 
         if (this.cooldownLeft > 0 && --this.cooldownLeft == 0) {
             this.onCooldownEnd();
-            this.enchantItem();
             Chat.ABILITY.send(this.player, String.format("&7You can use %s&7.", this.getDisplayName()));
         }
 
@@ -120,10 +108,6 @@ public abstract class ClickableAbility extends Ability {
     @Override
     public void deactivate() {
         super.deactivate();
-
-        if (this.cooldownLeft > 0) {
-            this.cooldownLeft = 0;
-            this.disenchantItem();
-        }
+        this.cooldownLeft = 0;
     }
 }
