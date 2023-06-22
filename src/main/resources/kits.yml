@@ -700,11 +700,11 @@ Tank:
       MaxChargeTicks: 80
       KbY: 1.1
       MinDamage: 4
-      MaxDamage: 11
+      MaxDamage: 12
       MinSpeed: 0.65
-      MaxSpeed: 1.6
+      MaxSpeed: 1.45
       MinKb: 1.5
-      MaxKb: 3.2
+      MaxKb: 3
       MinSize: 1
       IncrementCount: 2
       IncrementSize: 1
@@ -740,7 +740,7 @@ Tank:
         - "&7to close heavy distances. Sneak to cancel."
       Cooldown: 130
       AutoStartCooldown: false
-      ChainSpeed: 1.3
+      ChainSpeed: 1.2
       ChainTicks: 40
       PullSpeed: 1.3
       Damage: 5.5
@@ -1644,14 +1644,14 @@ Musician:
       PlaceReach: 2
       Health: 10
       MaxPunches: 4
-      ConicAngle: 5
+      ConicAngle: 4.5
       Count: 10
       ClickDelay: 10
       Projectile:
         Speed: 2
         Spread: 2
         Lifespan: 100
-        Damage: 7
+        Damage: 6
         Kb: 1.85
         KbY: 0.7
         HasGravity: false

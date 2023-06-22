@@ -371,6 +371,11 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
     }
 
     @Override
+    public boolean isPlaying() {
+        return false;
+    }
+
+    @Override
     public boolean allowsDamage() {
         return false;
     }

@@ -69,12 +69,6 @@ public class AgileCombat extends RightClickAbility {
         this.cancelTask = Bukkit.getScheduler().runTaskLater(this.plugin, () -> this.reset(true), duration);
     }
 
-    private void endLeap(boolean canLeap) {
-        this.canLeap = canLeap;
-        this.state = State.SPRINTING;
-        this.leapTask.cancel();
-    }
-
     private void onLeap() {
         this.state = State.LEAPING;
 
@@ -137,6 +131,12 @@ public class AgileCombat extends RightClickAbility {
             this.startCooldown();
             this.player.playSound(this.player.getLocation(), Sound.IRONGOLEM_DEATH, 1, 2);
         }
+    }
+
+    private void endLeap(boolean canLeap) {
+        this.canLeap = canLeap;
+        this.state = State.SPRINTING;
+        this.leapTask.cancel();
     }
 
     @Override

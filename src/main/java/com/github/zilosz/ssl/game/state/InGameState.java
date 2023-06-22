@@ -303,6 +303,11 @@ public class InGameState extends GameState {
         return true;
     }
 
+    @Override
+    public boolean isPlaying() {
+        return true;
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof LivingEntity)) return;

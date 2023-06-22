@@ -15,6 +15,7 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
@@ -87,7 +88,20 @@ public class BlindingFists extends PassiveAbility {
             Location center = EntityUtils.center(victim);
             new ParticleBuilder(EnumParticle.REDSTONE).boom(this.plugin, center, 1.5, 0.375, 5);
 
-            WebbedSnare.tryWebRemoval(victim);
+            for (int x = -1; x <= 1; x++) {
+
+                for (int y = -1; y <= 2; y++) {
+
+                    for (int z = -1; z <= 1; z++) {
+                        Location location = victim.getLocation().clone().add(x, y, z);
+
+                        if (location.getBlock().getType() == Material.WEB) {
+                            location.getBlock().setType(Material.AIR);
+                            location.getWorld().playSound(location, Sound.ITEM_BREAK, 1, 1);
+                        }
+                    }
+                }
+            }
 
             if (currChain == 1) {
                 new PotionEffectEvent(this.player, PotionEffectType.SPEED, 10_000, 1).apply();

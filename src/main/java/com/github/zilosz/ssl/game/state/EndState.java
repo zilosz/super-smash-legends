@@ -56,6 +56,11 @@ public class EndState extends GameState implements TeleportsOnVoid {
     }
 
     @Override
+    public boolean isPlaying() {
+        return false;
+    }
+
+    @Override
     public List<String> getScoreboard(Player player) {
 
         List<String> lines = new ArrayList<>(Arrays.asList(

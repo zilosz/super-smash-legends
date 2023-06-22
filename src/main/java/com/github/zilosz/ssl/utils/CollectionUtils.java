@@ -37,8 +37,7 @@ public class CollectionUtils {
 
             currGroup.add(list.get(i));
 
-            ++totalAdded;
-            if (totalAdded == maxElements) {
+            if (++totalAdded == maxElements) {
                 break;
             }
         }

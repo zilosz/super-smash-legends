@@ -8,15 +8,14 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 public class GameScoreboard implements AssembleAdapter {
-    private static final SSL plugin = SSL.getInstance();
 
     @Override
     public String getTitle(Player player) {
-        return MessageUtils.color(plugin.getResources().getConfig().getString("Scoreboard.Title"));
+        return MessageUtils.color(SSL.getInstance().getResources().getConfig().getString("Scoreboard.Title"));
     }
 
     @Override
     public List<String> getLines(Player player) {
-        return plugin.getGameManager().getState().getScoreboard(player);
+        return SSL.getInstance().getGameManager().getState().getScoreboard(player);
     }
 }

@@ -38,8 +38,6 @@ public abstract class GameState implements Listener {
         this.plugin = plugin;
     }
 
-    public abstract String getConfigName();
-
     public abstract boolean allowKitSelection();
 
     public abstract boolean updatesKitSkins();
@@ -60,6 +58,8 @@ public abstract class GameState implements Listener {
     public boolean isSame(GameState other) {
         return this.getConfigName().equals(other.getConfigName());
     }
+
+    public abstract String getConfigName();
 
     @EventHandler
     public void onPreJoin(AsyncPlayerPreLoginEvent event) {
@@ -101,7 +101,7 @@ public abstract class GameState implements Listener {
 
             gameManager.getProfile(player).setLives(0);
 
-            if (!(this instanceof EndState)) {
+            if (this.isPlaying()) {
                 this.plugin.getTeamManager().getPlayerTeam(player).setLifespan(gameManager.getTicksActive());
 
                 if (gameManager.getAlivePlayers().size() <= 1) {
@@ -118,6 +118,8 @@ public abstract class GameState implements Listener {
         gameManager.removeSpectator(player);
         gameManager.removeFutureSpectator(player);
     }
+
+    public abstract boolean isPlaying();
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {

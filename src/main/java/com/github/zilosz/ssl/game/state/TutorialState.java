@@ -188,6 +188,11 @@ public class TutorialState extends GameState {
     }
 
     @Override
+    public boolean isPlaying() {
+        return true;
+    }
+
+    @Override
     public boolean allowsDamage() {
         return false;
     }

@@ -129,6 +129,11 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
     }
 
     @Override
+    public boolean isPlaying() {
+        return true;
+    }
+
+    @Override
     public boolean allowsDamage() {
         return false;
     }

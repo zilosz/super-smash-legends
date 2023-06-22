@@ -72,10 +72,14 @@ public class EntityFinder {
                 .filter(entity -> !entity.getType().equals(EntityType.ARMOR_STAND))
                 .filter(LivingEntity.class::isInstance)
                 .map(LivingEntity.class::cast)
-                .filter(entity -> !(entity instanceof Player) || this.plugin.getGameManager().isPlayerAlive((Player) entity) && ((HumanEntity) entity).getGameMode() == GameMode.SURVIVAL)
+                .filter(entity -> !(entity instanceof Player) || this.plugin.getGameManager()
+                        .isPlayerAlive((Player) entity) && ((HumanEntity) entity).getGameMode() == GameMode.SURVIVAL)
                 .filter(entity -> !this.avoidsUser || entity != user)
                 .filter(entity -> !this.toAvoid.contains(entity.getUniqueId()))
-                .filter(entity -> this.plugin.getTeamManager().findEntityTeam(user).map(team -> this.teamPreference.validate(team, entity)).orElse(false));
+                .filter(entity -> this.plugin.getTeamManager()
+                        .findEntityTeam(user)
+                        .map(team -> this.teamPreference.validate(team, entity))
+                        .orElse(false));
     }
 
     public Set<LivingEntity> findAll(LivingEntity user) {

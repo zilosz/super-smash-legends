@@ -87,19 +87,19 @@ public class TerraShot extends ChargedRightClickBlockAbility {
         int interval = this.config.getInt("LaunchInterval");
 
         RunnableUtils.runTaskWithIntervals(this.plugin, count, interval, () -> {
-                TerraProjectile projectile = new TerraProjectile(this.plugin, this, this.config);
-                projectile.setMaterial(material);
-                projectile.setData(data);
+                    TerraProjectile projectile = new TerraProjectile(this.plugin, this, this.config);
+                    projectile.setMaterial(material);
+                    projectile.setData(data);
 
-                DamageSettings damageSettings = projectile.getAttackSettings().getDamageSettings();
-                damageSettings.setDamage(damage);
+                    DamageSettings damageSettings = projectile.getAttackSettings().getDamageSettings();
+                    damageSettings.setDamage(damage);
 
-                KbSettings kbSettings = projectile.getAttackSettings().getKbSettings();
-                kbSettings.setKb(kb);
+                    KbSettings kbSettings = projectile.getAttackSettings().getKbSettings();
+                    kbSettings.setKb(kb);
 
-                projectile.setSpeed(speed);
-                projectile.launch();
-            }, this::stopRotation
+                    projectile.setSpeed(speed);
+                    projectile.launch();
+                }, this::stopRotation
         );
     }
 

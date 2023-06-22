@@ -98,8 +98,8 @@ public class VoltTackle extends RightClickAbility {
                     double recoilDamage = YamlReader.incLin(recoilConfig, "Damage", this.ticksMoving, duration);
                     double recoilKb = YamlReader.incLin(recoilConfig, "Kb", this.ticksMoving, duration);
 
-                    AttackSettings recoil = new AttackSettings(recoilConfig, velocity.multiply(-1)).modifyDamage(
-                                    damageSettings -> damageSettings.setDamage(recoilDamage))
+                    AttackSettings recoil = new AttackSettings(recoilConfig, velocity.multiply(-1))
+                            .modifyDamage(damageSettings -> damageSettings.setDamage(recoilDamage))
                             .modifyKb(kbSettings -> kbSettings.setKb(recoilKb));
 
                     this.plugin.getDamageManager().attack(target, this, recoil);
