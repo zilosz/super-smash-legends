@@ -11,6 +11,7 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Vector;
 
 public class Melee extends Attribute implements Nameable {
@@ -28,6 +29,7 @@ public class Melee extends Attribute implements Nameable {
     public void onDamage(EntityDamageByEntityEvent event) {
         if (event.getDamager() != this.player) return;
         if (!(event.getEntity() instanceof LivingEntity)) return;
+        if (event.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK) return;
 
         event.setCancelled(true);
         LivingEntity victim = (LivingEntity) event.getEntity();
