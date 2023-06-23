@@ -4,7 +4,6 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.RunnableUtils;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
@@ -16,17 +15,13 @@ import org.bukkit.potion.PotionEffectType;
 
 public class Bloodshot extends RightClickAbility {
 
-    public Bloodshot(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void onClick(PlayerInteractEvent event) {
         RunnableUtils.runTaskWithIntervals(
-                this.plugin,
+                SSL.getInstance(),
                 this.config.getInt("Count"),
                 this.config.getInt("Interval"),
-                () -> new BloodProjectile(this.plugin, this, this.config.getSection("Projectile")).launch()
+                () -> new BloodProjectile(SSL.getInstance(), this, this.config.getSection("Projectile")).launch()
         );
     }
 
@@ -47,7 +42,7 @@ public class Bloodshot extends RightClickAbility {
             int level = this.config.getInt("PoisonLevel");
             new PotionEffectEvent(target, PotionEffectType.POISON, duration, level).apply();
 
-            new ParticleBuilder(EnumParticle.REDSTONE).boom(this.plugin, this.entity.getLocation(), 3, 0.3, 7);
+            new ParticleBuilder(EnumParticle.REDSTONE).boom(SSL.getInstance(), this.entity.getLocation(), 3, 0.3, 7);
         }
     }
 }

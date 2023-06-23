@@ -3,12 +3,10 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -16,10 +14,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
 
 public class ArcticBreath extends RightClickAbility {
-
-    public ArcticBreath(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
 
     @Override
     public void onClick(PlayerInteractEvent event) {
@@ -47,19 +41,12 @@ public class ArcticBreath extends RightClickAbility {
 
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
-        new EntityFinder(this.plugin, selector).findAll(this.player, center).forEach(target -> {
+        new EntityFinder(SSL.getInstance(), selector).findAll(this.player, center).forEach(target -> {
             AttackSettings settings = new AttackSettings(this.config, step).modifyDamage(dmg -> dmg.setDamage(damage));
-            this.plugin.getDamageManager().attack(target, this, settings);
+            SSL.getInstance().getDamageManager().attack(target, this, settings);
         });
 
-        this.createRing(
-                center.add(step),
-                step,
-                damage - damageStep,
-                damageStep,
-                radius + radiusStep,
-                radiusStep,
-                ringCount + 1
-        );
+        Location next = center.add(step);
+        this.createRing(next, step, damage - damageStep, damageStep, radius + radiusStep, radiusStep, ringCount + 1);
     }
 }

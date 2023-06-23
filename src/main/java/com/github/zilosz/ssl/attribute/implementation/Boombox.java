@@ -57,10 +57,6 @@ public class Boombox extends RightClickAbility {
     private Hologram hologram;
     private TextHologramLine healthLine;
 
-    public Boombox(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public boolean invalidate(PlayerInteractEvent event) {
         if (super.invalidate(event) || this.isPlaced) return true;
@@ -86,7 +82,7 @@ public class Boombox extends RightClickAbility {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.NOTE_SNARE_DRUM, 3, 0.5f);
 
         Location above = this.block.getLocation().add(0.5, 1.7, 0.5);
-        this.hologram = HolographicDisplaysAPI.get(this.plugin).createHologram(above);
+        this.hologram = HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(above);
         String color = this.kit.getColor().getChatSymbol();
         String title = String.format("&f%s's %s&lBoombox", this.player.getName(), color);
         this.hologram.getLines().appendText(MessageUtils.color(title));
@@ -95,8 +91,9 @@ public class Boombox extends RightClickAbility {
         this.updateHealth(0);
 
         double healthLossPerTick = this.health / this.config.getInt("MaxDuration");
+        
         this.healthTask = Bukkit.getScheduler()
-                .runTaskTimer(this.plugin, () -> this.updateHealth(healthLossPerTick), 1, 1);
+                .runTaskTimer(SSL.getInstance(), () -> this.updateHealth(healthLossPerTick), 1, 1);
     }
 
     @Override
@@ -136,7 +133,7 @@ public class Boombox extends RightClickAbility {
         if (startCanPlaceTask) {
             this.canPlace = false;
 
-            this.canPlaceAgainTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+            this.canPlaceAgainTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
                 if (EntityUtils.isPlayerGrounded(this.player)) {
                     this.canPlace = true;
@@ -199,7 +196,7 @@ public class Boombox extends RightClickAbility {
         double radius = mixTapeConfig.getDouble("Radius");
         EntitySelector selector = new DistanceSelector(radius);
 
-        EntityFinder finder = new EntityFinder(this.plugin, selector).setTeamPreference(TeamPreference.ANY)
+        EntityFinder finder = new EntityFinder(SSL.getInstance(), selector).setTeamPreference(TeamPreference.ANY)
                 .setAvoidsUser(false);
 
         Location center = this.block.getLocation().add(0.5, 0.5, 0.5);
@@ -215,7 +212,7 @@ public class Boombox extends RightClickAbility {
                     .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
                     .modifyKb(kbSettings -> kbSettings.setKb(kb));
 
-            this.plugin.getDamageManager().attack(target, this, settings);
+            SSL.getInstance().getDamageManager().attack(target, this, settings);
         });
 
         this.reset(true);
@@ -228,7 +225,7 @@ public class Boombox extends RightClickAbility {
         if (!event.getClickedBlock().equals(this.block)) return;
 
         if (event.getPlayer() != this.player) {
-            Kit enemyKit = this.plugin.getKitManager().getSelectedKit(event.getPlayer());
+            Kit enemyKit = SSL.getInstance().getKitManager().getSelectedKit(event.getPlayer());
             this.updateHealth(enemyKit.getDamage());
             return;
         }
@@ -244,7 +241,7 @@ public class Boombox extends RightClickAbility {
         }
 
         this.clickTicksLeft = this.config.getInt("ClickDelay");
-        this.allowClickTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> this.clickTicksLeft--, 1, 1);
+        this.allowClickTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> this.clickTicksLeft--, 1, 1);
 
         int maxPunches = this.config.getInt("MaxPunches");
 
@@ -277,7 +274,7 @@ public class Boombox extends RightClickAbility {
 
     private void launch(boolean first, Location source) {
         Section settings = this.config.getSection("Projectile");
-        MusicDiscProjectile projectile = new MusicDiscProjectile(this.plugin, this, settings);
+        MusicDiscProjectile projectile = new MusicDiscProjectile(SSL.getInstance(), this, settings);
         projectile.setOverrideLocation(source);
 
         if (first) {

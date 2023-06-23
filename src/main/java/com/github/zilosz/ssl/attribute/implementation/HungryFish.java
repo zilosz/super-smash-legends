@@ -5,7 +5,6 @@ import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
 import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
 import com.github.zilosz.ssl.utils.Noise;
@@ -35,13 +34,9 @@ import org.bukkit.util.Vector;
 
 public class HungryFish extends RightClickAbility {
 
-    public HungryFish(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new BubbleProjectile(this.plugin, this, this.config.getSection("Projectile")).launch();
+        new BubbleProjectile(SSL.getInstance(), this, this.config.getSection("Projectile")).launch();
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SPLASH, 0.5f, 1);
     }
 
@@ -97,7 +92,7 @@ public class HungryFish extends RightClickAbility {
                 ((Player) target).setWalkSpeed((float) (0.2 * multiplier));
             }
 
-            this.soakTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+            this.soakTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
                 for (int i = 0; i < 5; i++) {
                     new ParticleBuilder(EnumParticle.WATER_DROP).setSpread(0.7f, 0.5f, 0.7f).show(target.getLocation());
@@ -133,7 +128,7 @@ public class HungryFish extends RightClickAbility {
                 }
             };
 
-            Bukkit.getPluginManager().registerEvents(this.soakListener, this.plugin);
+            Bukkit.getPluginManager().registerEvents(this.soakListener, SSL.getInstance());
 
             this.fish = new FloatingEntity<>() {
 
@@ -149,11 +144,11 @@ public class HungryFish extends RightClickAbility {
             this.fish.spawn(location);
             Vector relativeToLoc = VectorUtils.fromTo(target.getLocation(), location);
 
-            this.fishMoveTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+            this.fishMoveTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
                 this.fish.teleport(target.getLocation().add(relativeToLoc));
             }, 0, 0);
 
-            Bukkit.getScheduler().runTaskLater(this.plugin, this::stopSoak, this.config.getInt("SoakDuration"));
+            Bukkit.getScheduler().runTaskLater(SSL.getInstance(), this::stopSoak, this.config.getInt("SoakDuration"));
         }
 
         private void stopSoak() {

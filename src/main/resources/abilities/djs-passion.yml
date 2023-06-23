@@ -1,0 +1,13 @@
+Name: "DJ's Passion"
+Item:
+  Material: GOLD_AXE
+Description:
+  - "&7No Musician is complete without his"
+  - "&7boombox. Musician feels an inherent"
+  - "&7pull towards his DJ booth and can"
+  - "&7teleport to it at will. Usually you"
+  - "&7are teleported on top of the boombox,"
+  - "&7but crouching will attempt to teleport"
+  - "&7you directly under the boombox."
+Cooldown: 60
+AutoStartCooldown: false

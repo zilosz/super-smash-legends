@@ -5,7 +5,6 @@ import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.ClickableAbility;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
 import com.github.zilosz.ssl.team.TeamPreference;
@@ -13,6 +12,7 @@ import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.DistanceSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -29,17 +29,13 @@ import org.bukkit.util.Vector;
 public class BombOmb extends RightClickAbility {
     private BombProjectile bombProjectile;
 
-    public BombOmb(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void onClick(PlayerInteractEvent event) {
 
         if (this.bombProjectile == null || this.bombProjectile.state == BombState.INACTIVE) {
             this.sendUseMessage();
 
-            this.bombProjectile = new BombProjectile(this.plugin, this, this.config.getSection("Projectile"));
+            this.bombProjectile = new BombProjectile(SSL.getInstance(), this, this.config.getSection("Projectile"));
             this.bombProjectile.launch();
 
         } else if (this.bombProjectile.state == BombState.THROWN) {
@@ -109,18 +105,18 @@ public class BombOmb extends RightClickAbility {
             this.bombBlock = this.entity.getLocation().getBlock();
             this.bombBlock.setType(Material.COAL_BLOCK);
 
-            this.soundTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+            this.soundTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
                 this.entity.getWorld().playSound(this.bombBlock.getLocation(), Sound.FUSE, 1, 1);
             }, 0, 0);
 
-            this.explodeTask = Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+            this.explodeTask = Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
                 if (this.state == BombState.WAITING) {
                     this.explode();
                 }
             }, this.config.getInt("Explode.Delay"));
 
             int disableTicks = this.config.getInt("Explode.DisableTicks");
-            Bukkit.getScheduler().runTaskLater(this.plugin, () -> this.canExplode = true, disableTicks);
+            Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> this.canExplode = true, disableTicks);
         }
 
         private void explode() {
@@ -134,10 +130,10 @@ public class BombOmb extends RightClickAbility {
                 new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).show(this.bombBlock.getLocation());
             }
 
-            new EntityFinder(
-                    this.plugin,
-                    new DistanceSelector(this.config.getDouble("Explode.Range"))
-            ).setTeamPreference(TeamPreference.ANY)
+            EntitySelector selector = new DistanceSelector(this.config.getDouble("Explode.Range"));
+
+            new EntityFinder(SSL.getInstance(), selector)
+                    .setTeamPreference(TeamPreference.ANY)
                     .setAvoidsUser(false)
                     .findAll(this.launcher, this.bombBlock.getLocation())
                     .forEach(this::attemptExplodeHit);
@@ -157,13 +153,11 @@ public class BombOmb extends RightClickAbility {
 
             Vector direction = VectorUtils.fromTo(this.bombBlock.getLocation(), target.getLocation());
 
-            this.plugin.getDamageManager()
-                    .attack(
-                            target,
-                            this.ability,
-                            new AttackSettings(explode, direction).modifyDamage(settings -> settings.setDamage(damage))
-                                    .modifyKb(settings -> settings.setKb(kb))
-                    );
+            AttackSettings settings = new AttackSettings(explode, direction)
+                    .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
+                    .modifyKb(kbSettings -> kbSettings.setKb(kb));
+
+            SSL.getInstance().getDamageManager().attack(target, this.ability, settings);
         }
 
         private void destroy() {

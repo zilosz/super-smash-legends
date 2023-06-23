@@ -1,0 +1,17 @@
+Name: "Saber Spin"
+Item:
+  Material: DIAMOND_SWORD
+Description:
+  - "&7Charge forward with all your might while"
+  - "&7wielding a cluster of sharp, deadly swords."
+  - "&7Any unfortunate victims are badly hurt and"
+  - "&7receive great knock-back."
+Cooldown: 140
+MaxChargeTicks: 20
+ChargeSpeed: 1
+Radius: 2
+HitBox: 1.2
+Damage: 6
+Kb: 2.2
+KbY: 0.4
+ImmunityTicks: 13

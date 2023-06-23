@@ -1,0 +1,17 @@
+Name: "Bat Form"
+Item:
+  Material: FEATHER
+Description:
+  - "&7Transform into a bat when at low health"
+  - "&7to gain flying powers. Hunt for blood"
+  - "&7in your thirst for vengeance; latch"
+  - "&7your fangs onto unsuspecting victims"
+  - "&7through melee to take slivers of"
+  - "&7their health."
+HealthThreshold: 7
+JumpPowerMultiplier: 1.15
+JumpHeightMultiplier: 0.85
+ExtraJumps: 4
+DamageTakenMultiplier: 1.25
+Regen: 1
+RegenMultiplier: 1.25

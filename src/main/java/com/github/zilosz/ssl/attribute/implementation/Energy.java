@@ -1,16 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.event.attribute.EnergyEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import org.bukkit.Bukkit;
 
 public class Energy extends Attribute {
-
-    public Energy(SSL plugin, Kit kit) {
-        super(plugin, kit);
-    }
 
     @Override
     public void activate() {

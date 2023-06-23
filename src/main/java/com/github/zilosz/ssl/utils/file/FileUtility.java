@@ -21,7 +21,7 @@ public class FileUtility {
     }
 
     public static File loadSchematic(Plugin plugin, String path) {
-        String fullPath = PathBuilder.build("schematic", path) + ".schematic";
+        String fullPath = PathBuilder.build("schematics", path) + ".schematic";
         plugin.saveResource(fullPath, false);
         return new File(plugin.getDataFolder(), fullPath);
     }

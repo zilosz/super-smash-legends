@@ -7,10 +7,8 @@ import com.github.zilosz.ssl.damage.KbSettings;
 import com.github.zilosz.ssl.event.CustomEvent;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
@@ -29,10 +27,6 @@ import org.jetbrains.annotations.Nullable;
 public class Rasengan extends RightClickAbility {
     @Nullable private BukkitTask task;
     private boolean leapt = false;
-
-    public Rasengan(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
 
     @Override
     public boolean invalidate(PlayerInteractEvent event) {
@@ -60,7 +54,7 @@ public class Rasengan extends RightClickAbility {
 
                 display(Rasengan.this.player);
             }
-        }.runTaskTimer(this.plugin, 1, 0);
+        }.runTaskTimer(SSL.getInstance(), 1, 0);
     }
 
     private void reset() {

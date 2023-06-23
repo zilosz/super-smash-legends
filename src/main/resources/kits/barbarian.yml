@@ -1,0 +1,27 @@
+Name: "Barbarian"
+Color: ORANGE
+Description:
+  - "&7This fearless warrior relies on his"
+  - "&7bulging muscles and striking mustache "
+  - "&7to wreak havoc on enemies. Become a "
+  - "&7Barbarian and enjoy the mayhem."
+Skin: "Santi_MST"
+Damage: 6.5
+Kb: 0.9
+Armor: 0.6
+Regen: 0.25
+Jump:
+  Power: 1.1
+  Height: 0.9
+  Sound:
+    Type: HORSE_JUMP
+    Volume: 1
+    Pitch: 1
+HurtSound:
+  Type: VILLAGER_HIT
+  Volume: 1
+  Pitch: 0.75
+DeathSound:
+  Type: VILLAGER_DEATH
+  Volume: 3
+  Pitch: 0.75

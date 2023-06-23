@@ -3,7 +3,6 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,10 +18,6 @@ public class Jump extends Attribute {
     @Getter @Setter private int maxCount;
     private int countLeft;
     @Nullable private BukkitTask hitGroundTask;
-
-    public Jump(SSL plugin, Kit kit) {
-        super(plugin, kit);
-    }
 
     @Override
     public void activate() {
@@ -70,7 +65,7 @@ public class Jump extends Attribute {
         Vector velocity = direction.multiply(jumpEvent.getPower()).setY(jumpEvent.getHeight());
 
         if (((Entity) this.player).isOnGround()) {
-            double boost = this.plugin.getResources().getConfig().getDouble("JumpGroundBooster");
+            double boost = SSL.getInstance().getResources().getConfig().getDouble("JumpGroundBooster");
             velocity.add(new Vector(0, boost, 0));
         }
 
@@ -83,7 +78,7 @@ public class Jump extends Attribute {
         }
 
         if (this.hitGroundTask == null) {
-            this.hitGroundTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+            this.hitGroundTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
                 if (EntityUtils.isPlayerGrounded(this.player)) {
                     this.replenish();
                 }

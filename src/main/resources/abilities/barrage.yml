@@ -1,0 +1,16 @@
+Name: "Barrage"
+Item:
+  Material: DISPENSER
+Description:
+  - "&7Any arrows fired by Skellington become"
+  - "&7deadly onslaughts of barrage fire."
+Stages: 5
+StageTicks: 7
+MaxArrowCount: 6
+TicksBetweenShot: 1
+MaxSpeed: 3
+Spread: 6.5
+Damage: 6
+Kb: 1
+KbY: 0.5
+Lifespan: 140

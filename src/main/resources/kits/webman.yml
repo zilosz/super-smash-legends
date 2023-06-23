@@ -1,0 +1,29 @@
+Name: "Webman"
+Color: DARK_GRAY
+Description:
+  - "&7Webman is not just another Spiderman"
+  - "&7counterpart in the Multiverse. His"
+  - "&7advanced mobility and web-like powers"
+  - "&7have translated to Super Smash Legends,"
+  - "&7where Webman uses his spider abilities"
+  - "&7to annihilate and overwhelm foes."
+Skin: "allsilver"
+Damage: 5
+Armor: 0.625
+Kb: 1.2
+Regen: 0.28
+Jump:
+  Power: 1.2
+  Height: 0.9
+  Sound:
+    Type: SPIDER_IDLE
+    Volume: 1
+    Pitch: 2
+HurtSound:
+  Type: SPIDER_IDLE
+  Volume: 1
+  Pitch: 1
+DeathSound:
+  Type: SPIDER_DEATH
+  Volume: 3
+  Pitch: 1

@@ -6,11 +6,9 @@ import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attribute.AbilityUseEvent;
 import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
 import com.github.zilosz.ssl.event.attribute.EnergyEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.message.Chat;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -31,10 +29,6 @@ public class GoldRush extends PassiveAbility {
     private BukkitTask resetTask;
     private BukkitTask moveTask;
     private BukkitTask particleTask;
-
-    public GoldRush(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
 
     @Override
     public void activate() {
@@ -117,9 +111,9 @@ public class GoldRush extends PassiveAbility {
         int blindness = this.config.getInt("Blindness");
         new PotionEffectEvent(this.player, PotionEffectType.BLINDNESS, 10_000, blindness).apply();
 
-        this.resetTask = Bukkit.getScheduler().runTaskLater(this.plugin, this::reset, this.config.getInt("MaxTicks"));
+        this.resetTask = Bukkit.getScheduler().runTaskLater(SSL.getInstance(), this::reset, this.config.getInt("MaxTicks"));
 
-        this.moveTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.moveTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
             Location location = this.player.getLocation();
             Location body = location.clone().add(0, 1, 0);
             Location eyes = body.clone().add(0, 1, 0);
@@ -144,7 +138,7 @@ public class GoldRush extends PassiveAbility {
 
         int ticksPerParticle = this.config.getInt("TicksPerParticle");
 
-        this.particleTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.particleTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
             Location location = this.player.getLocation().add(0, 2, 0);
 
             while (!this.isPassable(location)) {

@@ -1,0 +1,27 @@
+Name: "Mermaid"
+Color: CYAN
+Description:
+  - "&7When it comes to water-based combat,"
+  - "&7the Mermaid is second to none. She uses"
+  - "&7swift movements and secret underwater"
+  - "&7techniques to overwhelm foes. "
+Skin: "thesaferoom"
+Damage: 5.5
+Armor: 0.65
+Kb: 0.95
+Regen: 0.3
+Jump:
+  Power: 1.1
+  Height: 0.9
+  Sound:
+    Type: SPLASH2
+    Volume: 0.5
+    Pitch: 2
+HurtSound:
+  Type: SPLASH
+  Volume: 0.5
+  Pitch: 2
+DeathSound:
+  Type: ENDERMAN_SCREAM
+  Volume: 3
+  Pitch: 1

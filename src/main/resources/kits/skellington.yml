@@ -1,0 +1,27 @@
+Name: "Skellington"
+Color: SILVER
+Description:
+  - "&7Big boned from an early age, Skellington has"
+  - "&7always been destined for success. He prefers"
+  - "&7to eliminate foes with a skeletal bow, a"
+  - "&7family hierloom from his mortal past."
+Skin: "Im_Spooki"
+Damage: 4.5
+Armor: 0.675
+Regen: 0.25
+Kb: 1.2
+Jump:
+  Power: 1.1
+  Height: 0.9
+  Sound:
+    Type: SKELETON_WALK
+    Volume: 2
+    Pitch: 1
+HurtSound:
+  Type: SKELETON_HURT
+  Volume: 1
+  Pitch: 1
+DeathSound:
+  Type: SKELETON_DEATH
+  Volume: 3
+  Pitch: 0.5

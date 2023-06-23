@@ -3,7 +3,6 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.ChargedRightClickBlockAbility;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.BlockProjectile;
 import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
@@ -37,14 +36,10 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
     private BukkitTask soundTask;
     private BukkitTask sizeTask;
 
-    public GaiaToss(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void onInitialClick(PlayerInteractEvent event) {
 
-        this.soundTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.soundTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
             double pitch = MathUtils.increasingLinear(0.5, 2, this.config.getInt("MaxChargeTicks"), this.ticksCharging);
             this.player.getWorld().playSound(this.player.getLocation(), Sound.FIREWORK_LAUNCH, 1, (float) pitch);
         }, 0, 3);
@@ -54,7 +49,7 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
         Vector direction = this.player.getEyeLocation().getDirection().multiply(this.getMaxSize() / 2.0);
         Location centerInGround = event.getClickedBlock().getLocation().add(direction);
 
-        this.sizeTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.sizeTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
             if (++this.increments > this.config.getInt("IncrementCount")) return;
 
             this.currSize += this.config.getInt("IncrementSize");
@@ -95,7 +90,7 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
 
                 Vector relativeToLoc = VectorUtils.fromTo(this.player.getLocation(), carryLoc);
 
-                this.positionUpdaters.add(Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+                this.positionUpdaters.add(Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
                     blockEntity.teleport(this.player.getLocation().add(relativeToLoc));
                 }, 2, 2));
             }
@@ -145,7 +140,7 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
     }
 
     private void launch(boolean particles, double damage, double kb, double speed, FallingBlock block) {
-        GaiaTossProjectile projectile = new GaiaTossProjectile(this.plugin, this, this.config, particles);
+        GaiaTossProjectile projectile = new GaiaTossProjectile(SSL.getInstance(), this, this.config, particles);
         projectile.setMaterial(block.getMaterial());
         projectile.setData(block.getBlockData());
         projectile.setOverrideLocation(block.getLocation().setDirection(this.player.getEyeLocation().getDirection()));
@@ -203,7 +198,7 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
         @Override
         public void onTargetHit(LivingEntity target) {
             this.entity.getWorld().playSound(this.entity.getLocation(), Sound.IRONGOLEM_DEATH, 2, 0.5f);
-            new ParticleBuilder(EnumParticle.SMOKE_LARGE).boom(this.plugin, this.entity.getLocation(), 5, 0.5, 15);
+            new ParticleBuilder(EnumParticle.SMOKE_LARGE).boom(SSL.getInstance(), this.entity.getLocation(), 5, 0.5, 15);
         }
     }
 }

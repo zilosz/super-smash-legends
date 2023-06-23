@@ -5,7 +5,6 @@ import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
 import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.team.TeamPreference;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
@@ -14,7 +13,6 @@ import com.github.zilosz.ssl.utils.entity.finder.selector.DistanceSelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -28,10 +26,6 @@ public class OlympicDive extends RightClickAbility {
     private BukkitTask diveDelayer;
     private boolean canDive = false;
     private DiveState diveState = DiveState.INACTIVE;
-
-    public OlympicDive(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
 
     @Override
     public void onClick(PlayerInteractEvent event) {
@@ -57,7 +51,7 @@ public class OlympicDive extends RightClickAbility {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SPLASH, 0.5f, 2);
 
         EntitySelector selector = new DistanceSelector(this.config.getDouble("PullDistance"));
-        EntityFinder finder = new EntityFinder(this.plugin, selector).setTeamPreference(TeamPreference.ANY);
+        EntityFinder finder = new EntityFinder(SSL.getInstance(), selector).setTeamPreference(TeamPreference.ANY);
 
         finder.findAll(this.player).forEach(target -> {
             Vector pullDirection = VectorUtils.fromTo(target, this.player).normalize();
@@ -68,9 +62,9 @@ public class OlympicDive extends RightClickAbility {
         });
 
         int diveDelay = this.config.getInt("DiveDelay");
-        this.diveDelayer = Bukkit.getScheduler().runTaskLater(this.plugin, () -> this.canDive = true, diveDelay);
+        this.diveDelayer = Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> this.canDive = true, diveDelay);
 
-        this.task = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.task = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
             if (EntityUtils.isPlayerGrounded(this.player)) {
 
@@ -135,7 +129,7 @@ public class OlympicDive extends RightClickAbility {
         double radius = this.config.getDouble("DiveDamageRadius");
         EntitySelector selector = new DistanceSelector(radius);
 
-        new EntityFinder(this.plugin, selector).findAll(this.player).forEach(target -> {
+        new EntityFinder(SSL.getInstance(), selector).findAll(this.player).forEach(target -> {
             double distance = target.getLocation().distance(this.player.getLocation());
             double damage = YamlReader.decLin(this.config, "DiveDamage", distance, radius);
             double kb = YamlReader.decLin(this.config, "DiveKb", distance, radius);
@@ -144,7 +138,7 @@ public class OlympicDive extends RightClickAbility {
                     .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
                     .modifyKb(kbSettings -> kbSettings.setKb(kb));
 
-            this.plugin.getDamageManager().attack(target, this, settings);
+            SSL.getInstance().getDamageManager().attack(target, this, settings);
         });
     }
 

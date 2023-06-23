@@ -3,7 +3,6 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.BlockProjectile;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
@@ -18,13 +17,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public class CoalCluster extends RightClickAbility {
 
-    public CoalCluster(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new ClusterProjectile(this.plugin, this, this.config.getSection("Cluster")).launch();
+        new ClusterProjectile(SSL.getInstance(), this, this.config.getSection("Cluster")).launch();
     }
 
     public static class ClusterProjectile extends BlockProjectile {
@@ -69,7 +64,7 @@ public class CoalCluster extends RightClickAbility {
                 launchLoc.setYaw(i * yawStep);
 
                 Section settings = this.config.getSection("Fragment");
-                FragmentProjectile projectile = new FragmentProjectile(this.plugin, this.ability, settings);
+                FragmentProjectile projectile = new FragmentProjectile(SSL.getInstance(), this.ability, settings);
                 projectile.setOverrideLocation(launchLoc);
                 projectile.launch();
             }

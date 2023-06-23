@@ -5,7 +5,6 @@ import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.ChargedRightClickAbility;
 import com.github.zilosz.ssl.damage.DamageSettings;
 import com.github.zilosz.ssl.damage.KbSettings;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
@@ -29,10 +28,6 @@ import java.util.List;
 public class RocketLauncher extends ChargedRightClickAbility {
     private float pitch;
 
-    public RocketLauncher(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void onInitialClick(PlayerInteractEvent event) {
         this.pitch = 0.5f;
@@ -47,7 +42,7 @@ public class RocketLauncher extends ChargedRightClickAbility {
     @Override
     public void onSuccessfulCharge() {
         Section main = this.config.getSection("Rocket");
-        Rocket rocket = new Rocket(this.plugin, this, main);
+        Rocket rocket = new Rocket(SSL.getInstance(), this, main);
 
         DamageSettings damageSettings = rocket.getAttackSettings().getDamageSettings();
         damageSettings.setDamage(YamlReader.incLin(main, "Damage", this.ticksCharging, this.maxChargeTicks));
@@ -118,7 +113,7 @@ public class RocketLauncher extends ChargedRightClickAbility {
                 );
 
                 Section shrapnelConfig = this.config.getSection("Shrapnel");
-                Shrapnel shrapnel = new Shrapnel(this.plugin, this.ability, shrapnelConfig, particle, toAvoid);
+                Shrapnel shrapnel = new Shrapnel(SSL.getInstance(), this.ability, shrapnelConfig, particle, toAvoid);
 
                 double multiplier = this.config.getDouble("Shrapnel.Multiplier");
 

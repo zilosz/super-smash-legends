@@ -4,7 +4,6 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.BlockProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
@@ -21,13 +20,9 @@ import org.bukkit.util.Vector;
 public class SpringTrap extends RightClickAbility {
     private int uses = 0;
 
-    public SpringTrap(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new SpringProjectile(this.plugin, this, this.config).launch();
+        new SpringProjectile(SSL.getInstance(), this, this.config).launch();
 
         double velocity = this.config.getDouble("ForwardVelocity");
         double velocityY = this.config.getDouble("ForwardVelocityY");
@@ -50,12 +45,12 @@ public class SpringTrap extends RightClickAbility {
         public void onBlockHit(BlockHitResult result) {
             this.displayEffect();
 
-            EntityFinder finder = new EntityFinder(this.plugin, new DistanceSelector(this.config.getDouble("Radius")));
+            EntityFinder finder = new EntityFinder(SSL.getInstance(), new DistanceSelector(this.config.getDouble("Radius")));
 
             finder.findAll(this.launcher, this.entity.getLocation()).forEach(target -> {
                 Vector direction = VectorUtils.fromTo(this.entity, target);
                 AttackSettings settings = new AttackSettings(this.config.getSection("Aoe"), direction);
-                this.plugin.getDamageManager().attack(target, this.ability, settings);
+                SSL.getInstance().getDamageManager().attack(target, this.ability, settings);
             });
         }
 

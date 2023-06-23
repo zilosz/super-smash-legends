@@ -5,7 +5,6 @@ import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
 import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
 import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.effect.Effects;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
@@ -26,10 +25,6 @@ public class AgileCombat extends RightClickAbility {
     private BukkitTask leapTask;
     private BukkitTask cancelTask;
     private boolean canLeap = true;
-
-    public AgileCombat(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
 
     @Override
     public void onClick(PlayerInteractEvent event) {
@@ -57,7 +52,7 @@ public class AgileCombat extends RightClickAbility {
 
         this.state = State.DROPPING;
 
-        this.dropTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.dropTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
             if (EntityUtils.isPlayerGrounded(this.player)) {
                 this.dropTask.cancel();
@@ -66,7 +61,7 @@ public class AgileCombat extends RightClickAbility {
         }, 0, 0);
 
         int duration = this.config.getInt("Duration");
-        this.cancelTask = Bukkit.getScheduler().runTaskLater(this.plugin, () -> this.reset(true), duration);
+        this.cancelTask = Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> this.reset(true), duration);
     }
 
     private void onLeap() {
@@ -77,7 +72,7 @@ public class AgileCombat extends RightClickAbility {
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.WITHER_IDLE, 1, 2);
 
-        this.leapTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.leapTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
             if (EntityUtils.isPlayerGrounded(this.player)) {
                 this.endLeap(false);
@@ -86,7 +81,7 @@ public class AgileCombat extends RightClickAbility {
 
             EntitySelector selector = new HitBoxSelector(this.config.getDouble("Leap.HitBox"));
 
-            new EntityFinder(this.plugin, selector).findClosest(this.player).ifPresent(target -> {
+            new EntityFinder(SSL.getInstance(), selector).findClosest(this.player).ifPresent(target -> {
                 Vector direction = this.player.getEyeLocation().getDirection();
 
                 AttackSettings settings = new AttackSettings(
@@ -94,7 +89,7 @@ public class AgileCombat extends RightClickAbility {
                         direction.clone().multiply(-1)
                 );
 
-                if (this.plugin.getDamageManager().attack(target, this, settings)) {
+                if (SSL.getInstance().getDamageManager().attack(target, this, settings)) {
                     this.endLeap(true);
 
                     double springVel = this.config.getDouble("SpringVelocity");

@@ -1,0 +1,29 @@
+Name: "Bat Wave"
+Item:
+  Material: GOLD_SPADE
+Description:
+  - "&7Harness the power of bats to damage"
+  - "&7enemies from a distance and pull"
+  - "&7yourself if needed. The bats are"
+  - "&7stronger than you think!"
+Cooldown: 100
+AutoStartCooldown: false
+AutoSendUseMessage: false
+RemoveOnLongCollision: false
+RemoveOnBlockHit: false
+RemoveOnEntityHit: false
+BatCount: 25
+Speed: 0.6
+HitBox: 0.6
+Kb: 1.2
+KbY: 0.5
+Damage: 2.5
+Width: 4
+Height: 4
+Lifespan: 100
+HitsMultiple: true
+HasGravity: false
+TargetHitSound:
+  Type: BAT_DEATH
+  Volume: 1
+  Pitch: 1

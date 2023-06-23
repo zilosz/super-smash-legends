@@ -1,0 +1,20 @@
+Name: "Ground Pound"
+Item:
+  Material: IRON_SPADE
+Description:
+  - "&7Harness your coin-collecting skills from"
+  - "&7the old days to jump downward. Colliding"
+  - "&7with an enemy gives upward recoil and an"
+  - "&7extra double jump. Can be chained."
+Cooldown: 120
+AutoStartCooldown: false
+MaxFall: 30
+DownwardVelocity: 1.7
+MinBounce: 0.35
+MaxBounce: 3.5
+HitBox: 1.8
+MaxDamage: 16
+MinDamage: 2
+MaxKb: 2.5
+MinKb: 1
+KbY: 1

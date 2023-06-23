@@ -4,7 +4,6 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.ClickableAbility;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.EmulatedProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
@@ -20,15 +19,11 @@ import org.bukkit.util.EulerAngle;
 public class HatThrow extends RightClickAbility {
     private HatProjectile hatProjectile;
 
-    public HatThrow(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void onClick(PlayerInteractEvent event) {
 
         if (this.hatProjectile == null || this.hatProjectile.state == HatThrowState.INACTIVE) {
-            this.hatProjectile = new HatProjectile(this.plugin, this, this.config);
+            this.hatProjectile = new HatProjectile(SSL.getInstance(), this, this.config);
             this.hatProjectile.setLifespan(this.config.getInt("TicksToReturn") + this.config.getInt("ExtraLifespan"));
             this.hatProjectile.launch();
 

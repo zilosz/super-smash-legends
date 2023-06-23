@@ -1,0 +1,24 @@
+Name: "Mixtape Drop"
+Item:
+  Material: DIAMOND_SPADE
+Description:
+  - "&7Musician drops the hardest mixtape ever."
+  - "&7It does contact damage and also has a"
+  - "&7small area of effect upon hitting blocks."
+  - "&7The mixtape is so fire that it explodes"
+  - "&7your boombox on contact. Gives recoil."
+Cooldown: 60
+Recoil: 1.3
+Projectile:
+  Damage: 6
+  Speed: 1.2
+  Kb: 1.6
+  KbY: 0.65
+  HitBox: 0.5
+  Ground:
+    Radius: 3
+    Damage: 4
+    Kb: 1.3
+    KbY: 0.7
+  Item:
+    Material: RECORD_10

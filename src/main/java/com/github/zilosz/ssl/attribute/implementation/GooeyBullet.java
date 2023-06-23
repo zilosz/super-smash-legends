@@ -3,7 +3,6 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.LivingProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
@@ -15,13 +14,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public class GooeyBullet extends RightClickAbility {
 
-    public GooeyBullet(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new GooeyProjectile(this.plugin, this, this.config).launch();
+        new GooeyProjectile(SSL.getInstance(), this, this.config).launch();
     }
 
     public static class GooeyProjectile extends LivingProjectile<Slime> {
@@ -40,7 +35,7 @@ public class GooeyBullet extends RightClickAbility {
         @Override
         public void onBlockHit(BlockHitResult result) {
             new ParticleBuilder(EnumParticle.REDSTONE).setRgb(0, 255, 0)
-                    .boom(this.plugin, this.entity.getLocation(), 2.5, 0.4, 5);
+                    .boom(SSL.getInstance(), this.entity.getLocation(), 2.5, 0.4, 5);
         }
 
         @Override

@@ -1,7 +1,6 @@
 package com.github.zilosz.ssl.attribute;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.HotbarItem;
 import com.github.zilosz.ssl.utils.ItemBuilder;
 import com.github.zilosz.ssl.utils.file.YamlReader;
@@ -9,7 +8,6 @@ import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
@@ -18,30 +16,27 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class Ability extends Attribute implements Nameable {
-    protected final Section config;
-    @Getter @Setter protected int slot;
+    protected Section config;
+    @Getter private AbilityType type;
+    protected int slot;
     @Getter protected HotbarItem hotbarItem;
 
-    public Ability(SSL plugin, Section config, Kit kit) {
-        super(plugin, kit);
+    public void init(Section config, AbilityType type, int slot) {
         this.config = config;
+        this.type = type;
+        this.slot = slot;
     }
 
     public Material getMaterial() {
-        try {
-            return Material.valueOf(this.config.getString("Item.Material"));
-        } catch (IllegalArgumentException e) {
-            return Material.DIRT;
-        }
+        return Material.valueOf(this.config.getString("Item.Material"));
     }
 
     @Override
     public void equip() {
         super.equip();
-
         this.hotbarItem = new HotbarItem(this.player, this.buildItem(), this.slot);
         this.hotbarItem.setAction(e -> this.sendDescription());
-        this.hotbarItem.register(this.plugin);
+        this.hotbarItem.register(SSL.getInstance());
     }
 
     @Override

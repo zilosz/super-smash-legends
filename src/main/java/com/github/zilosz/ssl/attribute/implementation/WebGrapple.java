@@ -6,7 +6,6 @@ import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
 import com.github.zilosz.ssl.utils.SoundCanceller;
@@ -28,21 +27,17 @@ public class WebGrapple extends RightClickAbility {
     private SoundCanceller batSoundCanceller;
     private GrappleProjectile grappleProjectile;
 
-    public WebGrapple(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void activate() {
         super.activate();
 
-        this.batSoundCanceller = new SoundCanceller(this.plugin, "mob.bat.idle");
+        this.batSoundCanceller = new SoundCanceller(SSL.getInstance(), "mob.bat.idle");
         ProtocolLibrary.getProtocolManager().addPacketListener(this.batSoundCanceller);
     }
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        this.grappleProjectile = new GrappleProjectile(this.plugin, this, this.config.getSection("Projectile"));
+        this.grappleProjectile = new GrappleProjectile(SSL.getInstance(), this, this.config.getSection("Projectile"));
         this.grappleProjectile.launch();
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.MAGMACUBE_JUMP, 1, 1);

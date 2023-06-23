@@ -5,7 +5,6 @@ import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
 import com.github.zilosz.ssl.event.CustomEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
@@ -33,16 +32,12 @@ public class Rasenshuriken extends RightClickAbility {
     private Location lastLocation;
     private int ticksCharged = -1;
 
-    public Rasenshuriken(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void onClick(PlayerInteractEvent event) {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.FIREWORK_LAUNCH, 1, 1);
         this.hotbarItem.hide();
 
-        this.task = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.task = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
             if (++this.ticksCharged >= this.config.getInt("Lifespan")) {
                 this.reset(true);
@@ -105,7 +100,7 @@ public class Rasenshuriken extends RightClickAbility {
     public void onPlayerAnimation(PlayerAnimationEvent event) {
         if (event.getPlayer() != this.player || this.ticksCharged == -1) return;
 
-        Shuriken shuriken = new Shuriken(this.plugin, this, this.config.getSection("Projectile"));
+        Shuriken shuriken = new Shuriken(SSL.getInstance(), this, this.config.getSection("Projectile"));
         this.lastLocation.setDirection(this.player.getEyeLocation().getDirection());
         shuriken.setOverrideLocation(this.lastLocation);
         shuriken.launch();
@@ -163,7 +158,7 @@ public class Rasenshuriken extends RightClickAbility {
             this.entity.getWorld().playSound(loc, Sound.EXPLODE, 1.5f, 1);
             new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).solidSphere(loc, radius / 2, 40, 0.1);
 
-            EntityFinder finder = new EntityFinder(this.plugin, new DistanceSelector(radius)).avoid(avoid);
+            EntityFinder finder = new EntityFinder(SSL.getInstance(), new DistanceSelector(radius)).avoid(avoid);
 
             finder.findAll(this.launcher, loc).forEach(target -> {
                 double distanceSq = target.getLocation().distanceSquared(loc);
@@ -176,7 +171,7 @@ public class Rasenshuriken extends RightClickAbility {
                         .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
                         .modifyKb(kbSettings -> kbSettings.setKb(kb));
 
-                this.plugin.getDamageManager().attack(target, this.ability, settings);
+                SSL.getInstance().getDamageManager().attack(target, this.ability, settings);
             });
         }
     }

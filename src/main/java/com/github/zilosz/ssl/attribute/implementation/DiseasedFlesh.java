@@ -4,7 +4,6 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
@@ -30,20 +29,16 @@ public class DiseasedFlesh extends RightClickAbility {
             Material.BONE
     );
 
-    public DiseasedFlesh(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void onClick(PlayerInteractEvent event) {
         this.player.getWorld().playSound(this.player.getEyeLocation(), Sound.ZOMBIE_PIG_HURT, 1, 2);
 
-        FleshProjectile projectile = new FleshProjectile(this.plugin, this, this.config);
+        FleshProjectile projectile = new FleshProjectile(SSL.getInstance(), this, this.config);
         projectile.setSpread(0);
         projectile.launch();
 
         for (int i = 1; i < this.config.getInt("Count"); i++) {
-            new FleshProjectile(this.plugin, this, this.config).launch();
+            new FleshProjectile(SSL.getInstance(), this, this.config).launch();
         }
     }
 

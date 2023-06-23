@@ -3,7 +3,6 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
@@ -11,7 +10,6 @@ import com.github.zilosz.ssl.utils.entity.FloatingEntity;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -39,10 +37,6 @@ public class ChainOfSteel extends RightClickAbility {
     private BukkitTask pullSoundTask;
     private BukkitTask effectRemoveTask;
 
-    public ChainOfSteel(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public boolean invalidate(PlayerInteractEvent event) {
         return super.invalidate(event) || this.chainTicks > 0;
@@ -58,7 +52,7 @@ public class ChainOfSteel extends RightClickAbility {
 
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
-        this.chainTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.chainTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
             currLocation.add(step);
 
             if (this.chainTicks >= this.config.getInt("ChainTicks")) {
@@ -90,10 +84,10 @@ public class ChainOfSteel extends RightClickAbility {
 
             } else {
 
-                new EntityFinder(this.plugin, selector).findClosest(this.player, currLocation).ifPresent(target -> {
+                new EntityFinder(SSL.getInstance(), selector).findClosest(this.player, currLocation).ifPresent(target -> {
                     AttackSettings attackSettings = new AttackSettings(this.config, null);
 
-                    if (this.plugin.getDamageManager().attack(target, this, attackSettings)) {
+                    if (SSL.getInstance().getDamageManager().attack(target, this, attackSettings)) {
                         this.player.playSound(this.player.getLocation(), Sound.ORB_PICKUP, 1, 1);
                         this.player.getWorld().playSound(currLocation, Sound.EXPLODE, 1, 1.5f);
                         new ParticleBuilder(EnumParticle.EXPLOSION_NORMAL).show(currLocation);
@@ -135,9 +129,9 @@ public class ChainOfSteel extends RightClickAbility {
 
         Vector pullVelocity = this.direction.clone().multiply(this.config.getDouble("PullSpeed"));
         this.pullTask = Bukkit.getScheduler()
-                .runTaskTimer(this.plugin, () -> this.player.setVelocity(pullVelocity), 0, 0);
+                .runTaskTimer(SSL.getInstance(), () -> this.player.setVelocity(pullVelocity), 0, 0);
 
-        this.pullSoundTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.pullSoundTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
             this.player.getWorld().playSound(this.player.getLocation(), Sound.STEP_LADDER, 2, 1);
         }, 0, 0);
 
@@ -145,7 +139,7 @@ public class ChainOfSteel extends RightClickAbility {
         double travelTicks = distance / this.config.getInt("PullSpeed");
         int ticksPerRemoval = (int) (travelTicks / this.entities.size());
 
-        this.effectRemoveTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.effectRemoveTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
             if (this.entities.isEmpty()) {
                 this.reset(true);

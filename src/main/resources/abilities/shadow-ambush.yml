@@ -1,0 +1,10 @@
+Name: "Shadow Ambush"
+Item:
+  Material: DIAMOND_HOE
+Description:
+  - "&7Dissolve into darkness and teleport"
+  - "&7behind the nearest enemy, surprising"
+  - "&7and blinding them."
+Cooldown: 140
+Range: 11
+BlindnessDuration: 45

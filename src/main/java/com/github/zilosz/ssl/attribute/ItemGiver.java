@@ -1,25 +1,19 @@
 package com.github.zilosz.ssl.attribute;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.kit.Kit;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
-public abstract class ItemGiver extends PassiveAbility {
+public class ItemGiver extends PassiveAbility {
     private BukkitTask giveTask;
-
-    public ItemGiver(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
 
     @Override
     public void activate() {
         super.activate();
 
-        this.giveTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.giveTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
             ItemStack stack = this.player.getInventory().getItem(this.slot);
             int atOnce = this.config.getInt("AmountAtOnce");
 

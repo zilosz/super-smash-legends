@@ -7,11 +7,9 @@ import com.github.zilosz.ssl.damage.AttackSettings;
 import com.github.zilosz.ssl.damage.KbSettings;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.math.MathUtils;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -31,10 +29,6 @@ import java.util.Optional;
 public class BlindingFists extends PassiveAbility {
     private final Map<LivingEntity, Integer> chainCounts = new HashMap<>();
     private final Map<LivingEntity, BukkitTask> chainResetters = new HashMap<>();
-
-    public BlindingFists(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
 
     @Override
     public void deactivate() {
@@ -86,7 +80,7 @@ public class BlindingFists extends PassiveAbility {
             this.player.playSound(this.player.getLocation(), Sound.ZOMBIE_REMEDY, 0.5f, (float) pitch);
 
             Location center = EntityUtils.center(victim);
-            new ParticleBuilder(EnumParticle.REDSTONE).boom(this.plugin, center, 1.5, 0.375, 5);
+            new ParticleBuilder(EnumParticle.REDSTONE).boom(SSL.getInstance(), center, 1.5, 0.375, 5);
 
             for (int x = -1; x <= 1; x++) {
 
@@ -126,7 +120,7 @@ public class BlindingFists extends PassiveAbility {
 
         Optional.ofNullable(this.chainResetters.remove(victim)).ifPresent(BukkitTask::cancel);
 
-        this.chainResetters.put(victim, Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+        this.chainResetters.put(victim, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
             this.chainCounts.remove(victim);
             this.player.removePotionEffect(PotionEffectType.SPEED);
         }, this.config.getInt("ChainDuration")));

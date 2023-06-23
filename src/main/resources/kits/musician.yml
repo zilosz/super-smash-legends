@@ -1,0 +1,29 @@
+Name: "Musician"
+Color: WHITE
+Description:
+  - "&7The Musician is the most accomplished"
+  - "&7DJ in all the land. With his trusty"
+  - "&7boombox, he can shred opponents"
+  - "&7solely using the power of music. The"
+  - "&7art of the boombox is hard to master"
+  - "&7but rewarding for aspiring DJs."
+Skin: "Bo_Rum_Dal"
+Damage: 5
+Armor: 0.6
+Kb: 1.45
+Regen: 0.3
+Jump:
+  Power: 1.1
+  Height: 0.9
+  Sound:
+    Type: NOTE_BASS
+    Volume: 1
+    Pitch: 1.5
+HurtSound:
+  Type: NOTE_BASS
+  Volume: 1
+  Pitch: 1
+DeathSound:
+  Type: NOTE_PLING
+  Volume: 3
+  Pitch: 0.5

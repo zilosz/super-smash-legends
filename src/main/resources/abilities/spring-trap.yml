@@ -1,0 +1,39 @@
+Name: "Spring Trap"
+Item:
+  Material: GOLD_HOE
+Description:
+  - "&7The Barbarian is traumatized from"
+  - "&7countless encounters with spring traps"
+  - "&7from his clashing days. Now, he has"
+  - "&7bested his mortal enemy, and uses his"
+  - "&7own traps as weapons. Right click to"
+  - "&7jump upwards, releasing a menacing"
+  - "&7spring that falls downwards."
+Cooldown: 175
+Uses: 2
+AutoStartCooldown: false
+ForwardVelocity: 1.1
+ForwardVelocityY: 1.1
+Speed: 0.9
+Damage: 7
+Kb: 1.75
+KbY: 0.7
+Radius: 3.5
+Aoe:
+  Damage: 5
+  Kb: 1.8
+  KbY: 0.7
+Block:
+  Material: WOOD
+LaunchSound:
+  Type: ZOMBIE_WOOD
+  Volume: 2
+  Pitch: 2
+BlockHitSound:
+  Type: ZOMBIE_WOODBREAK
+  Volume: 2
+  Pitch: 1
+TargetHitSound:
+  Type: ZOMBIE_WOODBREAK
+  Volume: 2
+  Pitch: 1

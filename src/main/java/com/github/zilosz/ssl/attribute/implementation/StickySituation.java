@@ -1,14 +1,11 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.PassiveAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.event.attribute.EnergyEvent;
 import com.github.zilosz.ssl.event.attribute.RegenEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.effect.Effects;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Color;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
@@ -17,10 +14,6 @@ import org.bukkit.potion.PotionEffectType;
 
 public class StickySituation extends PassiveAbility {
     private boolean active = false;
-
-    public StickySituation(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
 
     @Override
     public void deactivate() {

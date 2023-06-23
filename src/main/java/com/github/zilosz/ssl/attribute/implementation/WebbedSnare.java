@@ -4,7 +4,6 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
@@ -29,10 +28,6 @@ import java.util.Set;
 public class WebbedSnare extends RightClickAbility {
     private Set<LivingEntity> hitEntities;
 
-    public WebbedSnare(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void onClick(PlayerInteractEvent event) {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SPIDER_DEATH, 2, 2);
@@ -56,7 +51,7 @@ public class WebbedSnare extends RightClickAbility {
     }
 
     private void launch(Location source, boolean first) {
-        SnareProjectile projectile = new SnareProjectile(this.plugin, this, this.config.getSection("Projectile"));
+        SnareProjectile projectile = new SnareProjectile(SSL.getInstance(), this, this.config.getSection("Projectile"));
         projectile.setOverrideLocation(source);
 
         if (first) {
@@ -118,7 +113,7 @@ public class WebbedSnare extends RightClickAbility {
             this.webBlock.setType(Material.WEB);
             int duration = this.config.getInt("WebDuration");
 
-            Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+            Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
                 if (this.webBlock.getType() == Material.WEB) {
                     this.webBlock.setType(Material.AIR);
                 }

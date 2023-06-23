@@ -1,0 +1,12 @@
+Name: "Superhuman Punch"
+Item:
+  Material: DIAMOND_AXE
+Description:
+  - "&7Webman winds up a lethal punch that"
+  - "&7does increased damage and knock-back."
+  - "&7It works in tandem with &oBlinding"
+  - "&7&oFists &7chains and breaks webs."
+Cooldown: 120
+Damage: 6
+Kb: 1.5
+KbY: 1

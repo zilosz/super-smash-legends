@@ -1,0 +1,9 @@
+Name: "Teleport"
+Item:
+  Material: IRON_HOE
+Description:
+  - "&7Use your superhuman powers to teleport"
+  - "&7in the direction you're facing. Can be"
+  - "&7used to cover space and escape the void."
+Cooldown: 140
+Range: 15

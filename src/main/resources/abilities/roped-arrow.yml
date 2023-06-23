@@ -1,0 +1,15 @@
+Name: "Roped Arrow"
+Item:
+  Material: BOW
+Description:
+  - "&7Left click to launch a precise arrow"
+  - "&7that functions like a grapple. Allows"
+  - "&7for quick combos and agile movement."
+Cooldown: 100
+PullStrength: 1.6
+ExtraY: 0.4
+Speed: 3
+Damage: 6
+Kb: 1
+KbY: 0.5
+Lifespan: 140

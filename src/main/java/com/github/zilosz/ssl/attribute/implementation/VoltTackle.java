@@ -3,7 +3,6 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.AttackSettings;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
@@ -32,10 +31,6 @@ public class VoltTackle extends RightClickAbility {
     private int ticksMoving = -1;
     private BukkitTask moveTask;
 
-    public VoltTackle(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public boolean invalidate(PlayerInteractEvent event) {
         return super.invalidate(event) || this.ticksMoving > -1;
@@ -48,7 +43,7 @@ public class VoltTackle extends RightClickAbility {
 
         int duration = this.config.getInt("DurationTicks");
 
-        this.moveTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.moveTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
             ++this.ticksMoving;
             if (this.ticksMoving >= duration) {
@@ -75,14 +70,14 @@ public class VoltTackle extends RightClickAbility {
 
                 this.particles.put(
                         gold,
-                        Bukkit.getScheduler().runTaskLater(this.plugin, gold::remove, particleDuration)
+                        Bukkit.getScheduler().runTaskLater(SSL.getInstance(), gold::remove, particleDuration)
                 );
             }
 
             float pitch = (float) MathUtils.increasingLinear(0.5, 2, duration, this.ticksMoving);
             this.player.getWorld().playSound(this.player.getLocation(), Sound.FIREWORK_LARGE_BLAST, 1, pitch);
 
-            new EntityFinder(this.plugin, selector).findClosest(this.player).ifPresent(target -> {
+            new EntityFinder(SSL.getInstance(), selector).findClosest(this.player).ifPresent(target -> {
                 double damage = YamlReader.incLin(this.config, "Damage", this.ticksMoving, duration);
                 double kb = YamlReader.incLin(this.config, "Kb", this.ticksMoving, duration);
 
@@ -90,7 +85,7 @@ public class VoltTackle extends RightClickAbility {
                         .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
                         .modifyKb(kbSettings -> kbSettings.setKb(kb));
 
-                if (this.plugin.getDamageManager().attack(target, this, settings)) {
+                if (SSL.getInstance().getDamageManager().attack(target, this, settings)) {
                     this.player.getWorld().playSound(this.player.getLocation(), Sound.FALL_BIG, 1, 2);
                     this.player.getWorld().strikeLightningEffect(target.getLocation());
 
@@ -102,7 +97,7 @@ public class VoltTackle extends RightClickAbility {
                             .modifyDamage(damageSettings -> damageSettings.setDamage(recoilDamage))
                             .modifyKb(kbSettings -> kbSettings.setKb(recoilKb));
 
-                    this.plugin.getDamageManager().attack(target, this, recoil);
+                    SSL.getInstance().getDamageManager().attack(target, this, recoil);
                 }
 
                 this.reset(true, false);

@@ -1,0 +1,27 @@
+Name: "Deadmortal"
+Color: DARK_RED
+Description:
+  - "&7Deadmortal is a disfigured mercenary with"
+  - "&7superhuman abilities, such as accelerated"
+  - "&7healing and immense physical strength."
+  - "&7Use him to clutch opponent's health!"
+Skin: "MarMC"
+Damage: 5.5
+Armor: 0.625
+Kb: 1.1
+Regen: 0.35
+Jump:
+  Power: 1.1
+  Height: 0.9
+  Sound:
+    Type: ZOMBIE_PIG_ANGRY
+    Volume: 1.5
+    Pitch: 1
+HurtSound:
+  Type: ZOMBIE_PIG_HURT
+  Volume: 1
+  Pitch: 1
+DeathSound:
+  Type: ZOMBIE_PIG_DEATH
+  Volume: 3
+  Pitch: 0.5

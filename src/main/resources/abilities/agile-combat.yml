@@ -1,0 +1,30 @@
+Name: "Agile Combat"
+Item:
+  Material: GOLD_SPADE
+Description:
+  - "&7Deadmortal quickly drops to the ground,"
+  - "&7sprinting at rapid speeds. His mobility,"
+  - "&7both grounded and aerial, is greatly"
+  - "&7increased. He can then spring up from"
+  - "&7the ground to vault off enemies."
+AutoStartCooldown: false
+AutoSendUseMessage: false
+Cooldown: 140
+Duration: 120
+DropVelocity: 1.1
+SpringVelocity: 2
+SpringVelocityY: 1
+WalkSpeed: 0.5
+Leap:
+  Damage: 6
+  Kb: 1.5
+  KbY: 1
+  HitBox: 1.7
+  Velocity: 2
+Jump:
+  Power: 1.4
+  Height: 0.8
+  Sound:
+    Type: ZOMBIE_PIG_ANGRY
+    Volume: 1
+    Pitch: 2

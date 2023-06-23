@@ -1,0 +1,15 @@
+Name: "Chain of Steel"
+Item:
+  Material: GOLD_PICKAXE
+Description:
+  - "&7Send forth an indestructible steel chain"
+  - "&7that latches onto enemies and surfaces."
+  - "&7Tank deftly pulls himself along the chain"
+  - "&7to close heavy distances. Sneak to cancel."
+Cooldown: 130
+AutoStartCooldown: false
+ChainSpeed: 1.2
+ChainTicks: 40
+PullSpeed: 1.3
+Damage: 5.5
+HitBox: 1

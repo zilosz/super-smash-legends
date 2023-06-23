@@ -4,7 +4,6 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.attribute.Nameable;
 import com.github.zilosz.ssl.damage.AttackSettings;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.team.Team;
 import com.github.zilosz.ssl.team.TeamPreference;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -15,10 +14,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Vector;
 
 public class Melee extends Attribute implements Nameable {
-
-    public Melee(SSL plugin, Kit kit) {
-        super(plugin, kit);
-    }
 
     @Override
     public String getDisplayName() {
@@ -36,16 +31,16 @@ public class Melee extends Attribute implements Nameable {
 
         LivingEntity victim = (LivingEntity) event.getEntity();
 
-        Team team = this.plugin.getTeamManager().getPlayerTeam(this.player);
+        Team team = SSL.getInstance().getTeamManager().getPlayerTeam(this.player);
         if (TeamPreference.FRIENDLY.validate(team, victim)) return;
 
-        Section config = this.plugin.getResources().getConfig().getSection("Damage.Melee");
+        Section config = SSL.getInstance().getResources().getConfig().getSection("Damage.Melee");
         Vector direction = this.player.getEyeLocation().getDirection();
-        double damage = this.plugin.getKitManager().getSelectedKit(this.player).getDamage();
+        double damage = SSL.getInstance().getKitManager().getSelectedKit(this.player).getDamage();
 
         AttackSettings settings = new AttackSettings(config, direction)
                 .modifyDamage(damageSettings -> damageSettings.setDamage(damage));
 
-        this.plugin.getDamageManager().attack(victim, this, settings);
+        SSL.getInstance().getDamageManager().attack(victim, this, settings);
     }
 }

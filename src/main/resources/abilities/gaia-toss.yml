@@ -1,0 +1,22 @@
+Name: "Gaia Toss"
+Item:
+  Material: DIAMOND_SWORD
+Description:
+  - "&7Use your immense strength to pick up"
+  - "&7chunks of the Earth, throwing them"
+  - "&7at enemies. These chunks grow in size,"
+  - "&7and consequently power, over time."
+Cooldown: 160
+MinChargeTicks: 10
+MaxChargeTicks: 80
+KbY: 1.1
+MinDamage: 4
+MaxDamage: 12
+MinSpeed: 0.65
+MaxSpeed: 1.45
+MinKb: 1.5
+MaxKb: 3
+MinSize: 1
+IncrementCount: 2
+IncrementSize: 1
+HeightAboveHead: 0.65

@@ -1,0 +1,18 @@
+Name: "Hazmat Skin"
+Item:
+  Material: ROTTEN_FLESH
+Description:
+  - "&7Deadmortal's mutant body grants him"
+  - "&7protection from negative potion effects,"
+  - "&7fire, and related illnesses."
+ResistedPotionEffects:
+  - BLINDNESS
+  - POISON
+  - WITHER
+  - SLOWNESS
+  - CONFUSION
+  - HARM
+  - HUNGER
+  - SLOW
+  - SLOW_DIGGING
+  - WEAKNESS

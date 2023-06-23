@@ -4,7 +4,6 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.LivingProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
@@ -25,10 +24,6 @@ public class BatWave extends RightClickAbility {
     private final Set<BatProjectile> batProjectiles = new HashSet<>();
     private BatWaveState state = BatWaveState.INACTIVE;
     private BukkitTask resetTask;
-
-    public BatWave(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
 
     @Override
     public void onClick(PlayerInteractEvent event) {
@@ -62,9 +57,9 @@ public class BatWave extends RightClickAbility {
         int count = this.config.getInt("BatCount");
 
         Set<Location> locations = VectorUtils.getRectLocations(center, alt, width, height, count);
-        locations.forEach(loc -> this.addAndLaunch(new BatProjectile(this.plugin, this, this.config), loc));
+        locations.forEach(loc -> this.addAndLaunch(new BatProjectile(SSL.getInstance(), this, this.config), loc));
 
-        this.resetTask = Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+        this.resetTask = Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
             this.reset();
             this.startCooldown();
         }, this.config.getInt("Lifespan"));
@@ -128,7 +123,7 @@ public class BatWave extends RightClickAbility {
 
         @Override
         public void onLaunch() {
-            this.plugin.getTeamManager().getPlayerTeam(this.ability.getPlayer()).addEntity(this.bat);
+            SSL.getInstance().getTeamManager().getPlayerTeam(this.ability.getPlayer()).addEntity(this.bat);
         }
 
         @Override
@@ -136,7 +131,7 @@ public class BatWave extends RightClickAbility {
             super.onRemove(reason);
             this.unleash();
             this.bat.remove();
-            this.plugin.getTeamManager().getPlayerTeam(this.ability.getPlayer()).removeEntity(this.bat);
+            SSL.getInstance().getTeamManager().getPlayerTeam(this.ability.getPlayer()).removeEntity(this.bat);
         }
 
         public void unleash() {

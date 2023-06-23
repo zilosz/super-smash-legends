@@ -1,0 +1,18 @@
+Name: "Thunderbolt"
+Item:
+  Material: DIAMOND_SWORD
+Description:
+  - "&7Charge up an immensely powerful lightning"
+  - "&7strike. Hits foes in the direction you are"
+  - "&7facing once you stop charging."
+Cooldown: 140
+MinChargeTicks: 10
+MaxChargeTicks: 40
+KbY: 0.7
+MinDamage: 2
+MaxDamage: 6.5
+MinKb: 1
+MaxKb: 2.5
+MinRange: 5
+MaxRange: 45
+HitBox: 1

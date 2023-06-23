@@ -1,0 +1,12 @@
+Name: "Berserk"
+Item:
+  Material: DIAMOND_PICKAXE
+Description:
+  - "&7Substantially increase your speed and power"
+  - "&7in a fit of uncontrollable rage."
+Cooldown: 180
+AutoStartCooldown: false
+Duration: 160
+DamageMultiplier: 1.25
+Speed: 2
+ExtraJumps: 1
