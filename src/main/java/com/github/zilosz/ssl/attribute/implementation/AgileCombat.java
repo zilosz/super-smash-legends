@@ -81,7 +81,7 @@ public class AgileCombat extends RightClickAbility {
 
             EntitySelector selector = new HitBoxSelector(this.config.getDouble("Leap.HitBox"));
 
-            new EntityFinder(SSL.getInstance(), selector).findClosest(this.player).ifPresent(target -> {
+            new EntityFinder(selector).findClosest(this.player).ifPresent(target -> {
                 Vector direction = this.player.getEyeLocation().getDirection();
 
                 AttackSettings settings = new AttackSettings(

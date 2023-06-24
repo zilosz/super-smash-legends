@@ -19,10 +19,6 @@ import java.util.List;
 public class PreGameState extends GameState implements TeleportsOnVoid {
     private BukkitTask startCountdown;
 
-    public PreGameState(SSL plugin) {
-        super(plugin);
-    }
-
     @Override
     public boolean allowKitSelection() {
         return true;
@@ -53,14 +49,14 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
                 "&7{AUTHORS}"
         ));
 
-        Arena arena = this.plugin.getArenaManager().getArena();
+        Arena arena = SSL.getInstance().getArenaManager().getArena();
         Replacers replacers = new Replacers().add("ARENA", arena.getName()).add("AUTHORS", arena.getAuthors());
 
-        if (!this.plugin.getGameManager().isSpectator(player)) {
+        if (!SSL.getInstance().getGameManager().isSpectator(player)) {
             lines.add("");
             lines.add("&f&lKit");
             lines.add("{KIT}");
-            replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getDisplayName());
+            replacers.add("KIT", SSL.getInstance().getKitManager().getSelectedKit(player).getDisplayName());
         }
 
         lines.add(this.getScoreboardLine());
@@ -70,15 +66,15 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
     @Override
     public void start() {
 
-        for (Player player : this.plugin.getGameManager().getAlivePlayers()) {
-            player.teleport(this.plugin.getArenaManager().getArena().getWaitLocation());
+        for (Player player : SSL.getInstance().getGameManager().getAlivePlayers()) {
+            player.teleport(SSL.getInstance().getArenaManager().getArena().getWaitLocation());
             player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 1);
             player.setAllowFlight(true);
             player.setFlying(true);
         }
 
         this.startCountdown = new BukkitRunnable() {
-            int secondsLeft = PreGameState.this.plugin.getResources().getConfig().getInt("Game.StartWaitSeconds");
+            int secondsLeft = SSL.getInstance().getResources().getConfig().getInt("Game.StartWaitSeconds");
             final double pitchStep = 1.5 / this.secondsLeft;
             float pitch = 0.5f;
 
@@ -86,7 +82,7 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
             public void run() {
 
                 if (this.secondsLeft == 0) {
-                    PreGameState.this.plugin.getGameManager().advanceState();
+                    SSL.getInstance().getGameManager().advanceState();
                     return;
                 }
 
@@ -101,7 +97,7 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
                 this.secondsLeft--;
             }
 
-        }.runTaskTimer(this.plugin, 40, 20);
+        }.runTaskTimer(SSL.getInstance(), 40, 20);
     }
 
     @Override
@@ -111,7 +107,7 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
         for (Player player : Bukkit.getOnlinePlayers()) {
             TitleAPI.clearTitle(player);
 
-            if (this.plugin.getGameManager().isPlayerAlive(player)) {
+            if (SSL.getInstance().getGameManager().isPlayerAlive(player)) {
                 player.setAllowFlight(false);
                 player.setFlying(false);
             }
@@ -140,6 +136,6 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
 
     @Override
     public Location getTeleportLocation() {
-        return this.plugin.getArenaManager().getArena().getWaitLocation();
+        return SSL.getInstance().getArenaManager().getArena().getWaitLocation();
     }
 }

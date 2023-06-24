@@ -1,79 +1,55 @@
 package com.github.zilosz.ssl;
 
-import com.github.zilosz.ssl.arena.Arena;
-import com.github.zilosz.ssl.kit.Kit;
-import com.github.zilosz.ssl.utils.HotbarItem;
+import com.github.zilosz.ssl.attribute.AbilityType;
+import com.github.zilosz.ssl.kit.KitType;
 import com.github.zilosz.ssl.utils.file.FileUtility;
-import com.github.zilosz.ssl.utils.file.YamlReader;
 import dev.dejvokep.boostedyaml.YamlDocument;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Resources {
-    private final SSL plugin;
-    private final YamlDocument kits;
-    private final YamlDocument items;
+    @Getter private final YamlDocument items;
     @Getter private final YamlDocument lobby;
     @Getter private final YamlDocument config;
     @Getter private final YamlDocument arenas;
 
-    public Resources(SSL plugin) {
-        this.plugin = plugin;
+    private final Map<KitType, YamlDocument> kits = new HashMap<>();
+    private final Map<AbilityType, YamlDocument> abilities = new HashMap<>();
 
-        this.kits = FileUtility.loadYaml(plugin, "kits");
-        this.items = FileUtility.loadYaml(plugin, "items");
-        this.lobby = FileUtility.loadYaml(plugin, "lobby");
-        this.config = FileUtility.loadYaml(plugin, "config");
-        this.arenas = FileUtility.loadYaml(plugin, "arenas");
-    }
+    public Resources() {
+        this.config = FileUtility.loadYaml(SSL.getInstance(), "config");
+        this.items = FileUtility.loadYaml(SSL.getInstance(), "items");
+        this.lobby = FileUtility.loadYaml(SSL.getInstance(), "lobby");
+        this.arenas = FileUtility.loadYaml(SSL.getInstance(), "arenas");
 
-    public void reload() {
-        this.reloadDocument(this.kits);
-        this.reloadDocument(this.lobby);
-        this.reloadDocument(this.config);
-        this.reloadDocument(this.arenas);
-        this.reloadDocument(this.items);
-    }
+        for (KitType kitType : KitType.values()) {
+            String path = FileUtility.buildPath("kits", kitType.getFileName());
+            this.kits.put(kitType, FileUtility.loadYaml(SSL.getInstance(), path));
+        }
 
-    public void reloadDocument(YamlDocument document) {
-        try {
-            document.reload();
-            document.save();
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (AbilityType abilityType : AbilityType.values()) {
+            String path = FileUtility.buildPath("abilities", abilityType.getFileName());
+            this.abilities.put(abilityType, FileUtility.loadYaml(SSL.getInstance(), path));
         }
     }
 
-    public List<Kit> loadKits() {
-        return this.kits.getKeys().stream().map(key -> this.loadKit((String) key)).collect(Collectors.toList());
+    public void reload() {
+        FileUtility.reloadYaml(this.lobby);
+        FileUtility.reloadYaml(this.config);
+        FileUtility.reloadYaml(this.arenas);
+        FileUtility.reloadYaml(this.items);
+
+        this.kits.values().forEach(FileUtility::reloadYaml);
+        this.abilities.values().forEach(FileUtility::reloadYaml);
     }
 
-    public Kit loadKit(String name) {
-        return new Kit(this.kits.getSection(name));
+    public YamlDocument getKitConfig(KitType type) {
+        return this.kits.get(type);
     }
 
-    public List<Arena> loadArenas() {
-        return this.arenas.getKeys().stream().map(key -> this.loadArena((String) key)).collect(Collectors.toList());
-    }
-
-    public Arena loadArena(String name) {
-        return new Arena(this.plugin, this.arenas.getSection(name));
-    }
-
-    public HotbarItem giveHotbarItem(String path, Player player, Consumer<PlayerInteractEvent> action) {
-        Section config = this.items.getSection(path);
-        ItemStack stack = YamlReader.stack(config);
-        HotbarItem hotbarItem = new HotbarItem(player, stack, config.getInt("Slot"));
-        hotbarItem.setAction(action);
-        hotbarItem.register(this.plugin);
-        return hotbarItem;
+    public YamlDocument getAbilityConfig(AbilityType type) {
+        return this.abilities.get(type);
     }
 }

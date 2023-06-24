@@ -1,14 +1,13 @@
 package com.github.zilosz.ssl.game.state;
 
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
-import com.github.zilosz.ssl.Resources;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.arena.Arena;
 import com.github.zilosz.ssl.arena.ArenaVoter;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.game.GameManager;
-import com.github.zilosz.ssl.game.InGameProfile;
+import com.github.zilosz.ssl.game.PlayerProfile;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.kit.KitManager;
 import com.github.zilosz.ssl.kit.KitSelector;
@@ -56,10 +55,6 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
     private int secUntilStart;
     private boolean isCounting = false;
 
-    public LobbyState(SSL plugin) {
-        super(plugin);
-    }
-
     @Override
     public boolean allowKitSelection() {
         return true;
@@ -80,10 +75,10 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
 
         Replacers replacers = new Replacers()
                 .add("CURRENT", this.getParticipantCount())
-                .add("CAP", this.plugin.getResources().getConfig().getInt("Game.MinPlayersToStart"));
+                .add("CAP", SSL.getInstance().getResources().getConfig().getInt("Game.MinPlayersToStart"));
 
         try {
-            replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getDisplayName());
+            replacers.add("KIT", SSL.getInstance().getKitManager().getSelectedKit(player).getDisplayName());
         } catch (NullPointerException ignored) {
         }
 
@@ -110,16 +105,16 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
     }
 
     private int getParticipantCount() {
-        GameManager gameManager = this.plugin.getGameManager();
+        GameManager gameManager = SSL.getInstance().getGameManager();
         return (int) Bukkit.getOnlinePlayers().stream().filter(p -> !gameManager.willSpectate(p)).count();
     }
 
     @Override
     public void start() {
-        GameManager gameManager = this.plugin.getGameManager();
+        GameManager gameManager = SSL.getInstance().getGameManager();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            KitManager kitManager = this.plugin.getKitManager();
+            KitManager kitManager = SSL.getInstance().getKitManager();
 
             Optional.ofNullable(kitManager.getSelectedKit(player)).ifPresentOrElse(kit -> kit.equip(player), () -> {
                 kitManager.createHolograms(player);
@@ -137,12 +132,12 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
             String text = skin.getPreviousTexture();
             String sig = skin.getPreviousSignature();
 
-            Skin.applyAcrossTp(this.plugin, player, text, sig, () -> {
+            Skin.applyAcrossTp(SSL.getInstance(), player, text, sig, () -> {
                 this.initializePlayer(player);
                 player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
             });
 
-            InGameProfile profile = gameManager.getProfile(player);
+            PlayerProfile profile = gameManager.getProfile(player);
             DecimalFormat format = new DecimalFormat("#.#");
 
             Replacers replacers = new Replacers().add("KIT", profile.getKit().getBoldedDisplayName())
@@ -152,9 +147,9 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
                     .add("DAMAGE_TAKEN", format.format(profile.getDamageTaken()))
                     .add("DAMAGE_DEALT", format.format(profile.getDamageDealt()));
 
-            String lastGameLoc = this.plugin.getResources().getLobby().getString("LastGame");
+            String lastGameLoc = SSL.getInstance().getResources().getLobby().getString("LastGame");
             Location lastGameLocation = YamlReader.location("lobby", lastGameLoc);
-            Hologram lastGameHolo = HolographicDisplaysAPI.get(this.plugin).createHologram(lastGameLocation);
+            Hologram lastGameHolo = HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(lastGameLocation);
             this.holograms.add(lastGameHolo);
 
             replacers.replaceLines(Arrays.asList(
@@ -178,7 +173,7 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
             }
         }
 
-        this.plugin.getArenaManager().setupArenas();
+        SSL.getInstance().getArenaManager().setupArenas();
 
         this.createLeaderboard("Win", "wins", "Wins");
         this.createLeaderboard("Kill", "kills", "Kills");
@@ -195,39 +190,37 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
         player.setLevel(0);
         player.teleport(this.getSpawn());
 
-        if (!this.plugin.getGameManager().isSpectator(player)) {
+        if (!SSL.getInstance().getGameManager().isSpectator(player)) {
             ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Returned to the lobby."));
         }
 
-        Resources resources = this.plugin.getResources();
-
         Consumer<PlayerInteractEvent> kitAction = e -> new KitSelector().build().open(player);
-        this.hotbarItems.add(resources.giveHotbarItem("KitSelector", player, kitAction));
+        this.hotbarItems.add(YamlReader.giveHotbarItem("KitSelector", player, kitAction));
 
         Consumer<PlayerInteractEvent> arenaAction = e -> new ArenaVoter().build().open(player);
-        this.hotbarItems.add(resources.giveHotbarItem("ArenaVoter", player, arenaAction));
+        this.hotbarItems.add(YamlReader.giveHotbarItem("ArenaVoter", player, arenaAction));
 
-        if (this.plugin.getTeamManager().getTeamSize() > 1) {
+        if (SSL.getInstance().getTeamManager().getTeamSize() > 1) {
             Consumer<PlayerInteractEvent> teamAction = e -> new TeamSelector().build().open(player);
-            this.hotbarItems.add(resources.giveHotbarItem("TeamSelector", player, teamAction));
+            this.hotbarItems.add(YamlReader.giveHotbarItem("TeamSelector", player, teamAction));
         }
     }
 
     private void createLeaderboard(String titleName, String statName, String configName) {
-        Location location = YamlReader.location("lobby", this.plugin.getResources().getLobby().getString(configName));
-        Hologram hologram = HolographicDisplaysAPI.get(this.plugin).createHologram(location);
+        Location location = YamlReader.location("lobby", SSL.getInstance().getResources().getLobby().getString(configName));
+        Hologram hologram = HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(location);
         this.holograms.add(hologram);
         HologramLines lines = hologram.getLines();
 
         lines.appendText(MessageUtils.color(String.format("&5&l%s Leaderboard", titleName)));
         lines.appendText(MessageUtils.color("&7------------------"));
 
-        int size = this.plugin.getResources().getConfig().getInt("LeaderboardSizes." + configName);
+        int size = SSL.getInstance().getResources().getConfig().getInt("LeaderboardSizes." + configName);
 
         List<String> players = new ArrayList<>();
         List<Integer> stats = new ArrayList<>();
 
-        for (Document doc : this.plugin.getPlayerDatabase().getDocuments()) {
+        for (Document doc : SSL.getInstance().getPlayerDatabase().getDocuments()) {
             String name = doc.getString("name");
             int stat = (int) doc.getOrDefault(statName, 0);
 
@@ -275,12 +268,12 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
     }
 
     private void tryCountdownStart() {
-        int minPlayersNeeded = this.plugin.getResources().getConfig().getInt("Game.MinPlayersToStart");
+        int minPlayersNeeded = SSL.getInstance().getResources().getConfig().getInt("Game.MinPlayersToStart");
 
         if (this.isCounting || this.getParticipantCount() < minPlayersNeeded) return;
 
-        int notifyInterval = this.plugin.getResources().getConfig().getInt("Game.LobbyCountdown.NotifyInterval");
-        int totalSec = this.plugin.getResources().getConfig().getInt("Game.LobbyCountdown.Seconds");
+        int notifyInterval = SSL.getInstance().getResources().getConfig().getInt("Game.LobbyCountdown.NotifyInterval");
+        int totalSec = SSL.getInstance().getResources().getConfig().getInt("Game.LobbyCountdown.Seconds");
         this.secUntilStart = totalSec + 1;
 
         this.isCounting = true;
@@ -293,7 +286,7 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
                 LobbyState.this.secUntilStart--;
 
                 if (LobbyState.this.secUntilStart == 0) {
-                    LobbyState.this.plugin.getGameManager().advanceState();
+                    SSL.getInstance().getGameManager().advanceState();
                     return;
                 }
 
@@ -316,11 +309,11 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
                 }
             }
 
-        }.runTaskTimer(this.plugin, 0, 20);
+        }.runTaskTimer(SSL.getInstance(), 0, 20);
     }
 
     private Location getSpawn() {
-        return YamlReader.location("lobby", this.plugin.getResources().getLobby().getString("Spawn"));
+        return YamlReader.location("lobby", SSL.getInstance().getResources().getLobby().getString("Spawn"));
     }
 
     @Override
@@ -331,33 +324,33 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
         this.stopCountdownTask(false);
 
         Chat.GAME.broadcast("&7The game is starting...");
-        this.plugin.getGameManager().startTicks();
+        SSL.getInstance().getGameManager().startTicks();
 
-        this.plugin.getArenaManager().setupArena();
-        Arena arena = this.plugin.getArenaManager().getArena();
+        SSL.getInstance().getArenaManager().setupArena();
+        Arena arena = SSL.getInstance().getArenaManager().getArena();
 
         Replacers replacers = new Replacers().add("ARENA", arena.getName()).add("AUTHORS", arena.getAuthors());
 
-        List<String> description = replacers.replaceLines(this.plugin.getResources()
+        List<String> description = replacers.replaceLines(SSL.getInstance().getResources()
                 .getConfig()
                 .getStringList("Description"));
 
-        GameManager gameManager = this.plugin.getGameManager();
+        GameManager gameManager = SSL.getInstance().getGameManager();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             description.forEach(player::sendMessage);
 
             if (gameManager.willSpectate(player)) {
                 gameManager.addSpectator(player);
-                this.plugin.getKitManager().getSelectedKit(player).destroy();
+                SSL.getInstance().getKitManager().getSelectedKit(player).destroy();
 
             } else {
                 gameManager.setupProfile(player);
-                this.plugin.getTeamManager().assignPlayer(player);
+                SSL.getInstance().getTeamManager().assignPlayer(player);
             }
         }
 
-        this.plugin.getTeamManager().removeEmptyTeams();
+        SSL.getInstance().getTeamManager().removeEmptyTeams();
     }
 
     @Override
@@ -396,12 +389,12 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
         Player player = event.getPlayer();
         this.initializePlayer(player);
 
-        KitManager kitManager = this.plugin.getKitManager();
+        KitManager kitManager = SSL.getInstance().getKitManager();
         kitManager.createHolograms(player);
         kitManager.pullUserKit(player);
         kitManager.updateHolograms(player);
 
-        this.plugin.getPlayerDatabase().set(player.getUniqueId(), "name", player.getName());
+        SSL.getInstance().getPlayerDatabase().set(player.getUniqueId(), "name", player.getName());
 
         this.tryCountdownStart();
     }
@@ -410,8 +403,8 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
     public void onLobbyQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
 
-        this.plugin.getArenaManager().wipePlayer(player);
-        this.plugin.getTeamManager().wipePlayer(player);
+        SSL.getInstance().getArenaManager().wipePlayer(player);
+        SSL.getInstance().getTeamManager().wipePlayer(player);
 
         this.stopCountdownTask(true);
     }
@@ -420,7 +413,7 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
     public void stopBows(EntityShootBowEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
 
-        Kit kit = this.plugin.getKitManager().getSelectedKit((Player) event.getEntity());
+        Kit kit = SSL.getInstance().getKitManager().getSelectedKit((Player) event.getEntity());
 
         for (Attribute attribute : kit.getAttributes()) {
 

@@ -22,7 +22,9 @@ Description:
 Scoreboard:
   Title: "&f&lSUPER &lSMASH &5&lLEGENDS"
   Width: 17
-KitHologramHeight: 2.7
+Kit:
+  HologramHeight: 2.7
+  Default: BARBARIAN
 Death:
   Velocity: 0.3
   Duration: 70

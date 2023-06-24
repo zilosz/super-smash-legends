@@ -24,7 +24,7 @@ public class FrostedTwirl extends ChargedRightClickAbility {
 
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
-        new EntityFinder(SSL.getInstance(), selector).findAll(this.player).forEach(target -> {
+        new EntityFinder(selector).findAll(this.player).forEach(target -> {
             AttackSettings settings = new AttackSettings(this.config, this.player.getLocation().getDirection());
 
             if (SSL.getInstance().getDamageManager().attack(target, this, settings)) {

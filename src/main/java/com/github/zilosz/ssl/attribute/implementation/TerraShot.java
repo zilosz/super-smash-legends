@@ -85,7 +85,7 @@ public class TerraShot extends ChargedRightClickBlockAbility {
         int interval = this.config.getInt("LaunchInterval");
 
         RunnableUtils.runTaskWithIntervals(SSL.getInstance(), count, interval, () -> {
-            TerraProjectile projectile = new TerraProjectile(SSL.getInstance(), this, this.config);
+            TerraProjectile projectile = new TerraProjectile(this, this.config);
             projectile.setMaterial(material);
             projectile.setData(data);
 
@@ -107,8 +107,8 @@ public class TerraShot extends ChargedRightClickBlockAbility {
 
     public static class TerraProjectile extends BlockProjectile {
 
-        public TerraProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public TerraProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override

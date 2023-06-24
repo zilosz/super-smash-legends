@@ -84,7 +84,7 @@ public class ChainOfSteel extends RightClickAbility {
 
             } else {
 
-                new EntityFinder(SSL.getInstance(), selector).findClosest(this.player, currLocation).ifPresent(target -> {
+                new EntityFinder(selector).findClosest(this.player, currLocation).ifPresent(target -> {
                     AttackSettings attackSettings = new AttackSettings(this.config, null);
 
                     if (SSL.getInstance().getDamageManager().attack(target, this, attackSettings)) {

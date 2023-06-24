@@ -1,6 +1,5 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.ChargedRightClickAbility;
 import com.github.zilosz.ssl.damage.DamageSettings;
@@ -10,7 +9,6 @@ import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.effect.ColorType;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
-import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
@@ -42,7 +40,7 @@ public class RocketLauncher extends ChargedRightClickAbility {
     @Override
     public void onSuccessfulCharge() {
         Section main = this.config.getSection("Rocket");
-        Rocket rocket = new Rocket(SSL.getInstance(), this, main);
+        Rocket rocket = new Rocket(this, main);
 
         DamageSettings damageSettings = rocket.getAttackSettings().getDamageSettings();
         damageSettings.setDamage(YamlReader.incLin(main, "Damage", this.ticksCharging, this.maxChargeTicks));
@@ -54,11 +52,11 @@ public class RocketLauncher extends ChargedRightClickAbility {
         rocket.launch();
     }
 
-    public static class Rocket extends ItemProjectile {
+    private static class Rocket extends ItemProjectile {
         private final List<Location> particles = new ArrayList<>();
 
-        public Rocket(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public Rocket(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override
@@ -113,7 +111,7 @@ public class RocketLauncher extends ChargedRightClickAbility {
                 );
 
                 Section shrapnelConfig = this.config.getSection("Shrapnel");
-                Shrapnel shrapnel = new Shrapnel(SSL.getInstance(), this.ability, shrapnelConfig, particle, toAvoid);
+                Shrapnel shrapnel = new Shrapnel(this.ability, shrapnelConfig, particle, toAvoid);
 
                 double multiplier = this.config.getDouble("Shrapnel.Multiplier");
 
@@ -133,14 +131,16 @@ public class RocketLauncher extends ChargedRightClickAbility {
         }
     }
 
-    public static class Shrapnel extends ItemProjectile {
+    private static class Shrapnel extends ItemProjectile {
         private final ParticleBuilder particle;
-        private final LivingEntity toAvoid;
 
-        public Shrapnel(SSL plugin, Ability ability, Section config, ParticleBuilder particle, LivingEntity toAvoid) {
-            super(plugin, ability, config);
+        public Shrapnel(Ability ability, Section config, ParticleBuilder particle, LivingEntity toAvoid) {
+            super(ability, config);
             this.particle = particle;
-            this.toAvoid = toAvoid;
+
+            if (toAvoid != null) {
+                this.entityFinder.avoid(toAvoid);
+            }
         }
 
         @Override
@@ -153,17 +153,6 @@ public class RocketLauncher extends ChargedRightClickAbility {
             for (int i = 0; i < 3; i++) {
                 this.particle.setSpread(0.2f, 0.2f, 0.2f).show(this.entity.getLocation());
             }
-        }
-
-        @Override
-        public EntityFinder getFinder() {
-            EntityFinder finder = super.getFinder();
-
-            if (this.toAvoid != null) {
-                finder.avoid(this.toAvoid);
-            }
-
-            return finder;
         }
     }
 }

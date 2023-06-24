@@ -68,7 +68,7 @@ public class DrillTornado extends RightClickAbility {
 
                 EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
-                new EntityFinder(SSL.getInstance(), selector).findAll(this.player).forEach(target -> {
+                new EntityFinder(selector).findAll(this.player).forEach(target -> {
                     AttackSettings settings = new AttackSettings(this.config, this.player.getLocation().getDirection());
 
                     if (SSL.getInstance().getDamageManager().attack(target, this, settings)) {
@@ -78,7 +78,9 @@ public class DrillTornado extends RightClickAbility {
             }, 0, 0);
 
             int duration = this.config.getInt("Duration");
-            this.drillCancelTask = Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> this.reset(true), duration);
+
+            this.drillCancelTask = Bukkit.getScheduler()
+                    .runTaskLater(SSL.getInstance(), () -> this.reset(true), duration);
         }, 0, 0);
     }
 

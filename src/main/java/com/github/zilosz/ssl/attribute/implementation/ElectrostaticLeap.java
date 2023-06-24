@@ -39,7 +39,7 @@ public class ElectrostaticLeap extends RightClickAbility {
             new ParticleBuilder(EnumParticle.FIREWORKS_SPARK).show(this.player.getLocation());
             HitBoxSelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
-            new EntityFinder(SSL.getInstance(), selector).findAll(this.player).forEach(target -> {
+            new EntityFinder(selector).findAll(this.player).forEach(target -> {
                 AttackSettings settings = new AttackSettings(this.config, this.player.getLocation().getDirection());
 
                 if (SSL.getInstance().getDamageManager().attack(target, this, settings)) {

@@ -20,8 +20,17 @@ public class FileUtility {
         }
     }
 
+    public static void reloadYaml(YamlDocument document) {
+        try {
+            document.reload();
+            document.save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static File loadSchematic(Plugin plugin, String path) {
-        String fullPath = PathBuilder.build("schematics", path) + ".schematic";
+        String fullPath = buildPath("schematics", path) + ".schematic";
         plugin.saveResource(fullPath, false);
         return new File(plugin.getDataFolder(), fullPath);
     }
@@ -39,5 +48,19 @@ public class FileUtility {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static String buildPath(String... parts) {
+        StringBuilder path = new StringBuilder();
+
+        for (int i = 0; i < parts.length; i++) {
+            path.append(parts[i]);
+
+            if (i < parts.length - 1) {
+                path.append(File.separator);
+            }
+        }
+
+        return path.toString();
     }
 }

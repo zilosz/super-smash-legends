@@ -57,7 +57,7 @@ public class BatWave extends RightClickAbility {
         int count = this.config.getInt("BatCount");
 
         Set<Location> locations = VectorUtils.getRectLocations(center, alt, width, height, count);
-        locations.forEach(loc -> this.addAndLaunch(new BatProjectile(SSL.getInstance(), this, this.config), loc));
+        locations.forEach(loc -> this.addAndLaunch(new BatProjectile(this, this.config), loc));
 
         this.resetTask = Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
             this.reset();
@@ -105,8 +105,8 @@ public class BatWave extends RightClickAbility {
     private static class BatProjectile extends LivingProjectile<ArmorStand> {
         private Bat bat;
 
-        public BatProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public BatProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override

@@ -26,9 +26,7 @@ public class BoneExplosion extends RightClickAbility {
         Location center = EntityUtils.center(this.player);
         Effects.itemBoom(SSL.getInstance(), center, new ItemStack(Material.BONE), radius, 0.8, 60);
 
-        EntityFinder finder = new EntityFinder(SSL.getInstance(), new DistanceSelector(radius));
-
-        finder.findAll(this.player).forEach(target -> {
+        new EntityFinder(new DistanceSelector(radius)).findAll(this.player).forEach(target -> {
             double distanceSq = this.player.getLocation().distanceSquared(target.getLocation());
             double damage = YamlReader.decLin(this.config, "Damage", distanceSq, radius * radius);
             double kb = YamlReader.decLin(this.config, "Kb", distanceSq, radius * radius);

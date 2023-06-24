@@ -36,7 +36,7 @@ public class HungryFish extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new BubbleProjectile(SSL.getInstance(), this, this.config.getSection("Projectile")).launch();
+        new BubbleProjectile(this, this.config.getSection("Projectile")).launch();
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SPLASH, 0.5f, 1);
     }
 
@@ -47,8 +47,8 @@ public class HungryFish extends RightClickAbility {
         private FloatingEntity<Item> fish;
         private BukkitTask fishMoveTask;
 
-        public BubbleProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public BubbleProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override

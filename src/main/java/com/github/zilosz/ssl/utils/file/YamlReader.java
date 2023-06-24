@@ -1,5 +1,7 @@
 package com.github.zilosz.ssl.utils.file;
 
+import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.utils.HotbarItem;
 import com.github.zilosz.ssl.utils.ItemBuilder;
 import com.github.zilosz.ssl.utils.Noise;
 import com.github.zilosz.ssl.utils.math.MathUtils;
@@ -8,12 +10,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class YamlReader {
@@ -39,12 +44,21 @@ public class YamlReader {
     }
 
     public static ItemStack stack(Section section) {
-        ItemBuilder<ItemMeta> builder = new ItemBuilder<>(Material.valueOf(section.getString("Material")));
+        Material material = Material.valueOf(section.getString("Material"));
+        ItemBuilder<ItemMeta> builder = new ItemBuilder<>(material);
         section.getOptionalString("Name").ifPresent(builder::setName);
         section.getOptionalStringList("Lore").ifPresent(builder::setLore);
         builder.setAmount(section.getOptionalInt("Amount").orElse(1));
         section.getOptionalInt("Data").ifPresent(builder::setData);
         return builder.get();
+    }
+
+    public static HotbarItem giveHotbarItem(String path, Player player, Consumer<PlayerInteractEvent> action) {
+        Section config = SSL.getInstance().getResources().getItems().getSection(path);
+        HotbarItem hotbarItem = new HotbarItem(player, stack(config.getSection("Item")), config.getInt("Slot"));
+        hotbarItem.setAction(action);
+        hotbarItem.register(SSL.getInstance());
+        return hotbarItem;
     }
 
     public static Noise noise(Section section) {

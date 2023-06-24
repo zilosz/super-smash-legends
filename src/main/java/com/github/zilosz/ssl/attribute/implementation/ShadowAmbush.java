@@ -1,6 +1,5 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
@@ -21,7 +20,7 @@ public class ShadowAmbush extends RightClickAbility {
     @Override
     public void onClick(PlayerInteractEvent event) {
         new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(EntityUtils.center(this.player), 1.5, 15, 0.5);
-        EntityFinder finder = new EntityFinder(SSL.getInstance(), new DistanceSelector(this.config.getDouble("Range")));
+        EntityFinder finder = new EntityFinder(new DistanceSelector(this.config.getDouble("Range")));
         finder.findClosest(this.player).ifPresentOrElse(this::teleport, this::fail);
     }
 

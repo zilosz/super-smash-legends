@@ -49,7 +49,7 @@ public class GroundPound extends RightClickAbility {
         double kb = YamlReader.incLin(this.config, "Kb", fallen, this.config.getDouble("MaxFall"));
 
         boolean foundTarget = false;
-        EntityFinder finder = new EntityFinder(SSL.getInstance(), new HitBoxSelector(this.config.getDouble("HitBox")));
+        EntityFinder finder = new EntityFinder(new HitBoxSelector(this.config.getDouble("HitBox")));
 
         for (LivingEntity target : finder.findAll(this.player)) {
 

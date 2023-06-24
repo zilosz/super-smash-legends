@@ -1,6 +1,5 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
@@ -33,19 +32,19 @@ public class DiseasedFlesh extends RightClickAbility {
     public void onClick(PlayerInteractEvent event) {
         this.player.getWorld().playSound(this.player.getEyeLocation(), Sound.ZOMBIE_PIG_HURT, 1, 2);
 
-        FleshProjectile projectile = new FleshProjectile(SSL.getInstance(), this, this.config);
+        FleshProjectile projectile = new FleshProjectile(this, this.config);
         projectile.setSpread(0);
         projectile.launch();
 
         for (int i = 1; i < this.config.getInt("Count"); i++) {
-            new FleshProjectile(SSL.getInstance(), this, this.config).launch();
+            new FleshProjectile(this, this.config).launch();
         }
     }
 
-    public static class FleshProjectile extends ItemProjectile {
+    private static class FleshProjectile extends ItemProjectile {
 
-        public FleshProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public FleshProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override

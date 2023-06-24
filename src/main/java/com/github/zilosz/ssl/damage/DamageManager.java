@@ -5,7 +5,7 @@ import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
-import com.github.zilosz.ssl.game.InGameProfile;
+import com.github.zilosz.ssl.game.PlayerProfile;
 import com.github.zilosz.ssl.utils.CollectionUtils;
 import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
 import org.bukkit.Bukkit;
@@ -19,8 +19,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public class DamageManager {
-    private final SSL plugin;
-
     private final Map<LivingEntity, DamageIndicator> indicators = new HashMap<>();
     private final Map<LivingEntity, BukkitTask> indicatorRemovers = new HashMap<>();
     private final Set<LivingEntity> entitiesWithInvisibleIndicator = new HashSet<>();
@@ -30,10 +28,6 @@ public class DamageManager {
 
     private final Map<LivingEntity, Set<Attribute>> immunities = new HashMap<>();
     private final Map<LivingEntity, Map<Attribute, BukkitTask>> immunityRemovers = new HashMap<>();
-
-    public DamageManager(SSL plugin) {
-        this.plugin = plugin;
-    }
 
     public Attribute getLastDamagingAttribute(LivingEntity entity) {
         return this.lastDamagingAttributes.get(entity);
@@ -47,7 +41,7 @@ public class DamageManager {
             this.indicatorRemovers.remove(entity).cancel();
 
         } else {
-            indicator = DamageIndicator.create(this.plugin, entity);
+            indicator = DamageIndicator.create(SSL.getInstance(), entity);
             this.indicators.put(entity, indicator);
 
             if (this.entitiesWithInvisibleIndicator.contains(entity)) {
@@ -57,10 +51,10 @@ public class DamageManager {
 
         indicator.stackDamage(damage);
 
-        int comboDuration = this.plugin.getResources().getConfig().getInt("Damage.Indicator.ComboDuration");
+        int comboDuration = SSL.getInstance().getResources().getConfig().getInt("Damage.Indicator.ComboDuration");
 
         this.indicatorRemovers.put(entity, Bukkit.getScheduler()
-                .runTaskLater(this.plugin, () -> this.destroyIndicator(entity), comboDuration));
+                .runTaskLater(SSL.getInstance(), () -> this.destroyIndicator(entity), comboDuration));
     }
 
     public void destroyIndicator(LivingEntity entity) {
@@ -85,13 +79,13 @@ public class DamageManager {
     public boolean attack(LivingEntity victim, Attribute attribute, AttackSettings attackSettings) {
         if (this.immunities.containsKey(victim) && this.immunities.get(victim).contains(attribute)) return false;
 
-        DamageSettings settings = attackSettings.getDamageSettings();
+        DamageSettings settings = attackSettings.getDamageSettings().copy();
         AttributeDamageEvent damageEvent = new AttributeDamageEvent(victim, settings, false, attribute);
         Bukkit.getPluginManager().callEvent(damageEvent);
 
         if (damageEvent.isCancelled()) return false;
 
-        AttributeKbEvent kbEvent = new AttributeKbEvent(victim, attackSettings.getKbSettings(), attribute);
+        AttributeKbEvent kbEvent = new AttributeKbEvent(victim, attackSettings.getKbSettings().copy(), attribute);
         Bukkit.getPluginManager().callEvent(kbEvent);
 
         DamageSettings damageSettings = damageEvent.getDamageSettings();
@@ -114,7 +108,7 @@ public class DamageManager {
         attribute.getPlayer().setLevel((int) finalDamage);
 
         if (!victim.equals(attribute.getPlayer())) {
-            InGameProfile damagerProfile = this.plugin.getGameManager().getProfile(attribute.getPlayer());
+            PlayerProfile damagerProfile = SSL.getInstance().getGameManager().getProfile(attribute.getPlayer());
             damagerProfile.setDamageDealt(damagerProfile.getDamageDealt() + finalDamage);
         }
 
@@ -125,12 +119,12 @@ public class DamageManager {
         this.lastDamagingAttributes.put(victim, attribute);
 
         this.cancelDamageSourceRemover(victim);
-        int damageLifetime = this.plugin.getResources().getConfig().getInt("Damage.Lifetime");
+        int damageLifetime = SSL.getInstance().getResources().getConfig().getInt("Damage.Lifetime");
 
-        this.damageSourceRemovers.put(
-                victim,
-                Bukkit.getScheduler().runTaskLater(this.plugin, () -> this.removeDamageSource(victim), damageLifetime)
-        );
+        BukkitTask task = Bukkit.getScheduler()
+                .runTaskLater(SSL.getInstance(), () -> this.removeDamageSource(victim), damageLifetime);
+
+        this.damageSourceRemovers.put(victim, task);
 
         this.immunityRemovers.putIfAbsent(victim, new HashMap<>());
         this.destroyImmunityRemover(victim, attribute);
@@ -138,7 +132,7 @@ public class DamageManager {
         this.immunities.putIfAbsent(victim, new HashSet<>());
         this.immunities.get(victim).add(attribute);
 
-        this.immunityRemovers.get(victim).put(attribute, Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+        this.immunityRemovers.get(victim).put(attribute, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
             this.destroyImmunityRemover(victim, attribute);
             this.immunities.get(victim).remove(attribute);
         }, attackSettings.getImmunityTicks()));

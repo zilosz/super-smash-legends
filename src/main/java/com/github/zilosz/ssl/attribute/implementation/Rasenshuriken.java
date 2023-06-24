@@ -100,7 +100,7 @@ public class Rasenshuriken extends RightClickAbility {
     public void onPlayerAnimation(PlayerAnimationEvent event) {
         if (event.getPlayer() != this.player || this.ticksCharged == -1) return;
 
-        Shuriken shuriken = new Shuriken(SSL.getInstance(), this, this.config.getSection("Projectile"));
+        Shuriken shuriken = new Shuriken(this, this.config.getSection("Projectile"));
         this.lastLocation.setDirection(this.player.getEyeLocation().getDirection());
         shuriken.setOverrideLocation(this.lastLocation);
         shuriken.launch();
@@ -117,8 +117,8 @@ public class Rasenshuriken extends RightClickAbility {
 
     public static class Shuriken extends ItemProjectile {
 
-        public Shuriken(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public Shuriken(Ability ability, Section config) {
+            super(ability, config);
             this.getAttackSettings().getDamageSettings().setDamage(config.getDouble("MaxDamage"));
             this.getAttackSettings().getKbSettings().setKb(config.getDouble("MaxKb"));
         }
@@ -158,7 +158,11 @@ public class Rasenshuriken extends RightClickAbility {
             this.entity.getWorld().playSound(loc, Sound.EXPLODE, 1.5f, 1);
             new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).solidSphere(loc, radius / 2, 40, 0.1);
 
-            EntityFinder finder = new EntityFinder(SSL.getInstance(), new DistanceSelector(radius)).avoid(avoid);
+            EntityFinder finder = new EntityFinder(new DistanceSelector(radius));
+
+            if (avoid != null) {
+                finder.avoid(avoid);
+            }
 
             finder.findAll(this.launcher, loc).forEach(target -> {
                 double distanceSq = target.getLocation().distanceSquared(loc);

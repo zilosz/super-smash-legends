@@ -195,9 +195,7 @@ public class Boombox extends RightClickAbility {
         Section mixTapeConfig = this.config.getSection("Mixtape");
         double radius = mixTapeConfig.getDouble("Radius");
         EntitySelector selector = new DistanceSelector(radius);
-
-        EntityFinder finder = new EntityFinder(SSL.getInstance(), selector).setTeamPreference(TeamPreference.ANY)
-                .setAvoidsUser(false);
+        EntityFinder finder = new EntityFinder(selector).setTeamPreference(TeamPreference.ANY).setAvoidsUser(false);
 
         Location center = this.block.getLocation().add(0.5, 0.5, 0.5);
 
@@ -266,15 +264,14 @@ public class Boombox extends RightClickAbility {
             this.launch(false, loc);
         }
 
-        ++this.charge;
-        if (this.charge == maxPunches) {
+        if (++this.charge == maxPunches) {
             this.reset(true);
         }
     }
 
     private void launch(boolean first, Location source) {
         Section settings = this.config.getSection("Projectile");
-        MusicDiscProjectile projectile = new MusicDiscProjectile(SSL.getInstance(), this, settings);
+        MusicDiscProjectile projectile = new MusicDiscProjectile(this, settings);
         projectile.setOverrideLocation(source);
 
         if (first) {
@@ -313,8 +310,8 @@ public class Boombox extends RightClickAbility {
 
     private static class MusicDiscProjectile extends ItemProjectile {
 
-        public MusicDiscProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public MusicDiscProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override

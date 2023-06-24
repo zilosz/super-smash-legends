@@ -23,15 +23,15 @@ public class MixTapeDrop extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new MixTapeProjectile(SSL.getInstance(), this, this.config.getSection("Projectile")).launch();
+        new MixTapeProjectile(this, this.config.getSection("Projectile")).launch();
         this.player.getWorld().playSound(this.player.getLocation(), Sound.NOTE_SNARE_DRUM, 2, 1);
         this.player.setVelocity(this.player.getEyeLocation().getDirection().multiply(-this.config.getDouble("Recoil")));
     }
 
     public static class MixTapeProjectile extends ItemProjectile {
 
-        public MixTapeProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public MixTapeProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override
@@ -39,7 +39,7 @@ public class MixTapeDrop extends RightClickAbility {
             this.showEffect();
 
             EntitySelector selector = new DistanceSelector(this.config.getDouble("Ground.Radius"));
-            EntityFinder finder = new EntityFinder(SSL.getInstance(), selector);
+            EntityFinder finder = new EntityFinder(selector);
             Player player = this.ability.getPlayer();
 
             finder.findAll(player, this.entity.getLocation()).forEach(target -> {

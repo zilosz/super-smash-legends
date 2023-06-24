@@ -140,7 +140,7 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
     }
 
     private void launch(boolean particles, double damage, double kb, double speed, FallingBlock block) {
-        GaiaTossProjectile projectile = new GaiaTossProjectile(SSL.getInstance(), this, this.config, particles);
+        GaiaTossProjectile projectile = new GaiaTossProjectile(this, this.config, particles);
         projectile.setMaterial(block.getMaterial());
         projectile.setData(block.getBlockData());
         projectile.setOverrideLocation(block.getLocation().setDirection(this.player.getEyeLocation().getDirection()));
@@ -175,8 +175,8 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
     private static class GaiaTossProjectile extends BlockProjectile {
         private final boolean createParticles;
 
-        public GaiaTossProjectile(SSL plugin, Ability ability, Section config, boolean createParticles) {
-            super(plugin, ability, config);
+        public GaiaTossProjectile(Ability ability, Section config, boolean createParticles) {
+            super(ability, config);
             this.createParticles = createParticles;
         }
 

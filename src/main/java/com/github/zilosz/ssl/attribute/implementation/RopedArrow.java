@@ -17,14 +17,14 @@ public class RopedArrow extends LeftClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new RopedProjectile(SSL.getInstance(), this, this.config).launch();
+        new RopedProjectile(this, this.config).launch();
         this.player.getWorld().playSound(this.player.getLocation(), Sound.MAGMACUBE_JUMP, 1, 2);
     }
 
-    public static class RopedProjectile extends ArrowProjectile {
+    private static class RopedProjectile extends ArrowProjectile {
 
-        public RopedProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public RopedProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override

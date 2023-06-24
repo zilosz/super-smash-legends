@@ -7,15 +7,10 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 public class EndCommand implements CommandExecutor {
-    private final SSL plugin;
-
-    public EndCommand(SSL plugin) {
-        this.plugin = plugin;
-    }
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        this.plugin.getGameManager().skipToState(new EndState(this.plugin));
+        SSL.getInstance().getGameManager().skipToState(new EndState());
         return true;
     }
 }

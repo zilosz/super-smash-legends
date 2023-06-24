@@ -10,22 +10,25 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.util.Vector;
 
 public abstract class ActualProjectile<T extends Projectile> extends CustomProjectile<T> {
 
-    public ActualProjectile(SSL plugin, Ability ability, Section config) {
-        super(plugin, ability, config);
+    public ActualProjectile(Ability ability, Section config) {
+        super(ability, config);
         this.removeOnBlockHit = true;
+        this.recreateOnBounce = true;
+        this.useCustomHitBox = false;
     }
 
     @Override
-    public T createEntity(Location location) {
+    protected T createEntity(Location location) {
         T projectile = this.createProjectile(location);
         projectile.setShooter(this.ability.getPlayer());
         return projectile;
     }
 
-    public abstract T createProjectile(Location location);
+    protected abstract T createProjectile(Location location);
 
     @EventHandler
     public void onTargetHit(EntityDamageByEntityEvent event) {
@@ -35,7 +38,7 @@ public abstract class ActualProjectile<T extends Projectile> extends CustomProje
         event.setCancelled(true);
 
         if (event.getEntity() != this.launcher) {
-            this.handleTargetHit((LivingEntity) event.getEntity());
+            this.hitTarget((LivingEntity) event.getEntity());
         }
     }
 
@@ -45,19 +48,14 @@ public abstract class ActualProjectile<T extends Projectile> extends CustomProje
 
         this.onGeneralHit();
 
-        Section collisionConfig = this.plugin.getResources().getConfig().getSection("Collision");
+        Section collisionConfig = SSL.getInstance().getResources().getConfig().getSection("Collision");
         int range = collisionConfig.getInt("CheckRange");
         double step = collisionConfig.getDouble("CheckStep");
         double faceAccuracy = collisionConfig.getDouble("FaceAccuracy");
 
-        this.handleBlockHitResult(BlockUtils.findBlockHitWithRay(
-                this.entity,
-                this.entity.getVelocity(),
-                range,
-                step,
-                faceAccuracy
-        ));
+        Vector velocity = this.entity.getVelocity();
+        this.hitBlock(BlockUtils.findBlockHitWithRay(this.entity, velocity, range, step, faceAccuracy));
     }
 
-    public void onGeneralHit() {}
+    protected void onGeneralHit() {}
 }

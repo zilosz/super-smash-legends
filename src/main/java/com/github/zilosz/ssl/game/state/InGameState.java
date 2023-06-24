@@ -11,7 +11,7 @@ import com.github.zilosz.ssl.damage.DamageManager;
 import com.github.zilosz.ssl.damage.DamageSettings;
 import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
-import com.github.zilosz.ssl.game.InGameProfile;
+import com.github.zilosz.ssl.game.PlayerProfile;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.team.Team;
 import com.github.zilosz.ssl.team.TeamManager;
@@ -20,6 +20,7 @@ import com.github.zilosz.ssl.utils.HotbarItem;
 import com.github.zilosz.ssl.utils.SoundCanceller;
 import com.github.zilosz.ssl.utils.effect.DeathNPC;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
@@ -68,13 +69,9 @@ public class InGameState extends GameState {
 
     private SoundCanceller meleeSoundCanceller;
 
-    public InGameState(SSL plugin) {
-        super(plugin);
-    }
-
     @Override
     public boolean allowKitSelection() {
-        return this.plugin.getResources().getConfig().getBoolean("Game.AllowKitSelectionInGame");
+        return SSL.getInstance().getResources().getConfig().getBoolean("Game.AllowKitSelectionInGame");
     }
 
     @Override
@@ -101,22 +98,22 @@ public class InGameState extends GameState {
 
         Replacers replacers = new Replacers().add("MIN_LEFT", MessageUtils.secToMin(this.secLeft));
 
-        if (this.plugin.getGameManager().isPlayerAlive(player)) {
+        if (SSL.getInstance().getGameManager().isPlayerAlive(player)) {
             scoreboard.add("");
             scoreboard.add("&f&lKit");
             scoreboard.add("{KIT}");
 
             try {
-                replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getDisplayName());
+                replacers.add("KIT", SSL.getInstance().getKitManager().getSelectedKit(player).getDisplayName());
             } catch (NullPointerException ignored) {
             }
         }
 
         scoreboard.add(this.getScoreboardLine());
 
-        TeamManager teamManager = this.plugin.getTeamManager();
-        int lifeCap = this.plugin.getResources().getConfig().getInt("Game.Lives");
-        Set<Player> alivePlayers = this.plugin.getGameManager().getAlivePlayers();
+        TeamManager teamManager = SSL.getInstance().getTeamManager();
+        int lifeCap = SSL.getInstance().getResources().getConfig().getInt("Game.Lives");
+        Set<Player> alivePlayers = SSL.getInstance().getGameManager().getAlivePlayers();
 
         if (teamManager.getTeamSize() == 1) {
             scoreboard.add(playerIndex, "&f&lPlayers");
@@ -141,7 +138,7 @@ public class InGameState extends GameState {
 
                     for (Player p : team.getSortedPlayers()) {
 
-                        if (this.plugin.getGameManager().isPlayerAlive(p)) {
+                        if (SSL.getInstance().getGameManager().isPlayerAlive(p)) {
                             String text = this.getPlayerLivesText(p, lifeCap, team.getColorType().getChatSymbol());
                             scoreboard.add(playerIndex + 1, text);
                         }
@@ -157,7 +154,7 @@ public class InGameState extends GameState {
     }
 
     private String getPlayerLivesText(Player player, int lifeCap, String nameColor) {
-        int lives = this.plugin.getGameManager().getProfile(player).getLives();
+        int lives = SSL.getInstance().getGameManager().getProfile(player).getLives();
         double lifePercentage = (double) lives / lifeCap;
 
         String lifeColor;
@@ -180,28 +177,28 @@ public class InGameState extends GameState {
 
     @Override
     public void start() {
-        Section timerConfig = this.plugin.getResources().getConfig().getSection("Game.Timer");
-        int extraPlayers = Math.max(0, this.plugin.getGameManager().getAlivePlayers().size() - 4);
+        Section timerConfig = SSL.getInstance().getResources().getConfig().getSection("Game.Timer");
+        int extraPlayers = Math.max(0, SSL.getInstance().getGameManager().getAlivePlayers().size() - 4);
         this.secLeft = timerConfig.getInt("DefaultSeconds") + extraPlayers * timerConfig.getInt("SecondsPerExtraPlayer");
 
-        this.gameTimer = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.gameTimer = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
             if (--this.secLeft <= 0) {
                 Chat.GAME.broadcast("&7Ran out of time!");
-                this.plugin.getGameManager().advanceState();
+                SSL.getInstance().getGameManager().advanceState();
             }
         }, 20, 20);
 
-        this.meleeSoundCanceller = new SoundCanceller(this.plugin, "game.player.hurt");
+        this.meleeSoundCanceller = new SoundCanceller(SSL.getInstance(), "game.player.hurt");
         ProtocolLibrary.getProtocolManager().addPacketListener(this.meleeSoundCanceller);
 
-        List<Location> spawnLocations = this.plugin.getArenaManager().getArena().getSpawnLocations();
+        List<Location> spawnLocations = SSL.getInstance().getArenaManager().getArena().getSpawnLocations();
         List<Location> spawnsLeft = new ArrayList<>(spawnLocations);
         Comparator<Location> comparator = Comparator.comparingDouble(Arena::getTotalDistanceToPlayers);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
 
-            if (this.plugin.getGameManager().isPlayerAlive(player)) {
+            if (SSL.getInstance().getGameManager().isPlayerAlive(player)) {
                 Location spawn = Collections.max(spawnsLeft, comparator);
                 spawnsLeft.remove(spawn);
                 player.teleport(spawn);
@@ -211,10 +208,10 @@ public class InGameState extends GameState {
                     spawnsLeft = spawnLocations;
                 }
 
-                this.plugin.getGameManager().getProfile(player).getKit().activate();
+                SSL.getInstance().getGameManager().getProfile(player).getKit().activate();
 
-                if (this.plugin.getTeamManager().getTeamSize() > 1) {
-                    String color = this.plugin.getTeamManager().getPlayerColor(player);
+                if (SSL.getInstance().getTeamManager().getTeamSize() > 1) {
+                    String color = SSL.getInstance().getTeamManager().getPlayerColor(player);
                     NametagEdit.getApi().setPrefix(player, MessageUtils.color(color));
                 }
 
@@ -228,24 +225,24 @@ public class InGameState extends GameState {
 
     private void giveTracker(Player player) {
 
-        this.trackerItems.put(player, this.plugin.getResources().giveHotbarItem("PlayerTracker", player, e -> {
+        this.trackerItems.put(player, YamlReader.giveHotbarItem("PlayerTracker", player, e -> {
 
             Optional.ofNullable(this.closestTargets.get(player)).ifPresentOrElse(target -> {
                 String distance = FORMAT.format(EntityUtils.getDistance(player, target));
-                String name = this.plugin.getTeamManager().getPlayerColor(target) + target.getName();
+                String name = SSL.getInstance().getTeamManager().getPlayerColor(target) + target.getName();
                 Chat.TRACKER.send(player, String.format("%s &7is &e%s &7blocks away.", name, distance));
             }, () -> {
                 Chat.TRACKER.send(player, "&7There are no players to track.");
             });
         }));
 
-        this.trackerTasks.put(player, Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.trackerTasks.put(player, Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
             if (!player.getWorld().getName().equals("arena")) return;
 
             List<Player> players = Bukkit.getOnlinePlayers()
                     .stream()
                     .filter(p -> p.getWorld().getName().equals("arena"))
-                    .filter(p -> this.plugin.getGameManager().isPlayerAlive(p))
+                    .filter(p -> SSL.getInstance().getGameManager().isPlayerAlive(p))
                     .filter(p -> p.getGameMode() == GameMode.SURVIVAL)
                     .filter(p -> p != player)
                     .collect(Collectors.toList());
@@ -261,7 +258,7 @@ public class InGameState extends GameState {
                 Player closest = Collections.min(players, comparator);
                 this.closestTargets.put(player, closest);
 
-                String name = this.plugin.getTeamManager().getPlayerColor(closest) + closest.getName();
+                String name = SSL.getInstance().getTeamManager().getPlayerColor(closest) + closest.getName();
                 String distance = FORMAT.format(EntityUtils.getDistance(player, closest));
                 actionBar = String.format("%s &7is &e%s &7blocks away.", name, distance);
 
@@ -287,8 +284,8 @@ public class InGameState extends GameState {
             this.removeTracker(player);
             TitleAPI.clearTitle(player);
 
-            if (this.plugin.getGameManager().isPlayerAlive(player)) {
-                this.plugin.getKitManager().getSelectedKit(player).deactivate();
+            if (SSL.getInstance().getGameManager().isPlayerAlive(player)) {
+                SSL.getInstance().getKitManager().getSelectedKit(player).deactivate();
             }
         }
     }
@@ -323,7 +320,7 @@ public class InGameState extends GameState {
 
         if (victim instanceof Player) {
             Player player = (Player) event.getEntity();
-            boolean isAlive = this.plugin.getGameManager().isPlayerAlive(player);
+            boolean isAlive = SSL.getInstance().getGameManager().isPlayerAlive(player);
             boolean isSpec = player.getGameMode() == GameMode.SPECTATOR;
 
             if (!isAlive || isSpec) {
@@ -349,9 +346,9 @@ public class InGameState extends GameState {
     }
 
     private void respawnPlayer(Player player) {
-        if (!this.plugin.getGameManager().isPlayerAlive(player)) return;
+        if (!SSL.getInstance().getGameManager().isPlayerAlive(player)) return;
 
-        player.teleport(this.plugin.getArenaManager().getArena().getFarthestSpawnFromPlayers());
+        player.teleport(SSL.getInstance().getArenaManager().getArena().getFarthestSpawnFromPlayers());
 
         Chat.GAME.send(player, "&7You have &arespawned.");
         player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 2);
@@ -360,7 +357,7 @@ public class InGameState extends GameState {
         player.setGameMode(GameMode.SURVIVAL);
         player.setHealth(20);
 
-        Kit kit = this.plugin.getKitManager().getSelectedKit(player);
+        Kit kit = SSL.getInstance().getKitManager().getSelectedKit(player);
         kit.giveItems();
         kit.activate();
     }
@@ -374,13 +371,13 @@ public class InGameState extends GameState {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(DamageEvent event) {
         double finalDamage = event.getFinalDamage();
-        this.plugin.getDamageManager().updateIndicator(event.getVictim(), finalDamage);
+        SSL.getInstance().getDamageManager().updateIndicator(event.getVictim(), finalDamage);
 
         if (!(event.getVictim() instanceof Player)) return;
 
         Player player = (Player) event.getVictim();
 
-        InGameProfile profile = this.plugin.getGameManager().getProfile(player);
+        PlayerProfile profile = SSL.getInstance().getGameManager().getProfile(player);
         profile.setDamageTaken(profile.getDamageTaken() + Math.min(player.getHealth(), finalDamage));
 
         if (event instanceof AttributeDamageEvent && event.willDie()) {
@@ -395,24 +392,24 @@ public class InGameState extends GameState {
             event.setCancelled(true);
 
         } else {
-            this.plugin.getKitManager().getSelectedKit(player).getHurtNoise().playForAll(player.getLocation());
+            SSL.getInstance().getKitManager().getSelectedKit(player).getHurtNoise().playForAll(player.getLocation());
         }
     }
 
     private void handleDeath(Player died, boolean spawnNpc, boolean teleportPlayer, Attribute directKillingAttribute, boolean preferAttributeDamage) {
-        Kit diedKit = this.plugin.getKitManager().getSelectedKit(died);
+        Kit diedKit = SSL.getInstance().getKitManager().getSelectedKit(died);
         diedKit.destroy();
         diedKit.getDeathNoise().playForAll(died.getLocation());
 
         if (spawnNpc) {
-            DeathNPC.spawn(this.plugin, died);
+            DeathNPC.spawn(SSL.getInstance(), died);
         }
 
-        InGameProfile profile = this.plugin.getGameManager().getProfile(died);
+        PlayerProfile profile = SSL.getInstance().getGameManager().getProfile(died);
         profile.setLives(profile.getLives() - 1);
         profile.setDeaths(profile.getDeaths() + 1);
 
-        DamageManager damageManager = this.plugin.getDamageManager();
+        DamageManager damageManager = SSL.getInstance().getDamageManager();
         Attribute killingAttribute = directKillingAttribute;
 
         if (killingAttribute == null && preferAttributeDamage) {
@@ -422,8 +419,8 @@ public class InGameState extends GameState {
         String deathMessage;
         Location tpLocation;
 
-        Location waitLocation = this.plugin.getArenaManager().getArena().getWaitLocation();
-        String diedName = this.plugin.getTeamManager().getPlayerColor(died) + died.getName();
+        Location waitLocation = SSL.getInstance().getArenaManager().getArena().getWaitLocation();
+        String diedName = SSL.getInstance().getTeamManager().getPlayerColor(died) + died.getName();
 
         if (killingAttribute == null) {
             deathMessage = String.format("%s &7died.", diedName);
@@ -435,10 +432,10 @@ public class InGameState extends GameState {
             killer.playSound(killer.getLocation(), Sound.LEVEL_UP, 2, 2);
             killer.playSound(killer.getLocation(), Sound.WOLF_HOWL, 3, 2);
 
-            InGameProfile killerProfile = this.plugin.getGameManager().getProfile(killer);
+            PlayerProfile killerProfile = SSL.getInstance().getGameManager().getProfile(killer);
             killerProfile.setKills(killerProfile.getKills() + 1);
 
-            String killerName = this.plugin.getTeamManager().getPlayerColor(killer) + killer.getName();
+            String killerName = SSL.getInstance().getTeamManager().getPlayerColor(killer) + killer.getName();
 
             if (killingAttribute instanceof Nameable) {
                 String killName = ((Nameable) killingAttribute).getDisplayName();
@@ -472,14 +469,14 @@ public class InGameState extends GameState {
 
             Chat.DEATH.broadcast(MessageUtils.color(String.format("%s &7has been &celiminated!", diedName)));
 
-            Team diedTeam = this.plugin.getTeamManager().getPlayerTeam(died);
+            Team diedTeam = SSL.getInstance().getTeamManager().getPlayerTeam(died);
 
             if (!diedTeam.isAlive()) {
-                diedTeam.setLifespan(this.plugin.getGameManager().getTicksActive());
+                diedTeam.setLifespan(SSL.getInstance().getGameManager().getTicksActive());
             }
 
-            if (this.plugin.getTeamManager().isGameTieOrWin()) {
-                this.plugin.getGameManager().advanceState();
+            if (SSL.getInstance().getTeamManager().isGameTieOrWin()) {
+                SSL.getInstance().getGameManager().advanceState();
             }
 
             return;
@@ -491,7 +488,7 @@ public class InGameState extends GameState {
         died.playSound(died.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 1);
 
         this.respawnTasks.put(died, new BukkitRunnable() {
-            int secondsLeft = InGameState.this.plugin.getResources().getConfig().getInt("Game.DeathWaitSeconds");
+            int secondsLeft = SSL.getInstance().getResources().getConfig().getInt("Game.DeathWaitSeconds");
             final double pitchStep = 1.5 / this.secondsLeft;
             float pitch = 0.5f;
 
@@ -512,7 +509,7 @@ public class InGameState extends GameState {
                 this.secondsLeft--;
             }
 
-        }.runTaskTimer(this.plugin, 60, 20));
+        }.runTaskTimer(SSL.getInstance(), 60, 20));
     }
 
     @EventHandler

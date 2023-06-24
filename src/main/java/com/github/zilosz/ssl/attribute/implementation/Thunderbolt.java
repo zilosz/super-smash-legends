@@ -29,7 +29,7 @@ public class Thunderbolt extends ChargedRightClickAbility {
     public void onSuccessfulCharge() {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.AMBIENCE_THUNDER, 2, 0.5f);
 
-        EntityFinder finder = new EntityFinder(SSL.getInstance(), new HitBoxSelector(this.config.getDouble("HitBox")));
+        EntityFinder finder = new EntityFinder(new HitBoxSelector(this.config.getDouble("HitBox")));
 
         int ticks = this.ticksCharging - this.minChargeTicks;
         int max = this.maxChargeTicks - this.minChargeTicks;

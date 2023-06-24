@@ -28,24 +28,23 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class GameManager {
-    private final SSL plugin;
-
     private final List<GameState> states = new ArrayList<>();
-    private final Map<UUID, InGameProfile> profiles = new HashMap<>();
+    private int stateIdx = 0;
+
+    private final Map<UUID, PlayerProfile> profiles = new HashMap<>();
+
     private final Set<Player> willSpectate = new HashSet<>();
     private final Set<Player> spectators = new HashSet<>();
-    private int stateIdx = 0;
+
     private BukkitTask tickTask;
     @Getter private int ticksActive = 0;
 
-    public GameManager(SSL plugin) {
-        this.plugin = plugin;
-
-        this.states.add(new LobbyState(plugin));
-        this.states.add(new TutorialState(plugin));
-        this.states.add(new PreGameState(plugin));
-        this.states.add(new InGameState(plugin));
-        this.states.add(new EndState(plugin));
+    public GameManager() {
+        this.states.add(new LobbyState());
+        this.states.add(new TutorialState());
+        this.states.add(new PreGameState());
+        this.states.add(new InGameState());
+        this.states.add(new EndState());
     }
 
     public void addFutureSpectator(Player player) {
@@ -73,7 +72,7 @@ public class GameManager {
 
     public void activateState() {
         this.getState().start();
-        Bukkit.getPluginManager().registerEvents(this.getState(), this.plugin);
+        Bukkit.getPluginManager().registerEvents(this.getState(), SSL.getInstance());
     }
 
     public GameState getState() {
@@ -104,13 +103,13 @@ public class GameManager {
     }
 
     public void startTicks() {
-        this.tickTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> this.ticksActive++, 0, 0);
+        this.tickTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> this.ticksActive++, 0, 0);
     }
 
     public void setupProfile(Player player) {
-        int lives = this.plugin.getResources().getConfig().getInt("Game.Lives");
-        Kit kit = this.plugin.getKitManager().getSelectedKit(player);
-        this.profiles.put(player.getUniqueId(), new InGameProfile(lives, kit));
+        int lives = SSL.getInstance().getResources().getConfig().getInt("Game.Lives");
+        Kit kit = SSL.getInstance().getKitManager().getSelectedKit(player);
+        this.profiles.put(player.getUniqueId(), new PlayerProfile(lives, kit));
     }
 
     public Set<Player> getAlivePlayers() {
@@ -130,7 +129,7 @@ public class GameManager {
         return this.spectators.contains(player);
     }
 
-    public InGameProfile getProfile(Player player) {
+    public PlayerProfile getProfile(Player player) {
         return this.profiles.get(player.getUniqueId());
     }
 

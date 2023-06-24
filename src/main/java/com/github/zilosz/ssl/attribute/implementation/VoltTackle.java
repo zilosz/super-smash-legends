@@ -77,7 +77,7 @@ public class VoltTackle extends RightClickAbility {
             float pitch = (float) MathUtils.increasingLinear(0.5, 2, duration, this.ticksMoving);
             this.player.getWorld().playSound(this.player.getLocation(), Sound.FIREWORK_LARGE_BLAST, 1, pitch);
 
-            new EntityFinder(SSL.getInstance(), selector).findClosest(this.player).ifPresent(target -> {
+            new EntityFinder(selector).findClosest(this.player).ifPresent(target -> {
                 double damage = YamlReader.incLin(this.config, "Damage", this.ticksMoving, duration);
                 double kb = YamlReader.incLin(this.config, "Kb", this.ticksMoving, duration);
 

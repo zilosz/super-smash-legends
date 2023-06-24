@@ -16,8 +16,8 @@ public abstract class EmulatedProjectile<T extends Entity> extends CustomProject
     @Nullable private BlockFace lastHitFace;
     private int sameHitDuration = 0;
 
-    public EmulatedProjectile(SSL plugin, Ability ability, Section config) {
-        super(plugin, ability, config);
+    public EmulatedProjectile(Ability ability, Section config) {
+        super(ability, config);
         this.removeOnLongCollision = config.getOptionalBoolean("RemoveOnLongCollision").orElse(true);
     }
 
@@ -25,7 +25,7 @@ public abstract class EmulatedProjectile<T extends Entity> extends CustomProject
     public void run() {
         super.run();
 
-        double accuracy = this.plugin.getResources().getConfig().getDouble("Collision.FaceAccuracy");
+        double accuracy = SSL.getInstance().getResources().getConfig().getDouble("Collision.FaceAccuracy");
         BlockHitResult result = BlockUtils.findBlockHitByEntityBox(this.entity, accuracy);
 
         if (result == null) return;
@@ -34,7 +34,7 @@ public abstract class EmulatedProjectile<T extends Entity> extends CustomProject
             this.lastHitFace = null;
 
         } else if (result.getFace() == this.lastHitFace) {
-            int maxStuckDuration = this.plugin.getResources().getConfig().getInt("Collision.MaxStuckDuration");
+            int maxStuckDuration = SSL.getInstance().getResources().getConfig().getInt("Collision.MaxStuckDuration");
 
             ++this.sameHitDuration;
             if (this.sameHitDuration >= maxStuckDuration && this.removeOnLongCollision) {
@@ -44,7 +44,7 @@ public abstract class EmulatedProjectile<T extends Entity> extends CustomProject
         } else {
             this.sameHitDuration = 0;
             this.lastHitFace = result.getFace();
-            this.handleBlockHitResult(result);
+            this.hitBlock(result);
         }
     }
 }

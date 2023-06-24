@@ -29,6 +29,10 @@ public class AttackSettings {
         this.immunityTicks = config.getOptionalInt("ImmunityTicks").orElse(defaultImmunity);
     }
 
+    public AttackSettings(Section config) {
+        this(config, null);
+    }
+
     public AttackSettings modifyDamage(Consumer<DamageSettings> consumer) {
         consumer.accept(this.damageSettings);
         return this;

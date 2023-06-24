@@ -6,7 +6,7 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.database.PlayerDatabase;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.GameResult;
-import com.github.zilosz.ssl.game.InGameProfile;
+import com.github.zilosz.ssl.game.PlayerProfile;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.team.Team;
 import com.github.zilosz.ssl.team.TeamManager;
@@ -35,10 +35,6 @@ import java.util.stream.Collectors;
 public class EndState extends GameState implements TeleportsOnVoid {
     @Nullable private String winnerString;
     private BukkitTask endCountdown;
-
-    public EndState(SSL plugin) {
-        super(plugin);
-    }
 
     @Override
     public boolean allowKitSelection() {
@@ -82,11 +78,11 @@ public class EndState extends GameState implements TeleportsOnVoid {
             replacers.add("WINNER", this.winnerString);
         }
 
-        if (this.plugin.getTeamManager().doesPlayerHaveTeam(player)) {
+        if (SSL.getInstance().getTeamManager().doesPlayerHaveTeam(player)) {
             lines.add("");
             lines.add("&f&lKit");
             lines.add("{KIT}");
-            replacers.add("KIT", this.plugin.getGameManager().getProfile(player).getKit().getDisplayName());
+            replacers.add("KIT", SSL.getInstance().getGameManager().getProfile(player).getKit().getDisplayName());
         }
 
         lines.add(this.getScoreboardLine());
@@ -95,10 +91,10 @@ public class EndState extends GameState implements TeleportsOnVoid {
 
     @Override
     public void start() {
-        this.plugin.getDamageManager().reset();
+        SSL.getInstance().getDamageManager().reset();
 
-        GameManager gameManager = this.plugin.getGameManager();
-        TeamManager teamManager = this.plugin.getTeamManager();
+        GameManager gameManager = SSL.getInstance().getGameManager();
+        TeamManager teamManager = SSL.getInstance().getTeamManager();
 
         teamManager.getAliveTeams().forEach(team -> team.setLifespan(gameManager.getTicksActive() + 1));
         Comparator<Team> comp = Comparator.comparingInt(Team::getLifespan).reversed();
@@ -162,7 +158,7 @@ public class EndState extends GameState implements TeleportsOnVoid {
 
             if (teamManager.getTeamSize() == 1) {
                 Player winner = winningSet.iterator().next();
-                Kit winnerKit = this.plugin.getKitManager().getSelectedKit(winner);
+                Kit winnerKit = SSL.getInstance().getKitManager().getSelectedKit(winner);
                 this.winnerString = winnerKit.getColor().getChatSymbol() + winner.getName();
 
             } else {
@@ -224,8 +220,8 @@ public class EndState extends GameState implements TeleportsOnVoid {
             gameManager.getProfile(player).getKit().destroy();
 
             UUID uuid = player.getUniqueId();
-            InGameProfile profile = gameManager.getProfile(player);
-            PlayerDatabase db = this.plugin.getPlayerDatabase();
+            PlayerProfile profile = gameManager.getProfile(player);
+            PlayerDatabase db = SSL.getInstance().getPlayerDatabase();
 
             if (playerRanks.size() > 1 && altsUsed < 2) {
                 db.increment(uuid, profile.getGameResult().getDbString(), 1);
@@ -244,7 +240,7 @@ public class EndState extends GameState implements TeleportsOnVoid {
         }
 
         this.endCountdown = new BukkitRunnable() {
-            int secondsLeft = EndState.this.plugin.getResources().getConfig().getInt("Game.EndWaitSeconds");
+            int secondsLeft = SSL.getInstance().getResources().getConfig().getInt("Game.EndWaitSeconds");
             float pitch = 0.5f;
 
             @Override
@@ -266,7 +262,7 @@ public class EndState extends GameState implements TeleportsOnVoid {
                 this.secondsLeft--;
             }
 
-        }.runTaskTimer(this.plugin, 100, 20);
+        }.runTaskTimer(SSL.getInstance(), 100, 20);
     }
 
     @Override
@@ -274,8 +270,8 @@ public class EndState extends GameState implements TeleportsOnVoid {
         this.winnerString = null;
         this.endCountdown.cancel();
 
-        this.plugin.getTeamManager().reset();
-        this.plugin.getWorldManager().resetWorld("arena");
+        SSL.getInstance().getTeamManager().reset();
+        SSL.getInstance().getWorldManager().resetWorld("arena");
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setAllowFlight(false);
@@ -301,6 +297,6 @@ public class EndState extends GameState implements TeleportsOnVoid {
 
     @Override
     public Location getTeleportLocation() {
-        return this.plugin.getArenaManager().getArena().getWaitLocation();
+        return SSL.getInstance().getArenaManager().getArena().getWaitLocation();
     }
 }

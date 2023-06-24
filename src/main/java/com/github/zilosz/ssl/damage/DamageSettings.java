@@ -41,4 +41,8 @@ public class DamageSettings {
 
         return damageValue;
     }
+
+    public DamageSettings copy() {
+        return new DamageSettings(this.damage, this.factorsArmor);
+    }
 }

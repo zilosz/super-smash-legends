@@ -17,7 +17,7 @@ import java.util.List;
 
 public abstract class Ability extends Attribute implements Nameable {
     protected Section config;
-    @Getter private AbilityType type;
+    @Getter protected AbilityType type;
     protected int slot;
     @Getter protected HotbarItem hotbarItem;
 

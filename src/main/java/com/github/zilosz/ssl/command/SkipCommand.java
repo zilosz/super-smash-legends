@@ -7,17 +7,12 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 public class SkipCommand implements CommandExecutor {
-    private final SSL plugin;
-
-    public SkipCommand(SSL plugin) {
-        this.plugin = plugin;
-    }
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
 
         if (strings.length == 1) {
-            GameManager gameManager = this.plugin.getGameManager();
+            GameManager gameManager = SSL.getInstance().getGameManager();
             gameManager.findState(strings[0]).ifPresent(gameManager::skipToState);
             return true;
         }

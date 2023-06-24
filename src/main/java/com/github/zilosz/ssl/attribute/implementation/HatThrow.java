@@ -1,6 +1,5 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.ClickableAbility;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
@@ -23,7 +22,7 @@ public class HatThrow extends RightClickAbility {
     public void onClick(PlayerInteractEvent event) {
 
         if (this.hatProjectile == null || this.hatProjectile.state == HatThrowState.INACTIVE) {
-            this.hatProjectile = new HatProjectile(SSL.getInstance(), this, this.config);
+            this.hatProjectile = new HatProjectile(this, this.config);
             this.hatProjectile.setLifespan(this.config.getInt("TicksToReturn") + this.config.getInt("ExtraLifespan"));
             this.hatProjectile.launch();
 
@@ -41,11 +40,11 @@ public class HatThrow extends RightClickAbility {
         MOUNTED
     }
 
-    public static final class HatProjectile extends EmulatedProjectile<ArmorStand> {
+    private static final class HatProjectile extends EmulatedProjectile<ArmorStand> {
         private HatThrowState state = HatThrowState.INACTIVE;
 
-        public HatProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public HatProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override

@@ -1,6 +1,5 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.projectile.BlockProjectile;
@@ -19,13 +18,13 @@ public class CoalCluster extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new ClusterProjectile(SSL.getInstance(), this, this.config.getSection("Cluster")).launch();
+        new ClusterProjectile(this, this.config.getSection("Cluster")).launch();
     }
 
-    public static class ClusterProjectile extends BlockProjectile {
+    private static class ClusterProjectile extends BlockProjectile {
 
-        public ClusterProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public ClusterProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override
@@ -64,17 +63,17 @@ public class CoalCluster extends RightClickAbility {
                 launchLoc.setYaw(i * yawStep);
 
                 Section settings = this.config.getSection("Fragment");
-                FragmentProjectile projectile = new FragmentProjectile(SSL.getInstance(), this.ability, settings);
+                FragmentProjectile projectile = new FragmentProjectile(this.ability, settings);
                 projectile.setOverrideLocation(launchLoc);
                 projectile.launch();
             }
         }
     }
 
-    public static class FragmentProjectile extends ItemProjectile {
+    private static class FragmentProjectile extends ItemProjectile {
 
-        public FragmentProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public FragmentProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override

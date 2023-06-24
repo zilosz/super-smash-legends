@@ -1,5 +1,7 @@
 package com.github.zilosz.ssl.kit;
 
+import lombok.Getter;
+
 public enum KitType {
     BARBARIAN("barbarian"),
     CRYOMANCER("cryomancer"),
@@ -18,7 +20,7 @@ public enum KitType {
     TANK("tank"),
     WEBMAN("webman");
 
-    private final String fileName;
+    @Getter private final String fileName;
 
     KitType(String fileName) {
         this.fileName = fileName;

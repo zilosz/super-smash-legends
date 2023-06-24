@@ -15,12 +15,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class TeamManager {
-    private final SSL plugin;
     private final List<Team> teamList = new ArrayList<>();
     private final Map<UUID, Team> teamsByEntity = new HashMap<>();
 
-    public TeamManager(SSL plugin) {
-        this.plugin = plugin;
+    public TeamManager() {
         this.loadTeams();
     }
 
@@ -35,7 +33,7 @@ public class TeamManager {
     }
 
     public int getTeamSize() {
-        return this.plugin.getResources().getConfig().getInt("Game.TeamSize");
+        return SSL.getInstance().getResources().getConfig().getInt("Game.TeamSize");
     }
 
     public List<Team> getTeamList() {
@@ -52,7 +50,7 @@ public class TeamManager {
 
     public String getPlayerColor(Player player) {
         if (this.getTeamSize() == 1) {
-            return this.plugin.getGameManager().getProfile(player).getKit().getColor().getChatSymbol();
+            return SSL.getInstance().getGameManager().getProfile(player).getKit().getColor().getChatSymbol();
         }
         return this.getPlayerTeam(player).getColorType().getChatSymbol();
     }

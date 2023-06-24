@@ -22,7 +22,7 @@ public class SpringTrap extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new SpringProjectile(SSL.getInstance(), this, this.config).launch();
+        new SpringProjectile(this, this.config).launch();
 
         double velocity = this.config.getDouble("ForwardVelocity");
         double velocityY = this.config.getDouble("ForwardVelocityY");
@@ -34,10 +34,10 @@ public class SpringTrap extends RightClickAbility {
         }
     }
 
-    public static class SpringProjectile extends BlockProjectile {
+    private static class SpringProjectile extends BlockProjectile {
 
-        public SpringProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public SpringProjectile(Ability ability, Section config) {
+            super(ability, config);
             this.overrideLocation = this.launcher.getLocation().setDirection(new Vector(0, -1, 0));
         }
 
@@ -45,7 +45,7 @@ public class SpringTrap extends RightClickAbility {
         public void onBlockHit(BlockHitResult result) {
             this.displayEffect();
 
-            EntityFinder finder = new EntityFinder(SSL.getInstance(), new DistanceSelector(this.config.getDouble("Radius")));
+            EntityFinder finder = new EntityFinder(new DistanceSelector(this.config.getDouble("Radius")));
 
             finder.findAll(this.launcher, this.entity.getLocation()).forEach(target -> {
                 Vector direction = VectorUtils.fromTo(this.entity, target);

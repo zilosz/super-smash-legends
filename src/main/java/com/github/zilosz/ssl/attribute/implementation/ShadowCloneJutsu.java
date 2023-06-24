@@ -219,7 +219,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
         @Override
         public void run() {
             EntitySelector selector = new DistanceSelector(this.config.getDouble("Clone.Vision"));
-            EntityFinder finder = new EntityFinder(SSL.getInstance(), selector);
+            EntityFinder finder = new EntityFinder(selector);
 
             finder.findClosest(this.ability.getPlayer(), this.creature.getLocation()).ifPresent(target -> {
                 this.target = target;

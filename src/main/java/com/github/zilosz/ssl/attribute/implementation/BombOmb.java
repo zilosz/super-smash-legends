@@ -12,7 +12,6 @@ import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.DistanceSelector;
-import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -35,7 +34,7 @@ public class BombOmb extends RightClickAbility {
         if (this.bombProjectile == null || this.bombProjectile.state == BombState.INACTIVE) {
             this.sendUseMessage();
 
-            this.bombProjectile = new BombProjectile(SSL.getInstance(), this, this.config.getSection("Projectile"));
+            this.bombProjectile = new BombProjectile(this, this.config.getSection("Projectile"));
             this.bombProjectile.launch();
 
         } else if (this.bombProjectile.state == BombState.THROWN) {
@@ -61,7 +60,7 @@ public class BombOmb extends RightClickAbility {
         WAITING
     }
 
-    public static class BombProjectile extends ItemProjectile {
+    private static class BombProjectile extends ItemProjectile {
         private BombState state = BombState.INACTIVE;
         private Block bombBlock;
         private BukkitTask soundTask;
@@ -69,8 +68,8 @@ public class BombOmb extends RightClickAbility {
         private boolean hitTarget = false;
         private boolean canExplode = false;
 
-        public BombProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public BombProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override
@@ -130,9 +129,7 @@ public class BombOmb extends RightClickAbility {
                 new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).show(this.bombBlock.getLocation());
             }
 
-            EntitySelector selector = new DistanceSelector(this.config.getDouble("Explode.Range"));
-
-            new EntityFinder(SSL.getInstance(), selector)
+            new EntityFinder(new DistanceSelector(this.config.getDouble("Explode.Range")))
                     .setTeamPreference(TeamPreference.ANY)
                     .setAvoidsUser(false)
                     .findAll(this.launcher, this.bombBlock.getLocation())

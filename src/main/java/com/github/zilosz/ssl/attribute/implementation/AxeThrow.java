@@ -1,6 +1,5 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
@@ -14,7 +13,7 @@ public class AxeThrow extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new AxeProjectile(SSL.getInstance(), this, this.config.getSection("Projectile")).launch();
+        new AxeProjectile(this, this.config.getSection("Projectile")).launch();
         this.hotbarItem.hide();
     }
 
@@ -23,10 +22,10 @@ public class AxeThrow extends RightClickAbility {
         this.hotbarItem.show();
     }
 
-    public static class AxeProjectile extends ItemProjectile {
+    private static class AxeProjectile extends ItemProjectile {
 
-        public AxeProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public AxeProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override

@@ -51,7 +51,7 @@ public class WebbedSnare extends RightClickAbility {
     }
 
     private void launch(Location source, boolean first) {
-        SnareProjectile projectile = new SnareProjectile(SSL.getInstance(), this, this.config.getSection("Projectile"));
+        SnareProjectile projectile = new SnareProjectile(this, this.config.getSection("Projectile"));
         projectile.setOverrideLocation(source);
 
         if (first) {
@@ -75,8 +75,8 @@ public class WebbedSnare extends RightClickAbility {
     private static class SnareProjectile extends ItemProjectile {
         private Block webBlock;
 
-        public SnareProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public SnareProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override

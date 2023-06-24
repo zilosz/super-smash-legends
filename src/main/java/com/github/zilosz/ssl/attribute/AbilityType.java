@@ -54,10 +54,12 @@ import com.github.zilosz.ssl.attribute.implementation.ViceGrip;
 import com.github.zilosz.ssl.attribute.implementation.VoltTackle;
 import com.github.zilosz.ssl.attribute.implementation.WebGrapple;
 import com.github.zilosz.ssl.attribute.implementation.WebbedSnare;
+import lombok.Getter;
 
 import java.util.function.Supplier;
 
-public enum AbilityType {
+@Getter
+public enum AbilityType implements Supplier<Ability> {
     AERIAL_ASSAULT("aerial-assault", AerialAssault::new),
     AGILE_COMBAT("agile-combat", AgileCombat::new),
     ARCTIC_BREATH("arctic-breath", ArcticBreath::new),
@@ -120,5 +122,10 @@ public enum AbilityType {
     AbilityType(String fileName, Supplier<Ability> supplier) {
         this.supplier = supplier;
         this.fileName = fileName;
+    }
+
+    @Override
+    public Ability get() {
+        return this.supplier.get();
     }
 }

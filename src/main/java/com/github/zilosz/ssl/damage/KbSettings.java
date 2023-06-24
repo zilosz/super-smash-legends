@@ -111,4 +111,8 @@ public class KbSettings {
 
         return kbVal;
     }
+
+    public KbSettings copy() {
+        return new KbSettings(this.direction, this.kb, this.kbY, this.factorsKit, this.factorsHealth, this.isLinear, this.factorsPreviousVelocity);
+    }
 }

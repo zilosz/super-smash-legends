@@ -21,14 +21,14 @@ public class Bloodshot extends RightClickAbility {
                 SSL.getInstance(),
                 this.config.getInt("Count"),
                 this.config.getInt("Interval"),
-                () -> new BloodProjectile(SSL.getInstance(), this, this.config.getSection("Projectile")).launch()
+                () -> new BloodProjectile(this, this.config.getSection("Projectile")).launch()
         );
     }
 
-    public static class BloodProjectile extends ItemProjectile {
+    private static class BloodProjectile extends ItemProjectile {
 
-        public BloodProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public BloodProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override

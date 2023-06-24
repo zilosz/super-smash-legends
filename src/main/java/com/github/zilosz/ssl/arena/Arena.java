@@ -2,7 +2,6 @@ package com.github.zilosz.ssl.arena;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.utils.file.FileUtility;
-import com.github.zilosz.ssl.utils.file.PathBuilder;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -19,12 +18,10 @@ import java.util.Comparator;
 import java.util.List;
 
 public class Arena {
-    private final SSL plugin;
     private final Section config;
     private final List<Player> playersWithVotes = new ArrayList<>();
 
-    public Arena(SSL plugin, Section config) {
-        this.plugin = plugin;
+    public Arena(Section config) {
         this.config = config;
     }
 
@@ -58,9 +55,9 @@ public class Arena {
 
     public void create() {
         Vector pasteVector = YamlReader.vector(this.config.getString("PasteVector"));
-        String path = PathBuilder.build("arena", this.config.getString("SchematicName"));
-        File schematic = FileUtility.loadSchematic(this.plugin, path);
-        this.plugin.getWorldManager().createWorld("arena", schematic, pasteVector);
+        String path = FileUtility.buildPath("arena", this.config.getString("SchematicName"));
+        File schematic = FileUtility.loadSchematic(SSL.getInstance(), path);
+        SSL.getInstance().getWorldManager().createWorld("arena", schematic, pasteVector);
     }
 
     public Location getWaitLocation() {

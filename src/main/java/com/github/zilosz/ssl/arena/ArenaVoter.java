@@ -21,12 +21,8 @@ public class ArenaVoter extends CustomInventory<Arena> implements HasRandomOptio
 
     @Override
     public List<Arena> getItems() {
-        return SSL.getInstance()
-                .getArenaManager()
-                .getArenas()
-                .stream()
-                .sorted(Comparator.comparing(Arena::getName))
-                .collect(Collectors.toList());
+        List<Arena> arenas = SSL.getInstance().getArenaManager().getArenas();
+        return arenas.stream().sorted(Comparator.comparing(Arena::getName)).collect(Collectors.toList());
     }
 
     @Override

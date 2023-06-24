@@ -51,7 +51,7 @@ public class OlympicDive extends RightClickAbility {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SPLASH, 0.5f, 2);
 
         EntitySelector selector = new DistanceSelector(this.config.getDouble("PullDistance"));
-        EntityFinder finder = new EntityFinder(SSL.getInstance(), selector).setTeamPreference(TeamPreference.ANY);
+        EntityFinder finder = new EntityFinder(selector).setTeamPreference(TeamPreference.ANY);
 
         finder.findAll(this.player).forEach(target -> {
             Vector pullDirection = VectorUtils.fromTo(target, this.player).normalize();
@@ -129,7 +129,7 @@ public class OlympicDive extends RightClickAbility {
         double radius = this.config.getDouble("DiveDamageRadius");
         EntitySelector selector = new DistanceSelector(radius);
 
-        new EntityFinder(SSL.getInstance(), selector).findAll(this.player).forEach(target -> {
+        new EntityFinder(selector).findAll(this.player).forEach(target -> {
             double distance = target.getLocation().distance(this.player.getLocation());
             double damage = YamlReader.decLin(this.config, "DiveDamage", distance, radius);
             double kb = YamlReader.decLin(this.config, "DiveKb", distance, radius);

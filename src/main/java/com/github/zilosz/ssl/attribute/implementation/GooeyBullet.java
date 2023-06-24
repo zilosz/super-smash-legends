@@ -16,13 +16,13 @@ public class GooeyBullet extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new GooeyProjectile(SSL.getInstance(), this, this.config).launch();
+        new GooeyProjectile(this, this.config).launch();
     }
 
-    public static class GooeyProjectile extends LivingProjectile<Slime> {
+    private static class GooeyProjectile extends LivingProjectile<Slime> {
 
-        public GooeyProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public GooeyProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override

@@ -3,31 +3,31 @@ package com.github.zilosz.ssl.kit;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 
 public enum KitAccessType {
-    ACCESS {
+    ACCESSIBLE {
         @Override
-        public String getLore(Kit kit) {
+        public String getLore() {
             return "&7You have access to this kit.";
         }
 
         @Override
-        public String getHologram(Kit kit) {
+        public String getHologram() {
             return "";
         }
     },
 
-    ALREADY_SELECTED {
+    SELECTED {
         @Override
-        public String getLore(Kit kit) {
+        public String getLore() {
             return "&7This is your &dcurrent &7kit.";
         }
 
         @Override
-        public String getHologram(Kit kit) {
+        public String getHologram() {
             return MessageUtils.color("&dSelected");
         }
     };
 
-    public abstract String getLore(Kit kit);
+    public abstract String getLore();
 
-    public abstract String getHologram(Kit kit);
+    public abstract String getHologram();
 }

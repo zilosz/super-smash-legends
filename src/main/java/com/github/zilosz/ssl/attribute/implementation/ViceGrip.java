@@ -19,7 +19,7 @@ public class ViceGrip extends RightClickAbility {
     public void onClick(PlayerInteractEvent event) {
         this.player.playSound(this.player.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 2);
 
-        EntityFinder finder = new EntityFinder(SSL.getInstance(), new HitBoxSelector(this.config.getDouble("HitBox")));
+        EntityFinder finder = new EntityFinder(new HitBoxSelector(this.config.getDouble("HitBox")));
 
         Location location = this.player.getEyeLocation();
         Vector step = location.getDirection().multiply(0.25);

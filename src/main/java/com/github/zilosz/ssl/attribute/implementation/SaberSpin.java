@@ -35,7 +35,7 @@ public class SaberSpin extends ChargedRightClickAbility {
 
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
-        new EntityFinder(SSL.getInstance(), selector).findAll(this.player, center).forEach(target -> {
+        new EntityFinder(selector).findAll(this.player, center).forEach(target -> {
             if (SSL.getInstance().getDamageManager().attack(target, this, new AttackSettings(this.config, this.direction))) {
                 this.player.getWorld().playSound(this.player.getLocation(), Sound.BLAZE_BREATH, 2, 1);
             }

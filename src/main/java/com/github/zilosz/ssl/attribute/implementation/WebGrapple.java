@@ -37,7 +37,7 @@ public class WebGrapple extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        this.grappleProjectile = new GrappleProjectile(SSL.getInstance(), this, this.config.getSection("Projectile"));
+        this.grappleProjectile = new GrappleProjectile(this, this.config.getSection("Projectile"));
         this.grappleProjectile.launch();
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.MAGMACUBE_JUMP, 1, 1);
@@ -59,8 +59,8 @@ public class WebGrapple extends RightClickAbility {
     private static class GrappleProjectile extends ItemProjectile {
         private Bat bat;
 
-        public GrappleProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public GrappleProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override

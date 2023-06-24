@@ -51,7 +51,7 @@ public class Barrage extends Bow {
     }
 
     private void launch(double force, boolean first) {
-        BarrageArrow arrow = new BarrageArrow(SSL.getInstance(), this, this.config);
+        BarrageArrow arrow = new BarrageArrow(this, this.config);
         arrow.setSpeed(force * this.config.getDouble("MaxSpeed"));
 
         if (first) {
@@ -77,10 +77,10 @@ public class Barrage extends Bow {
         this.onFinish();
     }
 
-    public static class BarrageArrow extends ArrowProjectile {
+    private static class BarrageArrow extends ArrowProjectile {
 
-        public BarrageArrow(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public BarrageArrow(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override

@@ -39,10 +39,6 @@ public class TutorialState extends GameState {
 
     private BukkitTask skipTask;
 
-    public TutorialState(SSL plugin) {
-        super(plugin);
-    }
-
     @Override
     public boolean allowKitSelection() {
         return false;
@@ -73,14 +69,14 @@ public class TutorialState extends GameState {
                 "&7{AUTHORS}"
         ));
 
-        Arena arena = this.plugin.getArenaManager().getArena();
+        Arena arena = SSL.getInstance().getArenaManager().getArena();
         Replacers replacers = new Replacers().add("ARENA", arena.getName()).add("AUTHORS", arena.getAuthors());
 
-        if (!this.plugin.getGameManager().isSpectator(player)) {
+        if (!SSL.getInstance().getGameManager().isSpectator(player)) {
             lines.add("");
             lines.add("&f&lKit");
             lines.add("{KIT}");
-            replacers.add("KIT", this.plugin.getKitManager().getSelectedKit(player).getDisplayName());
+            replacers.add("KIT", SSL.getInstance().getKitManager().getSelectedKit(player).getDisplayName());
         }
 
         lines.add(this.getScoreboardLine());
@@ -89,27 +85,27 @@ public class TutorialState extends GameState {
 
     @Override
     public void start() {
-        GameManager gameManager = this.plugin.getGameManager();
+        GameManager gameManager = SSL.getInstance().getGameManager();
 
         int specCount = 0;
 
         for (Player player : Bukkit.getOnlinePlayers()) {
 
             if (gameManager.isSpectator(player)) {
-                player.teleport(this.plugin.getArenaManager().getArena().getWaitLocation());
+                player.teleport(SSL.getInstance().getArenaManager().getArena().getWaitLocation());
                 specCount++;
             }
         }
 
         if (specCount == Bukkit.getOnlinePlayers().size()) {
-            this.skipTask = Bukkit.getScheduler().runTaskLater(this.plugin, gameManager::advanceState, 5);
+            this.skipTask = Bukkit.getScheduler().runTaskLater(SSL.getInstance(), gameManager::advanceState, 5);
             return;
         }
 
         Set<Player> players = gameManager.getAlivePlayers();
         this.playersInTutorial.addAll(players);
 
-        Arena arena = this.plugin.getArenaManager().getArena();
+        Arena arena = SSL.getInstance().getArenaManager().getArena();
         List<Location> tutorialLocations = arena.getTutorialLocations();
 
         double totalDistance = tutorialLocations.get(0).distance(tutorialLocations.get(tutorialLocations.size() - 1));
@@ -120,23 +116,23 @@ public class TutorialState extends GameState {
 
         totalDistance += tutorialLocations.get(tutorialLocations.size() - 1).distance(tutorialLocations.get(0));
 
-        int tutorialDuration = this.plugin.getResources().getConfig().getInt("Game.Tutorial.DurationTicks");
+        int tutorialDuration = SSL.getInstance().getResources().getConfig().getInt("Game.Tutorial.DurationTicks");
         double velocity = totalDistance / tutorialDuration;
-        int delay = this.plugin.getResources().getConfig().getInt("Game.Tutorial.DelayTicks");
+        int delay = SSL.getInstance().getResources().getConfig().getInt("Game.Tutorial.DelayTicks");
 
-        List<String> rules = new Replacers().add("LIVES", this.plugin.getResources().getConfig().getInt("Game.Lives"))
-                .replaceLines(this.plugin.getResources().getConfig().getStringList("Rules"));
+        List<String> rules = new Replacers().add("LIVES", SSL.getInstance().getResources().getConfig().getInt("Game.Lives"))
+                .replaceLines(SSL.getInstance().getResources().getConfig().getStringList("Rules"));
 
         for (Player player : players) {
-            Kit kit = this.plugin.getKitManager().getSelectedKit(player);
+            Kit kit = SSL.getInstance().getKitManager().getSelectedKit(player);
             player.setGameMode(GameMode.SPECTATOR);
 
-            this.skinChangers.put(player, kit.getSkin().applyAcrossTp(this.plugin, player, () -> {
+            this.skinChangers.put(player, kit.getSkin().applyAcrossTp(SSL.getInstance(), player, () -> {
                 player.teleport(tutorialLocations.get(0));
                 player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 2, 1);
                 player.setFlySpeed(0);
 
-                this.tutorialSchedulers.put(player, Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+                this.tutorialSchedulers.put(player, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
                     this.startTutorialMovement(player, tutorialLocations, velocity, 0, 1);
                 }, delay));
 
@@ -157,7 +153,7 @@ public class TutorialState extends GameState {
                         player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 0.5F);
                     }
 
-                }.runTaskTimer(this.plugin, ruleDelay + 15, ruleDelay));
+                }.runTaskTimer(SSL.getInstance(), ruleDelay + 15, ruleDelay));
             }));
         }
     }
@@ -210,19 +206,22 @@ public class TutorialState extends GameState {
             this.stopPlayerAfterCompletion(player);
 
             if (this.playersInTutorial.isEmpty()) {
-                this.plugin.getGameManager().advanceState();
+                SSL.getInstance().getGameManager().advanceState();
             }
 
             return;
         }
 
         Vector velocity = VectorUtils.fromTo(points.get(from), points.get(to)).normalize().multiply(speed);
-        BukkitTask moveTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> player.setVelocity(velocity), 0, 0);
+
+        BukkitTask moveTask = Bukkit.getScheduler()
+                .runTaskTimer(SSL.getInstance(), () -> player.setVelocity(velocity), 0, 0);
+
         this.movers.put(player, moveTask);
 
         int stepDuration = (int) ((points.get(from).distance(points.get(to))) / speed);
 
-        this.moveDelayers.put(player, Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+        this.moveDelayers.put(player, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
             moveTask.cancel();
             this.startTutorialMovement(player, points, speed, from + 1, (to + 1) % points.size());
         }, stepDuration));
@@ -240,6 +239,7 @@ public class TutorialState extends GameState {
 
     private void stopPlayerDuringMovement(Player player) {
         this.stopPlayerAfterCompletion(player);
+
         Optional.ofNullable(this.movers.remove(player)).ifPresent(BukkitTask::cancel);
         Optional.ofNullable(this.moveDelayers.remove(player)).ifPresent(BukkitTask::cancel);
         Optional.ofNullable(this.tutorialSchedulers.remove(player)).ifPresent(BukkitTask::cancel);

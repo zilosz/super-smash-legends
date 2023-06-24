@@ -21,9 +21,8 @@ public class TeamSelector extends CustomInventory<Team> implements HasRandomOpti
 
     @Override
     public List<Team> getItems() {
-        return SSL.getInstance().getTeamManager().getTeamList().stream()
-                .sorted(Comparator.comparing(Team::getName))
-                .collect(Collectors.toList());
+        List<Team> teams = SSL.getInstance().getTeamManager().getTeamList();
+        return teams.stream().sorted(Comparator.comparing(Team::getName)).collect(Collectors.toList());
     }
 
     @Override
