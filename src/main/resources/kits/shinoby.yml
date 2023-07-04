@@ -23,3 +23,7 @@ DeathSound:
   Type: ZOMBIE_PIG_DEATH
   Volume: 1
   Pitch: 2
+Abilities:
+  0: RASENGAN
+  1: RASENSHURIKEN
+  2: SHADOW_CLONE_JUTSU

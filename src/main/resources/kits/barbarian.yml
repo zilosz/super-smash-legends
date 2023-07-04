@@ -25,3 +25,7 @@ DeathSound:
   Type: VILLAGER_DEATH
   Volume: 3
   Pitch: 0.75
+Abilities:
+  0: AXE_THROW
+  1: BERSERK
+  2: SPRING_TRAP

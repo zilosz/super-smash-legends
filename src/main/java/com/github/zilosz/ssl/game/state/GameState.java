@@ -5,6 +5,8 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -32,12 +34,13 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.util.List;
 
 public abstract class GameState implements Listener {
+    @Getter @Setter private GameStateType type;
 
-    public abstract boolean allowKitSelection();
+    public abstract boolean allowsSpecCommand();
+
+    public abstract boolean allowsKitSelection();
 
     public abstract boolean updatesKitSkins();
-
-    public abstract boolean allowSpecCommand();
 
     public abstract List<String> getScoreboard(Player player);
 
@@ -49,12 +52,6 @@ public abstract class GameState implements Listener {
     public abstract void start();
 
     public abstract void end();
-
-    public boolean isSame(GameState other) {
-        return this.getConfigName().equals(other.getConfigName());
-    }
-
-    public abstract String getConfigName();
 
     @EventHandler
     public void onPreJoin(AsyncPlayerPreLoginEvent event) {
@@ -100,7 +97,7 @@ public abstract class GameState implements Listener {
                 SSL.getInstance().getTeamManager().getPlayerTeam(player).setLifespan(gameManager.getTicksActive());
 
                 if (gameManager.getAlivePlayers().size() <= 1) {
-                    gameManager.skipToState(new EndState());
+                    gameManager.skipToState(GameStateType.END);
                 }
             }
 

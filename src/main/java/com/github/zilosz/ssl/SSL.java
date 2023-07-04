@@ -6,6 +6,7 @@ import com.github.zilosz.ssl.command.DummyCommand;
 import com.github.zilosz.ssl.command.EndCommand;
 import com.github.zilosz.ssl.command.KitCommand;
 import com.github.zilosz.ssl.command.LocCommand;
+import com.github.zilosz.ssl.command.PlayCommand;
 import com.github.zilosz.ssl.command.ReloadConfigCommand;
 import com.github.zilosz.ssl.command.SkipCommand;
 import com.github.zilosz.ssl.command.SpecCommand;
@@ -91,7 +92,7 @@ public class SSL extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(this.kitManager, this);
 
-        Vector pasteVector = YamlReader.vector(this.resources.getLobby().getString("PasteVector"));
+        Vector pasteVector = YamlReader.getVector(this.resources.getLobby().getString("PasteVector"));
         File schematic = FileUtility.loadSchematic(this, "lobby");
         this.worldManager.createWorld("lobby", schematic, pasteVector);
 
@@ -107,9 +108,13 @@ public class SSL extends JavaPlugin {
         this.getCommand("start").setExecutor(new StartCommand());
         this.getCommand("end").setExecutor(new EndCommand());
         this.getCommand("skip").setExecutor(new SkipCommand());
-        this.getCommand("dummy").setExecutor(new DummyCommand());
         this.getCommand("loc").setExecutor(new LocCommand());
         this.getCommand("damage").setExecutor(new DamageCommand());
         this.getCommand("spec").setExecutor(new SpecCommand());
+        this.getCommand("play").setExecutor(new PlayCommand());
+
+        DummyCommand dummyCommand = new DummyCommand();
+        this.getCommand("dummy").setExecutor(dummyCommand);
+        Bukkit.getPluginManager().registerEvents(dummyCommand, this);
     }
 }

@@ -3,8 +3,8 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.ChargedRightClickBlockAbility;
-import com.github.zilosz.ssl.damage.DamageSettings;
-import com.github.zilosz.ssl.damage.KbSettings;
+import com.github.zilosz.ssl.damage.Damage;
+import com.github.zilosz.ssl.damage.KnockBack;
 import com.github.zilosz.ssl.projectile.BlockProjectile;
 import com.github.zilosz.ssl.utils.RunnableUtils;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
@@ -27,7 +27,9 @@ public class TerraShot extends ChargedRightClickBlockAbility {
     private BukkitTask rotateTask;
     private float pitch;
 
-    public TerraShot() {
+    @Override
+    public void activate() {
+        super.activate();
         this.maxChargeTicks = this.config.getInt("StageDuration") * this.config.getInt("Stages");
     }
 
@@ -77,9 +79,9 @@ public class TerraShot extends ChargedRightClickBlockAbility {
         Material material = stack.getType();
         byte data = stack.getData().getData();
 
-        double speed = YamlReader.incLin(this.config, "Speed", this.ticksCharging, this.maxChargeTicks);
-        double damage = YamlReader.incLin(this.config, "Damage", this.ticksCharging, this.maxChargeTicks);
-        double kb = YamlReader.incLin(this.config, "Kb", this.ticksCharging, this.maxChargeTicks);
+        double speed = YamlReader.getIncreasingValue(this.config, "Speed", this.ticksCharging, this.maxChargeTicks);
+        double damage = YamlReader.getIncreasingValue(this.config, "Damage", this.ticksCharging, this.maxChargeTicks);
+        double kb = YamlReader.getIncreasingValue(this.config, "Kb", this.ticksCharging, this.maxChargeTicks);
 
         int count = this.config.getInt("Count");
         int interval = this.config.getInt("LaunchInterval");
@@ -89,10 +91,10 @@ public class TerraShot extends ChargedRightClickBlockAbility {
             projectile.setMaterial(material);
             projectile.setData(data);
 
-            DamageSettings damageSettings = projectile.getAttackSettings().getDamageSettings();
+            Damage damageSettings = projectile.getAttack().getDamage();
             damageSettings.setDamage(damage);
 
-            KbSettings kbSettings = projectile.getAttackSettings().getKbSettings();
+            KnockBack kbSettings = projectile.getAttack().getKb();
             kbSettings.setKb(kb);
 
             projectile.setSpeed(speed);

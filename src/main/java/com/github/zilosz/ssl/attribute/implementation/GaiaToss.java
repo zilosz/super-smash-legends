@@ -4,8 +4,8 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.ChargedRightClickBlockAbility;
 import com.github.zilosz.ssl.projectile.BlockProjectile;
-import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
+import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.FloatingEntity;
@@ -40,7 +40,7 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
     public void onInitialClick(PlayerInteractEvent event) {
 
         this.soundTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
-            double pitch = MathUtils.increasingLinear(0.5, 2, this.config.getInt("MaxChargeTicks"), this.ticksCharging);
+            double pitch = MathUtils.getIncreasingValue(0.5, 2, this.maxChargeTicks, this.ticksCharging);
             this.player.getWorld().playSound(this.player.getLocation(), Sound.FIREWORK_LAUNCH, 1, (float) pitch);
         }, 0, 3);
 
@@ -98,7 +98,10 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
     }
 
     private int getMaxSize() {
-        return this.config.getInt("MinSize") + this.config.getInt("IncrementCount") * this.config.getInt("IncrementSize");
+        int minSize = this.config.getInt("MinSize");
+        int incrementCount = this.config.getInt("IncrementCount");
+        int incrementSize = this.config.getInt("IncrementSize");
+        return minSize + incrementCount * incrementSize;
     }
 
     private void playSound() {
@@ -126,9 +129,9 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
         int val = this.currSize - minSize;
         int limit = this.getMaxSize() - minSize;
 
-        double speed = YamlReader.incLin(this.config, "Speed", val, limit);
-        double damage = YamlReader.incLin(this.config, "Damage", val, limit);
-        double kb = YamlReader.incLin(this.config, "Kb", val, limit);
+        double speed = YamlReader.getIncreasingValue(this.config, "Speed", val, limit);
+        double damage = YamlReader.getIncreasingValue(this.config, "Damage", val, limit);
+        double kb = YamlReader.getIncreasingValue(this.config, "Kb", val, limit);
 
         this.launch(true, damage, kb, speed, this.blocks.get(0).getEntity());
 
@@ -145,8 +148,8 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
         projectile.setData(block.getBlockData());
         projectile.setOverrideLocation(block.getLocation().setDirection(this.player.getEyeLocation().getDirection()));
         projectile.setSpeed(speed);
-        projectile.getAttackSettings().getDamageSettings().setDamage(damage);
-        projectile.getAttackSettings().getKbSettings().setKb(kb);
+        projectile.getAttack().getDamage().setDamage(damage);
+        projectile.getAttack().getKb().setKb(kb);
         projectile.launch();
     }
 
@@ -197,8 +200,9 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
 
         @Override
         public void onTargetHit(LivingEntity target) {
-            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.IRONGOLEM_DEATH, 2, 0.5f);
-            new ParticleBuilder(EnumParticle.SMOKE_LARGE).boom(SSL.getInstance(), this.entity.getLocation(), 5, 0.5, 15);
+            Location loc = this.entity.getLocation();
+            this.entity.getWorld().playSound(loc, Sound.IRONGOLEM_DEATH, 2, 0.5f);
+            new ParticleBuilder(EnumParticle.SMOKE_LARGE).boom(SSL.getInstance(), loc, 5, 0.5, 15);
         }
     }
 }

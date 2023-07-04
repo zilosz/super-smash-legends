@@ -26,3 +26,7 @@ DeathSound:
   Type: VILLAGER_DEATH
   Volume: 3
   Pitch: 2
+Abilities:
+  0: GROUND_POUND
+  1: BOMB_OMB
+  2: HAT_THROW

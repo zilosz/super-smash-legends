@@ -2,14 +2,14 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
 import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
 import com.github.zilosz.ssl.utils.effect.Effects;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
-import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Bukkit;
@@ -83,13 +83,9 @@ public class AgileCombat extends RightClickAbility {
 
             new EntityFinder(selector).findClosest(this.player).ifPresent(target -> {
                 Vector direction = this.player.getEyeLocation().getDirection();
+                Attack attack = new Attack(this.config.getSection("Leap"), direction.clone().multiply(-1));
 
-                AttackSettings settings = new AttackSettings(
-                        this.config.getSection("Leap"),
-                        direction.clone().multiply(-1)
-                );
-
-                if (SSL.getInstance().getDamageManager().attack(target, this, settings)) {
+                if (SSL.getInstance().getDamageManager().attack(target, this, attack)) {
                     this.endLeap(true);
 
                     double springVel = this.config.getDouble("SpringVelocity");
@@ -153,7 +149,7 @@ public class AgileCombat extends RightClickAbility {
             Section jumpConfig = this.config.getSection("Jump");
             event.setPower(jumpConfig.getDouble("Power"));
             event.setHeight(jumpConfig.getDouble("Height"));
-            event.setNoise(YamlReader.noise(jumpConfig.getSection("Sound")));
+            event.setNoise(YamlReader.getNoise(jumpConfig.getSection("Sound")));
         }
     }
 

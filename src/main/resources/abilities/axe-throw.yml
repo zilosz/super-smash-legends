@@ -15,11 +15,3 @@ Projectile:
   HitBox: 0.9
   Item:
     Material: IRON_AXE
-  LaunchSound:
-    Type: IRONGOLEM_THROW
-    Volume: 2
-    Pitch: 1
-  TargetHitSound:
-    Type: ZOMBIE_WOODBREAK
-    Volume: 1
-    Pitch: 1

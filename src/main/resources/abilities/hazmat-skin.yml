@@ -5,6 +5,7 @@ Description:
   - "&7Deadmortal's mutant body grants him"
   - "&7protection from negative potion effects,"
   - "&7fire, and related illnesses."
+Type: FIRE_RESISTANCE
 ResistedPotionEffects:
   - BLINDNESS
   - POISON

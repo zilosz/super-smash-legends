@@ -5,7 +5,7 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
-import com.github.zilosz.ssl.event.attack.DamageEvent;
+import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
 import com.github.zilosz.ssl.utils.SoundCanceller;
@@ -96,7 +96,7 @@ public class WebGrapple extends RightClickAbility {
         }
 
         @EventHandler
-        public void onBatDamage(DamageEvent event) {
+        public void onBatAttack(AttackEvent event) {
             if (event.getVictim() == this.bat) {
                 event.setCancelled(true);
             }

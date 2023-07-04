@@ -2,8 +2,8 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.DamageSettings;
-import com.github.zilosz.ssl.damage.KbSettings;
+import com.github.zilosz.ssl.damage.Damage;
+import com.github.zilosz.ssl.damage.KnockBack;
 import com.github.zilosz.ssl.event.CustomEvent;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
@@ -102,10 +102,10 @@ public class Rasengan extends RightClickAbility {
 
         this.reset();
 
-        DamageSettings damageSettings = event.getAttackSettings().getDamageSettings();
+        Damage damageSettings = event.getAttack().getDamage();
         damageSettings.setDamage(this.config.getDouble("Damage"));
 
-        KbSettings kbSettings = event.getAttackSettings().getKbSettings();
+        KnockBack kbSettings = event.getAttack().getKb();
         kbSettings.setKb(this.config.getDouble("Kb"));
         kbSettings.setKbY(this.config.getDouble("KbY"));
 

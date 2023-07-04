@@ -6,6 +6,7 @@ Description:
   - "&7earthquake. Enemies a radius will be hit"
   - "&7with small fissures."
 Cooldown: 160
+MustBeGrounded: true
 AutoStartCooldown: false
 HorizontalRange: 6.5
 VerticalRange: 4

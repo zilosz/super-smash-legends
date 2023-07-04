@@ -21,12 +21,12 @@ public class HatThrow extends RightClickAbility {
     @Override
     public void onClick(PlayerInteractEvent event) {
 
-        if (this.hatProjectile == null || this.hatProjectile.state == HatThrowState.INACTIVE) {
+        if (this.hatProjectile == null || this.hatProjectile.state == State.INACTIVE) {
             this.hatProjectile = new HatProjectile(this, this.config);
             this.hatProjectile.setLifespan(this.config.getInt("TicksToReturn") + this.config.getInt("ExtraLifespan"));
             this.hatProjectile.launch();
 
-        } else if (this.hatProjectile.state == HatThrowState.DISMOUNTED) {
+        } else if (this.hatProjectile.state == State.DISMOUNTED) {
             this.hatProjectile.mount(this.player);
 
         } else {
@@ -34,14 +34,14 @@ public class HatThrow extends RightClickAbility {
         }
     }
 
-    public enum HatThrowState {
+    public enum State {
         INACTIVE,
         DISMOUNTED,
         MOUNTED
     }
 
     private static final class HatProjectile extends EmulatedProjectile<ArmorStand> {
-        private HatThrowState state = HatThrowState.INACTIVE;
+        private State state = State.INACTIVE;
 
         public HatProjectile(Ability ability, Section config) {
             super(ability, config);
@@ -52,7 +52,7 @@ public class HatThrow extends RightClickAbility {
             ArmorStand stand = location.getWorld().spawn(location, ArmorStand.class);
             stand.setArms(true);
             stand.setCanPickupItems(false);
-            stand.setItemInHand(YamlReader.stack(this.config.getSection("HatItem")));
+            stand.setItemInHand(YamlReader.getStack(this.config.getSection("HatItem")));
             stand.setMarker(true);
             stand.setVisible(false);
             return stand;
@@ -60,7 +60,7 @@ public class HatThrow extends RightClickAbility {
 
         @Override
         public void onLaunch() {
-            this.state = HatThrowState.DISMOUNTED;
+            this.state = State.DISMOUNTED;
         }
 
         @Override
@@ -70,11 +70,8 @@ public class HatThrow extends RightClickAbility {
 
         @Override
         public void onRemove(ProjectileRemoveReason reason) {
-            this.state = HatThrowState.INACTIVE;
-
-            if (this.ability.isEnabled()) {
-                ((ClickableAbility) this.ability).startCooldown();
-            }
+            this.state = State.INACTIVE;
+            ((ClickableAbility) this.ability).startCooldown();
         }
 
         @Override
@@ -91,13 +88,13 @@ public class HatThrow extends RightClickAbility {
         }
 
         public void mount(Entity passenger) {
-            this.state = HatThrowState.MOUNTED;
+            this.state = State.MOUNTED;
             this.entity.setPassenger(passenger);
             this.entity.getWorld().playSound(this.entity.getLocation(), Sound.CLICK, 2, 1);
         }
 
         public void dismount() {
-            this.state = HatThrowState.DISMOUNTED;
+            this.state = State.DISMOUNTED;
             this.entity.eject();
             this.entity.getWorld().playSound(this.entity.getLocation(), Sound.CLICK, 2, 1);
         }

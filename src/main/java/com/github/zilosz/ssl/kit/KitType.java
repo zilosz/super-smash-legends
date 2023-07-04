@@ -2,27 +2,30 @@ package com.github.zilosz.ssl.kit;
 
 import lombok.Getter;
 
+@Getter
 public enum KitType {
-    BARBARIAN("barbarian"),
-    CRYOMANCER("cryomancer"),
-    DEADMORTAL("deadmortal"),
-    DRAKULA("drakula"),
-    GLOBBY("globby"),
-    MASTER_BLADE("master-blade"),
-    MECHON("mechon"),
-    MERMAID("mermaid"),
-    MINER("miner"),
-    MOREO("moreo"),
-    MUSICIAN("musician"),
-    PIKACHEW("pikachew"),
-    SHINOBY("shinoby"),
-    SKELLINGTON("skellington"),
-    TANK("tank"),
-    WEBMAN("webman");
+    BARBARIAN("barbarian", "Barbarian"),
+    CRYOMANCER("cryomancer", "Cryomancer"),
+    DEADMORTAL("deadmortal", "Deadmortal"),
+    DRAKULA("drakula", "Drakula"),
+    GLOBBY("globby", "Globby"),
+    MASTER_BLADE("master-blade", "MasterBlade"),
+    MECHON("mechon", "Mechon"),
+    MERMAID("mermaid", "Mermaid"),
+    MINER("miner", "Miner"),
+    MOREO("moreo", "Moreo"),
+    MUSICIAN("musician", "Musician"),
+    PIKACHEW("pikachew", "Pikachew"),
+    SHINOBY("shinoby", "Shinoby"),
+    SKELLINGTON("skellington", "Skellington"),
+    TANK("tank", "Tank"),
+    WEBMAN("webman", "Webman");
 
-    @Getter private final String fileName;
+    private final String fileName;
+    private final String configName;
 
-    KitType(String fileName) {
+    KitType(String fileName, String configName) {
         this.fileName = fileName;
+        this.configName = configName;
     }
 }

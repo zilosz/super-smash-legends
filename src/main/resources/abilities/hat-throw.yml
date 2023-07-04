@@ -19,5 +19,6 @@ Kb: 1.4
 KbY: 0.5
 HitBox: 1
 ExtraLifespan: 5
+HasLifespan: false
 HatItem:
   Material: IRON_PICKAXE

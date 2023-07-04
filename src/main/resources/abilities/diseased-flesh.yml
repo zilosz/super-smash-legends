@@ -14,3 +14,19 @@ ImmunityTicks: 0
 Damage: 1
 Kb: 1.1
 KbY: 0.5
+Items:
+  1:
+    Weight: 1
+    Material: SAND
+  2:
+    Weight: 2
+    Material: ROTTEN_FLESH
+  3:
+    Weight: 1
+    Material: SPIDER_EYE
+  4:
+    Weight: 0.5
+    Material: FERMENTED_SPIDER_EYE
+  5:
+    Weight: 1
+    Material: BONE

@@ -1,4 +1,4 @@
-package com.github.zilosz.ssl.game.state;
+package com.github.zilosz.ssl.game.state.implementation;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
@@ -7,17 +7,18 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.arena.Arena;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.attribute.Nameable;
+import com.github.zilosz.ssl.damage.Damage;
 import com.github.zilosz.ssl.damage.DamageManager;
-import com.github.zilosz.ssl.damage.DamageSettings;
 import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
-import com.github.zilosz.ssl.game.PlayerProfile;
+import com.github.zilosz.ssl.game.InGameProfile;
+import com.github.zilosz.ssl.game.state.GameState;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.team.Team;
 import com.github.zilosz.ssl.team.TeamManager;
-import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.HotbarItem;
 import com.github.zilosz.ssl.utils.SoundCanceller;
+import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.effect.DeathNPC;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.file.YamlReader;
@@ -70,18 +71,18 @@ public class InGameState extends GameState {
     private SoundCanceller meleeSoundCanceller;
 
     @Override
-    public boolean allowKitSelection() {
+    public boolean allowsSpecCommand() {
+        return false;
+    }
+
+    @Override
+    public boolean allowsKitSelection() {
         return SSL.getInstance().getResources().getConfig().getBoolean("Game.AllowKitSelectionInGame");
     }
 
     @Override
     public boolean updatesKitSkins() {
         return true;
-    }
-
-    @Override
-    public boolean allowSpecCommand() {
-        return false;
     }
 
     @Override
@@ -276,7 +277,7 @@ public class InGameState extends GameState {
         this.gameTimer.cancel();
 
         CollectionUtils.removeWhileIterating(this.skinRestorers, BukkitTask::cancel);
-        CollectionUtils.removeWhileIteratingFromMap(this.respawnTasks, this::respawnPlayer, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingOverValues(this.respawnTasks, this::respawnPlayer, BukkitTask::cancel);
 
         ProtocolLibrary.getProtocolManager().removePacketListener(this.meleeSoundCanceller);
 
@@ -288,11 +289,6 @@ public class InGameState extends GameState {
                 SSL.getInstance().getKitManager().getSelectedKit(player).deactivate();
             }
         }
-    }
-
-    @Override
-    public String getConfigName() {
-        return "InGame";
     }
 
     @Override
@@ -330,7 +326,7 @@ public class InGameState extends GameState {
         }
 
         boolean isVoid = event.getCause() == EntityDamageEvent.DamageCause.VOID;
-        DamageSettings damageSettings = new DamageSettings(event.getFinalDamage(), true);
+        Damage damageSettings = new Damage(event.getFinalDamage(), true);
         DamageEvent damageEvent = new DamageEvent(victim, damageSettings, isVoid);
         Bukkit.getPluginManager().callEvent(damageEvent);
         event.setDamage(damageEvent.getFinalDamage());
@@ -358,7 +354,7 @@ public class InGameState extends GameState {
         player.setHealth(20);
 
         Kit kit = SSL.getInstance().getKitManager().getSelectedKit(player);
-        kit.giveItems();
+        kit.equip();
         kit.activate();
     }
 
@@ -377,7 +373,7 @@ public class InGameState extends GameState {
 
         Player player = (Player) event.getVictim();
 
-        PlayerProfile profile = SSL.getInstance().getGameManager().getProfile(player);
+        InGameProfile profile = SSL.getInstance().getGameManager().getProfile(player);
         profile.setDamageTaken(profile.getDamageTaken() + Math.min(player.getHealth(), finalDamage));
 
         if (event instanceof AttributeDamageEvent && event.willDie()) {
@@ -397,17 +393,19 @@ public class InGameState extends GameState {
     }
 
     private void handleDeath(Player died, boolean spawnNpc, boolean teleportPlayer, Attribute directKillingAttribute, boolean preferAttributeDamage) {
-        Kit diedKit = SSL.getInstance().getKitManager().getSelectedKit(died);
-        diedKit.destroy();
-        diedKit.getDeathNoise().playForAll(died.getLocation());
 
         if (spawnNpc) {
             DeathNPC.spawn(SSL.getInstance(), died);
         }
 
-        PlayerProfile profile = SSL.getInstance().getGameManager().getProfile(died);
-        profile.setLives(profile.getLives() - 1);
-        profile.setDeaths(profile.getDeaths() + 1);
+        InGameProfile diedProfile = SSL.getInstance().getGameManager().getProfile(died);
+
+        diedProfile.setLives(diedProfile.getLives() - 1);
+        diedProfile.setDeaths(diedProfile.getDeaths() + 1);
+
+        Kit diedKit = diedProfile.getKit();
+        diedKit.destroy();
+        diedKit.getDeathNoise().playForAll(died.getLocation());
 
         DamageManager damageManager = SSL.getInstance().getDamageManager();
         Attribute killingAttribute = directKillingAttribute;
@@ -432,7 +430,7 @@ public class InGameState extends GameState {
             killer.playSound(killer.getLocation(), Sound.LEVEL_UP, 2, 2);
             killer.playSound(killer.getLocation(), Sound.WOLF_HOWL, 3, 2);
 
-            PlayerProfile killerProfile = SSL.getInstance().getGameManager().getProfile(killer);
+            InGameProfile killerProfile = SSL.getInstance().getGameManager().getProfile(killer);
             killerProfile.setKills(killerProfile.getKills() + 1);
 
             String killerName = SSL.getInstance().getTeamManager().getPlayerColor(killer) + killer.getName();
@@ -461,7 +459,7 @@ public class InGameState extends GameState {
         damageManager.removeDamageSource(died);
         damageManager.clearImmunities(died);
 
-        if (profile.getLives() <= 0) {
+        if (diedProfile.getLives() <= 0) {
             died.playSound(died.getLocation(), Sound.WITHER_DEATH, 2, 1);
 
             String title = MessageUtils.color("&7You have been");

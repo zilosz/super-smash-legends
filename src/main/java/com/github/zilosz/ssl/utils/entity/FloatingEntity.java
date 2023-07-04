@@ -4,25 +4,10 @@ import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 
 public abstract class FloatingEntity<T extends Entity> {
     @Getter private T entity;
     private ArmorStand armorStand;
-
-    public static <T extends Entity> FloatingEntity<T> fromEntity(T entity) {
-
-        FloatingEntity<T> floatingEntity = new FloatingEntity<>() {
-
-            @Override
-            public T createEntity(Location location) {
-                return entity;
-            }
-        };
-
-        floatingEntity.spawn(entity.getLocation());
-        return floatingEntity;
-    }
 
     public void spawn(Location location) {
         this.armorStand = location.getWorld().spawn(location, ArmorStand.class);
@@ -39,10 +24,7 @@ public abstract class FloatingEntity<T extends Entity> {
 
     public void destroy() {
         this.armorStand.remove();
-
-        if (this.entity.getType() != EntityType.PLAYER) {
-            this.entity.remove();
-        }
+        this.entity.remove();
     }
 
     public void teleport(Location location) {

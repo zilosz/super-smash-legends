@@ -27,3 +27,7 @@ DeathSound:
   Type: IRONGOLEM_DEATH
   Volume: 3
   Pitch: 2
+Abilities:
+  0: ROCKET_LAUNCHER
+  1: AERIAL_ASSAULT
+  2: JETPACK

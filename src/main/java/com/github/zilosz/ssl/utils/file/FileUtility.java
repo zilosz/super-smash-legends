@@ -35,6 +35,20 @@ public class FileUtility {
         return new File(plugin.getDataFolder(), fullPath);
     }
 
+    public static String buildPath(String... parts) {
+        StringBuilder path = new StringBuilder();
+
+        for (int i = 0; i < parts.length; i++) {
+            path.append(parts[i]);
+
+            if (i < parts.length - 1) {
+                path.append(File.separator);
+            }
+        }
+
+        return path.toString();
+    }
+
     public static void deleteWorld(String name) {
         File world = new File(Bukkit.getWorldContainer(), name);
 
@@ -48,19 +62,5 @@ public class FileUtility {
                 e.printStackTrace();
             }
         }
-    }
-
-    public static String buildPath(String... parts) {
-        StringBuilder path = new StringBuilder();
-
-        for (int i = 0; i < parts.length; i++) {
-            path.append(parts[i]);
-
-            if (i < parts.length - 1) {
-                path.append(File.separator);
-            }
-        }
-
-        return path.toString();
     }
 }

@@ -1,8 +1,10 @@
-package com.github.zilosz.ssl.game.state;
+package com.github.zilosz.ssl.game.state.implementation;
 
 import com.connorlinfoot.titleapi.TitleAPI;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.arena.Arena;
+import com.github.zilosz.ssl.game.state.GameState;
+import com.github.zilosz.ssl.game.state.TeleportsOnVoid;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
 import org.bukkit.Bukkit;
@@ -20,18 +22,18 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
     private BukkitTask startCountdown;
 
     @Override
-    public boolean allowKitSelection() {
+    public boolean allowsSpecCommand() {
+        return false;
+    }
+
+    @Override
+    public boolean allowsKitSelection() {
         return true;
     }
 
     @Override
     public boolean updatesKitSkins() {
         return true;
-    }
-
-    @Override
-    public boolean allowSpecCommand() {
-        return false;
     }
 
     @Override
@@ -112,11 +114,6 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
                 player.setFlying(false);
             }
         }
-    }
-
-    @Override
-    public String getConfigName() {
-        return "PreGame";
     }
 
     @Override

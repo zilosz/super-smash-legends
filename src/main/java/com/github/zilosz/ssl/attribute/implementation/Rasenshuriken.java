@@ -3,14 +3,14 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.CustomEvent;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
-import com.github.zilosz.ssl.utils.entity.finder.selector.DistanceSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -119,8 +119,8 @@ public class Rasenshuriken extends RightClickAbility {
 
         public Shuriken(Ability ability, Section config) {
             super(ability, config);
-            this.getAttackSettings().getDamageSettings().setDamage(config.getDouble("MaxDamage"));
-            this.getAttackSettings().getKbSettings().setKb(config.getDouble("MaxKb"));
+            this.getAttack().getDamage().setDamage(config.getDouble("MaxDamage"));
+            this.getAttack().getKb().setKb(config.getDouble("MaxKb"));
         }
 
         @Override
@@ -166,12 +166,12 @@ public class Rasenshuriken extends RightClickAbility {
 
             finder.findAll(this.launcher, loc).forEach(target -> {
                 double distanceSq = target.getLocation().distanceSquared(loc);
-                double damage = YamlReader.decLin(this.config, "Damage", distanceSq, radius * radius);
-                double kb = YamlReader.decLin(this.config, "Kb", distanceSq, radius * radius);
+                double damage = YamlReader.getDecreasingValue(this.config, "Damage", distanceSq, radius * radius);
+                double kb = YamlReader.getDecreasingValue(this.config, "Kb", distanceSq, radius * radius);
 
                 Vector direction = VectorUtils.fromTo(this.entity, target);
 
-                AttackSettings settings = new AttackSettings(this.config, direction)
+                Attack settings = new Attack(this.config, direction)
                         .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
                         .modifyKb(kbSettings -> kbSettings.setKb(kb));
 

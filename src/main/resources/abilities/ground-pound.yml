@@ -8,6 +8,7 @@ Description:
   - "&7extra double jump. Can be chained."
 Cooldown: 120
 AutoStartCooldown: false
+MustBeAirborne: true
 MaxFall: 30
 DownwardVelocity: 1.7
 MinBounce: 0.35

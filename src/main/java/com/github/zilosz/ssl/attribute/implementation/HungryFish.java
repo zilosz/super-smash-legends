@@ -114,8 +114,8 @@ public class HungryFish extends RightClickAbility {
                 @EventHandler
                 public void onEntityVelocity(AttributeKbEvent event) {
                     if (event.getVictim() == target && !(target instanceof Player)) {
-                        event.getKbSettings().setKb(event.getKbSettings().getKb() * multiplier);
-                        event.getKbSettings().setKbY(event.getKbSettings().getKbY() * multiplier);
+                        event.getKb().setKb(event.getKb().getKb() * multiplier);
+                        event.getKb().setKbY(event.getKb().getKbY() * multiplier);
                         noise.playForAll(target.getLocation());
                     }
                 }
@@ -142,6 +142,7 @@ public class HungryFish extends RightClickAbility {
 
             Location location = this.entity.getLocation();
             this.fish.spawn(location);
+
             Vector relativeToLoc = VectorUtils.fromTo(target.getLocation(), location);
 
             this.fishMoveTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {

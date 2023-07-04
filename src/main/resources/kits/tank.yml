@@ -26,3 +26,7 @@ DeathSound:
   Type: IRONGOLEM_DEATH
   Volume: 3
   Pitch: 1
+Abilities:
+  0: GAIA_TOSS
+  1: EARTHQUAKE
+  2: CHAIN_OF_STEEL

@@ -25,3 +25,8 @@ DeathSound:
   Type: SKELETON_DEATH
   Volume: 3
   Pitch: 0.5
+Abilities:
+  0: BONE_EXPLOSION
+  1: ROPED_ARROW
+  2: BONE_TIPPED_ARROW
+  3: BARRAGE

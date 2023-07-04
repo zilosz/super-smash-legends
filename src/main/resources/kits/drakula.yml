@@ -27,3 +27,8 @@ DeathSound:
   Type: ZOMBIE_DEATH
   Volume: 3
   Pitch: 1.7
+Abilities:
+  0: BLOOD_SHOT
+  1: BAT_WAVE
+  2: SHADOW_AMBUSH
+  3: BAT_FORM

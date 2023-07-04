@@ -25,3 +25,7 @@ DeathSound:
   Type: ENDERMAN_SCREAM
   Volume: 3
   Pitch: 1
+Abilities:
+  0: HUNGRY_FISH
+  1: SQUID_DASH
+  2: OLYMPIC_DIVE

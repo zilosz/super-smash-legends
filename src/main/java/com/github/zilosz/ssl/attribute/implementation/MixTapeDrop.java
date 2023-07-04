@@ -3,12 +3,12 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
-import com.github.zilosz.ssl.utils.entity.finder.selector.DistanceSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -28,7 +28,7 @@ public class MixTapeDrop extends RightClickAbility {
         this.player.setVelocity(this.player.getEyeLocation().getDirection().multiply(-this.config.getDouble("Recoil")));
     }
 
-    public static class MixTapeProjectile extends ItemProjectile {
+    private static class MixTapeProjectile extends ItemProjectile {
 
         public MixTapeProjectile(Ability ability, Section config) {
             super(ability, config);
@@ -44,7 +44,7 @@ public class MixTapeDrop extends RightClickAbility {
 
             finder.findAll(player, this.entity.getLocation()).forEach(target -> {
                 Vector direction = VectorUtils.fromTo(this.entity, target);
-                AttackSettings settings = new AttackSettings(this.config.getSection("Ground"), direction);
+                Attack settings = new Attack(this.config.getSection("Ground"), direction);
 
                 if (SSL.getInstance().getDamageManager().attack(target, this.ability, settings)) {
                     player.playSound(player.getLocation(), Sound.NOTE_PLING, 2, 2);

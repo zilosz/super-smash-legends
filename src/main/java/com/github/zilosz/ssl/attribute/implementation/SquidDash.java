@@ -2,7 +2,7 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
@@ -10,7 +10,7 @@ import com.github.zilosz.ssl.utils.entity.DisguiseUtils;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
-import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -54,25 +54,25 @@ public class SquidDash extends RightClickAbility {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SPLASH, 2, 0.5f);
         this.player.getWorld().playSound(this.player.getLocation(), Sound.EXPLODE, 1, 1);
 
-        double damage = YamlReader.incLin(this.config, "Damage", this.ticksDashing, this.getMaxDashTicks());
-        double kb = YamlReader.incLin(this.config, "Kb", this.ticksDashing, this.getMaxDashTicks());
+        double damage = YamlReader.getIncreasingValue(this.config, "Damage", this.ticksDashing, this.getMaxDashTicks());
+        double kb = YamlReader.getIncreasingValue(this.config, "Kb", this.ticksDashing, this.getMaxDashTicks());
 
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
         new EntityFinder(selector).findAll(this.player).forEach(target -> {
 
-            AttackSettings settings = new AttackSettings(this.config, VectorUtils.fromTo(this.player, target))
+            Attack attack = new Attack(this.config, VectorUtils.fromTo(this.player, target))
                     .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
                     .modifyKb(kbSettings -> kbSettings.setKb(kb));
 
-            SSL.getInstance().getDamageManager().attack(target, this, settings);
+            SSL.getInstance().getDamageManager().attack(target, this, attack);
         });
 
         this.invisible = true;
         SSL.getInstance().getDamageManager().hideEntityIndicator(this.player);
         Bukkit.getOnlinePlayers().forEach(other -> other.hidePlayer(this.player));
 
-        int ticks = (int) YamlReader.incLin(
+        int ticks = (int) YamlReader.getIncreasingValue(
                 this.config,
                 "InvisibilityTicks",
                 this.ticksDashing,

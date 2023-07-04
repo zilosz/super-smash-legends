@@ -28,11 +28,11 @@ public class MathUtils {
         return min <= value && value <= max;
     }
 
-    public static double increasingLinear(double min, double max, double rangeAtMax, double x) {
+    public static double getIncreasingValue(double min, double max, double rangeAtMax, double x) {
         return x * (max - min) / rangeAtMax + min;
     }
 
-    public static double decreasingLinear(double min, double max, double rangeAtMin, double x) {
+    public static double getDecreasingValue(double min, double max, double rangeAtMin, double x) {
         return -x * (max - min) / rangeAtMin + max;
     }
 

@@ -1,4 +1,4 @@
-package com.github.zilosz.ssl.game.state;
+package com.github.zilosz.ssl.game.state.implementation;
 
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import com.connorlinfoot.titleapi.TitleAPI;
@@ -6,11 +6,13 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.database.PlayerDatabase;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.GameResult;
-import com.github.zilosz.ssl.game.PlayerProfile;
+import com.github.zilosz.ssl.game.InGameProfile;
+import com.github.zilosz.ssl.game.state.GameState;
+import com.github.zilosz.ssl.game.state.TeleportsOnVoid;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.team.Team;
 import com.github.zilosz.ssl.team.TeamManager;
-import com.github.zilosz.ssl.utils.CollectionUtils;
+import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
@@ -37,22 +39,17 @@ public class EndState extends GameState implements TeleportsOnVoid {
     private BukkitTask endCountdown;
 
     @Override
-    public boolean allowKitSelection() {
+    public boolean allowsSpecCommand() {
+        return false;
+    }
+
+    @Override
+    public boolean allowsKitSelection() {
         return false;
     }
 
     @Override
     public boolean updatesKitSkins() {
-        return false;
-    }
-
-    @Override
-    public boolean allowSpecCommand() {
-        return false;
-    }
-
-    @Override
-    public boolean isPlaying() {
         return false;
     }
 
@@ -220,7 +217,7 @@ public class EndState extends GameState implements TeleportsOnVoid {
             gameManager.getProfile(player).getKit().destroy();
 
             UUID uuid = player.getUniqueId();
-            PlayerProfile profile = gameManager.getProfile(player);
+            InGameProfile profile = gameManager.getProfile(player);
             PlayerDatabase db = SSL.getInstance().getPlayerDatabase();
 
             if (playerRanks.size() > 1 && altsUsed < 2) {
@@ -281,13 +278,13 @@ public class EndState extends GameState implements TeleportsOnVoid {
     }
 
     @Override
-    public String getConfigName() {
-        return "End";
+    public boolean isInArena() {
+        return true;
     }
 
     @Override
-    public boolean isInArena() {
-        return true;
+    public boolean isPlaying() {
+        return false;
     }
 
     @Override

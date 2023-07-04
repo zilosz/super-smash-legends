@@ -2,11 +2,11 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.ChargedRightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
-import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -36,7 +36,9 @@ public class SaberSpin extends ChargedRightClickAbility {
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
         new EntityFinder(selector).findAll(this.player, center).forEach(target -> {
-            if (SSL.getInstance().getDamageManager().attack(target, this, new AttackSettings(this.config, this.direction))) {
+            if (SSL.getInstance()
+                    .getDamageManager()
+                    .attack(target, this, new Attack(this.config, this.direction))) {
                 this.player.getWorld().playSound(this.player.getLocation(), Sound.BLAZE_BREATH, 2, 1);
             }
         });

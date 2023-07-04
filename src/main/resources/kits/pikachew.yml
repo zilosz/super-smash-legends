@@ -25,3 +25,7 @@ DeathSound:
   Type: CAT_HIT
   Volume: 3
   Pitch: 0.5
+Abilities:
+  0: THUNDERBOLT
+  1: VOLT_TACKLE
+  2: ELECTROSTATIC_LEAP

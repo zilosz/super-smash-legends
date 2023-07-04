@@ -4,7 +4,7 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.database.PlayerDatabase;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.state.GameState;
-import com.github.zilosz.ssl.game.state.InGameState;
+import com.github.zilosz.ssl.game.state.GameStateType;
 import com.github.zilosz.ssl.utils.Skin;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.Chat;
@@ -23,23 +23,34 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public class KitManager implements Listener {
+    private final List<Kit> kits = new ArrayList<>();
     private final Map<Player, Kit> selectedKits = new HashMap<>();
     private final Map<NPC, KitType> kitsPerNpc = new HashMap<>();
     private final Map<Player, Map<KitType, Hologram>> kitHolograms = new HashMap<>();
+
+    public List<Kit> getKits() {
+        return Collections.unmodifiableList(this.kits);
+    }
 
     public void setupKits() {
         for (KitType type : KitType.values()) {
             this.setupKit(type);
         }
+        this.kits.sort(Comparator.comparing(kit -> kit.getType().name()));
     }
 
     private void setupKit(KitType kitType) {
         Kit kit = createKit(kitType);
+        this.kits.add(kit);
 
         NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, kit.getSkinName());
         this.kitsPerNpc.put(npc, kitType);
@@ -49,8 +60,8 @@ public class KitManager implements Listener {
         skinTrait.setSkinName(kit.getSkinName());
         npc.addTrait(skinTrait);
 
-        String locString = SSL.getInstance().getResources().getLobby().getString("KitNpcs." + kit.getConfigName());
-        Location location = YamlReader.location("lobby", locString);
+        String locString = SSL.getInstance().getResources().getLobby().getString("KitNpcs." + kitType.getConfigName());
+        Location location = YamlReader.getLocation("lobby", locString);
         npc.spawn(location);
 
         location.subtract(0, 1, 0).getBlock().setType(Material.BEACON);
@@ -123,8 +134,7 @@ public class KitManager implements Listener {
     }
 
     public KitAccessType getKitAccess(Player player, KitType kitType) {
-        Kit selectedKit = SSL.getInstance().getGameManager().getProfile(player).getKit();
-        return selectedKit.getType() == kitType ? KitAccessType.SELECTED : KitAccessType.ACCESSIBLE;
+        return this.getSelectedKit(player).getType() == kitType ? KitAccessType.SELECTED : KitAccessType.ACCESSIBLE;
     }
 
     public void pullUserKit(Player player) {
@@ -148,9 +158,9 @@ public class KitManager implements Listener {
 
         Optional.ofNullable(this.selectedKits.put(player, newKit)).ifPresent(oldKit -> {
             oldKit.destroy();
-            this.updateAccessHologram(player, KitAccessType.ACCESSIBLE, kitType);
+            this.updateAccessHologram(player, KitAccessType.ACCESSIBLE, oldKit.getType());
 
-            if (state.allowKitSelection() && state.isInArena()) {
+            if (state.isPlaying()) {
                 gameManager.getProfile(player).setKit(newKit);
             }
 
@@ -165,7 +175,7 @@ public class KitManager implements Listener {
 
         newKit.equip(player);
 
-        if (state instanceof InGameState) {
+        if (state.getType() == GameStateType.IN_GAME) {
             newKit.activate();
         }
 
@@ -181,7 +191,7 @@ public class KitManager implements Listener {
 
         Optional.ofNullable(this.selectedKits.remove(player)).ifPresent(kit -> {
             kit.destroy();
-            SSL.getInstance().getPlayerDatabase().set(player.getUniqueId(), "kit", kit.getConfigName());
+            SSL.getInstance().getPlayerDatabase().set(player.getUniqueId(), "kit", kit.getType().name());
         });
     }
 

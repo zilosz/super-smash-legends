@@ -13,9 +13,5 @@ Projectile:
   Damage: 4
   Kb: -1.2
   KbY: 0.5
-  LaunchSound:
-    Type: GLASS
-    Volume: 1
-    Pitch: 2
   Item:
     Material: ICE

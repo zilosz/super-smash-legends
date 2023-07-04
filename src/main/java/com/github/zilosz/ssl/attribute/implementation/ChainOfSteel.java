@@ -2,21 +2,20 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
-import com.github.zilosz.ssl.utils.CollectionUtils;
+import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.FloatingEntity;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
-import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -30,7 +29,6 @@ import java.util.List;
 public class ChainOfSteel extends RightClickAbility {
     private final List<FloatingEntity<FallingBlock>> entities = new ArrayList<>();
     private Vector direction;
-    private FloatingEntity<Player> floatingEntity;
     private BukkitTask chainTask;
     private int chainTicks = 0;
     private BukkitTask pullTask;
@@ -48,11 +46,10 @@ public class ChainOfSteel extends RightClickAbility {
         this.direction = this.player.getEyeLocation().getDirection();
         Vector step = this.direction.clone().multiply(this.config.getDouble("ChainSpeed"));
 
-        this.floatingEntity = FloatingEntity.fromEntity(this.player);
-
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
         this.chainTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
+            this.player.setVelocity(new Vector(0, 0.03, 0));
             currLocation.add(step);
 
             if (this.chainTicks >= this.config.getInt("ChainTicks")) {
@@ -85,7 +82,7 @@ public class ChainOfSteel extends RightClickAbility {
             } else {
 
                 new EntityFinder(selector).findClosest(this.player, currLocation).ifPresent(target -> {
-                    AttackSettings attackSettings = new AttackSettings(this.config, null);
+                    Attack attackSettings = new Attack(this.config, null);
 
                     if (SSL.getInstance().getDamageManager().attack(target, this, attackSettings)) {
                         this.player.playSound(this.player.getLocation(), Sound.ORB_PICKUP, 1, 1);
@@ -106,10 +103,6 @@ public class ChainOfSteel extends RightClickAbility {
 
         CollectionUtils.removeWhileIterating(this.entities, FloatingEntity::destroy);
 
-        if (this.floatingEntity != null) {
-            this.floatingEntity.destroy();
-        }
-
         if (this.pullTask != null) {
             this.pullTask.cancel();
             this.pullSoundTask.cancel();
@@ -123,7 +116,6 @@ public class ChainOfSteel extends RightClickAbility {
 
     private void pullTowardsLocation(Location location) {
         this.chainTask.cancel();
-        this.floatingEntity.destroy();
 
         this.player.getWorld().playSound(location, Sound.IRONGOLEM_HIT, 1, 0.5f);
 

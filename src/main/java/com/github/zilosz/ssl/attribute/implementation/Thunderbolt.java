@@ -2,10 +2,10 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.ChargedRightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
-import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
@@ -34,9 +34,9 @@ public class Thunderbolt extends ChargedRightClickAbility {
         int ticks = this.ticksCharging - this.minChargeTicks;
         int max = this.maxChargeTicks - this.minChargeTicks;
 
-        double damage = YamlReader.incLin(this.config, "Damage", ticks, max);
-        double kb = YamlReader.incLin(this.config, "Kb", ticks, max);
-        double range = YamlReader.incLin(this.config, "Range", ticks, max);
+        double damage = YamlReader.getIncreasingValue(this.config, "Damage", ticks, max);
+        double kb = YamlReader.getIncreasingValue(this.config, "Kb", ticks, max);
+        double range = YamlReader.getIncreasingValue(this.config, "Range", ticks, max);
 
         Location location = this.player.getEyeLocation();
         Vector step = location.getDirection().multiply(0.25);
@@ -53,7 +53,7 @@ public class Thunderbolt extends ChargedRightClickAbility {
 
             for (LivingEntity target : finder.findAll(this.player, location)) {
 
-                AttackSettings settings = new AttackSettings(this.config, step)
+                Attack settings = new Attack(this.config, step)
                         .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
                         .modifyKb(kbSettings -> kbSettings.setKb(kb));
 

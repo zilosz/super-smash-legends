@@ -17,7 +17,3 @@ Projectile:
   KbY: 0.5
   Item:
     Material: REDSTONE
-  LaunchSound:
-    Type: LAVA_POP
-    Volume: 1
-    Pitch: 2

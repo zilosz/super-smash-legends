@@ -111,7 +111,8 @@ public class GoldRush extends PassiveAbility {
         int blindness = this.config.getInt("Blindness");
         new PotionEffectEvent(this.player, PotionEffectType.BLINDNESS, 10_000, blindness).apply();
 
-        this.resetTask = Bukkit.getScheduler().runTaskLater(SSL.getInstance(), this::reset, this.config.getInt("MaxTicks"));
+        this.resetTask = Bukkit.getScheduler()
+                .runTaskLater(SSL.getInstance(), this::reset, this.config.getInt("MaxTicks"));
 
         this.moveTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
             Location location = this.player.getLocation();

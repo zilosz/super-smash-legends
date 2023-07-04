@@ -1,23 +1,57 @@
 package com.github.zilosz.ssl.command;
 
+import com.github.zilosz.ssl.utils.message.Chat;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Zombie;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
 
-public class DummyCommand implements CommandExecutor {
+import java.util.HashSet;
+import java.util.Set;
+
+public class DummyCommand implements CommandExecutor, Listener {
+    private final Set<LivingEntity> dummies = new HashSet<>();
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         if (!(commandSender instanceof Player)) return false;
 
         Player player = (Player) commandSender;
-        LivingEntity dummy = player.getWorld().spawn(player.getLocation().add(0, 60, 0), Zombie.class);
-        dummy.setMaxHealth(200);
-        dummy.setHealth(200);
+        EntityType type = EntityType.ZOMBIE;
+
+        if (strings.length > 0) {
+
+            try {
+                type = EntityType.valueOf(strings[0].toUpperCase());
+
+            } catch (IllegalArgumentException e) {
+                Chat.COMMAND.send(commandSender, "&7Invalid entity type.");
+            }
+        }
+
+        LivingEntity dummy = (LivingEntity) player.getWorld().spawnEntity(player.getLocation().add(0, 60, 0), type);
+        dummy.setMaxHealth(1000);
+        dummy.setHealth(1000);
+        this.dummies.add(dummy);
 
         return true;
+    }
+
+    @EventHandler
+    public void onTarget(EntityTargetEvent event) {
+        if (event.getEntity() instanceof LivingEntity && this.dummies.contains((LivingEntity) event.getEntity())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onEntityDeath(EntityDeathEvent event) {
+        this.dummies.remove(event.getEntity());
     }
 }

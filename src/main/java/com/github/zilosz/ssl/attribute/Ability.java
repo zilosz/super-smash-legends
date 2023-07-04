@@ -6,7 +6,7 @@ import com.github.zilosz.ssl.utils.ItemBuilder;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
+import dev.dejvokep.boostedyaml.YamlDocument;
 import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -16,12 +16,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class Ability extends Attribute implements Nameable {
-    protected Section config;
+    protected YamlDocument config;
     @Getter protected AbilityType type;
     protected int slot;
     @Getter protected HotbarItem hotbarItem;
 
-    public void init(Section config, AbilityType type, int slot) {
+    public void initAbility(YamlDocument config, AbilityType type, int slot) {
         this.config = config;
         this.type = type;
         this.slot = slot;
@@ -54,7 +54,7 @@ public abstract class Ability extends Attribute implements Nameable {
         Replacers replacers = new Replacers().add("DESCRIPTION", this.getDescription());
         List<String> lore = replacers.replaceLines(Arrays.asList("&3&lDescription", "{DESCRIPTION}"));
 
-        return new ItemBuilder<>(YamlReader.stack(this.config.getSection("Item")))
+        return new ItemBuilder<>(YamlReader.getStack(this.config.getSection("Item")))
                 .setName(this.getBoldedDisplayName())
                 .setLore(lore)
                 .get();

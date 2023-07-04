@@ -19,10 +19,6 @@ Cluster:
   KbY: 0.6
   Block:
     Material: COAL_BLOCK
-  LaunchSound:
-    Type: ANVIL_LAND
-    Volume: 1
-    Pitch: 2
   Fragment:
     BurnChance: 0.1
     BurnDuration: 25

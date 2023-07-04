@@ -1,4 +1,4 @@
-package com.github.zilosz.ssl.utils;
+package com.github.zilosz.ssl.utils.collection;
 
 import com.github.zilosz.ssl.utils.math.MathUtils;
 import com.google.common.collect.Lists;
@@ -78,11 +78,11 @@ public class CollectionUtils {
         return items[(int) MathUtils.randRange(0, items.length)];
     }
 
-    public static <K, V> void removeWhileIteratingFromMap(Map<K, V> map, Consumer<V> valueAction) {
-        removeWhileIteratingFromMap(map, key -> {}, valueAction);
+    public static <K, V> void removeWhileIteratingOverValues(Map<K, V> map, Consumer<V> valueAction) {
+        removeWhileIteratingOverValues(map, key -> {}, valueAction);
     }
 
-    public static <K, V> void removeWhileIteratingFromMap(Map<K, V> map, Consumer<K> keyAction, Consumer<V> valueAction) {
+    public static <K, V> void removeWhileIteratingOverValues(Map<K, V> map, Consumer<K> keyAction, Consumer<V> valueAction) {
         removeWhileIterating(map.entrySet(), entry -> {
             keyAction.accept(entry.getKey());
             valueAction.accept(entry.getValue());

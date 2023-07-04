@@ -11,24 +11,18 @@ public abstract class ChargedRightClickAbility extends RightClickAbility {
     protected int ticksCharging = 0;
     protected boolean startCooldownAfterCharge;
 
-    public ChargedRightClickAbility() {
-        this.autoStartCooldown = false;
+    @Override
+    public void activate() {
+        super.activate();
+
         this.showExpBar = this.config.getOptionalBoolean("ShowExp").orElse(true);
         this.expIncreases = this.config.getOptionalBoolean("ExpIncreases").orElse(true);
         this.minChargeTicks = this.config.getInt("MinChargeTicks");
         this.maxChargeTicks = this.config.getOptionalInt("MaxChargeTicks").orElse(Integer.MAX_VALUE);
         this.endChargeInstantly = this.config.getOptionalBoolean("EndChargeInstantly").orElse(true);
         this.startCooldownAfterCharge = this.config.getOptionalBoolean("StartCooldownAfterCharge").orElse(true);
-    }
 
-    @Override
-    public String getUseType() {
-        return "Hold Right Click";
-    }
-
-    @Override
-    public boolean invalidate(PlayerInteractEvent event) {
-        return super.invalidate(event) || this.ticksCharging > 0;
+        this.autoStartCooldown = false;
     }
 
     @Override
@@ -105,5 +99,15 @@ public abstract class ChargedRightClickAbility extends RightClickAbility {
             this.onChargeEnd();
         }
         super.deactivate();
+    }
+
+    @Override
+    public String getUseType() {
+        return "Hold Right Click";
+    }
+
+    @Override
+    public boolean invalidate(PlayerInteractEvent event) {
+        return super.invalidate(event) || this.ticksCharging > 0;
     }
 }

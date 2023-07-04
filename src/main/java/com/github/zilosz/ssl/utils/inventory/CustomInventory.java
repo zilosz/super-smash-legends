@@ -1,8 +1,8 @@
 package com.github.zilosz.ssl.utils.inventory;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.ItemBuilder;
+import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.SmartInventory;

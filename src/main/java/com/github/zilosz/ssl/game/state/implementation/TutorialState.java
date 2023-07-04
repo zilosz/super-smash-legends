@@ -1,11 +1,12 @@
-package com.github.zilosz.ssl.game.state;
+package com.github.zilosz.ssl.game.state.implementation;
 
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.arena.Arena;
 import com.github.zilosz.ssl.game.GameManager;
+import com.github.zilosz.ssl.game.state.GameState;
 import com.github.zilosz.ssl.kit.Kit;
-import com.github.zilosz.ssl.utils.CollectionUtils;
+import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
 import org.bukkit.Bukkit;
@@ -40,17 +41,17 @@ public class TutorialState extends GameState {
     private BukkitTask skipTask;
 
     @Override
-    public boolean allowKitSelection() {
+    public boolean allowsSpecCommand() {
+        return false;
+    }
+
+    @Override
+    public boolean allowsKitSelection() {
         return false;
     }
 
     @Override
     public boolean updatesKitSkins() {
-        return false;
-    }
-
-    @Override
-    public boolean allowSpecCommand() {
         return false;
     }
 
@@ -120,7 +121,10 @@ public class TutorialState extends GameState {
         double velocity = totalDistance / tutorialDuration;
         int delay = SSL.getInstance().getResources().getConfig().getInt("Game.Tutorial.DelayTicks");
 
-        List<String> rules = new Replacers().add("LIVES", SSL.getInstance().getResources().getConfig().getInt("Game.Lives"))
+        List<String> rules = new Replacers().add("LIVES", SSL.getInstance()
+                        .getResources()
+                        .getConfig()
+                        .getInt("Game.Lives"))
                 .replaceLines(SSL.getInstance().getResources().getConfig().getStringList("Rules"));
 
         for (Player player : players) {
@@ -160,22 +164,17 @@ public class TutorialState extends GameState {
 
     @Override
     public void end() {
-        CollectionUtils.removeWhileIteratingFromMap(this.movers, BukkitTask::cancel);
-        CollectionUtils.removeWhileIteratingFromMap(this.ruleDisplayers, BukkitTask::cancel);
-        CollectionUtils.removeWhileIteratingFromMap(this.tutorialSchedulers, BukkitTask::cancel);
-        CollectionUtils.removeWhileIteratingFromMap(this.moveDelayers, BukkitTask::cancel);
-        CollectionUtils.removeWhileIteratingFromMap(this.skinChangers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingOverValues(this.movers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingOverValues(this.ruleDisplayers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingOverValues(this.tutorialSchedulers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingOverValues(this.moveDelayers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingOverValues(this.skinChangers, BukkitTask::cancel);
 
         new HashSet<>(this.playersInTutorial).forEach(this::stopPlayerAfterCompletion);
 
         if (this.skipTask != null) {
             this.skipTask.cancel();
         }
-    }
-
-    @Override
-    public String getConfigName() {
-        return "Tutorial";
     }
 
     @Override

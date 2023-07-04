@@ -12,7 +12,6 @@ Cooldown: 100
 MaxChargeTicks: 25
 ShowExp: false
 Rocket:
-  Lifespan: 100
   KbY: 0.8
   HitBox: 1.5
   MinDamage: 0.75
@@ -25,10 +24,6 @@ Rocket:
   MaxSpeed: 2.1
   Item:
     Material: GHAST_TEAR
-  LaunchSound:
-    Type: FIREWORK_LAUNCH
-    Volume: 2
-    Pitch: 1
   Shrapnel:
     Count: 8
     Pitch: 18

@@ -1,7 +1,7 @@
 package com.github.zilosz.ssl.event.attack;
 
 import com.github.zilosz.ssl.attribute.Attribute;
-import com.github.zilosz.ssl.damage.KbSettings;
+import com.github.zilosz.ssl.damage.KnockBack;
 import com.github.zilosz.ssl.event.CustomEvent;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,21 +14,21 @@ import java.util.Optional;
 @Getter
 public class AttributeKbEvent extends CustomEvent implements Cancellable {
     private final LivingEntity victim;
-    private final KbSettings kbSettings;
+    private final KnockBack kb;
     private final Attribute attribute;
     @Setter private boolean cancelled = false;
 
-    public AttributeKbEvent(LivingEntity victim, KbSettings kbSettings, Attribute attribute) {
+    public AttributeKbEvent(LivingEntity victim, KnockBack kb, Attribute attribute) {
         this.victim = victim;
-        this.kbSettings = kbSettings;
+        this.kb = kb;
         this.attribute = attribute;
     }
 
     public double getFinalKb() {
-        return this.kbSettings.getFinalKb(this.victim);
+        return this.kb.getFinalKb(this.victim);
     }
 
     public Optional<Vector> getFinalKbVector() {
-        return this.kbSettings.getFinalKbVector(this.victim);
+        return this.kb.getFinalKbVector(this.victim);
     }
 }

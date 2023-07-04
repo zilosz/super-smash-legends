@@ -62,10 +62,13 @@ Damage:
       Entity: 0.7
       Player: 1.5
   Melee:
-    Kb: 1
-    KbY: 0.55
+    Kb: 1.05
+    KbY: 0.6
     FactorsKit: false
     FactorsHealth: false
   MinKbHealthMultiplier: 1
   MaxKbHealthMultiplier: 2
 JumpGroundBooster: 0.2
+Projectile:
+  Lifespan: 200
+  HitBox: 0.8

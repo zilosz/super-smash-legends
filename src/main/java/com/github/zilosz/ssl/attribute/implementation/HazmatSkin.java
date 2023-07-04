@@ -21,11 +21,6 @@ public class HazmatSkin extends PermanentPotion {
     }
 
     @Override
-    public PotionEffectType getEffectType() {
-        return PotionEffectType.FIRE_RESISTANCE;
-    }
-
-    @Override
     public String getUseType() {
         return "&oSimply &oExist";
     }

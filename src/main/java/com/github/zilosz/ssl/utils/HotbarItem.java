@@ -19,7 +19,6 @@ public class HotbarItem implements Listener {
     @Getter private final int slot;
     @Setter private Consumer<PlayerInteractEvent> action;
     private Integer lastTick;
-    private boolean active = false;
 
     public HotbarItem(Player player, ItemStack itemStack, int slot) {
         this.player = player;
@@ -28,9 +27,6 @@ public class HotbarItem implements Listener {
     }
 
     public void register(Plugin plugin) {
-        if (this.active) return;
-
-        this.active = true;
         Bukkit.getPluginManager().registerEvents(this, plugin);
         this.show();
     }
@@ -40,9 +36,6 @@ public class HotbarItem implements Listener {
     }
 
     public void destroy() {
-        if (!this.active) return;
-
-        this.active = false;
         HandlerList.unregisterAll(this);
         this.hide();
     }

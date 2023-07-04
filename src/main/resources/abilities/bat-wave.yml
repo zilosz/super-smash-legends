@@ -23,7 +23,3 @@ Height: 4
 Lifespan: 100
 HitsMultiple: true
 HasGravity: false
-TargetHitSound:
-  Type: BAT_DEATH
-  Volume: 1
-  Pitch: 1

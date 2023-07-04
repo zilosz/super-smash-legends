@@ -27,3 +27,7 @@ DeathSound:
   Type: SLIME_ATTACK
   Volume: 3
   Pitch: 0.5
+Abilities:
+  0: GOOEY_BULLET
+  1: INCARNATION_SLAM
+  2: STICKY_SITUATION

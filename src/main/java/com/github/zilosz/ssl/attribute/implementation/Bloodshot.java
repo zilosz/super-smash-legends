@@ -9,6 +9,7 @@ import com.github.zilosz.ssl.utils.RunnableUtils;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
+import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.potion.PotionEffectType;
@@ -29,6 +30,11 @@ public class Bloodshot extends RightClickAbility {
 
         public BloodProjectile(Ability ability, Section config) {
             super(ability, config);
+        }
+
+        @Override
+        public void onLaunch() {
+            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.LAVA_POP, 2, 1);
         }
 
         @Override

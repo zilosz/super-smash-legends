@@ -15,15 +15,3 @@ HasGravity: false
 MaxBounces: 5
 HitBox: 1
 Size: 1
-BlockHitSound:
-  Type: SLIME_WALK
-  Volume: 2
-  Pitch: 1
-TargetHitSound:
-  Type: SLIME_ATTACK
-  Volume: 2
-  Pitch: 1
-LaunchSound:
-  Type: SLIME_WALK2
-  Volume: 2
-  Pitch: 2

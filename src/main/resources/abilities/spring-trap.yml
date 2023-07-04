@@ -25,15 +25,3 @@ Aoe:
   KbY: 0.7
 Block:
   Material: WOOD
-LaunchSound:
-  Type: ZOMBIE_WOOD
-  Volume: 2
-  Pitch: 2
-BlockHitSound:
-  Type: ZOMBIE_WOODBREAK
-  Volume: 2
-  Pitch: 1
-TargetHitSound:
-  Type: ZOMBIE_WOODBREAK
-  Volume: 2
-  Pitch: 1

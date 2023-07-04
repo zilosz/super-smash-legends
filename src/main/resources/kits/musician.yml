@@ -27,3 +27,7 @@ DeathSound:
   Type: NOTE_PLING
   Volume: 3
   Pitch: 0.5
+Abilities:
+  0: BOOMBOX
+  1: MIX_TAPE_DROP
+  2: DJS_PASSION

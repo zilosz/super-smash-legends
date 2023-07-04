@@ -12,7 +12,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -21,8 +20,7 @@ public class TeamSelector extends CustomInventory<Team> implements HasRandomOpti
 
     @Override
     public List<Team> getItems() {
-        List<Team> teams = SSL.getInstance().getTeamManager().getTeamList();
-        return teams.stream().sorted(Comparator.comparing(Team::getName)).collect(Collectors.toList());
+        return SSL.getInstance().getTeamManager().getTeamList();
     }
 
     @Override

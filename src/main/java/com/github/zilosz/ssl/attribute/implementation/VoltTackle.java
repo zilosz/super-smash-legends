@@ -2,11 +2,11 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
-import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.MathUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
@@ -52,7 +52,7 @@ public class VoltTackle extends RightClickAbility {
             }
 
             Location eyeLoc = this.player.getEyeLocation();
-            double speed = YamlReader.incLin(this.config, "Velocity", this.ticksMoving, duration);
+            double speed = YamlReader.getIncreasingValue(this.config, "Velocity", this.ticksMoving, duration);
             Vector velocity = eyeLoc.getDirection().multiply(speed);
 
             if (Math.abs(velocity.getY()) > this.config.getDouble("MaxVelocityY")) {
@@ -74,14 +74,14 @@ public class VoltTackle extends RightClickAbility {
                 );
             }
 
-            float pitch = (float) MathUtils.increasingLinear(0.5, 2, duration, this.ticksMoving);
+            float pitch = (float) MathUtils.getIncreasingValue(0.5, 2, duration, this.ticksMoving);
             this.player.getWorld().playSound(this.player.getLocation(), Sound.FIREWORK_LARGE_BLAST, 1, pitch);
 
             new EntityFinder(selector).findClosest(this.player).ifPresent(target -> {
-                double damage = YamlReader.incLin(this.config, "Damage", this.ticksMoving, duration);
-                double kb = YamlReader.incLin(this.config, "Kb", this.ticksMoving, duration);
+                double damage = YamlReader.getIncreasingValue(this.config, "Damage", this.ticksMoving, duration);
+                double kb = YamlReader.getIncreasingValue(this.config, "Kb", this.ticksMoving, duration);
 
-                AttackSettings settings = new AttackSettings(this.config, velocity)
+                Attack settings = new Attack(this.config, velocity)
                         .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
                         .modifyKb(kbSettings -> kbSettings.setKb(kb));
 
@@ -90,10 +90,16 @@ public class VoltTackle extends RightClickAbility {
                     this.player.getWorld().strikeLightningEffect(target.getLocation());
 
                     Section recoilConfig = this.config.getSection("Recoil");
-                    double recoilDamage = YamlReader.incLin(recoilConfig, "Damage", this.ticksMoving, duration);
-                    double recoilKb = YamlReader.incLin(recoilConfig, "Kb", this.ticksMoving, duration);
 
-                    AttackSettings recoil = new AttackSettings(recoilConfig, velocity.multiply(-1))
+                    double recoilDamage = YamlReader.getIncreasingValue(
+                            recoilConfig, "Damage", this.ticksMoving, duration
+                    );
+
+                    double recoilKb = YamlReader.getIncreasingValue(
+                            recoilConfig, "Kb", this.ticksMoving, duration
+                    );
+
+                    Attack recoil = new Attack(recoilConfig, velocity.multiply(-1))
                             .modifyDamage(damageSettings -> damageSettings.setDamage(recoilDamage))
                             .modifyKb(kbSettings -> kbSettings.setKb(recoilKb));
 

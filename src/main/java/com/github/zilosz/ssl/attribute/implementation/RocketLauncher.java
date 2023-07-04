@@ -2,11 +2,11 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.ChargedRightClickAbility;
-import com.github.zilosz.ssl.damage.DamageSettings;
-import com.github.zilosz.ssl.damage.KbSettings;
+import com.github.zilosz.ssl.damage.Damage;
+import com.github.zilosz.ssl.damage.KnockBack;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
-import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
+import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.effect.ColorType;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.file.YamlReader;
@@ -42,14 +42,16 @@ public class RocketLauncher extends ChargedRightClickAbility {
         Section main = this.config.getSection("Rocket");
         Rocket rocket = new Rocket(this, main);
 
-        DamageSettings damageSettings = rocket.getAttackSettings().getDamageSettings();
-        damageSettings.setDamage(YamlReader.incLin(main, "Damage", this.ticksCharging, this.maxChargeTicks));
+        Damage damage = rocket.getAttack().getDamage();
+        damage.setDamage(YamlReader.getIncreasingValue(main, "Damage", this.ticksCharging, this.maxChargeTicks));
 
-        KbSettings kbSettings = rocket.getAttackSettings().getKbSettings();
-        kbSettings.setKb(YamlReader.incLin(main, "Kb", this.ticksCharging, this.maxChargeTicks));
+        KnockBack kb = rocket.getAttack().getKb();
+        kb.setKb(YamlReader.getIncreasingValue(main, "Kb", this.ticksCharging, this.maxChargeTicks));
 
-        rocket.setSpeed(YamlReader.incLin(main, "Speed", this.ticksCharging, this.maxChargeTicks));
+        rocket.setSpeed(YamlReader.getIncreasingValue(main, "Speed", this.ticksCharging, this.maxChargeTicks));
         rocket.launch();
+
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.FIREWORK_LAUNCH, 2, 1);
     }
 
     private static class Rocket extends ItemProjectile {
@@ -115,10 +117,10 @@ public class RocketLauncher extends ChargedRightClickAbility {
 
                 double multiplier = this.config.getDouble("Shrapnel.Multiplier");
 
-                DamageSettings damageSettings = shrapnel.getAttackSettings().getDamageSettings();
+                Damage damageSettings = shrapnel.getAttack().getDamage();
                 damageSettings.setDamage(damageSettings.getDamage() * multiplier);
 
-                KbSettings kbSettings = shrapnel.getAttackSettings().getKbSettings();
+                KnockBack kbSettings = shrapnel.getAttack().getKb();
                 kbSettings.setKb(kbSettings.getKb() * multiplier);
 
                 shrapnel.setOverrideLocation(launchLocation);

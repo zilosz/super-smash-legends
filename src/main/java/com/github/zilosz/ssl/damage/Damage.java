@@ -8,25 +8,25 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 @Getter
-public class DamageSettings {
+public class Damage {
     private double damage;
     private boolean factorsArmor;
 
-    public DamageSettings(Section config) {
+    public Damage(Section config) {
         this(config.getDouble("Damage"), config.getOptionalBoolean("FactorsArmor").orElse(true));
     }
 
-    public DamageSettings(double damage, boolean factorsArmor) {
+    public Damage(double damage, boolean factorsArmor) {
         this.damage = damage;
         this.factorsArmor = factorsArmor;
     }
 
-    public DamageSettings setDamage(double damage) {
+    public Damage setDamage(double damage) {
         this.damage = damage;
         return this;
     }
 
-    public DamageSettings setFactorsArmor(boolean factorsArmor) {
+    public Damage setFactorsArmor(boolean factorsArmor) {
         this.factorsArmor = factorsArmor;
         return this;
     }
@@ -40,9 +40,5 @@ public class DamageSettings {
         }
 
         return damageValue;
-    }
-
-    public DamageSettings copy() {
-        return new DamageSettings(this.damage, this.factorsArmor);
     }
 }

@@ -50,7 +50,7 @@ public class BatForm extends PassiveAbility {
 
         if (this.isBat) {
             double multiplier = this.config.getDouble("DamageTakenMultiplier");
-            event.getDamageSettings().setDamage(event.getDamageSettings().getDamage() * multiplier);
+            event.getDamage().setDamage(event.getDamage().getDamage() * multiplier);
             return;
         }
 

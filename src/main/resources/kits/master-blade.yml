@@ -25,3 +25,7 @@ DeathSound:
   Type: ENDERMAN_DEATH
   Volume: 3
   Pitch: 0.5
+Abilities:
+  0: VICE_GRIP
+  1: TERRA_SHOT
+  2: SABER_SPIN

@@ -1,25 +1,29 @@
 package com.github.zilosz.ssl.arena;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.utils.CollectionUtils;
+import com.github.zilosz.ssl.utils.collection.CollectionUtils;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ArenaManager {
-    private final List<Arena> arenas = new ArrayList<>();
+    private List<Arena> arenas;
     @Getter private Arena arena;
 
     public void setupArenas() {
-        this.arenas.clear();
+        Section config = SSL.getInstance().getResources().getArenas();
 
-        Section arenaConfig = SSL.getInstance().getResources().getArenas();
-        arenaConfig.getKeys().forEach(key -> this.arenas.add(new Arena(arenaConfig.getSection((String) key))));
+        this.arenas = YamlReader.getSections(config).stream()
+                .map(Arena::new)
+                .sorted(Comparator.comparing(Arena::getName))
+                .collect(Collectors.toList());
     }
 
     public List<Arena> getArenas() {
@@ -32,7 +36,7 @@ public class ArenaManager {
 
     public void setupArena() {
         List<Arena> bestArenas = CollectionUtils.findByHighestInt(this.arenas, Arena::getTotalVotes);
-        this.arena = bestArenas.size() == 1 ? bestArenas.get(0) : CollectionUtils.selectRandom(bestArenas);
+        this.arena = CollectionUtils.selectRandom(bestArenas);
         this.arena.create();
     }
 

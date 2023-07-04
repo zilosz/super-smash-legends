@@ -2,13 +2,13 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.utils.effect.Effects;
 import com.github.zilosz.ssl.utils.entity.DisguiseUtils;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
-import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import me.libraryaddict.disguise.DisguiseAPI;
 import me.libraryaddict.disguise.disguisetypes.DisguiseType;
 import me.libraryaddict.disguise.disguisetypes.MobDisguise;
@@ -56,11 +56,18 @@ public class IncarnationSlam extends RightClickAbility {
             EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
             new EntityFinder(selector).findAll(this.player).forEach(target -> {
-                AttackSettings settings = new AttackSettings(this.config, this.player.getLocation().getDirection());
+                Attack settings = new Attack(this.config, this.player.getLocation().getDirection());
                 SSL.getInstance().getDamageManager().attack(target, this, settings);
 
                 target.getWorld().playSound(target.getLocation(), Sound.SLIME_ATTACK, 2, 2);
-                Effects.itemBoom(SSL.getInstance(), target.getLocation(), new ItemStack(Material.SLIME_BALL), 4, 0.3, 5);
+                Effects.itemBoom(
+                        SSL.getInstance(),
+                        target.getLocation(),
+                        new ItemStack(Material.SLIME_BALL),
+                        4,
+                        0.3,
+                        5
+                );
             });
         }, 4, 0);
     }

@@ -4,14 +4,14 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.ClickableAbility;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
 import com.github.zilosz.ssl.team.TeamPreference;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
-import com.github.zilosz.ssl.utils.entity.finder.selector.DistanceSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -31,13 +31,13 @@ public class BombOmb extends RightClickAbility {
     @Override
     public void onClick(PlayerInteractEvent event) {
 
-        if (this.bombProjectile == null || this.bombProjectile.state == BombState.INACTIVE) {
+        if (this.bombProjectile == null || this.bombProjectile.state == State.INACTIVE) {
             this.sendUseMessage();
 
             this.bombProjectile = new BombProjectile(this, this.config.getSection("Projectile"));
             this.bombProjectile.launch();
 
-        } else if (this.bombProjectile.state == BombState.THROWN) {
+        } else if (this.bombProjectile.state == State.THROWN) {
             this.bombProjectile.solidify();
 
         } else if (this.bombProjectile.canExplode) {
@@ -54,14 +54,14 @@ public class BombOmb extends RightClickAbility {
         }
     }
 
-    public enum BombState {
+    public enum State {
         INACTIVE,
         THROWN,
         WAITING
     }
 
     private static class BombProjectile extends ItemProjectile {
-        private BombState state = BombState.INACTIVE;
+        private State state = State.INACTIVE;
         private Block bombBlock;
         private BukkitTask soundTask;
         private BukkitTask explodeTask;
@@ -74,7 +74,7 @@ public class BombOmb extends RightClickAbility {
 
         @Override
         public void onLaunch() {
-            this.state = BombState.THROWN;
+            this.state = State.THROWN;
             this.entity.getWorld().playSound(this.entity.getLocation(), Sound.ITEM_PICKUP, 2, 0.5f);
         }
 
@@ -99,7 +99,7 @@ public class BombOmb extends RightClickAbility {
         private void solidify() {
             this.remove(ProjectileRemoveReason.CUSTOM);
 
-            this.state = BombState.WAITING;
+            this.state = State.WAITING;
 
             this.bombBlock = this.entity.getLocation().getBlock();
             this.bombBlock.setType(Material.COAL_BLOCK);
@@ -109,7 +109,7 @@ public class BombOmb extends RightClickAbility {
             }, 0, 0);
 
             this.explodeTask = Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
-                if (this.state == BombState.WAITING) {
+                if (this.state == State.WAITING) {
                     this.explode();
                 }
             }, this.config.getInt("Explode.Delay"));
@@ -119,7 +119,7 @@ public class BombOmb extends RightClickAbility {
         }
 
         private void explode() {
-            this.state = BombState.INACTIVE;
+            this.state = State.INACTIVE;
             this.bombBlock.setType(Material.AIR);
 
             this.soundTask.cancel();
@@ -145,16 +145,16 @@ public class BombOmb extends RightClickAbility {
 
             double max = explode.getDouble("Range") * explode.getDouble("Range");
             double distanceSq = this.bombBlock.getLocation().distanceSquared(target.getLocation());
-            double damage = YamlReader.decLin(explode, "Damage", distanceSq, max);
-            double kb = YamlReader.decLin(explode, "Kb", distanceSq, max);
+            double damage = YamlReader.getDecreasingValue(explode, "Damage", distanceSq, max);
+            double kb = YamlReader.getDecreasingValue(explode, "Kb", distanceSq, max);
 
             Vector direction = VectorUtils.fromTo(this.bombBlock.getLocation(), target.getLocation());
 
-            AttackSettings settings = new AttackSettings(explode, direction)
+            Attack attack = new Attack(explode, direction)
                     .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
                     .modifyKb(kbSettings -> kbSettings.setKb(kb));
 
-            SSL.getInstance().getDamageManager().attack(target, this.ability, settings);
+            SSL.getInstance().getDamageManager().attack(target, this.ability, attack);
         }
 
         private void destroy() {

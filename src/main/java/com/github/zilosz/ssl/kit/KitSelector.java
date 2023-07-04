@@ -17,13 +17,12 @@ import org.bukkit.inventory.meta.SkullMeta;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class KitSelector extends CustomInventory<Kit> implements HasRandomOption {
 
     @Override
     public List<Kit> getItems() {
-        return Arrays.stream(KitType.values()).map(KitManager::createKit).collect(Collectors.toList());
+        return SSL.getInstance().getKitManager().getKits();
     }
 
     @Override

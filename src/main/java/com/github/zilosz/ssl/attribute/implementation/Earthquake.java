@@ -2,13 +2,13 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
-import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import com.github.zilosz.ssl.utils.math.MathUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import net.minecraft.server.v1_8_R3.EnumParticle;
@@ -68,7 +68,7 @@ public class Earthquake extends RightClickAbility {
             new EntityFinder(selector).findAll(this.player).forEach(target -> {
                 if (!target.isOnGround()) return;
 
-                AttackSettings settings = new AttackSettings(this.config, VectorUtils.fromTo(this.player, target));
+                Attack settings = new Attack(this.config, VectorUtils.fromTo(this.player, target));
 
                 if (SSL.getInstance().getDamageManager().attack(target, this, settings)) {
                     this.player.getWorld().playSound(target.getLocation(), Sound.ANVIL_LAND, 1, 1);
@@ -89,7 +89,8 @@ public class Earthquake extends RightClickAbility {
 
         int id = Material.AIR.getId();
         int duration = this.config.getInt("UprootDuration");
-        Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> BlockUtils.setBlockFast(loc, id, (byte) 2), duration);
+        Bukkit.getScheduler()
+                .runTaskLater(SSL.getInstance(), () -> BlockUtils.setBlockFast(loc, id, (byte) 2), duration);
     }
 
     private void reset() {

@@ -1,4 +1,4 @@
-package com.github.zilosz.ssl.game.state;
+package com.github.zilosz.ssl.game.state.implementation;
 
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import com.github.zilosz.ssl.SSL;
@@ -7,14 +7,16 @@ import com.github.zilosz.ssl.arena.ArenaVoter;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.game.GameManager;
-import com.github.zilosz.ssl.game.PlayerProfile;
+import com.github.zilosz.ssl.game.InGameProfile;
+import com.github.zilosz.ssl.game.state.GameState;
+import com.github.zilosz.ssl.game.state.TeleportsOnVoid;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.kit.KitManager;
 import com.github.zilosz.ssl.kit.KitSelector;
 import com.github.zilosz.ssl.team.TeamSelector;
-import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.HotbarItem;
 import com.github.zilosz.ssl.utils.Skin;
+import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
@@ -56,18 +58,18 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
     private boolean isCounting = false;
 
     @Override
-    public boolean allowKitSelection() {
+    public boolean allowsSpecCommand() {
+        return true;
+    }
+
+    @Override
+    public boolean allowsKitSelection() {
         return true;
     }
 
     @Override
     public boolean updatesKitSkins() {
         return false;
-    }
-
-    @Override
-    public boolean allowSpecCommand() {
-        return true;
     }
 
     @Override
@@ -137,7 +139,7 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
                 player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
             });
 
-            PlayerProfile profile = gameManager.getProfile(player);
+            InGameProfile profile = gameManager.getProfile(player);
             DecimalFormat format = new DecimalFormat("#.#");
 
             Replacers replacers = new Replacers().add("KIT", profile.getKit().getBoldedDisplayName())
@@ -148,7 +150,7 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
                     .add("DAMAGE_DEALT", format.format(profile.getDamageDealt()));
 
             String lastGameLoc = SSL.getInstance().getResources().getLobby().getString("LastGame");
-            Location lastGameLocation = YamlReader.location("lobby", lastGameLoc);
+            Location lastGameLocation = YamlReader.getLocation("lobby", lastGameLoc);
             Hologram lastGameHolo = HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(lastGameLocation);
             this.holograms.add(lastGameHolo);
 
@@ -207,7 +209,10 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
     }
 
     private void createLeaderboard(String titleName, String statName, String configName) {
-        Location location = YamlReader.location("lobby", SSL.getInstance().getResources().getLobby().getString(configName));
+        Location location = YamlReader.getLocation("lobby", SSL.getInstance()
+                .getResources()
+                .getLobby()
+                .getString(configName));
         Hologram hologram = HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(location);
         this.holograms.add(hologram);
         HologramLines lines = hologram.getLines();
@@ -313,7 +318,7 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
     }
 
     private Location getSpawn() {
-        return YamlReader.location("lobby", SSL.getInstance().getResources().getLobby().getString("Spawn"));
+        return YamlReader.getLocation("lobby", SSL.getInstance().getResources().getLobby().getString("Spawn"));
     }
 
     @Override
@@ -351,11 +356,6 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
         }
 
         SSL.getInstance().getTeamManager().removeEmptyTeams();
-    }
-
-    @Override
-    public String getConfigName() {
-        return "Lobby";
     }
 
     @Override

@@ -13,7 +13,7 @@ import org.bukkit.util.Vector;
 import java.util.Optional;
 
 @Getter
-public class KbSettings {
+public class KnockBack {
     private Vector direction;
     private double kb;
     private double kbY;
@@ -22,7 +22,7 @@ public class KbSettings {
     private boolean isLinear;
     private boolean factorsPreviousVelocity;
 
-    public KbSettings(Vector direction, double kb, double kbY, boolean factorsKit, boolean factorsHealth, boolean isLinear, boolean factorsPreviousVelocity) {
+    public KnockBack(Vector direction, double kb, double kbY, boolean factorsKit, boolean factorsHealth, boolean isLinear, boolean factorsPreviousVelocity) {
         this.direction = direction;
         this.kb = kb;
         this.kbY = kbY;
@@ -32,7 +32,7 @@ public class KbSettings {
         this.factorsPreviousVelocity = factorsPreviousVelocity;
     }
 
-    public KbSettings(Vector direction, Section config) {
+    public KnockBack(Vector direction, Section config) {
         this.direction = direction;
         this.kb = config.getDouble("Kb");
         this.kbY = config.getDouble("KbY");
@@ -42,37 +42,37 @@ public class KbSettings {
         this.factorsPreviousVelocity = config.getOptionalBoolean("FactorsPreviousVelocity").orElse(false);
     }
 
-    public KbSettings setDirection(Vector direction) {
+    public KnockBack setDirection(Vector direction) {
         this.direction = direction;
         return this;
     }
 
-    public KbSettings setKb(double kb) {
+    public KnockBack setKb(double kb) {
         this.kb = kb;
         return this;
     }
 
-    public KbSettings setKbY(double kbY) {
+    public KnockBack setKbY(double kbY) {
         this.kbY = kbY;
         return this;
     }
 
-    public KbSettings setFactorsKit(boolean factorsKit) {
+    public KnockBack setFactorsKit(boolean factorsKit) {
         this.factorsKit = factorsKit;
         return this;
     }
 
-    public KbSettings setFactorsHealth(boolean factorsHealth) {
+    public KnockBack setFactorsHealth(boolean factorsHealth) {
         this.factorsHealth = factorsHealth;
         return this;
     }
 
-    public KbSettings setLinear(boolean isLinear) {
+    public KnockBack setLinear(boolean isLinear) {
         this.isLinear = isLinear;
         return this;
     }
 
-    public KbSettings setFactorsPreviousVelocity(boolean factorsPreviousVelocity) {
+    public KnockBack setFactorsPreviousVelocity(boolean factorsPreviousVelocity) {
         this.factorsPreviousVelocity = factorsPreviousVelocity;
         return this;
     }
@@ -101,7 +101,11 @@ public class KbSettings {
         if (this.factorsHealth) {
             Resources resources = SSL.getInstance().getResources();
             Section config = resources.getConfig().getSection("Damage");
-            kbVal *= YamlReader.decLin(config, "KbHealthMultiplier", victim.getHealth(), victim.getMaxHealth());
+
+            double health = victim.getHealth();
+            double maxHealth = victim.getMaxHealth();
+
+            kbVal *= YamlReader.getDecreasingValue(config, "KbHealthMultiplier", health, maxHealth);
         }
 
         if (this.factorsKit && victim instanceof Player) {
@@ -110,9 +114,5 @@ public class KbSettings {
         }
 
         return kbVal;
-    }
-
-    public KbSettings copy() {
-        return new KbSettings(this.direction, this.kb, this.kbY, this.factorsKit, this.factorsHealth, this.isLinear, this.factorsPreviousVelocity);
     }
 }

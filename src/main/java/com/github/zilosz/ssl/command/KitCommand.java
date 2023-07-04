@@ -4,7 +4,7 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.kit.KitManager;
 import com.github.zilosz.ssl.kit.KitSelector;
 import com.github.zilosz.ssl.kit.KitType;
-import com.github.zilosz.ssl.utils.CollectionUtils;
+import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.message.Chat;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.Command;
@@ -20,7 +20,7 @@ public class KitCommand implements CommandExecutor {
 
         Player player = (Player) commandSender;
 
-        if (SSL.getInstance().getGameManager().getState().allowKitSelection()) {
+        if (SSL.getInstance().getGameManager().getState().allowsKitSelection()) {
 
             if (strings.length > 1) {
                 return false;

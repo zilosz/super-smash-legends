@@ -2,12 +2,12 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.ChargedRightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
-import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Sound;
 import org.bukkit.util.Vector;
@@ -25,7 +25,7 @@ public class FrostedTwirl extends ChargedRightClickAbility {
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
         new EntityFinder(selector).findAll(this.player).forEach(target -> {
-            AttackSettings settings = new AttackSettings(this.config, this.player.getLocation().getDirection());
+            Attack settings = new Attack(this.config, this.player.getLocation().getDirection());
 
             if (SSL.getInstance().getDamageManager().attack(target, this, settings)) {
                 this.player.getWorld().playSound(this.player.getLocation(), Sound.GLASS, 2, 1);

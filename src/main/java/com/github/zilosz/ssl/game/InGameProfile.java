@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PlayerProfile {
+public class InGameProfile {
     private int lives;
     private int deaths;
     private int kills;
@@ -15,7 +15,7 @@ public class PlayerProfile {
     private Kit kit;
     private GameResult gameResult;
 
-    public PlayerProfile(int lives, Kit kit) {
+    public InGameProfile(int lives, Kit kit) {
         this.lives = lives;
         this.kit = kit;
     }

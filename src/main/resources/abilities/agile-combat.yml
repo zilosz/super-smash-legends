@@ -14,7 +14,7 @@ Duration: 120
 DropVelocity: 1.1
 SpringVelocity: 2
 SpringVelocityY: 1
-WalkSpeed: 0.5
+WalkSpeed: 0.4
 Leap:
   Damage: 6
   Kb: 1.5

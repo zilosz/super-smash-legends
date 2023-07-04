@@ -1,5 +1,6 @@
-package com.github.zilosz.ssl.utils.entity.finder.selector;
+package com.github.zilosz.ssl.utils.entity.finder.selector.implementation;
 
+import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 

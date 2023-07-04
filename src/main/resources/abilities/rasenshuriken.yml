@@ -18,7 +18,6 @@ Projectile:
   KbY: 0.8
   Radius: 4
   ParticleRadius: 0.3
-  Lifespan: 160
   Invisible: true
   HasGravity: false
   HitBox: 1.25

@@ -26,3 +26,8 @@ DeathSound:
   Type: GLASS
   Volume: 3
   Pitch: 0.5
+Abilities:
+  0: FRIGID_SPEAR
+  1: ARCTIC_BREATH
+  2: FROSTED_TWIRL
+  3: ICE_SKATES

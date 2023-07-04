@@ -19,6 +19,7 @@ public class CoalCluster extends RightClickAbility {
     @Override
     public void onClick(PlayerInteractEvent event) {
         new ClusterProjectile(this, this.config.getSection("Cluster")).launch();
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.ANVIL_LAND, 1, 2);
     }
 
     private static class ClusterProjectile extends BlockProjectile {

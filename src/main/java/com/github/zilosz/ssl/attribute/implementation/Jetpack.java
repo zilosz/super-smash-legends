@@ -52,7 +52,9 @@ public class Jetpack extends PassiveAbility {
 
     @EventHandler
     public void onEnergy(EnergyEvent event) {
-        if (event.getPlayer() == this.player && (this.player.isSneaking() || !EntityUtils.isPlayerGrounded(this.player))) {
+        if (event.getPlayer() != this.player) return;
+
+        if (this.player.isSneaking() || !EntityUtils.isPlayerGrounded(this.player)) {
             event.setEnergy(0);
         }
     }

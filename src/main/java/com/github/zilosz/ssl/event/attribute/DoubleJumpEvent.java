@@ -7,12 +7,13 @@ import lombok.Setter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 
+@Getter
 public class DoubleJumpEvent extends CustomEvent implements Cancellable {
-    @Getter private final Player player;
-    @Getter @Setter private double power;
-    @Getter @Setter private double height;
-    @Getter @Setter private Noise noise;
-    @Getter @Setter private boolean cancelled = false;
+    private final Player player;
+    @Setter private double power;
+    @Setter private double height;
+    @Setter private Noise noise;
+    @Setter private boolean cancelled = false;
 
     public DoubleJumpEvent(Player player, double power, double height, Noise noise) {
         this.player = player;

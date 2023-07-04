@@ -6,11 +6,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-public class StartCommand implements CommandExecutor {
+public class PlayCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        SSL.getInstance().getGameManager().skipToState(GameStateType.TUTORIAL);
+        SSL.getInstance().getGameManager().skipToState(GameStateType.IN_GAME);
         return true;
     }
 }

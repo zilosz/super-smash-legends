@@ -26,7 +26,7 @@ public class Barrage extends Bow {
 
             this.player.setExp((float) this.stage / this.getStages());
 
-            float pitch = (float) MathUtils.increasingLinear(0.5, 2, this.config.getInt("Stages"), this.stage - 1);
+            float pitch = (float) MathUtils.getIncreasingValue(0.5, 2, this.getStages(), this.stage - 1);
             this.player.playSound(this.player.getLocation(), Sound.ITEM_PICKUP, 2, pitch);
 
             if (this.stage == this.getStages()) {
@@ -45,7 +45,7 @@ public class Barrage extends Bow {
     public void onShot(double force) {
         this.launch(force, true);
         int arrowCount = this.config.getInt("MaxArrowCount");
-        int amount = (int) MathUtils.increasingLinear(1, arrowCount, this.getStages(), this.stage - 1);
+        int amount = (int) MathUtils.getIncreasingValue(1, arrowCount, this.getStages(), this.stage - 1);
         int interval = this.config.getInt("TicksBetweenShot");
         RunnableUtils.runTaskWithIntervals(SSL.getInstance(), amount - 1, interval, () -> this.launch(force, false));
     }

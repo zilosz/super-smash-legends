@@ -2,8 +2,9 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attribute.AbilityType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.attribute.AbilityUseEvent;
 import com.github.zilosz.ssl.event.projectile.ProjectileHitBlockEvent;
 import com.github.zilosz.ssl.kit.Kit;
@@ -15,7 +16,7 @@ import com.github.zilosz.ssl.utils.block.BlockRay;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
-import com.github.zilosz.ssl.utils.entity.finder.selector.DistanceSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.MathUtils;
@@ -91,7 +92,7 @@ public class Boombox extends RightClickAbility {
         this.updateHealth(0);
 
         double healthLossPerTick = this.health / this.config.getInt("MaxDuration");
-        
+
         this.healthTask = Bukkit.getScheduler()
                 .runTaskTimer(SSL.getInstance(), () -> this.updateHealth(healthLossPerTick), 1, 1);
     }
@@ -174,11 +175,11 @@ public class Boombox extends RightClickAbility {
 
         CustomProjectile<? extends Entity> projectile = event.getProjectile();
 
-        if (projectile instanceof MixTapeDrop.MixTapeProjectile) {
+        if (projectile.getAbility().getType() == AbilityType.MIX_TAPE_DROP) {
             this.explode();
 
         } else {
-            this.updateHealth(projectile.getAttackSettings().getDamageSettings().getDamage());
+            this.updateHealth(projectile.getAttack().getDamage().getDamage());
             this.player.getWorld().playSound(this.block.getLocation(), Sound.ZOMBIE_WOODBREAK, 1, 1.5f);
         }
     }
@@ -203,14 +204,14 @@ public class Boombox extends RightClickAbility {
             Vector direction = VectorUtils.fromTo(center, target.getLocation());
 
             double distance = target.getLocation().distance(center);
-            double damage = YamlReader.decLin(mixTapeConfig, "Damage", distance, radius);
-            double kb = YamlReader.decLin(mixTapeConfig, "Kb", distance, radius);
+            double damage = YamlReader.getDecreasingValue(mixTapeConfig, "Damage", distance, radius);
+            double kb = YamlReader.getDecreasingValue(mixTapeConfig, "Kb", distance, radius);
 
-            AttackSettings settings = new AttackSettings(mixTapeConfig, direction)
+            Attack attack = new Attack(mixTapeConfig, direction)
                     .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
                     .modifyKb(kbSettings -> kbSettings.setKb(kb));
 
-            SSL.getInstance().getDamageManager().attack(target, this, settings);
+            SSL.getInstance().getDamageManager().attack(target, this, attack);
         });
 
         this.reset(true);
@@ -243,7 +244,7 @@ public class Boombox extends RightClickAbility {
 
         int maxPunches = this.config.getInt("MaxPunches");
 
-        float pitch = (float) MathUtils.increasingLinear(0.5, 2, maxPunches - 1, this.charge);
+        float pitch = (float) MathUtils.getIncreasingValue(0.5, 2, maxPunches - 1, this.charge);
         this.player.getWorld().playSound(this.block.getLocation(), Sound.NOTE_PLING, 2, pitch);
 
         for (int i = 0; i < 5; i++) {

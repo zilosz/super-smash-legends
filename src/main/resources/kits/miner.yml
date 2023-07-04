@@ -25,3 +25,7 @@ DeathSound:
   Type: VILLAGER_DEATH
   Volume: 3
   Pitch: 1.5
+Abilities:
+  0: COAL_CLUSTER
+  1: DRILL_TORNADO
+  2: GOLD_RUSH

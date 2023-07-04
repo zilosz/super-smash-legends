@@ -80,7 +80,7 @@ public class Berserk extends RightClickAbility {
     public void onDamage(AttributeDamageEvent event) {
         if (this.active && event.getAttribute().getPlayer() == this.player) {
             double multiplier = this.config.getDouble("DamageMultiplier");
-            event.getDamageSettings().setDamage(event.getDamageSettings().getDamage() * multiplier);
+            event.getDamage().setDamage(event.getDamage().getDamage() * multiplier);
         }
     }
 }

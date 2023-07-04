@@ -30,7 +30,6 @@ import com.github.zilosz.ssl.attribute.implementation.GroundPound;
 import com.github.zilosz.ssl.attribute.implementation.HatThrow;
 import com.github.zilosz.ssl.attribute.implementation.HazmatSkin;
 import com.github.zilosz.ssl.attribute.implementation.HungryFish;
-import com.github.zilosz.ssl.attribute.implementation.IceSkates;
 import com.github.zilosz.ssl.attribute.implementation.IncarnationSlam;
 import com.github.zilosz.ssl.attribute.implementation.Jetpack;
 import com.github.zilosz.ssl.attribute.implementation.MixTapeDrop;
@@ -42,7 +41,6 @@ import com.github.zilosz.ssl.attribute.implementation.RopedArrow;
 import com.github.zilosz.ssl.attribute.implementation.SaberSpin;
 import com.github.zilosz.ssl.attribute.implementation.ShadowAmbush;
 import com.github.zilosz.ssl.attribute.implementation.ShadowCloneJutsu;
-import com.github.zilosz.ssl.attribute.implementation.Slowness;
 import com.github.zilosz.ssl.attribute.implementation.SpringTrap;
 import com.github.zilosz.ssl.attribute.implementation.SquidDash;
 import com.github.zilosz.ssl.attribute.implementation.StickySituation;
@@ -91,11 +89,11 @@ public enum AbilityType implements Supplier<Ability> {
     HAT_THROW("hat-throw", HatThrow::new),
     HAZMAT_SKIN("hazmat-skin", HazmatSkin::new),
     HUNGRY_FISH("hungry-fish", HungryFish::new),
-    ICE_SKATES("ice-skates", IceSkates::new),
+    ICE_SKATES("ice-skates", PermanentPotion::new),
     INCARNATION_SLAM("incarnation-slam", IncarnationSlam::new),
     JETPACK("jetpack", Jetpack::new),
     MIX_TAPE_DROP("mix-tape-drop", MixTapeDrop::new),
-    OLYMPIC_DIVE("olympic-dive.yml", OlympicDive::new),
+    OLYMPIC_DIVE("olympic-dive", OlympicDive::new),
     RASENGAN("rasengan", Rasengan::new),
     RASENSHURIKEN("rasenshuriken", Rasenshuriken::new),
     ROCKET_LAUNCHER("rocket-launcher", RocketLauncher::new),
@@ -103,7 +101,7 @@ public enum AbilityType implements Supplier<Ability> {
     SABER_SPIN("saber-spin", SaberSpin::new),
     SHADOW_AMBUSH("shadow-ambush", ShadowAmbush::new),
     SHADOW_CLONE_JUTSU("shadow-clone-jutsu", ShadowCloneJutsu::new),
-    SLOWNESS("slowness", Slowness::new),
+    SLOWNESS("slowness", PermanentPotion::new),
     SPRING_TRAP("spring-trap", SpringTrap::new),
     SQUID_DASH("squid-dash", SquidDash::new),
     STICKY_SITUATION("sticky-situation", StickySituation::new),

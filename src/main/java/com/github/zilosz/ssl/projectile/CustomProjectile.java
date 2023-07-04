@@ -2,16 +2,17 @@ package com.github.zilosz.ssl.projectile;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
-import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.projectile.ProjectileHitBlockEvent;
 import com.github.zilosz.ssl.event.projectile.ProjectileLaunchEvent;
 import com.github.zilosz.ssl.event.projectile.ProjectileRemoveEvent;
-import com.github.zilosz.ssl.game.state.InGameState;
+import com.github.zilosz.ssl.game.state.GameStateType;
 import com.github.zilosz.ssl.utils.NmsUtils;
 import com.github.zilosz.ssl.utils.Reflector;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
+import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
-import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
@@ -35,7 +36,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     @Getter protected Player launcher;
     @Getter protected T entity;
     @Getter protected boolean invisible;
-    @Getter protected AttackSettings attackSettings;
+    @Getter protected Attack attack;
     @Getter protected int ticksAlive = 0;
     @Getter protected double launchSpeed;
 
@@ -54,7 +55,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
 
     protected Vector launchVelocity;
     protected int timesBounced = 0;
-    protected double defaultHitBox = 0.8;
+    protected double defaultHitBox;
     protected boolean recreateOnBounce = false;
     protected boolean useCustomHitBox = true;
     protected EntityFinder entityFinder;
@@ -63,14 +64,25 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         this.ability = ability;
         this.config = config;
 
-        this.launcher = ability.getPlayer();
-        this.attackSettings = new AttackSettings(config, null);
+        this.launcher = this.ability.getPlayer();
+        this.attack = new Attack(this.config, null);
+
+        Section defaults = SSL.getInstance().getResources().getConfig().getSection("Projectile");
+
+        if (this.config.isNumber("HitBox")) {
+            this.hitBox = this.config.getDouble("HitBox");
+
+        } else {
+            this.hitBox = defaults.getDouble("HitBox");
+        }
+
+        if (this.config.getOptionalBoolean("HasLifespan").orElse(true)) {
+            this.lifespan = config.getOptionalInt("Lifespan").orElse(defaults.getInt("Lifespan"));
+        }
 
         this.spread = config.getFloat("Spread");
-        this.lifespan = config.getOptionalInt("Lifespan").orElse(Integer.MAX_VALUE);
         this.hasGravity = config.getOptionalBoolean("HasGravity").orElse(true);
         this.maxBounces = config.getInt("MaxBounces");
-        this.hitBox = config.getOptionalDouble("HitBox").orElse(this.defaultHitBox);
         this.hitsMultiple = config.getBoolean("HitsMultiple");
         this.removeOnEntityHit = config.getOptionalBoolean("RemoveOnEntityHit").orElse(true);
         this.removeOnBlockHit = config.getOptionalBoolean("RemoveOnBlockHit").orElse(true);
@@ -86,7 +98,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
 
     @SuppressWarnings("unchecked")
     public CustomProjectile<T> copy(Ability ability) {
-        return (CustomProjectile<T>) Reflector.newInstance(this.getClass(), SSL.getInstance(), ability, this.config);
+        return (CustomProjectile<T>) Reflector.newInstance(this.getClass(), ability, this.config);
     }
 
     public void launch() {
@@ -133,37 +145,37 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
 
         this.onBlockHit(result);
 
-        if (result.getFace() != null) {
+        if (result.getFace() == null) return;
 
-            if (++this.timesBounced > this.maxBounces) {
-                this.remove(ProjectileRemoveReason.HIT_BLOCK);
-            }
-
-            Vector velocity = this.hasGravity ? this.launchVelocity : this.entity.getVelocity();
-
-            switch (result.getFace()) {
-
-                case UP:
-                case DOWN:
-                    velocity.setY(-velocity.getY());
-                    break;
-
-                case NORTH:
-                case SOUTH:
-                    velocity.setZ(-velocity.getZ());
-                    break;
-
-                default:
-                    velocity.setX(-velocity.getX());
-            }
-
-            if (this.recreateOnBounce) {
-                this.entity = this.createEntity(this.entity.getLocation());
-                this.applyEntityParams();
-            }
-
-            this.setVelocity(velocity);
+        if (++this.timesBounced > this.maxBounces) {
+            this.remove(ProjectileRemoveReason.HIT_BLOCK);
+            return;
         }
+
+        Vector velocity = this.hasGravity ? this.launchVelocity : this.entity.getVelocity();
+
+        switch (result.getFace()) {
+
+            case UP:
+            case DOWN:
+                velocity.setY(-velocity.getY());
+                break;
+
+            case NORTH:
+            case SOUTH:
+                velocity.setZ(-velocity.getZ());
+                break;
+
+            default:
+                velocity.setX(-velocity.getX());
+        }
+
+        if (this.recreateOnBounce) {
+            this.entity = this.createEntity(this.entity.getLocation());
+            this.applyEntityParams();
+        }
+
+        this.setVelocity(velocity);
     }
 
     protected void onBlockHit(BlockHitResult result) {}
@@ -198,7 +210,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         if (!this.entity.isValid()) {
             reason = ProjectileRemoveReason.ENTITY_DEATH;
 
-        } else if (!(SSL.getInstance().getGameManager().getState() instanceof InGameState)) {
+        } else if (SSL.getInstance().getGameManager().getState().getType() != GameStateType.IN_GAME) {
             reason = ProjectileRemoveReason.DEACTIVATION;
 
         } else if (this.ticksAlive >= this.lifespan) {
@@ -210,7 +222,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
             return;
         }
 
-        if (!this.useCustomHitBox || this.config.isNumber("HitBox")) {
+        if (this.useCustomHitBox) {
             this.searchForHit();
         }
 
@@ -222,7 +234,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     }
 
     private void searchForHit() {
-        Location loc = this.entity.getLocation();
+        Location loc = EntityUtils.center(this.entity);
 
         if (this.hitsMultiple) {
             this.entityFinder.findAll(this.launcher, loc).forEach(this::hitTarget);
@@ -235,9 +247,9 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     protected void onTick() {}
 
     protected void hitTarget(LivingEntity target) {
-        this.attackSettings.modifyKb(kb -> kb.setDirection(this.entity.getVelocity()));
+        this.attack.modifyKb(kb -> kb.setDirection(this.entity.getVelocity()));
 
-        if (SSL.getInstance().getDamageManager().attack(target, this.ability, this.attackSettings)) {
+        if (SSL.getInstance().getDamageManager().attack(target, this.ability, this.attack)) {
             this.onTargetHit(target);
             this.launcher.playSound(this.launcher.getLocation(), Sound.SUCCESSFUL_HIT, 2, 1);
 
