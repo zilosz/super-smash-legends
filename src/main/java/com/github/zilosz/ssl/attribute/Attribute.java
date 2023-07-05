@@ -40,6 +40,8 @@ public class Attribute implements Listener {
         }
     }
 
+    public void unequip() {}
+
     public void deactivate() {
         this.activated = false;
         HandlerList.unregisterAll(this);
@@ -48,6 +50,4 @@ public class Attribute implements Listener {
             this.task.cancel();
         }
     }
-
-    public void unequip() {}
 }

@@ -7,6 +7,6 @@ Description:
 Cooldown: 180
 AutoStartCooldown: false
 Duration: 160
-DamageMultiplier: 1.25
+DamageMultiplier: 1.2
 Speed: 2
 ExtraJumps: 1

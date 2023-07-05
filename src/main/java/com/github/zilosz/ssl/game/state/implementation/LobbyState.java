@@ -1,6 +1,7 @@
 package com.github.zilosz.ssl.game.state.implementation;
 
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
+import com.github.zilosz.ssl.Resources;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.arena.Arena;
 import com.github.zilosz.ssl.arena.ArenaVoter;
@@ -21,6 +22,7 @@ import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
 import me.filoghost.holographicdisplays.api.hologram.HologramLines;
@@ -81,8 +83,7 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
 
         try {
             replacers.add("KIT", SSL.getInstance().getKitManager().getSelectedKit(player).getDisplayName());
-        } catch (NullPointerException ignored) {
-        }
+        } catch (NullPointerException ignored) {}
 
         List<String> lines = new ArrayList<>(Arrays.asList(this.getScoreboardLine(), "&f&lStatus"));
 
@@ -118,7 +119,9 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
         for (Player player : Bukkit.getOnlinePlayers()) {
             KitManager kitManager = SSL.getInstance().getKitManager();
 
-            Optional.ofNullable(kitManager.getSelectedKit(player)).ifPresentOrElse(kit -> kit.equip(player), () -> {
+            Optional.ofNullable(kitManager.getSelectedKit(player)).ifPresentOrElse(kit -> {
+                kit.equip(player);
+            }, () -> {
                 kitManager.createHolograms(player);
                 kitManager.pullUserKit(player);
             });
@@ -130,14 +133,8 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
                 continue;
             }
 
-            Skin skin = kitManager.getSelectedKit(player).getSkin();
-            String text = skin.getPreviousTexture();
-            String sig = skin.getPreviousSignature();
-
-            Skin.applyAcrossTp(SSL.getInstance(), player, text, sig, () -> {
-                this.initializePlayer(player);
-                player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
-            });
+            Skin realSkin = kitManager.getRealSkin(player);
+            realSkin.applyAcrossTp(SSL.getInstance(), player, () -> this.initializePlayer(player));
 
             InGameProfile profile = gameManager.getProfile(player);
             DecimalFormat format = new DecimalFormat("#.#");
@@ -191,6 +188,7 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
         player.setHealth(20);
         player.setLevel(0);
         player.teleport(this.getSpawn());
+        player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
 
         if (!SSL.getInstance().getGameManager().isSpectator(player)) {
             ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Returned to the lobby."));
@@ -209,10 +207,9 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
     }
 
     private void createLeaderboard(String titleName, String statName, String configName) {
-        Location location = YamlReader.getLocation("lobby", SSL.getInstance()
-                .getResources()
-                .getLobby()
-                .getString(configName));
+        Resources resources = SSL.getInstance().getResources();
+        Location location = YamlReader.getLocation("lobby", resources.getLobby().getString(configName));
+
         Hologram hologram = HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(location);
         this.holograms.add(hologram);
         HologramLines lines = hologram.getLines();
@@ -273,12 +270,13 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
     }
 
     private void tryCountdownStart() {
-        int minPlayersNeeded = SSL.getInstance().getResources().getConfig().getInt("Game.MinPlayersToStart");
+        Section config = SSL.getInstance().getResources().getConfig();
+        int minPlayersNeeded = config.getInt("Game.MinPlayersToStart");
 
         if (this.isCounting || this.getParticipantCount() < minPlayersNeeded) return;
 
-        int notifyInterval = SSL.getInstance().getResources().getConfig().getInt("Game.LobbyCountdown.NotifyInterval");
-        int totalSec = SSL.getInstance().getResources().getConfig().getInt("Game.LobbyCountdown.Seconds");
+        int notifyInterval = config.getInt("Game.LobbyCountdown.NotifyInterval");
+        int totalSec = config.getInt("Game.LobbyCountdown.Seconds");
         this.secUntilStart = totalSec + 1;
 
         this.isCounting = true;
@@ -296,10 +294,8 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
                 }
 
                 if (LobbyState.this.secUntilStart <= 5 || LobbyState.this.secUntilStart % notifyInterval == 0) {
-                    Chat.GAME.broadcast(String.format(
-                            "&7Starting in &e&l%d &7seconds.",
-                            LobbyState.this.secUntilStart
-                    ));
+                    String message = "&7Starting in &e&l%d &7seconds.";
+                    Chat.GAME.broadcast(String.format(message, LobbyState.this.secUntilStart));
 
                     if (LobbyState.this.secUntilStart <= 4) {
                         this.pitch += 1.5f / totalSec;
@@ -336,9 +332,8 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
 
         Replacers replacers = new Replacers().add("ARENA", arena.getName()).add("AUTHORS", arena.getAuthors());
 
-        List<String> description = replacers.replaceLines(SSL.getInstance().getResources()
-                .getConfig()
-                .getStringList("Description"));
+        Resources resources = SSL.getInstance().getResources();
+        List<String> description = replacers.replaceLines(resources.getConfig().getStringList("Description"));
 
         GameManager gameManager = SSL.getInstance().getGameManager();
 
@@ -387,6 +382,7 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
     @EventHandler
     public void onLobbyJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        player.getInventory().clear();
         this.initializePlayer(player);
 
         KitManager kitManager = SSL.getInstance().getKitManager();

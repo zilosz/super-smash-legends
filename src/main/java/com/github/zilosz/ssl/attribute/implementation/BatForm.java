@@ -87,7 +87,7 @@ public class BatForm extends PassiveAbility {
 
     @Override
     public String getUseType() {
-        return "&oSimply &oExist";
+        return "Enter Low Health";
     }
 
     private void reset() {

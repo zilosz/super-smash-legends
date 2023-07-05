@@ -34,8 +34,13 @@ import java.util.Optional;
 public class KitManager implements Listener {
     private final List<Kit> kits = new ArrayList<>();
     private final Map<Player, Kit> selectedKits = new HashMap<>();
+    private final Map<Player, Skin> realSkins = new HashMap<>();
     private final Map<NPC, KitType> kitsPerNpc = new HashMap<>();
     private final Map<Player, Map<KitType, Hologram>> kitHolograms = new HashMap<>();
+
+    public Skin getRealSkin(Player player) {
+        return this.realSkins.get(player);
+    }
 
     public List<Kit> getKits() {
         return Collections.unmodifiableList(this.kits);
@@ -49,7 +54,7 @@ public class KitManager implements Listener {
     }
 
     private void setupKit(KitType kitType) {
-        Kit kit = createKit(kitType);
+        Kit kit = this.createKit(kitType);
         this.kits.add(kit);
 
         NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, kit.getSkinName());
@@ -77,7 +82,7 @@ public class KitManager implements Listener {
         this.setPodiumWool(location, 0, -1, kit);
     }
 
-    public static Kit createKit(KitType kitType) {
+    public Kit createKit(KitType kitType) {
         return new Kit(SSL.getInstance().getResources().getKitConfig(kitType), kitType);
     }
 
@@ -137,40 +142,36 @@ public class KitManager implements Listener {
         return this.getSelectedKit(player).getType() == kitType ? KitAccessType.SELECTED : KitAccessType.ACCESSIBLE;
     }
 
+    public Kit getSelectedKit(Player player) {
+        return this.selectedKits.get(player);
+    }
+
     public void pullUserKit(Player player) {
         PlayerDatabase db = SSL.getInstance().getPlayerDatabase();
-        KitType defaultKit = KitType.valueOf(SSL.getInstance().getResources().getConfig().getString("Kit.Default"));
-        String kitName = db.getOrDefault(player.getUniqueId(), "kit", defaultKit.name(), defaultKit.name());
-
-        try {
-            this.setKit(player, KitType.valueOf(kitName));
-
-        } catch (IllegalArgumentException e) {
-            this.setKit(player, defaultKit);
-        }
+        String defaultName = SSL.getInstance().getResources().getConfig().getString("Kit.Default");
+        String kitName = db.getOrDefault(player.getUniqueId(), "kit", defaultName, defaultName);
+        this.setKit(player, KitType.valueOf(kitName));
     }
 
     public void setKit(Player player, KitType kitType) {
         GameManager gameManager = SSL.getInstance().getGameManager();
         GameState state = gameManager.getState();
 
-        Kit newKit = createKit(kitType);
+        Kit newKit = this.createKit(kitType);
 
-        Optional.ofNullable(this.selectedKits.put(player, newKit)).ifPresent(oldKit -> {
+        if (state.isPlaying()) {
+            SSL.getInstance().getGameManager().getProfile(player).setKit(newKit);
+        }
+
+        if (state.updatesKitSkins()) {
+            newKit.getSkin().apply(SSL.getInstance(), player);
+        }
+
+        Optional.ofNullable(this.selectedKits.put(player, newKit)).ifPresentOrElse(oldKit -> {
             oldKit.destroy();
             this.updateAccessHologram(player, KitAccessType.ACCESSIBLE, oldKit.getType());
-
-            if (state.isPlaying()) {
-                gameManager.getProfile(player).setKit(newKit);
-            }
-
-            if (state.updatesKitSkins()) {
-                Skin oldSkin = oldKit.getSkin();
-                Skin newSkin = newKit.getSkin();
-
-                newSkin.updatePrevious(oldSkin.getPreviousTexture(), oldSkin.getPreviousSignature());
-                Skin.apply(SSL.getInstance(), player, newSkin.getTexture(), newSkin.getSignature());
-            }
+        }, () -> {
+            this.realSkins.put(player, Skin.fromPlayer(player));
         });
 
         newKit.equip(player);
@@ -197,10 +198,6 @@ public class KitManager implements Listener {
 
     public void destroyNpcs() {
         this.kitsPerNpc.keySet().forEach(NPC::destroy);
-    }
-
-    public Kit getSelectedKit(Player player) {
-        return this.selectedKits.get(player);
     }
 
     @EventHandler

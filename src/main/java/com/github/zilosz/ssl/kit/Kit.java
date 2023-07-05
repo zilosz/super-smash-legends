@@ -64,13 +64,13 @@ public class Kit {
         });
     }
 
+    public String getSkinName() {
+        return this.config.getString("Skin");
+    }
+
     private void addAttribute(Attribute attribute) {
         this.attributes.add(attribute);
         attribute.initAttribute(this);
-    }
-
-    public String getSkinName() {
-        return this.config.getString("Skin");
     }
 
     public List<String> getDescription() {

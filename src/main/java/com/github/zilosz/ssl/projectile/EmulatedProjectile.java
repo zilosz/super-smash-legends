@@ -5,14 +5,12 @@ import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class EmulatedProjectile<T extends Entity> extends CustomProjectile<T> {
-    @Getter @Setter protected boolean removeOnLongCollision;
+    protected boolean removeOnLongCollision;
     @Nullable private BlockFace lastHitFace;
     private int sameHitDuration = 0;
 
@@ -36,8 +34,7 @@ public abstract class EmulatedProjectile<T extends Entity> extends CustomProject
         } else if (result.getFace() == this.lastHitFace) {
             int maxStuckDuration = SSL.getInstance().getResources().getConfig().getInt("Collision.MaxStuckDuration");
 
-            ++this.sameHitDuration;
-            if (this.sameHitDuration >= maxStuckDuration && this.removeOnLongCollision) {
+            if (++this.sameHitDuration >= maxStuckDuration && this.removeOnLongCollision) {
                 this.remove(ProjectileRemoveReason.HIT_BLOCK);
             }
 

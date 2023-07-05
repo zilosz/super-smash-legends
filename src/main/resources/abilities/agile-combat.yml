@@ -12,12 +12,12 @@ AutoSendUseMessage: false
 Cooldown: 140
 Duration: 120
 DropVelocity: 1.1
-SpringVelocity: 2
+SpringVelocity: 1.3
 SpringVelocityY: 1
 WalkSpeed: 0.4
 Leap:
   Damage: 6
-  Kb: 1.5
+  Kb: 1.3
   KbY: 1
   HitBox: 1.7
   Velocity: 2

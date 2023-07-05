@@ -8,14 +8,13 @@ import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
-import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
 
@@ -40,14 +39,13 @@ public class MixTapeDrop extends RightClickAbility {
 
             EntitySelector selector = new DistanceSelector(this.config.getDouble("Ground.Radius"));
             EntityFinder finder = new EntityFinder(selector);
-            Player player = this.ability.getPlayer();
 
-            finder.findAll(player, this.entity.getLocation()).forEach(target -> {
+            finder.findAll(this.launcher, this.entity.getLocation()).forEach(target -> {
                 Vector direction = VectorUtils.fromTo(this.entity, target);
                 Attack settings = new Attack(this.config.getSection("Ground"), direction);
 
                 if (SSL.getInstance().getDamageManager().attack(target, this.ability, settings)) {
-                    player.playSound(player.getLocation(), Sound.NOTE_PLING, 2, 2);
+                    this.launcher.playSound(this.launcher.getLocation(), Sound.NOTE_PLING, 2, 2);
                 }
             });
         }

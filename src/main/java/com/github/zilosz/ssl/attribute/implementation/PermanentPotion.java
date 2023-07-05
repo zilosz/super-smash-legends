@@ -1,5 +1,6 @@
-package com.github.zilosz.ssl.attribute;
+package com.github.zilosz.ssl.attribute.implementation;
 
+import com.github.zilosz.ssl.attribute.PassiveAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import org.bukkit.potion.PotionEffectType;
 
@@ -25,6 +26,6 @@ public class PermanentPotion extends PassiveAbility {
 
     @Override
     public String getUseType() {
-        return "&oSimply &oExist";
+        return "&oPassive";
     }
 }

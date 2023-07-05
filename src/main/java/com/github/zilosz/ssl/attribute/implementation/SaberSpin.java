@@ -23,22 +23,20 @@ public class SaberSpin extends ChargedRightClickAbility {
 
     @Override
     public void onChargeTick() {
-        Vector forward = this.direction.clone().multiply(this.config.getDouble("Radius"));
+        double radius = this.config.getDouble("Radius");
+
+        Vector forward = this.direction.clone().multiply(radius);
         Location center = this.player.getLocation().add(forward).add(0, this.config.getDouble("Radius"), 0);
 
-        new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 0, 255)
-                .verticalRing(center, this.config.getDouble("Radius"), 15);
+        new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 0, 255).verticalRing(center, radius, 15);
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.FIRE_IGNITE, 2, 1.3f);
-
         this.player.setVelocity(this.direction.clone().multiply(this.config.getDouble("ChargeSpeed")));
 
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
         new EntityFinder(selector).findAll(this.player, center).forEach(target -> {
-            if (SSL.getInstance()
-                    .getDamageManager()
-                    .attack(target, this, new Attack(this.config, this.direction))) {
+            if (SSL.getInstance().getDamageManager().attack(target, this, new Attack(this.config, this.direction))) {
                 this.player.getWorld().playSound(this.player.getLocation(), Sound.BLAZE_BREATH, 2, 1);
             }
         });

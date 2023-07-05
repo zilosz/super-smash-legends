@@ -9,6 +9,7 @@ import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -117,15 +118,14 @@ public class TutorialState extends GameState {
 
         totalDistance += tutorialLocations.get(tutorialLocations.size() - 1).distance(tutorialLocations.get(0));
 
-        int tutorialDuration = SSL.getInstance().getResources().getConfig().getInt("Game.Tutorial.DurationTicks");
-        double velocity = totalDistance / tutorialDuration;
-        int delay = SSL.getInstance().getResources().getConfig().getInt("Game.Tutorial.DelayTicks");
+        Section config = SSL.getInstance().getResources().getConfig();
 
-        List<String> rules = new Replacers().add("LIVES", SSL.getInstance()
-                        .getResources()
-                        .getConfig()
-                        .getInt("Game.Lives"))
-                .replaceLines(SSL.getInstance().getResources().getConfig().getStringList("Rules"));
+        int tutorialDuration = config.getInt("Game.Tutorial.DurationTicks");
+        double velocity = totalDistance / tutorialDuration;
+        int delay = config.getInt("Game.Tutorial.DelayTicks");
+
+        List<String> rules = new Replacers().add("LIVES", config.getInt("Game.Lives"))
+                .replaceLines(config.getStringList("Rules"));
 
         for (Player player : players) {
             Kit kit = SSL.getInstance().getKitManager().getSelectedKit(player);

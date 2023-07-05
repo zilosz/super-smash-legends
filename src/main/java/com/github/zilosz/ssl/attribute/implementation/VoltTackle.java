@@ -45,8 +45,7 @@ public class VoltTackle extends RightClickAbility {
 
         this.moveTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
-            ++this.ticksMoving;
-            if (this.ticksMoving >= duration) {
+            if (++this.ticksMoving >= duration) {
                 this.reset(true, true);
                 return;
             }
@@ -65,7 +64,7 @@ public class VoltTackle extends RightClickAbility {
                 Location center = EntityUtils.center(this.player);
                 Item gold = this.player.getWorld().dropItem(center, new ItemStack(Material.GOLD_INGOT));
                 gold.setPickupDelay(Integer.MAX_VALUE);
-                gold.setVelocity(VectorUtils.randVector(null).multiply(this.config.getDouble("ParticleSpeed")));
+                gold.setVelocity(VectorUtils.getRandomVector(null).multiply(this.config.getDouble("ParticleSpeed")));
                 int particleDuration = this.config.getInt("ParticleDuration");
 
                 this.particles.put(

@@ -16,8 +16,8 @@ import com.github.zilosz.ssl.utils.block.BlockRay;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
-import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.MathUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
@@ -97,12 +97,6 @@ public class Boombox extends RightClickAbility {
                 .runTaskTimer(SSL.getInstance(), () -> this.updateHealth(healthLossPerTick), 1, 1);
     }
 
-    @Override
-    public void deactivate() {
-        this.reset(false);
-        super.deactivate();
-    }
-
     private double getMaxHealth() {
         return this.config.getDouble("Health");
     }
@@ -166,6 +160,12 @@ public class Boombox extends RightClickAbility {
         }
 
         this.player.getWorld().playSound(this.block.getLocation(), Sound.ZOMBIE_WOODBREAK, 1, 0.8f);
+    }
+
+    @Override
+    public void deactivate() {
+        this.reset(false);
+        super.deactivate();
     }
 
     @EventHandler

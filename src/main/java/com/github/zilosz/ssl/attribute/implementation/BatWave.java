@@ -130,7 +130,7 @@ public class BatWave extends RightClickAbility {
 
         @Override
         public void onLaunch() {
-            SSL.getInstance().getTeamManager().getPlayerTeam(this.ability.getPlayer()).addEntity(this.bat);
+            SSL.getInstance().getTeamManager().getPlayerTeam(this.launcher).addEntity(this.bat);
         }
 
         @Override
@@ -138,7 +138,7 @@ public class BatWave extends RightClickAbility {
             super.onRemove(reason);
             this.unleash();
             this.bat.remove();
-            SSL.getInstance().getTeamManager().getPlayerTeam(this.ability.getPlayer()).removeEntity(this.bat);
+            SSL.getInstance().getTeamManager().getPlayerTeam(this.launcher).removeEntity(this.bat);
         }
 
         public void unleash() {

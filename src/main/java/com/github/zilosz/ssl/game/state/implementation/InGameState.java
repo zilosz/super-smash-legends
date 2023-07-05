@@ -430,9 +430,6 @@ public class InGameState extends GameState {
             killer.playSound(killer.getLocation(), Sound.LEVEL_UP, 2, 2);
             killer.playSound(killer.getLocation(), Sound.WOLF_HOWL, 3, 2);
 
-            InGameProfile killerProfile = SSL.getInstance().getGameManager().getProfile(killer);
-            killerProfile.setKills(killerProfile.getKills() + 1);
-
             String killerName = SSL.getInstance().getTeamManager().getPlayerColor(killer) + killer.getName();
 
             if (killingAttribute instanceof Nameable) {
@@ -443,7 +440,15 @@ public class InGameState extends GameState {
                 deathMessage = String.format("%s &7was killed by %s.", diedName, killerName);
             }
 
-            tpLocation = killer.getLocation();
+            if (killer == died) {
+                tpLocation = waitLocation;
+
+            } else {
+                tpLocation = killer.getLocation();
+
+                InGameProfile killerProfile = SSL.getInstance().getGameManager().getProfile(killer);
+                killerProfile.setKills(killerProfile.getKills() + 1);
+            }
         }
 
         Chat.DEATH.broadcast(deathMessage);

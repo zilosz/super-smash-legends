@@ -53,7 +53,7 @@ public class ParticleBuilder {
 
     public void hollowSphere(Location center, double radius, int particleCount) {
         for (int i = 0; i < particleCount; i++) {
-            this.show(center.clone().add(VectorUtils.randVector(this.face).multiply(radius)));
+            this.show(center.clone().add(VectorUtils.getRandomVector(this.face).multiply(radius)));
         }
     }
 
@@ -109,7 +109,7 @@ public class ParticleBuilder {
     public void boom(Plugin plugin, Location center, double radius, double radiusStep, int streaks) {
 
         for (int i = 0; i < streaks; i++) {
-            Vector step = VectorUtils.randVector(this.face).multiply(radiusStep);
+            Vector step = VectorUtils.getRandomVector(this.face).multiply(radiusStep);
             Location curr = center.clone();
 
             new BukkitRunnable() {

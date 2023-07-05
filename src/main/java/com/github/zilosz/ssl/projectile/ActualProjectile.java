@@ -24,7 +24,7 @@ public abstract class ActualProjectile<T extends Projectile> extends CustomProje
     @Override
     protected T createEntity(Location location) {
         T projectile = this.createProjectile(location);
-        projectile.setShooter(this.ability.getPlayer());
+        projectile.setShooter(this.launcher);
         return projectile;
     }
 

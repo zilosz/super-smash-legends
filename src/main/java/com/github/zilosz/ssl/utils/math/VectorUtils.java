@@ -75,7 +75,7 @@ public class VectorUtils {
         return fromTo(from.getLocation(), to.getLocation());
     }
 
-    public static Vector randVector(BlockFace face) {
+    public static Vector getRandomVector(BlockFace face) {
         double minX = -1, maxX = 1, minY = -1, maxY = 1, minZ = -1, maxZ = 1;
 
         if (face != null) {

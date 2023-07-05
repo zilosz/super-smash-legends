@@ -61,6 +61,12 @@ public class GameManager {
         return this.willSpectate.contains(player);
     }
 
+    public void skipToState(GameStateType type) {
+        while (this.state.getType() != type) {
+            this.advanceState();
+        }
+    }
+
     public void advanceState() {
         this.endState();
         this.stateIdx = (this.stateIdx + 1) % this.states.size();
@@ -76,12 +82,6 @@ public class GameManager {
     public void activateState() {
         this.state.start();
         Bukkit.getPluginManager().registerEvents(this.state, SSL.getInstance());
-    }
-
-    public void skipToState(GameStateType type) {
-        while (this.state.getType() != type) {
-            this.advanceState();
-        }
     }
 
     public void startTicks() {
@@ -116,6 +116,7 @@ public class GameManager {
     public void reset() {
         new HashSet<>(this.spectators).forEach(this::removeSpectator);
         this.profiles.clear();
+
         this.ticksActive = 0;
 
         if (this.tickTask != null) {

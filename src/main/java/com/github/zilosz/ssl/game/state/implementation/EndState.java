@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -75,12 +76,12 @@ public class EndState extends GameState implements TeleportsOnVoid {
             replacers.add("WINNER", this.winnerString);
         }
 
-        if (SSL.getInstance().getTeamManager().doesPlayerHaveTeam(player)) {
+        Optional.ofNullable(SSL.getInstance().getGameManager().getProfile(player)).ifPresent(profile -> {
             lines.add("");
             lines.add("&f&lKit");
             lines.add("{KIT}");
-            replacers.add("KIT", SSL.getInstance().getGameManager().getProfile(player).getKit().getDisplayName());
-        }
+            replacers.add("KIT", profile.getKit().getDisplayName());
+        });
 
         lines.add(this.getScoreboardLine());
         return replacers.replaceLines(lines);

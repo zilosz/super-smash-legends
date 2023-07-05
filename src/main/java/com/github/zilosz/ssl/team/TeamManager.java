@@ -40,10 +40,6 @@ public class TeamManager {
         return Collections.unmodifiableList(this.teamList);
     }
 
-    public boolean doesPlayerHaveTeam(Player player) {
-        return this.teamsByEntity.containsKey(player.getUniqueId());
-    }
-
     public Optional<Team> findChosenTeam(Player player) {
         return this.teamList.stream().filter(team -> team.hasPlayer(player)).findAny();
     }

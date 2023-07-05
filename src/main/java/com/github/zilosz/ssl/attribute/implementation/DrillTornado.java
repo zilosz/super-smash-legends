@@ -79,12 +79,6 @@ public class DrillTornado extends RightClickAbility {
         }, 0, 0);
     }
 
-    @Override
-    public void deactivate() {
-        super.deactivate();
-        this.reset(false);
-    }
-
     private void reset(boolean natural) {
         this.pitch = 0.5f;
         this.ticksPreparing = 0;
@@ -103,6 +97,12 @@ public class DrillTornado extends RightClickAbility {
             this.drillTask.cancel();
             this.drillCancelTask.cancel();
         }
+    }
+
+    @Override
+    public void deactivate() {
+        super.deactivate();
+        this.reset(false);
     }
 
     @EventHandler

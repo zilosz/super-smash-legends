@@ -31,33 +31,30 @@ import org.bukkit.util.Vector;
 
 public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable implements Listener {
     protected final Section config;
-
     @Getter protected final Ability ability;
+
     @Getter protected Player launcher;
     @Getter protected T entity;
-    @Getter protected boolean invisible;
     @Getter protected Attack attack;
-    @Getter protected int ticksAlive = 0;
-    @Getter protected double launchSpeed;
-
     @Getter @Setter protected Double speed;
-    @Getter @Setter protected float spread;
-    @Getter @Setter protected int lifespan;
-    @Getter @Setter protected boolean hasGravity;
-    @Getter @Setter protected int maxBounces;
-    @Getter @Setter protected double hitBox;
-    @Getter @Setter protected boolean hitsMultiple;
-    @Getter @Setter protected boolean removeOnEntityHit;
-    @Getter @Setter protected double distanceFromEye;
-    @Getter @Setter protected boolean removeOnBlockHit;
-
     @Setter protected Location overrideLocation;
-
+    @Setter protected float spread;
+    @Setter protected int lifespan;
+    protected boolean hasGravity;
+    protected int maxBounces;
+    protected double hitBox;
+    protected boolean hitsMultiple;
+    protected boolean removeOnEntityHit;
+    protected double distanceFromEye;
+    protected boolean removeOnBlockHit;
+    protected boolean invisible;
+    protected boolean recreateOnBounce = false;
+    protected boolean useCustomHitBox = true;
+    protected int ticksAlive = 0;
+    protected double launchSpeed;
     protected Vector launchVelocity;
     protected int timesBounced = 0;
     protected double defaultHitBox;
-    protected boolean recreateOnBounce = false;
-    protected boolean useCustomHitBox = true;
     protected EntityFinder entityFinder;
 
     public CustomProjectile(Ability ability, Section config) {
@@ -109,7 +106,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
 
         if (projectileLaunchEvent.isCancelled()) return;
 
-        Location eyeLoc = this.ability.getPlayer().getEyeLocation();
+        Location eyeLoc = this.launcher.getEyeLocation();
         Location location = this.overrideLocation == null ? eyeLoc : this.overrideLocation.clone();
         location.setDirection(VectorUtils.getRandomVectorInDirection(location, this.spread));
         location.add(location.getDirection().multiply(this.distanceFromEye));

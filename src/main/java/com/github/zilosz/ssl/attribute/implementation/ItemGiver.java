@@ -1,6 +1,7 @@
-package com.github.zilosz.ssl.attribute;
+package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attribute.PassiveAbility;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
@@ -36,6 +37,6 @@ public class ItemGiver extends PassiveAbility {
 
     @Override
     public String getUseType() {
-        return "&oSimply &oExist";
+        return "&oPassive";
     }
 }

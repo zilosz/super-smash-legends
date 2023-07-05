@@ -6,7 +6,8 @@ import lombok.Setter;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Cancellable;
 
-@Getter @Setter
+@Getter
+@Setter
 public class ProjectileLaunchEvent extends ProjectileEvent implements Cancellable {
     private boolean cancelled = false;
     private double speed;

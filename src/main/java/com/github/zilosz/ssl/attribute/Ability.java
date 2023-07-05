@@ -40,14 +40,14 @@ public abstract class Ability extends Attribute implements Nameable {
     }
 
     @Override
-    public void deactivate() {
-        super.deactivate();
-        this.hotbarItem.setAction(null);
+    public void unequip() {
+        this.hotbarItem.destroy();
     }
 
     @Override
-    public void unequip() {
-        this.hotbarItem.destroy();
+    public void deactivate() {
+        super.deactivate();
+        this.hotbarItem.setAction(null);
     }
 
     public ItemStack buildItem() {
