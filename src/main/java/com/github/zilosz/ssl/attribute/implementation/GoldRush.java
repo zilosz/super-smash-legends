@@ -68,6 +68,8 @@ public class GoldRush extends PassiveAbility {
         this.player.setGameMode(GameMode.SURVIVAL);
         this.player.removePotionEffect(PotionEffectType.BLINDNESS);
 
+        SSL.getInstance().getDamageManager().showEntityIndicator(this.player);
+
         double velocity = this.config.getDouble("EmergeVelocity");
         double velY = this.config.getDouble("EmergeVelocityY");
         this.player.setVelocity(location.getDirection().multiply(velocity).setY(velY));
@@ -107,6 +109,8 @@ public class GoldRush extends PassiveAbility {
         this.player.setExp(0);
         this.player.setGameMode(GameMode.SPECTATOR);
         this.teleport(this.player.getLocation());
+
+        SSL.getInstance().getDamageManager().hideEntityIndicator(this.player);
 
         int blindness = this.config.getInt("Blindness");
         new PotionEffectEvent(this.player, PotionEffectType.BLINDNESS, 10_000, blindness).apply();
