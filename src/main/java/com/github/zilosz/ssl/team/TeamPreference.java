@@ -4,8 +4,8 @@ import org.bukkit.entity.LivingEntity;
 
 public interface TeamPreference {
     TeamPreference FRIENDLY = Team::hasAnyEntity;
-    TeamPreference ENEMY = (team, livingEntity) -> !team.hasAnyEntity(livingEntity);
-    TeamPreference ANY = (team, livingEntity) -> true;
+    TeamPreference ENEMY = (team, entity) -> !team.hasAnyEntity(entity);
+    TeamPreference ANY = (team, entity) -> true;
 
     boolean validate(Team team, LivingEntity livingEntity);
 }

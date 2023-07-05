@@ -1,0 +1,29 @@
+Name: "Shinoby"
+Color: YELLOW
+Description:
+  - "&7Shinoby"
+Skin: "SunSon19"
+Damage: 4.5
+Armor: 0.65
+Kb: 1.15
+Regen: 0.3
+Energy: 0.075
+Jump:
+  Power: 1.1
+  Height: 0.9
+  Sound:
+    Type: ZOMBIE_PIG_IDLE
+    Volume: 1
+    Pitch: 1
+HurtSound:
+  Type: ZOMBIE_PIG_HURT
+  Volume: 1
+  Pitch: 2
+DeathSound:
+  Type: ZOMBIE_PIG_DEATH
+  Volume: 1
+  Pitch: 2
+Abilities:
+  0: RASENGAN
+  1: RASENSHURIKEN
+  2: SHADOW_CLONE_JUTSU

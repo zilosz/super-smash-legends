@@ -1,0 +1,33 @@
+Name: "Mechon"
+Color: RED
+Description:
+  - "&7Mechon is an entity of unbridled"
+  - "&7intelligence matched with a powerful"
+  - "&7cyborg body. These traits enable him"
+  - "&7to make use of various mechanized"
+  - "&7gadgets to destroy his opponents."
+Skin: "MrGabeeee"
+Damage: 5
+Kb: 0.9
+Armor: 0.55
+Regen: 0.25
+Energy: 0.3
+Jump:
+  Power: 1.1
+  Height: 0.9
+  Sound:
+    Type: ZOMBIE_METAL
+    Volume: 0.5
+    Pitch: 0.5
+HurtSound:
+  Type: IRONGOLEM_HIT
+  Volume: 1
+  Pitch: 2
+DeathSound:
+  Type: IRONGOLEM_DEATH
+  Volume: 3
+  Pitch: 2
+Abilities:
+  0: ROCKET_LAUNCHER
+  1: AERIAL_ASSAULT
+  2: JETPACK

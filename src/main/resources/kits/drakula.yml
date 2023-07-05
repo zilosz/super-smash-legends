@@ -1,0 +1,34 @@
+Name: "Drakula"
+Color: PURPLE
+Description:
+  - "&7This vile creature sustains itself by"
+  - "&7feeding on the essence of the living."
+  - "&7Unlike most vampires, it does not rely"
+  - "&7on the element of surprise. It would"
+  - "&7rather engage in life-or-death combat"
+  - "&7to satisfy its bloody appetite."
+Skin: "UFC321"
+Damage: 4.5
+Armor: 0.7
+Kb: 1.15
+Regen: 0.33
+Jump:
+  Power: 1.1
+  Height: 0.9
+  Sound:
+    Type: ZOMBIE_INFECT
+    Volume: 1
+    Pitch: 1
+HurtSound:
+  Type: ZOMBIE_HURT
+  Volume: 1
+  Pitch: 1
+DeathSound:
+  Type: ZOMBIE_DEATH
+  Volume: 3
+  Pitch: 1.7
+Abilities:
+  0: BLOOD_SHOT
+  1: BAT_WAVE
+  2: SHADOW_AMBUSH
+  3: BAT_FORM

@@ -7,9 +7,10 @@ import lombok.Setter;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Cancellable;
 
+@Getter
 public class ProjectileRemoveEvent extends ProjectileEvent implements Cancellable {
-    @Getter private final ProjectileRemoveReason reason;
-    @Getter @Setter private boolean cancelled = false;
+    private final ProjectileRemoveReason reason;
+    @Setter private boolean cancelled = false;
 
     public ProjectileRemoveEvent(CustomProjectile<? extends Entity> projectile, ProjectileRemoveReason reason) {
         super(projectile);

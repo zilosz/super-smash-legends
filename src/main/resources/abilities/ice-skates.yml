@@ -1,0 +1,7 @@
+Name: "Ice Skates"
+Item:
+  Material: ICE
+Description:
+  - "&7Cryomancer can skate on almost any"
+  - "&7surface. This gives him +1 speed."
+Type: SPEED

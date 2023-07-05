@@ -5,6 +5,8 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -32,22 +34,18 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.util.List;
 
 public abstract class GameState implements Listener {
-    protected final SSL plugin;
+    @Getter @Setter private GameStateType type;
 
-    public GameState(SSL plugin) {
-        this.plugin = plugin;
-    }
+    public abstract boolean allowsSpecCommand();
 
-    public abstract boolean allowKitSelection();
+    public abstract boolean allowsKitSelection();
 
     public abstract boolean updatesKitSkins();
-
-    public abstract boolean allowSpecCommand();
 
     public abstract List<String> getScoreboard(Player player);
 
     protected String getScoreboardLine() {
-        int width = this.plugin.getResources().getConfig().getInt("Scoreboard.Width");
+        int width = SSL.getInstance().getResources().getConfig().getInt("Scoreboard.Width");
         return "&5&l" + StringUtils.repeat("-", width);
     }
 
@@ -55,15 +53,9 @@ public abstract class GameState implements Listener {
 
     public abstract void end();
 
-    public boolean isSame(GameState other) {
-        return this.getConfigName().equals(other.getConfigName());
-    }
-
-    public abstract String getConfigName();
-
     @EventHandler
     public void onPreJoin(AsyncPlayerPreLoginEvent event) {
-        if (Bukkit.getOnlinePlayers().size() >= this.plugin.getTeamManager().getAbsolutePlayerCap()) {
+        if (Bukkit.getOnlinePlayers().size() >= SSL.getInstance().getTeamManager().getAbsolutePlayerCap()) {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_FULL, "The game is full!");
         }
     }
@@ -75,14 +67,14 @@ public abstract class GameState implements Listener {
         if (this.isInArena()) {
             event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined mid-game.", player.getName())));
             Chat.GAME.send(player, "&7The game you joined is in progress.");
-            this.plugin.getGameManager().addSpectator(event.getPlayer());
-            player.teleport(this.plugin.getArenaManager().getArena().getWaitLocation());
+            SSL.getInstance().getGameManager().addSpectator(event.getPlayer());
+            player.teleport(SSL.getInstance().getArenaManager().getArena().getWaitLocation());
 
         } else {
             event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined the game.", player.getName())));
         }
 
-        Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+        Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
             ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Welcome to &5&lSuper Smash Legends!"), 60);
             player.playSound(player.getLocation(), Sound.LEVEL_UP, 2, 1);
         }, 5);
@@ -93,19 +85,19 @@ public abstract class GameState implements Listener {
     @EventHandler
     public void onGeneralQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        GameManager gameManager = this.plugin.getGameManager();
+        GameManager gameManager = SSL.getInstance().getGameManager();
 
         if (this.isInArena() && gameManager.isPlayerAlive(player)) {
-            String color = this.plugin.getTeamManager().getPlayerColor(player);
+            String color = SSL.getInstance().getTeamManager().getPlayerColor(player);
             event.setQuitMessage(Chat.QUIT.get(String.format("%s &7has quit mid-game.", color + player.getName())));
 
             gameManager.getProfile(player).setLives(0);
 
             if (this.isPlaying()) {
-                this.plugin.getTeamManager().getPlayerTeam(player).setLifespan(gameManager.getTicksActive());
+                SSL.getInstance().getTeamManager().getPlayerTeam(player).setLifespan(gameManager.getTicksActive());
 
                 if (gameManager.getAlivePlayers().size() <= 1) {
-                    gameManager.skipToState(new EndState(this.plugin));
+                    gameManager.skipToState(GameStateType.END);
                 }
             }
 
@@ -113,7 +105,7 @@ public abstract class GameState implements Listener {
             event.setQuitMessage(Chat.QUIT.get(String.format("&5%s &7has quit the game.", player.getName())));
         }
 
-        this.plugin.getKitManager().wipePlayer(player);
+        SSL.getInstance().getKitManager().wipePlayer(player);
 
         gameManager.removeSpectator(player);
         gameManager.removeFutureSpectator(player);

@@ -32,7 +32,7 @@ public class Effects {
         for (int i = 0; i < streaks; i++) {
             Item item = center.getWorld().dropItem(center, stack);
             item.setPickupDelay(Integer.MAX_VALUE);
-            item.setVelocity(VectorUtils.randVector(face).multiply(speed));
+            item.setVelocity(VectorUtils.getRandomVector(face).multiply(speed));
             Bukkit.getScheduler().runTaskLater(plugin, item::remove, (long) (radius / speed));
         }
     }

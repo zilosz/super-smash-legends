@@ -1,15 +1,13 @@
 package com.github.zilosz.ssl.attribute;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.HotbarItem;
 import com.github.zilosz.ssl.utils.ItemBuilder;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
+import dev.dejvokep.boostedyaml.YamlDocument;
 import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
@@ -18,30 +16,32 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class Ability extends Attribute implements Nameable {
-    protected final Section config;
-    @Getter @Setter protected int slot;
+    protected YamlDocument config;
+    @Getter protected AbilityType type;
+    protected int slot;
     @Getter protected HotbarItem hotbarItem;
 
-    public Ability(SSL plugin, Section config, Kit kit) {
-        super(plugin, kit);
+    public void initAbility(YamlDocument config, AbilityType type, int slot) {
         this.config = config;
+        this.type = type;
+        this.slot = slot;
     }
 
     public Material getMaterial() {
-        try {
-            return Material.valueOf(this.config.getString("Item.Material"));
-        } catch (IllegalArgumentException e) {
-            return Material.DIRT;
-        }
+        return Material.valueOf(this.config.getString("Item.Material"));
     }
 
     @Override
     public void equip() {
         super.equip();
-
         this.hotbarItem = new HotbarItem(this.player, this.buildItem(), this.slot);
         this.hotbarItem.setAction(e -> this.sendDescription());
-        this.hotbarItem.register(this.plugin);
+        this.hotbarItem.register(SSL.getInstance());
+    }
+
+    @Override
+    public void unequip() {
+        this.hotbarItem.destroy();
     }
 
     @Override
@@ -50,16 +50,11 @@ public abstract class Ability extends Attribute implements Nameable {
         this.hotbarItem.setAction(null);
     }
 
-    @Override
-    public void unequip() {
-        this.hotbarItem.destroy();
-    }
-
     public ItemStack buildItem() {
         Replacers replacers = new Replacers().add("DESCRIPTION", this.getDescription());
         List<String> lore = replacers.replaceLines(Arrays.asList("&3&lDescription", "{DESCRIPTION}"));
 
-        return new ItemBuilder<>(YamlReader.stack(this.config.getSection("Item")))
+        return new ItemBuilder<>(YamlReader.getStack(this.config.getSection("Item")))
                 .setName(this.getBoldedDisplayName())
                 .setLore(lore)
                 .get();

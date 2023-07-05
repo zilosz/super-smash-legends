@@ -1,0 +1,18 @@
+Name: "Arctic Breath"
+Item:
+  Material: IRON_SPADE
+Description:
+  - "&7Release a pent-up breath of frigid"
+  - "&7air. Enemies' bones are frozen."
+Cooldown: 140
+MinDamage: 2.5
+MaxDamage: 6
+MinRadius: 0.3
+MaxRadius: 2.2
+HitBox: 1.5
+Range: 5
+RingCount: 15
+ParticleDensity: 20
+Kb: 1.8
+KbY: 0.45
+IsLinear: true

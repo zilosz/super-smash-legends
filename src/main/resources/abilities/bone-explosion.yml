@@ -1,0 +1,16 @@
+Name: "Bone Explosion"
+Item:
+  Material: IRON_AXE
+Description:
+  - "&7Skellington's bony innards act as"
+  - "&7not only effective projectiles, but"
+  - "&7also as deadly explosives. When in"
+  - "&7danger, Skellington detonates a"
+  - "&7strong explosion of bones."
+Cooldown: 100
+Radius: 6
+MinDamage: 2
+MaxDamage: 7
+MinKb: 0.7
+MaxKb: 1.7
+KbY: 0.5

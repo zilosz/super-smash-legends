@@ -1,0 +1,20 @@
+Name: "Webbed Snare"
+Item:
+  Material: IRON_SPADE
+Description:
+  - "&7Given Webman's spider origins, he can"
+  - "&7shoot webbing backwards that latches onto"
+  - "&7enemies for a period of time. The exerted"
+  - "&7power propels Webman in the opposite"
+  - "&7direction."
+Cooldown: 140
+ExtraWebCount: 15
+ConicAngle: 7
+Velocity: 1.5
+Projectile:
+  Spread: 5
+  Speed: 1.8
+  Damage: 5
+  WebDuration: 40
+  Item:
+    Material: WEB

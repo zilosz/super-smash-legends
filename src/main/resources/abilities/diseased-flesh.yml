@@ -1,0 +1,32 @@
+Name: "Diseased Flesh"
+Item:
+  Material: DIAMOND_AXE
+Description:
+  - "&7Shoot consecutive pieces of rotted"
+  - "&7items that can grant healing benefits"
+  - "&7and/or inflict an array of status effects,"
+  - "&7some much more deadly than others."
+Cooldown: 120
+Speed: 1.3
+Spread: 8
+Count: 7
+ImmunityTicks: 0
+Damage: 1
+Kb: 1.1
+KbY: 0.5
+Items:
+  1:
+    Weight: 1
+    Material: SAND
+  2:
+    Weight: 2
+    Material: ROTTEN_FLESH
+  3:
+    Weight: 1
+    Material: SPIDER_EYE
+  4:
+    Weight: 0.5
+    Material: FERMENTED_SPIDER_EYE
+  5:
+    Weight: 1
+    Material: BONE

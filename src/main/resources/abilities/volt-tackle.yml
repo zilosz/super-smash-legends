@@ -1,0 +1,32 @@
+Name: "Volt Tackle"
+Item:
+  Material: GOLD_AXE
+Description:
+  - "&7Use your powerful hind legs and stored"
+  - "&7electricity to charge forwards at a"
+  - "&7blinding pace. Pikachew's immense speed"
+  - "&7means he struggles to change direction."
+  - "&7Colliding with enemies deals great"
+  - "&7damage and recoil. Sneak to cancel."
+Cooldown: 160
+AutoStartCooldown: false
+MinVelocity: 0.4
+MaxVelocity: 2.1
+MaxVelocityY: 0.275
+DurationTicks: 40
+MinDamage: 1
+MaxDamage: 8.5
+MinKb: 0.8
+MaxKb: 3
+KbY: 0.8
+HitBox: 1.7
+ParticlesPerTick: 6
+ParticleDuration: 5
+ParticleSpeed: 0.4
+ImmunityTicks: 0
+Recoil:
+  MinDamage: 0.3
+  MaxDamage: 3
+  MinKb: 0.8
+  MaxKb: 2.1
+  KbY: 0.8

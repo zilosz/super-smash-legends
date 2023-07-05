@@ -1,0 +1,19 @@
+Name: "Drill Tornado"
+Item:
+  Material: GOLD_AXE
+Description:
+  - "&7Miner can turn himself into a human-tornado"
+  - "&7at will. Know that you don't want to cross"
+  - "&7paths with him when he's using this ability!"
+AutoStartCooldown: false
+Cooldown: 140
+Velocity: 1.25
+HitBox: 1.75
+Damage: 5.5
+Kb: 2.4
+KbY: 0.5
+PrepareTicks: 20
+Duration: 30
+ParticleGap: 0.18
+ShowExp: false
+ImmunityTicks: 20

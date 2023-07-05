@@ -2,7 +2,6 @@ package com.github.zilosz.ssl.arena;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.utils.file.FileUtility;
-import com.github.zilosz.ssl.utils.file.PathBuilder;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -19,12 +18,10 @@ import java.util.Comparator;
 import java.util.List;
 
 public class Arena {
-    private final SSL plugin;
     private final Section config;
     private final List<Player> playersWithVotes = new ArrayList<>();
 
-    public Arena(SSL plugin, Section config) {
-        this.plugin = plugin;
+    public Arena(Section config) {
         this.config = config;
     }
 
@@ -37,7 +34,7 @@ public class Arena {
     }
 
     public ItemStack getItemStack() {
-        return YamlReader.stack(this.config.getSection("Item"));
+        return YamlReader.getStack(this.config.getSection("Item"));
     }
 
     public void addVote(Player player) {
@@ -57,18 +54,18 @@ public class Arena {
     }
 
     public void create() {
-        Vector pasteVector = YamlReader.vector(this.config.getString("PasteVector"));
-        String path = PathBuilder.build("arena", this.config.getString("SchematicName"));
-        File schematic = FileUtility.loadSchematic(this.plugin, path);
-        this.plugin.getWorldManager().createWorld("arena", schematic, pasteVector);
+        Vector pasteVector = YamlReader.getVector(this.config.getString("PasteVector"));
+        String path = FileUtility.buildPath("arenas", this.config.getString("SchematicName"));
+        File schematic = FileUtility.loadSchematic(SSL.getInstance(), path);
+        SSL.getInstance().getWorldManager().createWorld("arena", schematic, pasteVector);
     }
 
     public Location getWaitLocation() {
-        return YamlReader.location("arena", this.config.getString("WaitLocation"));
+        return YamlReader.getLocation("arena", this.config.getString("WaitLocation"));
     }
 
     public List<Location> getTutorialLocations() {
-        return YamlReader.locations("arena", this.config.getStringList("TutorialLocations"));
+        return YamlReader.getLocations("arena", this.config.getStringList("TutorialLocations"));
     }
 
     public Location getFarthestSpawnFromPlayers() {
@@ -76,7 +73,7 @@ public class Arena {
     }
 
     public List<Location> getSpawnLocations() {
-        return YamlReader.locations("arena", this.config.getStringList("SpawnLocations"));
+        return YamlReader.getLocations("arena", this.config.getStringList("SpawnLocations"));
     }
 
     public static double getTotalDistanceToPlayers(Location location) {

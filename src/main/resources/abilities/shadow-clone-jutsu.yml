@@ -1,0 +1,28 @@
+Name: "Shadow Clone Jutsu"
+Item:
+  Material: IRON_HOE
+Description:
+  - "&7Jutsu"
+EnergyCost: 0.5
+Recoil: 1.3
+Clone:
+  Velocity: 1.3
+  Vision: 30
+  Health: 10
+  Limit: 2
+  Speed: 1
+  Duration: 200
+  Rasenshuriken:
+    Height: 0.35
+    DamageMultiplier: 0.5
+  Rasengan:
+    Damage: 7.5
+    Kb: 3
+    KbY: 0.85
+    Speed: 1
+    Lifespan: 80
+  Melee:
+    Kb: 0.9
+    KbY: 0.45
+    FactorsKit: false
+    FactorsHealth: false

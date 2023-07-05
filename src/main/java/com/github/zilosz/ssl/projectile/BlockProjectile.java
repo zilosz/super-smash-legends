@@ -1,6 +1,5 @@
 package com.github.zilosz.ssl.projectile;
 
-import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Setter;
@@ -14,15 +13,11 @@ public class BlockProjectile extends EmulatedProjectile<FallingBlock> {
     @Setter private Material material;
     @Setter private byte data;
 
-    public BlockProjectile(SSL plugin, Ability ability, Section config) {
-        super(plugin, ability, config);
+    public BlockProjectile(Ability ability, Section config) {
+        super(ability, config);
         this.material = Material.valueOf(config.getOptionalString("Block.Material").orElse("OBSIDIAN"));
         this.data = config.getOptionalByte("Block.Data").orElse((byte) 0);
-    }
-
-    @Override
-    public double defaultHitBox() {
-        return 1;
+        this.defaultHitBox = 1;
     }
 
     @Override

@@ -4,31 +4,32 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.LivingProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
+import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
+import com.github.zilosz.ssl.utils.message.Chat;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Bat;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BatWave extends RightClickAbility {
-    private final Set<BatProjectile> batProjectiles = new HashSet<>();
-    private BatWaveState state = BatWaveState.INACTIVE;
+    private final List<BatProjectile> bats = new ArrayList<>();
+    private State state = State.INACTIVE;
     private BukkitTask resetTask;
-
-    public BatWave(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
+    private boolean hasSlinged = false;
 
     @Override
     public void onClick(PlayerInteractEvent event) {
@@ -36,50 +37,57 @@ public class BatWave extends RightClickAbility {
         switch (this.state) {
 
             case INACTIVE:
-                this.onInactiveClick();
-                this.state = BatWaveState.UNLEASHED;
+                this.launch();
                 break;
 
             case UNLEASHED:
-                this.batProjectiles.forEach(BatProjectile::leash);
-                this.state = BatWaveState.LEASHED;
+                this.leash();
                 break;
 
             case LEASHED:
-                this.batProjectiles.forEach(BatProjectile::unleash);
-                this.state = BatWaveState.UNLEASHED;
+                this.unleash();
         }
     }
 
-    private void onInactiveClick() {
+    private void launch() {
+        this.state = State.UNLEASHED;
         this.sendUseMessage();
 
         Location center = this.player.getEyeLocation();
-        Vector alt = this.player.getLocation().getDirection();
 
         double width = this.config.getDouble("Width");
         double height = this.config.getDouble("Height");
         int count = this.config.getInt("BatCount");
 
-        Set<Location> locations = VectorUtils.getRectLocations(center, alt, width, height, count);
-        locations.forEach(loc -> this.addAndLaunch(new BatProjectile(this.plugin, this, this.config), loc));
+        List<Location> locations = VectorUtils.getRectLocations(center, width, height, count, true);
+        locations.forEach(loc -> this.addAndLaunch(new BatProjectile(this, this.config), loc));
 
-        this.resetTask = Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+        this.resetTask = Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
             this.reset();
             this.startCooldown();
         }, this.config.getInt("Lifespan"));
     }
 
+    private void leash() {
+        this.bats.forEach(BatProjectile::leash);
+        this.state = State.LEASHED;
+    }
+
+    private void unleash() {
+        this.bats.forEach(BatProjectile::unleash);
+        this.state = State.UNLEASHED;
+    }
+
     private void addAndLaunch(BatProjectile projectile, Location location) {
-        this.batProjectiles.add(projectile);
+        this.bats.add(projectile);
         projectile.setOverrideLocation(location);
         projectile.launch();
     }
 
     private void reset() {
-        this.state = BatWaveState.INACTIVE;
-        this.batProjectiles.forEach(projectile -> projectile.remove(ProjectileRemoveReason.DEACTIVATION));
-        this.batProjectiles.clear();
+        this.state = State.INACTIVE;
+        this.hasSlinged = false;
+        CollectionUtils.removeWhileIterating(this.bats, bat -> bat.remove(ProjectileRemoveReason.DEACTIVATION));
 
         if (this.resetTask != null) {
             this.resetTask.cancel();
@@ -90,8 +98,8 @@ public class BatWave extends RightClickAbility {
     public void run() {
         super.run();
 
-        if (this.state == BatWaveState.LEASHED) {
-            this.player.setVelocity(this.batProjectiles.iterator().next().getLaunchVelocity());
+        if (this.state == State.LEASHED) {
+            this.player.setVelocity(this.bats.get(0).getLaunchVelocity());
         }
     }
 
@@ -101,7 +109,27 @@ public class BatWave extends RightClickAbility {
         this.reset();
     }
 
-    private enum BatWaveState {
+    @EventHandler
+    public void onDropItem(PlayerDropItemEvent event) {
+        if (event.getPlayer() != this.player) return;
+        if (this.state != State.LEASHED) return;
+        if (this.hasSlinged) return;
+
+        this.hasSlinged = true;
+
+        Vector slingVector = VectorUtils.fromTo(this.player, this.bats.get(0).getEntity());
+        slingVector.normalize().multiply(this.config.getDouble("SlingVelocity"));
+        this.player.setVelocity(slingVector);
+
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.MAGMACUBE_JUMP, 2, 1);
+        Chat.ABILITY.send(this.player, "&7You threw yourself like a slingshot!");
+
+        if (this.state == State.LEASHED) {
+            this.unleash();
+        }
+    }
+
+    private enum State {
         INACTIVE,
         LEASHED,
         UNLEASHED
@@ -110,8 +138,8 @@ public class BatWave extends RightClickAbility {
     private static class BatProjectile extends LivingProjectile<ArmorStand> {
         private Bat bat;
 
-        public BatProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public BatProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override
@@ -127,8 +155,13 @@ public class BatWave extends RightClickAbility {
         }
 
         @Override
+        public void onTargetHit(LivingEntity target) {
+            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.BAT_DEATH, 1, 1);
+        }
+
+        @Override
         public void onLaunch() {
-            this.plugin.getTeamManager().getPlayerTeam(this.ability.getPlayer()).addEntity(this.bat);
+            SSL.getInstance().getTeamManager().getPlayerTeam(this.launcher).addEntity(this.bat);
         }
 
         @Override
@@ -136,7 +169,7 @@ public class BatWave extends RightClickAbility {
             super.onRemove(reason);
             this.unleash();
             this.bat.remove();
-            this.plugin.getTeamManager().getPlayerTeam(this.ability.getPlayer()).removeEntity(this.bat);
+            SSL.getInstance().getTeamManager().getPlayerTeam(this.launcher).removeEntity(this.bat);
         }
 
         public void unleash() {

@@ -1,0 +1,17 @@
+Name: "Gooey Bullet"
+Item:
+  Material: IRON_BARDING
+Description:
+  - "&7Launches a small yet powerful hunk of"
+  - "&7goo. The sheer speed of the goo, along"
+  - "&7with its slimy nature, allows it to"
+  - "&7bounce off obstacles."
+EnergyCost: 0.4
+Speed: 1.3
+Damage: 4
+Kb: 1.1
+KbY: 0.6
+HasGravity: false
+MaxBounces: 5
+HitBox: 1
+Size: 1

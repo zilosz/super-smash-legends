@@ -1,17 +1,14 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.ChargedRightClickAbility;
-import com.github.zilosz.ssl.damage.DamageSettings;
-import com.github.zilosz.ssl.damage.KbSettings;
-import com.github.zilosz.ssl.kit.Kit;
+import com.github.zilosz.ssl.damage.Damage;
+import com.github.zilosz.ssl.damage.KnockBack;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
-import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
+import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.effect.ColorType;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
-import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
@@ -29,10 +26,6 @@ import java.util.List;
 public class RocketLauncher extends ChargedRightClickAbility {
     private float pitch;
 
-    public RocketLauncher(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void onInitialClick(PlayerInteractEvent event) {
         this.pitch = 0.5f;
@@ -47,23 +40,25 @@ public class RocketLauncher extends ChargedRightClickAbility {
     @Override
     public void onSuccessfulCharge() {
         Section main = this.config.getSection("Rocket");
-        Rocket rocket = new Rocket(this.plugin, this, main);
+        Rocket rocket = new Rocket(this, main);
 
-        DamageSettings damageSettings = rocket.getAttackSettings().getDamageSettings();
-        damageSettings.setDamage(YamlReader.incLin(main, "Damage", this.ticksCharging, this.maxChargeTicks));
+        Damage damage = rocket.getAttack().getDamage();
+        damage.setDamage(YamlReader.getIncreasingValue(main, "Damage", this.ticksCharging, this.maxChargeTicks));
 
-        KbSettings kbSettings = rocket.getAttackSettings().getKbSettings();
-        kbSettings.setKb(YamlReader.incLin(main, "Kb", this.ticksCharging, this.maxChargeTicks));
+        KnockBack kb = rocket.getAttack().getKb();
+        kb.setKb(YamlReader.getIncreasingValue(main, "Kb", this.ticksCharging, this.maxChargeTicks));
 
-        rocket.setSpeed(YamlReader.incLin(main, "Speed", this.ticksCharging, this.maxChargeTicks));
+        rocket.setSpeed(YamlReader.getIncreasingValue(main, "Speed", this.ticksCharging, this.maxChargeTicks));
         rocket.launch();
+
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.FIREWORK_LAUNCH, 2, 1);
     }
 
-    public static class Rocket extends ItemProjectile {
+    private static class Rocket extends ItemProjectile {
         private final List<Location> particles = new ArrayList<>();
 
-        public Rocket(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public Rocket(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override
@@ -118,14 +113,14 @@ public class RocketLauncher extends ChargedRightClickAbility {
                 );
 
                 Section shrapnelConfig = this.config.getSection("Shrapnel");
-                Shrapnel shrapnel = new Shrapnel(this.plugin, this.ability, shrapnelConfig, particle, toAvoid);
+                Shrapnel shrapnel = new Shrapnel(this.ability, shrapnelConfig, particle, toAvoid);
 
                 double multiplier = this.config.getDouble("Shrapnel.Multiplier");
 
-                DamageSettings damageSettings = shrapnel.getAttackSettings().getDamageSettings();
+                Damage damageSettings = shrapnel.getAttack().getDamage();
                 damageSettings.setDamage(damageSettings.getDamage() * multiplier);
 
-                KbSettings kbSettings = shrapnel.getAttackSettings().getKbSettings();
+                KnockBack kbSettings = shrapnel.getAttack().getKb();
                 kbSettings.setKb(kbSettings.getKb() * multiplier);
 
                 shrapnel.setOverrideLocation(launchLocation);
@@ -138,14 +133,16 @@ public class RocketLauncher extends ChargedRightClickAbility {
         }
     }
 
-    public static class Shrapnel extends ItemProjectile {
+    private static class Shrapnel extends ItemProjectile {
         private final ParticleBuilder particle;
-        private final LivingEntity toAvoid;
 
-        public Shrapnel(SSL plugin, Ability ability, Section config, ParticleBuilder particle, LivingEntity toAvoid) {
-            super(plugin, ability, config);
+        public Shrapnel(Ability ability, Section config, ParticleBuilder particle, LivingEntity toAvoid) {
+            super(ability, config);
             this.particle = particle;
-            this.toAvoid = toAvoid;
+
+            if (toAvoid != null) {
+                this.entityFinder.avoid(toAvoid);
+            }
         }
 
         @Override
@@ -158,17 +155,6 @@ public class RocketLauncher extends ChargedRightClickAbility {
             for (int i = 0; i < 3; i++) {
                 this.particle.setSpread(0.2f, 0.2f, 0.2f).show(this.entity.getLocation());
             }
-        }
-
-        @Override
-        public EntityFinder getFinder() {
-            EntityFinder finder = super.getFinder();
-
-            if (this.toAvoid != null) {
-                finder.avoid(this.toAvoid);
-            }
-
-            return finder;
         }
     }
 }

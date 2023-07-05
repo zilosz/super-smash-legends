@@ -1,0 +1,25 @@
+Name: "Olympic Dive"
+Item:
+  Material: GOLD_AXE
+Description:
+  - "&7Right-click to ascend to the water's"
+  - "&7surface, creating a vortex that pulls"
+  - "&7nearby targets. Right-click after ascending"
+  - "&7to dive downwards, creating a big splash"
+  - "&7that deals damage to nearby enemies."
+Cooldown: 160
+AutoStartCooldown: false
+AutoSendUseMessage: false
+DiveDelay: 10
+AscendVelocity: 1.3
+PullVelocity: 0.9
+PullDistance: 4
+ExtraPullY: 0.4
+MaxPullY: 0.4
+DiveVelocity: 2.1
+DiveDamageRadius: 4
+MinDiveDamage: 3.5
+MaxDiveDamage: 7.5
+MinDiveKb: 0.5
+MaxDiveKb: 1.3
+KbY: 0.5

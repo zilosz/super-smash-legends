@@ -6,6 +6,7 @@ import com.github.zilosz.ssl.command.DummyCommand;
 import com.github.zilosz.ssl.command.EndCommand;
 import com.github.zilosz.ssl.command.KitCommand;
 import com.github.zilosz.ssl.command.LocCommand;
+import com.github.zilosz.ssl.command.PlayCommand;
 import com.github.zilosz.ssl.command.ReloadConfigCommand;
 import com.github.zilosz.ssl.command.SkipCommand;
 import com.github.zilosz.ssl.command.SpecCommand;
@@ -32,6 +33,7 @@ import org.bukkit.util.Vector;
 import java.io.File;
 
 @Getter
+@SuppressWarnings("OverlyCoupledClass")
 public class SSL extends JavaPlugin {
     @Getter private static SSL instance;
 
@@ -56,8 +58,7 @@ public class SSL extends JavaPlugin {
 
         try {
             this.gameManager.getState().end();
-        } catch (IllegalPluginAccessException ignored) {
-        }
+        } catch (IllegalPluginAccessException ignored) {}
 
         this.kitManager.destroyNpcs();
 
@@ -70,30 +71,28 @@ public class SSL extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        this.resources = new Resources(this);
-        this.damageManager = new DamageManager(this);
+        this.resources = new Resources();
+        this.damageManager = new DamageManager();
         this.worldManager = new WorldManager();
         this.inventoryManager = new InventoryManager(this);
-        this.teamManager = new TeamManager(this);
-        this.arenaManager = new ArenaManager(this);
+        this.teamManager = new TeamManager();
+        this.arenaManager = new ArenaManager();
         this.playerDatabase = new PlayerDatabase();
-        this.kitManager = new KitManager(this);
-        this.gameManager = new GameManager(this);
+        this.kitManager = new KitManager();
+        this.gameManager = new GameManager();
 
         Section dbConfig = this.resources.getConfig().getSection("Database");
 
         if (dbConfig.getBoolean("Enabled")) {
-
-            this.playerDatabase.init(
-                    dbConfig.getString("Uri"),
-                    dbConfig.getString("Database"),
-                    dbConfig.getString("Collection")
-            );
+            String uri = dbConfig.getString("Uri");
+            String db = dbConfig.getString("Database");
+            String collection = dbConfig.getString("Collection");
+            this.playerDatabase.init(uri, db, collection);
         }
 
         Bukkit.getPluginManager().registerEvents(this.kitManager, this);
 
-        Vector pasteVector = YamlReader.vector(this.resources.getLobby().getString("PasteVector"));
+        Vector pasteVector = YamlReader.getVector(this.resources.getLobby().getString("PasteVector"));
         File schematic = FileUtility.loadSchematic(this, "lobby");
         this.worldManager.createWorld("lobby", schematic, pasteVector);
 
@@ -104,14 +103,18 @@ public class SSL extends JavaPlugin {
         Assemble scoreboard = new Assemble(this, new GameScoreboard());
         scoreboard.setTicks(5);
 
-        this.getCommand("kit").setExecutor(new KitCommand(this));
-        this.getCommand("reloadconfig").setExecutor(new ReloadConfigCommand(this.resources));
-        this.getCommand("start").setExecutor(new StartCommand(this));
-        this.getCommand("end").setExecutor(new EndCommand(this));
-        this.getCommand("skip").setExecutor(new SkipCommand(this));
-        this.getCommand("dummy").setExecutor(new DummyCommand());
+        this.getCommand("kit").setExecutor(new KitCommand());
+        this.getCommand("reloadconfig").setExecutor(new ReloadConfigCommand());
+        this.getCommand("start").setExecutor(new StartCommand());
+        this.getCommand("end").setExecutor(new EndCommand());
+        this.getCommand("skip").setExecutor(new SkipCommand());
         this.getCommand("loc").setExecutor(new LocCommand());
         this.getCommand("damage").setExecutor(new DamageCommand());
         this.getCommand("spec").setExecutor(new SpecCommand());
+        this.getCommand("play").setExecutor(new PlayCommand());
+
+        DummyCommand dummyCommand = new DummyCommand();
+        this.getCommand("dummy").setExecutor(dummyCommand);
+        Bukkit.getPluginManager().registerEvents(dummyCommand, this);
     }
 }

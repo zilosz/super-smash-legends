@@ -3,9 +3,8 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.ChargedRightClickBlockAbility;
-import com.github.zilosz.ssl.damage.DamageSettings;
-import com.github.zilosz.ssl.damage.KbSettings;
-import com.github.zilosz.ssl.kit.Kit;
+import com.github.zilosz.ssl.damage.Damage;
+import com.github.zilosz.ssl.damage.KnockBack;
 import com.github.zilosz.ssl.projectile.BlockProjectile;
 import com.github.zilosz.ssl.utils.RunnableUtils;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
@@ -28,9 +27,10 @@ public class TerraShot extends ChargedRightClickBlockAbility {
     private BukkitTask rotateTask;
     private float pitch;
 
-    public TerraShot(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-        this.maxChargeTicks = config.getInt("StageDuration") * config.getInt("Stages");
+    @Override
+    public void activate() {
+        super.activate();
+        this.maxChargeTicks = this.config.getInt("StageDuration") * this.config.getInt("Stages");
     }
 
     @Override
@@ -46,7 +46,7 @@ public class TerraShot extends ChargedRightClickBlockAbility {
         this.blockItem.setPickupDelay(Integer.MAX_VALUE);
 
         this.rotateTask = VectorUtils.rotateAroundEntity(
-                this.plugin,
+                SSL.getInstance(),
                 this.blockItem,
                 this.player,
                 90,
@@ -79,28 +79,27 @@ public class TerraShot extends ChargedRightClickBlockAbility {
         Material material = stack.getType();
         byte data = stack.getData().getData();
 
-        double speed = YamlReader.incLin(this.config, "Speed", this.ticksCharging, this.maxChargeTicks);
-        double damage = YamlReader.incLin(this.config, "Damage", this.ticksCharging, this.maxChargeTicks);
-        double kb = YamlReader.incLin(this.config, "Kb", this.ticksCharging, this.maxChargeTicks);
+        double speed = YamlReader.getIncreasingValue(this.config, "Speed", this.ticksCharging, this.maxChargeTicks);
+        double damage = YamlReader.getIncreasingValue(this.config, "Damage", this.ticksCharging, this.maxChargeTicks);
+        double kb = YamlReader.getIncreasingValue(this.config, "Kb", this.ticksCharging, this.maxChargeTicks);
 
         int count = this.config.getInt("Count");
         int interval = this.config.getInt("LaunchInterval");
 
-        RunnableUtils.runTaskWithIntervals(this.plugin, count, interval, () -> {
-                    TerraProjectile projectile = new TerraProjectile(this.plugin, this, this.config);
-                    projectile.setMaterial(material);
-                    projectile.setData(data);
+        RunnableUtils.runTaskWithIntervals(SSL.getInstance(), count, interval, () -> {
+            TerraProjectile projectile = new TerraProjectile(this, this.config);
+            projectile.setMaterial(material);
+            projectile.setData(data);
 
-                    DamageSettings damageSettings = projectile.getAttackSettings().getDamageSettings();
-                    damageSettings.setDamage(damage);
+            Damage damageSettings = projectile.getAttack().getDamage();
+            damageSettings.setDamage(damage);
 
-                    KbSettings kbSettings = projectile.getAttackSettings().getKbSettings();
-                    kbSettings.setKb(kb);
+            KnockBack kbSettings = projectile.getAttack().getKb();
+            kbSettings.setKb(kb);
 
-                    projectile.setSpeed(speed);
-                    projectile.launch();
-                }, this::stopRotation
-        );
+            projectile.setSpeed(speed);
+            projectile.launch();
+        }, this::stopRotation);
     }
 
     private void stopRotation() {
@@ -110,8 +109,8 @@ public class TerraShot extends ChargedRightClickBlockAbility {
 
     public static class TerraProjectile extends BlockProjectile {
 
-        public TerraProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public TerraProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override
@@ -123,7 +122,7 @@ public class TerraShot extends ChargedRightClickBlockAbility {
         public void onBlockHit(BlockHitResult result) {
             new ParticleBuilder(EnumParticle.REDSTONE).setFace(result.getFace())
                     .setRgb(255, 0, 255)
-                    .boom(this.plugin, this.entity.getLocation(), 4, 0.5, 15);
+                    .boom(SSL.getInstance(), this.entity.getLocation(), 4, 0.5, 15);
         }
 
         @Override
@@ -135,7 +134,7 @@ public class TerraShot extends ChargedRightClickBlockAbility {
 
         @Override
         public void onTargetHit(LivingEntity victim) {
-            new ParticleBuilder(EnumParticle.REDSTONE).boom(this.plugin, this.entity.getLocation(), 4, 0.5, 15);
+            new ParticleBuilder(EnumParticle.REDSTONE).boom(SSL.getInstance(), this.entity.getLocation(), 4, 0.5, 15);
         }
     }
 }

@@ -2,12 +2,10 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.NmsUtils;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import net.minecraft.server.v1_8_R3.PacketPlayOutAnimation;
 import org.bukkit.Bukkit;
@@ -25,10 +23,6 @@ public class SuperhumanPunch extends RightClickAbility {
     private boolean hit = false;
     private BukkitTask particleTask;
     private LivingEntity victim;
-
-    public SuperhumanPunch(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
 
     @Override
     public void onClick(PlayerInteractEvent event) {
@@ -65,8 +59,8 @@ public class SuperhumanPunch extends RightClickAbility {
         this.victim = (LivingEntity) event.getRightClicked();
 
         Vector direction = this.player.getEyeLocation().getDirection();
-        AttackSettings settings = new AttackSettings(this.config, direction);
-        this.plugin.getDamageManager().attack(this.victim, this, settings);
+        Attack settings = new Attack(this.config, direction);
+        SSL.getInstance().getDamageManager().attack(this.victim, this, settings);
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SPIDER_DEATH, 2, 2);
         this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_WOODBREAK, 0.5f, 2);
@@ -75,7 +69,7 @@ public class SuperhumanPunch extends RightClickAbility {
             this.particleTask.cancel();
         }
 
-        this.particleTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.particleTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
             if (this.victim.isOnGround()) {
                 this.particleTask.cancel();

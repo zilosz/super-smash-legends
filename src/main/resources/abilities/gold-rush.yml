@@ -1,0 +1,42 @@
+Name: "Gold Rush"
+Item:
+  Material: DIRT
+Description:
+  - "&7Miner tunnels underground in search of"
+  - "&7precious gold when the user sneaks. You"
+  - "&7travel in the direction you're facing"
+  - "&7along semi-flat ground and can sneak"
+  - "&7once more to emerge onto the surface."
+Velocity: 0.4
+MaxTicks: 60
+Depth: 1.6
+EmergeVelocity: 0.8
+EmergeVelocityY: 0.8
+TicksPerParticle: 20
+Blindness: 1
+PassableMaterials:
+  - AIR
+  - WEB
+  - LONG_GRASS
+  - DEAD_BUSH
+  - YELLOW_FLOWER
+  - RED_ROSE
+  - BROWN_MUSHROOM
+  - RED_MUSHROOM
+  - FIRE
+  - CROPS
+  - SIGN_POST
+  - LADDER
+  - SNOW
+  - SUGAR_CANE
+  - PUMPKIN_STEM
+  - MELON_STEM
+  - VINE
+  - WATER_LILY
+  - NETHER_WARTS
+  - CARROT
+  - POTATO
+  - FLOWER_POT
+  - SKULL
+  - CARPET
+  - DOUBLE_PLANT

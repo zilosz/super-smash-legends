@@ -1,0 +1,14 @@
+Name: "Jetpack"
+Item:
+  Material: IRON_BOOTS
+Description:
+  - "&7Sneak to generate forward momentum,"
+  - "&7taking enemies by surprise."
+Velocity: 0.8
+VelocityY: 0.45
+StreamFeetDistance: 0.5
+MaxStreamSpread: 0.4
+StreamSpreadStep: 0.009
+StreamStep: 0.1
+ParticlesPerSpread: 3
+EnergyPerTick: 0.05

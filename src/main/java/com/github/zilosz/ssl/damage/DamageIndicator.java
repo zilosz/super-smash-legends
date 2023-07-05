@@ -20,7 +20,6 @@ public class DamageIndicator extends BukkitRunnable {
     private final TextHologramLine line;
     private final LivingEntity entity;
     private final double height;
-    private double damage = 0;
 
     private DamageIndicator(Hologram hologram, TextHologramLine line, LivingEntity entity, double height) {
         this.hologram = hologram;
@@ -29,14 +28,14 @@ public class DamageIndicator extends BukkitRunnable {
         this.height = height;
     }
 
-    public static DamageIndicator create(SSL plugin, LivingEntity entity) {
+    public static DamageIndicator create(SSL plugin, LivingEntity entity, double damage) {
         Section heightConfig = plugin.getResources().getConfig().getSection("Damage.Indicator.Height");
         double height = heightConfig.getDouble(entity instanceof Player ? "Player" : "Entity");
 
         Location loc = relativePosition(entity, height);
 
         Hologram hologram = HolographicDisplaysAPI.get(plugin).createHologram(loc);
-        TextHologramLine line = hologram.getLines().appendText(damageFormat(entity, 0));
+        TextHologramLine line = hologram.getLines().appendText(damageFormat(entity, damage));
 
         DamageIndicator indicator = new DamageIndicator(hologram, line, entity, height);
         indicator.runTaskTimer(plugin, 0, 0);
@@ -54,32 +53,32 @@ public class DamageIndicator extends BukkitRunnable {
     }
 
     private static String damageFormat(LivingEntity entity, double damage) {
-        double healthLeft = entity.getHealth() / entity.getMaxHealth();
+        double percentHealthLeft = Math.max(0, (entity.getHealth() - damage) / entity.getMaxHealth());
         String color;
 
-        if (healthLeft < 0.25) {
+        if (percentHealthLeft < 0.25) {
             color = "&c";
 
-        } else if (healthLeft < 0.5) {
+        } else if (percentHealthLeft < 0.5) {
             color = "&6";
 
-        } else if (healthLeft < 0.75) {
+        } else if (percentHealthLeft < 0.75) {
             color = "&e";
 
         } else {
             color = "&a";
         }
 
-        return MessageUtils.color(color + new DecimalFormat("#.#").format(damage));
+        String damageString = new DecimalFormat("#.#").format(percentHealthLeft * 10);
+        return MessageUtils.color(color + damageString + "&7/10");
     }
 
     public void setGlobalVisibility(VisibilitySettings.Visibility visibility) {
         this.hologram.getVisibilitySettings().setGlobalVisibility(visibility);
     }
 
-    public void stackDamage(double damage) {
-        this.damage += damage;
-        this.line.setText(damageFormat(this.entity, this.damage));
+    public void updateDamage(double damage) {
+        this.line.setText(damageFormat(this.entity, damage));
     }
 
     @Override

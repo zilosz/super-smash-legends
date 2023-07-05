@@ -1,0 +1,12 @@
+Name: "Sticky Situation"
+Item:
+  Material: SLIME_BALL
+Description:
+  - "&7Globby doesn't like being threatened. When"
+  - "&7at low health, he immensely increases his"
+  - "&7energy efficiency in an act of pure survival"
+  - "&7instincts."
+UseDescription: "Receive energy boost when at low health"
+EnergyMultiplier: 1.5
+Speed: 1
+HealthThreshold: 7.5

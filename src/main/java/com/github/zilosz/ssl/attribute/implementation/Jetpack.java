@@ -1,12 +1,9 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.PassiveAbility;
 import com.github.zilosz.ssl.event.attribute.EnergyEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -14,10 +11,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.util.Vector;
 
 public class Jetpack extends PassiveAbility {
-
-    public Jetpack(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
 
     @Override
     public String getUseType() {
@@ -59,7 +52,9 @@ public class Jetpack extends PassiveAbility {
 
     @EventHandler
     public void onEnergy(EnergyEvent event) {
-        if (event.getPlayer() == this.player && (this.player.isSneaking() || !EntityUtils.isPlayerGrounded(this.player))) {
+        if (event.getPlayer() != this.player) return;
+
+        if (this.player.isSneaking() || !EntityUtils.isPlayerGrounded(this.player)) {
             event.setEnergy(0);
         }
     }

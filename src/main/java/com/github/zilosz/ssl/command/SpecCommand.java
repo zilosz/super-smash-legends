@@ -16,7 +16,7 @@ public class SpecCommand implements CommandExecutor {
 
         GameManager gameManager = SSL.getInstance().getGameManager();
 
-        if (!gameManager.getState().allowSpecCommand()) {
+        if (!gameManager.getState().allowsSpecCommand()) {
             Chat.COMMAND.send(commandSender, "&7You can't use the /spec command now.");
             return true;
         }

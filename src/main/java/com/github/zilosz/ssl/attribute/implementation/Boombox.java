@@ -2,8 +2,9 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attribute.AbilityType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.attribute.AbilityUseEvent;
 import com.github.zilosz.ssl.event.projectile.ProjectileHitBlockEvent;
 import com.github.zilosz.ssl.kit.Kit;
@@ -15,8 +16,8 @@ import com.github.zilosz.ssl.utils.block.BlockRay;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
-import com.github.zilosz.ssl.utils.entity.finder.selector.DistanceSelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.MathUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
@@ -57,10 +58,6 @@ public class Boombox extends RightClickAbility {
     private Hologram hologram;
     private TextHologramLine healthLine;
 
-    public Boombox(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public boolean invalidate(PlayerInteractEvent event) {
         if (super.invalidate(event) || this.isPlaced) return true;
@@ -86,7 +83,7 @@ public class Boombox extends RightClickAbility {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.NOTE_SNARE_DRUM, 3, 0.5f);
 
         Location above = this.block.getLocation().add(0.5, 1.7, 0.5);
-        this.hologram = HolographicDisplaysAPI.get(this.plugin).createHologram(above);
+        this.hologram = HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(above);
         String color = this.kit.getColor().getChatSymbol();
         String title = String.format("&f%s's %s&lBoombox", this.player.getName(), color);
         this.hologram.getLines().appendText(MessageUtils.color(title));
@@ -95,14 +92,9 @@ public class Boombox extends RightClickAbility {
         this.updateHealth(0);
 
         double healthLossPerTick = this.health / this.config.getInt("MaxDuration");
-        this.healthTask = Bukkit.getScheduler()
-                .runTaskTimer(this.plugin, () -> this.updateHealth(healthLossPerTick), 1, 1);
-    }
 
-    @Override
-    public void deactivate() {
-        this.reset(false);
-        super.deactivate();
+        this.healthTask = Bukkit.getScheduler()
+                .runTaskTimer(SSL.getInstance(), () -> this.updateHealth(healthLossPerTick), 1, 1);
     }
 
     private double getMaxHealth() {
@@ -136,7 +128,7 @@ public class Boombox extends RightClickAbility {
         if (startCanPlaceTask) {
             this.canPlace = false;
 
-            this.canPlaceAgainTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+            this.canPlaceAgainTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
                 if (EntityUtils.isPlayerGrounded(this.player)) {
                     this.canPlace = true;
@@ -170,6 +162,12 @@ public class Boombox extends RightClickAbility {
         this.player.getWorld().playSound(this.block.getLocation(), Sound.ZOMBIE_WOODBREAK, 1, 0.8f);
     }
 
+    @Override
+    public void deactivate() {
+        this.reset(false);
+        super.deactivate();
+    }
+
     @EventHandler
     public void onProjectileHitBlock(ProjectileHitBlockEvent event) {
         if (!this.isPlaced) return;
@@ -177,11 +175,11 @@ public class Boombox extends RightClickAbility {
 
         CustomProjectile<? extends Entity> projectile = event.getProjectile();
 
-        if (projectile instanceof MixTapeDrop.MixTapeProjectile) {
+        if (projectile.getAbility().getType() == AbilityType.MIX_TAPE_DROP) {
             this.explode();
 
         } else {
-            this.updateHealth(projectile.getAttackSettings().getDamageSettings().getDamage());
+            this.updateHealth(projectile.getAttack().getDamage().getDamage());
             this.player.getWorld().playSound(this.block.getLocation(), Sound.ZOMBIE_WOODBREAK, 1, 1.5f);
         }
     }
@@ -198,9 +196,7 @@ public class Boombox extends RightClickAbility {
         Section mixTapeConfig = this.config.getSection("Mixtape");
         double radius = mixTapeConfig.getDouble("Radius");
         EntitySelector selector = new DistanceSelector(radius);
-
-        EntityFinder finder = new EntityFinder(this.plugin, selector).setTeamPreference(TeamPreference.ANY)
-                .setAvoidsUser(false);
+        EntityFinder finder = new EntityFinder(selector).setTeamPreference(TeamPreference.ANY).setAvoidsUser(false);
 
         Location center = this.block.getLocation().add(0.5, 0.5, 0.5);
 
@@ -208,14 +204,14 @@ public class Boombox extends RightClickAbility {
             Vector direction = VectorUtils.fromTo(center, target.getLocation());
 
             double distance = target.getLocation().distance(center);
-            double damage = YamlReader.decLin(mixTapeConfig, "Damage", distance, radius);
-            double kb = YamlReader.decLin(mixTapeConfig, "Kb", distance, radius);
+            double damage = YamlReader.getDecreasingValue(mixTapeConfig, "Damage", distance, radius);
+            double kb = YamlReader.getDecreasingValue(mixTapeConfig, "Kb", distance, radius);
 
-            AttackSettings settings = new AttackSettings(mixTapeConfig, direction)
+            Attack attack = new Attack(mixTapeConfig, direction)
                     .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
                     .modifyKb(kbSettings -> kbSettings.setKb(kb));
 
-            this.plugin.getDamageManager().attack(target, this, settings);
+            SSL.getInstance().getDamageManager().attack(target, this, attack);
         });
 
         this.reset(true);
@@ -228,7 +224,7 @@ public class Boombox extends RightClickAbility {
         if (!event.getClickedBlock().equals(this.block)) return;
 
         if (event.getPlayer() != this.player) {
-            Kit enemyKit = this.plugin.getKitManager().getSelectedKit(event.getPlayer());
+            Kit enemyKit = SSL.getInstance().getKitManager().getSelectedKit(event.getPlayer());
             this.updateHealth(enemyKit.getDamage());
             return;
         }
@@ -244,11 +240,11 @@ public class Boombox extends RightClickAbility {
         }
 
         this.clickTicksLeft = this.config.getInt("ClickDelay");
-        this.allowClickTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> this.clickTicksLeft--, 1, 1);
+        this.allowClickTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> this.clickTicksLeft--, 1, 1);
 
         int maxPunches = this.config.getInt("MaxPunches");
 
-        float pitch = (float) MathUtils.increasingLinear(0.5, 2, maxPunches - 1, this.charge);
+        float pitch = (float) MathUtils.getIncreasingValue(0.5, 2, maxPunches - 1, this.charge);
         this.player.getWorld().playSound(this.block.getLocation(), Sound.NOTE_PLING, 2, pitch);
 
         for (int i = 0; i < 5; i++) {
@@ -269,15 +265,14 @@ public class Boombox extends RightClickAbility {
             this.launch(false, loc);
         }
 
-        ++this.charge;
-        if (this.charge == maxPunches) {
+        if (++this.charge == maxPunches) {
             this.reset(true);
         }
     }
 
     private void launch(boolean first, Location source) {
         Section settings = this.config.getSection("Projectile");
-        MusicDiscProjectile projectile = new MusicDiscProjectile(this.plugin, this, settings);
+        MusicDiscProjectile projectile = new MusicDiscProjectile(this, settings);
         projectile.setOverrideLocation(source);
 
         if (first) {
@@ -316,8 +311,8 @@ public class Boombox extends RightClickAbility {
 
     private static class MusicDiscProjectile extends ItemProjectile {
 
-        public MusicDiscProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public MusicDiscProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override

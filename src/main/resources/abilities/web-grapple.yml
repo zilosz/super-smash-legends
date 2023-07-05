@@ -1,0 +1,20 @@
+Name: "Web Grapple"
+Item:
+  Material: GOLD_BARDING
+Description:
+  - "&7Webman can shoot webbing forwards that"
+  - "&7functions as a grappling hook. The webs"
+  - "&7stick to solid surfaces to propel Webman"
+  - "&7forwards at a rapid pace and hurt any"
+  - "&7enemies that they hit."
+Cooldown: 60
+Projectile:
+  Speed: 2.5
+  PullSpeed: 2
+  Damage: 5
+  Kb: 1.5
+  KbY: 0.75
+  Lifespan: 80
+  ExtraY: 0.4
+  Item:
+    Material: WEB

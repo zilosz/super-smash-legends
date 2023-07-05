@@ -6,9 +6,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.event.Cancellable;
 
+@Getter
 public class AbilityUseEvent extends CustomEvent implements Cancellable {
-    @Getter private final ClickableAbility ability;
-    @Getter @Setter private boolean cancelled = false;
+    private final ClickableAbility ability;
+    @Setter private boolean cancelled = false;
 
     public AbilityUseEvent(ClickableAbility ability) {
         this.ability = ability;

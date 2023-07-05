@@ -5,19 +5,17 @@ import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class EmulatedProjectile<T extends Entity> extends CustomProjectile<T> {
-    @Getter @Setter protected boolean removeOnLongCollision;
+    protected boolean removeOnLongCollision;
     @Nullable private BlockFace lastHitFace;
     private int sameHitDuration = 0;
 
-    public EmulatedProjectile(SSL plugin, Ability ability, Section config) {
-        super(plugin, ability, config);
+    public EmulatedProjectile(Ability ability, Section config) {
+        super(ability, config);
         this.removeOnLongCollision = config.getOptionalBoolean("RemoveOnLongCollision").orElse(true);
     }
 
@@ -25,7 +23,7 @@ public abstract class EmulatedProjectile<T extends Entity> extends CustomProject
     public void run() {
         super.run();
 
-        double accuracy = this.plugin.getResources().getConfig().getDouble("Collision.FaceAccuracy");
+        double accuracy = SSL.getInstance().getResources().getConfig().getDouble("Collision.FaceAccuracy");
         BlockHitResult result = BlockUtils.findBlockHitByEntityBox(this.entity, accuracy);
 
         if (result == null) return;
@@ -34,17 +32,16 @@ public abstract class EmulatedProjectile<T extends Entity> extends CustomProject
             this.lastHitFace = null;
 
         } else if (result.getFace() == this.lastHitFace) {
-            int maxStuckDuration = this.plugin.getResources().getConfig().getInt("Collision.MaxStuckDuration");
+            int maxStuckDuration = SSL.getInstance().getResources().getConfig().getInt("Collision.MaxStuckDuration");
 
-            ++this.sameHitDuration;
-            if (this.sameHitDuration >= maxStuckDuration && this.removeOnLongCollision) {
+            if (++this.sameHitDuration >= maxStuckDuration && this.removeOnLongCollision) {
                 this.remove(ProjectileRemoveReason.HIT_BLOCK);
             }
 
         } else {
             this.sameHitDuration = 0;
             this.lastHitFace = result.getFace();
-            this.handleBlockHitResult(result);
+            this.hitBlock(result);
         }
     }
 }

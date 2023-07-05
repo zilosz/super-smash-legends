@@ -12,21 +12,14 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 public class ArenaVoter extends CustomInventory<Arena> implements HasRandomOption {
 
     @Override
     public List<Arena> getItems() {
-        return SSL.getInstance()
-                .getArenaManager()
-                .getArenas()
-                .stream()
-                .sorted(Comparator.comparing(Arena::getName))
-                .collect(Collectors.toList());
+        return SSL.getInstance().getArenaManager().getArenas();
     }
 
     @Override
@@ -39,7 +32,8 @@ public class ArenaVoter extends CustomInventory<Arena> implements HasRandomOptio
                 ""
         ));
 
-        return new ItemBuilder<>(arena.getItemStack()).setEnchanted(arena.isVotedBy(player))
+        return new ItemBuilder<>(arena.getItemStack())
+                .setEnchanted(arena.isVotedBy(player))
                 .setName(arena.getName())
                 .setLore(lore)
                 .get();

@@ -1,18 +1,28 @@
 name: SuperSmashLegends
 version: 1.0.0-alpha
 main: com.github.zilosz.ssl.SSL
-authors: [ Zilosz ]
+authors: [Zilosz]
 api-version: 1.8.8
-depend: [ ProtocolLib ]
-softdepend: [ TitleAPI, NameTagEdit ]
+softdepend:
+  - TitleAPI
+  - NameTagEdit
+  - ActionBarAPI
+  - LibsDisguises
+  - HolographicDisplays
+  - ProtocolLib
+  - FastAsyncWorldEdit
+  - Citizens
 
 commands:
+  play:
+    description: Skips to the IN_GAME game state.
+    usage: "/<command>"
   kit:
     description: Opens the kit GUI or sets a player's kit.
     usage: "/<command> [kit]"
   reloadconfig:
     description: Dynamically reloads configuration files.
-    aliases: [ rc, reloadconfigs ]
+    aliases: [rc, reloadconfigs]
     permission: op
     usage: "/<command>"
   start:
@@ -30,7 +40,7 @@ commands:
   dummy:
     description: Spawns a dummy above the player.
     permission: op
-    usage: "/<command>"
+    usage: "/<command> [entity type] [health]"
   loc:
     description: Sends the player's location.
     permission: op

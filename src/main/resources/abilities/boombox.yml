@@ -1,0 +1,36 @@
+Name: "Boombox"
+Item:
+  Material: JUKEBOX
+Description:
+  - "&7The Boombox is every Musician's key"
+  - "&7component. Musician places down a"
+  - "&7boombox that, when clicked, spews"
+  - "&7out a rapid stream of music discs."
+  - "&7As you click the boombox more, the"
+  - "&7projectile accuracy rises while the"
+  - "&7damage and knock-back fall."
+Cooldown: 40
+AutoStartCooldown: false
+MaxDuration: 200
+PlaceReach: 2
+Health: 10
+MaxPunches: 4
+ConicAngle: 4.5
+Count: 10
+ClickDelay: 10
+Projectile:
+  Speed: 2
+  Spread: 2
+  Damage: 6
+  Kb: 1.85
+  KbY: 0.7
+  HasGravity: false
+  Item:
+    Material: RECORD_6
+Mixtape:
+  Radius: 8
+  MinDamage: 2
+  MaxDamage: 13
+  MinKb: 1
+  MaxKb: 3
+  KbY: 1

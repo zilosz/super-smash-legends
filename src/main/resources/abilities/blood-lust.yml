@@ -1,0 +1,7 @@
+Name: "Bloodlust"
+Item:
+  Material: APPLE
+Description:
+  - "&7Deadmortal can regenerate a sliver of"
+  - "&7health each time he punches opponents."
+Regen: 0.8

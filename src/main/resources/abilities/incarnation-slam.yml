@@ -1,0 +1,18 @@
+Name: "Incarnation Slam"
+Item:
+  Material: GOLD_AXE
+Description:
+  - "&7As King of the Slimes, Globby possesses"
+  - "&7inherent divine ability. He is able to"
+  - "&7reincarnate himself as a grand, ferocious"
+  - "&7slime, bloated to no avail. In a brief"
+  - "&7display of strength, Globby flings his new"
+  - "&7body forward, striking enemies."
+Cooldown: 140
+AutoStartCooldown: false
+Velocity: 2
+SlimeSize: 2
+HitBox: 1.25
+Damage: 6
+Kb: 2.1
+KbY: 0.85

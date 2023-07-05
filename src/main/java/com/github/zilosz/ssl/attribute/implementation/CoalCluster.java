@@ -1,9 +1,7 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.BlockProjectile;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
@@ -18,19 +16,16 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public class CoalCluster extends RightClickAbility {
 
-    public CoalCluster(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new ClusterProjectile(this.plugin, this, this.config.getSection("Cluster")).launch();
+        new ClusterProjectile(this, this.config.getSection("Cluster")).launch();
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.ANVIL_LAND, 1, 2);
     }
 
-    public static class ClusterProjectile extends BlockProjectile {
+    private static class ClusterProjectile extends BlockProjectile {
 
-        public ClusterProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public ClusterProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override
@@ -69,17 +64,17 @@ public class CoalCluster extends RightClickAbility {
                 launchLoc.setYaw(i * yawStep);
 
                 Section settings = this.config.getSection("Fragment");
-                FragmentProjectile projectile = new FragmentProjectile(this.plugin, this.ability, settings);
+                FragmentProjectile projectile = new FragmentProjectile(this.ability, settings);
                 projectile.setOverrideLocation(launchLoc);
                 projectile.launch();
             }
         }
     }
 
-    public static class FragmentProjectile extends ItemProjectile {
+    private static class FragmentProjectile extends ItemProjectile {
 
-        public FragmentProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public FragmentProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override

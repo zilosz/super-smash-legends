@@ -8,10 +8,10 @@ import lombok.Setter;
 @Setter
 public class InGameProfile {
     private int lives;
-    private int deaths = 0;
-    private int kills = 0;
-    private double damageDealt = 0;
-    private double damageTaken = 0;
+    private int deaths;
+    private int kills;
+    private double damageDealt;
+    private double damageTaken;
     private Kit kit;
     private GameResult gameResult;
 

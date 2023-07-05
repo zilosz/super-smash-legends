@@ -1,0 +1,17 @@
+Name: "Frigid Spear"
+Item:
+  Material: DIAMOND_AXE
+Description:
+  - "&7Throws a sub-zero icicle. Through"
+  - "&7Cryomancer's wizardry powers, the"
+  - "&7icicle reels targets towards him."
+  - "&7Its damage ignores enemy armor."
+Cooldown: 100
+Projectile:
+  Speed: 1.7
+  FactorsArmor: false
+  Damage: 4
+  Kb: -1.2
+  KbY: 0.5
+  Item:
+    Material: ICE

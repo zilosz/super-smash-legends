@@ -1,8 +1,9 @@
 package com.github.zilosz.ssl.utils.inventory;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.utils.CollectionUtils;
 import com.github.zilosz.ssl.utils.ItemBuilder;
+import com.github.zilosz.ssl.utils.collection.CollectionUtils;
+import com.github.zilosz.ssl.utils.effect.ColorType;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.SmartInventory;
@@ -81,10 +82,10 @@ public abstract class CustomInventory<T> implements InventoryProvider {
         int state = contents.property("state", 0);
         contents.setProperty("state", state + 1);
 
-        if (state % randomOption.getTicksPerColor() != 0) return;
+        if (state % 10 != 0) return;
 
         ItemStack stack = new ItemBuilder<>(Material.WOOL)
-                .setData(CollectionUtils.selectRandom(randomOption.getColors()))
+                .setData(CollectionUtils.selectRandom(ColorType.values()).getDyeColor().getWoolData())
                 .setName("&cR&6A&eN&aD&bO&dM")
                 .setLore(List.of("&7Pick a random option!"))
                 .get();

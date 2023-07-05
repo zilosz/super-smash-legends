@@ -1,0 +1,17 @@
+Name: "Axe Throw"
+Item:
+  Material: IRON_AXE
+Description:
+  - "&7Swiftly throw an axe to slice through"
+  - "&7foes. The Barbarian possesses pinpoint"
+  - "&7accuracy, so don't underestimate his"
+  - "&7weapon-wielding powers."
+Cooldown: 60
+Projectile:
+  Speed: 1.7
+  Damage: 5
+  Kb: 1.4
+  KbY: 0.5
+  HitBox: 0.9
+  Item:
+    Material: IRON_AXE

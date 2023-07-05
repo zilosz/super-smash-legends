@@ -12,12 +12,4 @@ public class Reflector {
             throw new RuntimeException(e);
         }
     }
-
-    public static Class<?> loadClass(String name) {
-        try {
-            return Class.forName(name);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

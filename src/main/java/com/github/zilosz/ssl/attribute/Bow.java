@@ -1,8 +1,5 @@
 package com.github.zilosz.ssl.attribute;
 
-import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.kit.Kit;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityShootBowEvent;
@@ -12,10 +9,6 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 public abstract class Bow extends PassiveAbility {
     protected int ticksCharging = 0;
     private int bowSlot;
-
-    public Bow(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
 
     @Override
     public String getUseType() {

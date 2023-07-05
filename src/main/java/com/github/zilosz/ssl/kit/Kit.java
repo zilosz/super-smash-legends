@@ -2,72 +2,75 @@ package com.github.zilosz.ssl.kit;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attribute.AbilityType;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.attribute.implementation.Energy;
 import com.github.zilosz.ssl.attribute.implementation.Jump;
 import com.github.zilosz.ssl.attribute.implementation.Melee;
 import com.github.zilosz.ssl.attribute.implementation.Regeneration;
 import com.github.zilosz.ssl.utils.Noise;
-import com.github.zilosz.ssl.utils.Reflector;
 import com.github.zilosz.ssl.utils.Skin;
 import com.github.zilosz.ssl.utils.effect.ColorType;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
+import dev.dejvokep.boostedyaml.YamlDocument;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class Kit {
-    private static final SSL plugin = SSL.getInstance();
+    private final YamlDocument config;
+    @Getter private final KitType type;
 
-    private final Section config;
-
-    private final List<Attribute> attributes = new ArrayList<>();
     @Getter private final Jump jump;
     @Getter private final Skin skin;
-
+    private final List<Attribute> attributes = new ArrayList<>();
     @Getter private Player player;
 
-    @SuppressWarnings("unchecked")
-    public Kit(Section config) {
+    public Kit(YamlDocument config, KitType type) {
         this.config = config;
+        this.type = type;
 
         this.skin = Skin.fromMojang(this.getSkinName());
 
-        this.jump = new Jump(SSL.getInstance(), this);
-        this.attributes.add(this.jump);
+        this.jump = new Jump();
+        this.addAttribute(this.jump);
 
-        this.attributes.add(new Regeneration(plugin, this));
-        this.attributes.add(new Melee(plugin, this));
+        this.addAttribute(new Regeneration());
+        this.addAttribute(new Melee());
 
         if (config.isNumber("Energy")) {
-            this.attributes.add(new Energy(plugin, this));
+            this.addAttribute(new Energy());
         }
 
-        for (int i = 0; i < 9; i++) {
-            int finalI = i;
+        Optional.ofNullable(config.getSection("Abilities")).ifPresent(abilities -> {
 
-            config.getOptionalSection("Abilities." + i).ifPresent(abilityConfig -> {
-                String configName = abilityConfig.getString("ConfigName");
-                String name = Ability.class.getPackageName() + ".implementation." + configName;
-                Class<? extends Ability> clazz = (Class<? extends Ability>) Reflector.loadClass(name);
-                Ability ability = Reflector.newInstance(clazz, plugin, abilityConfig, this);
-                ability.setSlot(finalI);
-                this.attributes.add(ability);
-            });
-        }
+            for (int i = 0; i < 6; i++) {
+                int finalI = i;
+
+                Optional.ofNullable(abilities.getString(String.valueOf(i))).ifPresent(abilityName -> {
+                    AbilityType abilityType = AbilityType.valueOf(abilityName);
+                    YamlDocument abilityConfig = SSL.getInstance().getResources().getAbilityConfig(abilityType);
+
+                    Ability ability = abilityType.get();
+                    this.addAttribute(ability);
+                    ability.initAbility(abilityConfig, abilityType, finalI);
+                });
+            }
+        });
     }
 
     public String getSkinName() {
         return this.config.getString("Skin");
     }
 
-    public String getConfigName() {
-        return this.config.getString("ConfigName");
+    private void addAttribute(Attribute attribute) {
+        this.attributes.add(attribute);
+        attribute.initAttribute(this);
     }
 
     public List<String> getDescription() {
@@ -79,11 +82,7 @@ public class Kit {
     }
 
     public ColorType getColor() {
-        try {
-            return ColorType.valueOf(this.config.getString("Color"));
-        } catch (IllegalArgumentException e) {
-            return ColorType.WHITE;
-        }
+        return ColorType.valueOf(this.config.getString("Color"));
     }
 
     public String getBoldedDisplayName() {
@@ -119,15 +118,15 @@ public class Kit {
     }
 
     public Noise getJumpNoise() {
-        return YamlReader.noise(this.config.getSection("Jump.Sound"));
+        return YamlReader.getNoise(this.config.getSection("Jump.Sound"));
     }
 
     public Noise getHurtNoise() {
-        return YamlReader.noise(this.config.getSection("HurtSound"));
+        return YamlReader.getNoise(this.config.getSection("HurtSound"));
     }
 
     public Noise getDeathNoise() {
-        return YamlReader.noise(this.config.getSection("DeathSound"));
+        return YamlReader.getNoise(this.config.getSection("DeathSound"));
     }
 
     public float getEnergy() {
@@ -140,10 +139,10 @@ public class Kit {
 
     public void equip(Player player) {
         this.player = player;
-        this.giveItems();
+        this.equip();
     }
 
-    public void giveItems() {
+    public void equip() {
         this.attributes.forEach(Attribute::equip);
     }
 

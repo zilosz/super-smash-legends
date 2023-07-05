@@ -2,15 +2,13 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.DamageSettings;
-import com.github.zilosz.ssl.damage.KbSettings;
+import com.github.zilosz.ssl.damage.Damage;
+import com.github.zilosz.ssl.damage.KnockBack;
 import com.github.zilosz.ssl.event.CustomEvent;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
@@ -29,10 +27,6 @@ import org.jetbrains.annotations.Nullable;
 public class Rasengan extends RightClickAbility {
     @Nullable private BukkitTask task;
     private boolean leapt = false;
-
-    public Rasengan(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
 
     @Override
     public boolean invalidate(PlayerInteractEvent event) {
@@ -60,7 +54,7 @@ public class Rasengan extends RightClickAbility {
 
                 display(Rasengan.this.player);
             }
-        }.runTaskTimer(this.plugin, 1, 0);
+        }.runTaskTimer(SSL.getInstance(), 1, 0);
     }
 
     private void reset() {
@@ -108,12 +102,12 @@ public class Rasengan extends RightClickAbility {
 
         this.reset();
 
-        DamageSettings damageSettings = event.getAttackSettings().getDamageSettings();
-        damageSettings.setDamage(this.config.getDouble("Damage"));
+        Damage damage = event.getAttack().getDamage();
+        damage.setDamage(this.config.getDouble("Damage"));
 
-        KbSettings kbSettings = event.getAttackSettings().getKbSettings();
-        kbSettings.setKb(this.config.getDouble("Kb"));
-        kbSettings.setKbY(this.config.getDouble("KbY"));
+        KnockBack kb = event.getAttack().getKb();
+        kb.setKb(this.config.getDouble("Kb"));
+        kb.setKbY(this.config.getDouble("KbY"));
 
         event.getVictim().getWorld().playSound(event.getVictim().getLocation(), Sound.EXPLODE, 3, 1);
         displayAttackEffect(event.getVictim());

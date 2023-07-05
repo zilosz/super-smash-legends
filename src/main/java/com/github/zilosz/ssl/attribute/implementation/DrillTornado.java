@@ -2,37 +2,29 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
-import com.github.zilosz.ssl.event.attack.DamageEvent;
-import com.github.zilosz.ssl.kit.Kit;
+import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
-import com.github.zilosz.ssl.utils.entity.FloatingEntity;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
-import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 public class DrillTornado extends RightClickAbility {
     private BukkitTask prepareTask;
-    private FloatingEntity<Player> floatingEntity;
     private float pitch = 0.5f;
     private int ticksPreparing = 0;
     private boolean isDrilling = false;
     private BukkitTask drillTask;
     private BukkitTask drillCancelTask;
-
-    public DrillTornado(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
 
     @Override
     public boolean invalidate(PlayerInteractEvent event) {
@@ -42,9 +34,9 @@ public class DrillTornado extends RightClickAbility {
     @Override
     public void onClick(PlayerInteractEvent event) {
         int prepareDuration = this.config.getInt("PrepareTicks");
-        this.floatingEntity = FloatingEntity.fromEntity(this.player);
 
-        this.prepareTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.prepareTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
+            this.player.setVelocity(new Vector(0, 0.03, 0));
             this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_METAL, 1, this.pitch);
 
             if (this.ticksPreparing % 2 == 0) {
@@ -59,9 +51,8 @@ public class DrillTornado extends RightClickAbility {
             this.prepareTask.cancel();
             this.ticksPreparing = 0;
             this.isDrilling = true;
-            this.floatingEntity.destroy();
 
-            this.drillTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+            this.drillTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
                 double velocity = this.config.getDouble("Velocity");
                 this.player.setVelocity(this.player.getEyeLocation().getDirection().multiply(velocity));
 
@@ -74,24 +65,18 @@ public class DrillTornado extends RightClickAbility {
 
                 EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
-                new EntityFinder(this.plugin, selector).findAll(this.player).forEach(target -> {
-                    AttackSettings settings = new AttackSettings(this.config, this.player.getLocation().getDirection());
+                new EntityFinder(selector).findAll(this.player).forEach(target -> {
+                    Attack settings = new Attack(this.config, this.player.getLocation().getDirection());
 
-                    if (this.plugin.getDamageManager().attack(target, this, settings)) {
+                    if (SSL.getInstance().getDamageManager().attack(target, this, settings)) {
                         this.player.getWorld().playSound(target.getLocation(), Sound.ANVIL_LAND, 1, 0.5f);
                     }
                 });
             }, 0, 0);
 
-            int duration = this.config.getInt("Duration");
-            this.drillCancelTask = Bukkit.getScheduler().runTaskLater(this.plugin, () -> this.reset(true), duration);
+            this.drillCancelTask = Bukkit.getScheduler()
+                    .runTaskLater(SSL.getInstance(), () -> this.reset(true), this.config.getInt("Duration"));
         }, 0, 0);
-    }
-
-    @Override
-    public void deactivate() {
-        super.deactivate();
-        this.reset(false);
     }
 
     private void reset(boolean natural) {
@@ -106,7 +91,6 @@ public class DrillTornado extends RightClickAbility {
 
         if (this.prepareTask != null) {
             this.prepareTask.cancel();
-            this.floatingEntity.destroy();
         }
 
         if (this.drillTask != null) {
@@ -115,8 +99,14 @@ public class DrillTornado extends RightClickAbility {
         }
     }
 
+    @Override
+    public void deactivate() {
+        super.deactivate();
+        this.reset(false);
+    }
+
     @EventHandler
-    public void onDamage(DamageEvent event) {
+    public void onDamage(AttackEvent event) {
         if (event.getVictim() == this.player && this.ticksPreparing > 0) {
             this.reset(true);
         }

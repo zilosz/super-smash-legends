@@ -1,0 +1,32 @@
+Name: "Tank"
+Color: GREEN
+Description:
+  - "&7Slow but deadly, Tank uses every inch"
+  - "&7of his body to slam into opponents,"
+  - "&7showing no mercy. He is the strongest of"
+  - "&7all, and is even capable of manipulating"
+  - "&7the terrain around him to his advantage."
+Skin: "zzz0www"
+Damage: 6
+Armor: 0.45
+Kb: 0.8
+Regen: 0.22
+Jump:
+  Power: 0.95
+  Height: 0.9
+  Sound:
+    Type: IRONGOLEM_THROW
+    Volume: 2
+    Pitch: 1
+HurtSound:
+  Type: IRONGOLEM_HIT
+  Volume: 1
+  Pitch: 1
+DeathSound:
+  Type: IRONGOLEM_DEATH
+  Volume: 3
+  Pitch: 1
+Abilities:
+  0: GAIA_TOSS
+  1: EARTHQUAKE
+  2: CHAIN_OF_STEEL

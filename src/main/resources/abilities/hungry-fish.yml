@@ -1,0 +1,19 @@
+Name: "Hungry Fish"
+Item:
+  Material: IRON_BARDING
+Description:
+  - "&7Send forth a fish that leaps onto the"
+  - "&7target, latching on like a piranha."
+  - "&7The target struggles to move for a"
+  - "&7temporary period of time while the"
+  - "&7fish is latched on."
+Cooldown: 120
+Projectile:
+  Speed: 1.6
+  VelocityMultiplier: 0.6
+  Damage: 4.5
+  SoakDuration: 60
+  Kb: 0.9
+  KbY: 0.5
+  Item:
+    Material: RAW_FISH

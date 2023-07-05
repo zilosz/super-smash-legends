@@ -2,17 +2,15 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
-import com.github.zilosz.ssl.kit.Kit;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
-import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import com.github.zilosz.ssl.utils.math.MathUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -25,12 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class Earthquake extends RightClickAbility {
     private BukkitTask quakeTask;
-    private BukkitTask uprootTask;
     @Nullable private BukkitTask stopTask;
-
-    public Earthquake(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
 
     @Override
     public boolean invalidate(PlayerInteractEvent event) {
@@ -44,28 +37,7 @@ public class Earthquake extends RightClickAbility {
         double horizontal = this.config.getDouble("HorizontalRange");
         double vertical = this.config.getDouble("VerticalRange");
 
-        this.quakeTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
-            if (!EntityUtils.isPlayerGrounded(this.player)) return;
-
-            Location location = this.player.getLocation().add(0, 0.3, 0);
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(139, 69, 19).ring(location, 90, 0, 1.5, 30);
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(160, 82, 45).ring(location, 90, 0, 0.75, 15);
-
-            EntitySelector selector = new HitBoxSelector(horizontal, vertical, horizontal);
-
-            new EntityFinder(this.plugin, selector).findAll(this.player).forEach(target -> {
-                if (!target.isOnGround()) return;
-
-                AttackSettings settings = new AttackSettings(this.config, VectorUtils.fromTo(this.player, target));
-
-                if (this.plugin.getDamageManager().attack(target, this, settings)) {
-                    this.player.getWorld().playSound(target.getLocation(), Sound.ANVIL_LAND, 1, 1);
-                    this.uproot(target.getLocation());
-                }
-            });
-        }, 0, this.config.getInt("UprootInterval"));
-
-        this.uprootTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.quakeTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
             if (!EntityUtils.isPlayerGrounded(this.player)) return;
 
             Location center = this.player.getLocation();
@@ -86,9 +58,27 @@ public class Earthquake extends RightClickAbility {
             if (uprootLocation.getBlock().getType() == Material.AIR) {
                 this.uproot(uprootLocation);
             }
+
+            Location location = this.player.getLocation().add(0, 0.3, 0);
+            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(139, 69, 19).ring(location, 90, 0, 1.5, 30);
+            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(160, 82, 45).ring(location, 90, 0, 0.75, 15);
+
+            EntitySelector selector = new HitBoxSelector(horizontal, vertical, horizontal);
+
+            new EntityFinder(selector).findAll(this.player).forEach(target -> {
+                if (!target.isOnGround()) return;
+
+                Attack settings = new Attack(this.config, VectorUtils.fromTo(this.player, target));
+
+                if (SSL.getInstance().getDamageManager().attack(target, this, settings)) {
+                    this.player.getWorld().playSound(target.getLocation(), Sound.ANVIL_LAND, 1, 1);
+                    this.uproot(target.getLocation());
+                }
+            });
         }, 0, this.config.getInt("UprootInterval"));
 
-        this.stopTask = Bukkit.getScheduler().runTaskLater(this.plugin, this::reset, this.config.getInt("Duration"));
+        this.stopTask = Bukkit.getScheduler()
+                .runTaskLater(SSL.getInstance(), this::reset, this.config.getInt("Duration"));
     }
 
     private void uproot(Location loc) {
@@ -99,7 +89,8 @@ public class Earthquake extends RightClickAbility {
 
         int id = Material.AIR.getId();
         int duration = this.config.getInt("UprootDuration");
-        Bukkit.getScheduler().runTaskLater(this.plugin, () -> BlockUtils.setBlockFast(loc, id, (byte) 2), duration);
+        Bukkit.getScheduler()
+                .runTaskLater(SSL.getInstance(), () -> BlockUtils.setBlockFast(loc, id, (byte) 2), duration);
     }
 
     private void reset() {
@@ -107,11 +98,9 @@ public class Earthquake extends RightClickAbility {
 
         this.stopTask.cancel();
         this.stopTask = null;
-
         this.quakeTask.cancel();
-        this.uprootTask.cancel();
-
         this.startCooldown();
+
         this.player.getWorld().playSound(this.player.getLocation(), Sound.IRONGOLEM_DEATH, 1, 1);
     }
 

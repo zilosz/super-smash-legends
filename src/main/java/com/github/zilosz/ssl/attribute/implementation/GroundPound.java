@@ -2,15 +2,13 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
-import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -25,10 +23,6 @@ public class GroundPound extends RightClickAbility {
     @Nullable private BukkitTask fallTask;
     @Nullable private BukkitTask checkAirborneTask;
 
-    public GroundPound(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public boolean invalidate(PlayerInteractEvent event) {
         return super.invalidate(event) || this.fallTask != null;
@@ -40,10 +34,10 @@ public class GroundPound extends RightClickAbility {
 
         this.player.setVelocity(new Vector(0, -this.config.getDouble("DownwardVelocity"), 0));
         double initialHeight = this.player.getLocation().getY();
-        this.fallTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> this.onRun(initialHeight), 0, 0);
+        this.fallTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> this.onRun(initialHeight), 0, 0);
 
         if (this.checkAirborneTask == null) {
-            this.checkAirborneTask = Bukkit.getScheduler().runTaskTimer(this.plugin, this::onGroundCheck, 0, 0);
+            this.checkAirborneTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), this::onGroundCheck, 0, 0);
         }
     }
 
@@ -51,30 +45,32 @@ public class GroundPound extends RightClickAbility {
         new ParticleBuilder(EnumParticle.REDSTONE).ring(EntityUtils.center(this.player), 90, 0, 1, 10);
 
         double fallen = Math.max(0, initialHeight - this.player.getLocation().getY());
-        double damage = YamlReader.incLin(this.config, "Damage", fallen, this.config.getDouble("MaxFall"));
-        double kb = YamlReader.incLin(this.config, "Kb", fallen, this.config.getDouble("MaxFall"));
+        double maxFall = this.config.getDouble("MaxFall");
+        double damage = YamlReader.getIncreasingValue(this.config, "Damage", fallen, maxFall);
+        double kb = YamlReader.getIncreasingValue(this.config, "Kb", fallen, maxFall);
 
         boolean foundTarget = false;
-        EntityFinder finder = new EntityFinder(this.plugin, new HitBoxSelector(this.config.getDouble("HitBox")));
+        EntityFinder finder = new EntityFinder(new HitBoxSelector(this.config.getDouble("HitBox")));
 
         for (LivingEntity target : finder.findAll(this.player)) {
 
-            AttackSettings settings = new AttackSettings(this.config, this.player.getLocation().getDirection())
+            Attack settings = new Attack(this.config, this.player.getLocation().getDirection())
                     .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
                     .modifyKb(kbSettings -> kbSettings.setKb(kb));
 
-            this.plugin.getDamageManager().attack(target, this, settings);
+            if (SSL.getInstance().getDamageManager().attack(target, this, settings)) {
+                foundTarget = true;
 
-            this.player.getWorld().playSound(target.getLocation(), Sound.EXPLODE, 2, 2);
-            new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).show(target.getLocation());
-
-            foundTarget = true;
+                this.player.getWorld().playSound(target.getLocation(), Sound.EXPLODE, 2, 2);
+                new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).show(target.getLocation());
+            }
         }
 
         if (foundTarget) {
             this.resetFall(false);
             this.kit.getJump().giveExtraJumps(1);
-            double bounce = YamlReader.incLin(this.config, "Bounce", fallen, this.config.getDouble("MaxFall"));
+
+            double bounce = YamlReader.getIncreasingValue(this.config, "Bounce", fallen, maxFall);
             this.player.setVelocity(new Vector(0, bounce, 0));
         }
     }
@@ -113,7 +109,7 @@ public class GroundPound extends RightClickAbility {
     @EventHandler
     public void onKb(AttributeKbEvent event) {
         if (event.getVictim() == this.player && this.fallTask != null) {
-            event.getKbSettings().setDirection(null);
+            event.getKb().setDirection(null);
         }
     }
 }

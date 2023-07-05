@@ -1,0 +1,24 @@
+Name: "Hat Throw"
+Item:
+  Material: GOLD_HOE
+Description:
+  - "&7Dramatically take off your hat in a"
+  - "&7display of masculine dominance. Throw"
+  - "&7it at your enemies in boomerang-fashion."
+  - "&7Click again to mount and dismount."
+Cooldown: 140
+AutoStartCooldown: false
+AutoSendUseMessage: false
+Speed: 1.15
+TicksToReturn: 100
+RotationPerTick: 0.45
+RemoveOnEntityHit: false
+HasGravity: false
+Damage: 6
+Kb: 1.4
+KbY: 0.5
+HitBox: 1
+ExtraLifespan: 5
+HasLifespan: false
+HatItem:
+  Material: IRON_PICKAXE

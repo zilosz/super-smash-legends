@@ -1,0 +1,31 @@
+Name: "Miner"
+Color: BLUE
+Description:
+  - "&7Miner is a jack of all trades. He"
+  - "&7employs the use of various underground"
+  - "&7techniques to overwhelm enemies."
+Skin: "Lifio13"
+Damage: 5
+Armor: 0.6
+Kb: 1
+Regen: 0.25
+Energy: 0.1
+Jump:
+  Power: 1.1
+  Height: 0.9
+  Sound:
+    Type: DIG_GRASS
+    Volume: 1
+    Pitch: 2
+HurtSound:
+  Type: VILLAGER_HIT
+  Volume: 1
+  Pitch: 1.5
+DeathSound:
+  Type: VILLAGER_DEATH
+  Volume: 3
+  Pitch: 1.5
+Abilities:
+  0: COAL_CLUSTER
+  1: DRILL_TORNADO
+  2: GOLD_RUSH

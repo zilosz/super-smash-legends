@@ -1,0 +1,29 @@
+Name: "Coal Cluster"
+Item:
+  Material: DIAMOND_SPADE
+Description:
+  - "&7Throw an explosive coal grenade that"
+  - "&7breaks into deadly fragments upon contact."
+  - "&7But watch out! The coals are scorching"
+  - "&7hot and may even burn the enemy."
+Cooldown: 120
+Cluster:
+  Speed: 1
+  BurnChance: 0.3
+  BurnDuration: 50
+  FragmentCount: 15
+  MinPitch: -10
+  MaxPitch: -35
+  Damage: 4.75
+  Kb: 2.6
+  KbY: 0.6
+  Block:
+    Material: COAL_BLOCK
+  Fragment:
+    BurnChance: 0.1
+    BurnDuration: 25
+    Speed: 0.8
+    Damage: 2.6
+    Kb: 1.9
+    Item:
+      Material: COAL

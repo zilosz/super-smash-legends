@@ -2,16 +2,15 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.DisguiseUtils;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
-import com.github.zilosz.ssl.utils.entity.finder.selector.HitBoxSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -43,10 +42,6 @@ public class SquidDash extends RightClickAbility {
     private BukkitTask invisibilityTask;
     private boolean invisible = false;
 
-    public SquidDash(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     private int getMaxDashTicks() {
         return this.config.getInt("MaxTicks");
     }
@@ -59,32 +54,32 @@ public class SquidDash extends RightClickAbility {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SPLASH, 2, 0.5f);
         this.player.getWorld().playSound(this.player.getLocation(), Sound.EXPLODE, 1, 1);
 
-        double damage = YamlReader.incLin(this.config, "Damage", this.ticksDashing, this.getMaxDashTicks());
-        double kb = YamlReader.incLin(this.config, "Kb", this.ticksDashing, this.getMaxDashTicks());
+        double damage = YamlReader.getIncreasingValue(this.config, "Damage", this.ticksDashing, this.getMaxDashTicks());
+        double kb = YamlReader.getIncreasingValue(this.config, "Kb", this.ticksDashing, this.getMaxDashTicks());
 
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
-        new EntityFinder(this.plugin, selector).findAll(this.player).forEach(target -> {
+        new EntityFinder(selector).findAll(this.player).forEach(target -> {
 
-            AttackSettings settings = new AttackSettings(this.config, VectorUtils.fromTo(this.player, target))
+            Attack attack = new Attack(this.config, VectorUtils.fromTo(this.player, target))
                     .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
                     .modifyKb(kbSettings -> kbSettings.setKb(kb));
 
-            this.plugin.getDamageManager().attack(target, this, settings);
+            SSL.getInstance().getDamageManager().attack(target, this, attack);
         });
 
         this.invisible = true;
-        this.plugin.getDamageManager().hideEntityIndicator(this.player);
+        SSL.getInstance().getDamageManager().hideEntityIndicator(this.player);
         Bukkit.getOnlinePlayers().forEach(other -> other.hidePlayer(this.player));
 
-        int ticks = (int) YamlReader.incLin(
+        int ticks = (int) YamlReader.getIncreasingValue(
                 this.config,
                 "InvisibilityTicks",
                 this.ticksDashing,
                 this.getMaxDashTicks()
         );
 
-        this.invisibilityTask = Bukkit.getScheduler().runTaskLater(this.plugin, this::unHidePlayer, ticks);
+        this.invisibilityTask = Bukkit.getScheduler().runTaskLater(SSL.getInstance(), this::unHidePlayer, ticks);
 
         this.resetDash();
         this.player.setVelocity(this.velocity);
@@ -101,7 +96,7 @@ public class SquidDash extends RightClickAbility {
         Disguise disguise = DisguiseUtils.applyDisguiseParams(this.player, new MobDisguise(DisguiseType.SQUID));
         DisguiseAPI.disguiseToAll(this.player, disguise);
 
-        this.dashTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.dashTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
             if (++this.ticksDashing >= this.getMaxDashTicks()) {
                 this.stopDash();
@@ -127,7 +122,7 @@ public class SquidDash extends RightClickAbility {
 
                 particle.setVelocity(VectorUtils.getRandomVectorInDirection(particleLoc, spread).multiply(speed));
 
-                Bukkit.getScheduler().runTaskLater(this.plugin, particle::remove, duration);
+                Bukkit.getScheduler().runTaskLater(SSL.getInstance(), particle::remove, duration);
                 this.particles.add(particle);
             }
         }, 0, 0);
@@ -163,7 +158,7 @@ public class SquidDash extends RightClickAbility {
     private void unHidePlayer() {
         this.invisibilityTask.cancel();
         this.invisible = false;
-        this.plugin.getDamageManager().showEntityIndicator(this.player);
+        SSL.getInstance().getDamageManager().showEntityIndicator(this.player);
         Bukkit.getOnlinePlayers().forEach(other -> other.showPlayer(this.player));
         new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(EntityUtils.center(this.player), 1, 5, 0.5);
         this.player.getWorld().playSound(this.player.getLocation(), Sound.WITHER_HURT, 1, 2);

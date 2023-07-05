@@ -1,12 +1,10 @@
 package com.github.zilosz.ssl.attribute;
 
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
-import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.event.attribute.AbilityUseEvent;
-import com.github.zilosz.ssl.kit.Kit;
+import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Bukkit;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -17,20 +15,22 @@ public abstract class ClickableAbility extends Ability {
     protected float energyCost;
     protected boolean autoStartCooldown;
     protected boolean autoSendUseMessage;
-    protected int cooldownLeft = 0;
-
-    public ClickableAbility(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-
-        this.cooldown = config.getInt("Cooldown");
-        this.energyCost = config.getFloat("EnergyCost");
-        this.autoStartCooldown = config.getOptionalBoolean("AutoStartCooldown").orElse(true);
-        this.autoSendUseMessage = config.getOptionalBoolean("AutoSendUseMessage").orElse(true);
-    }
+    protected boolean mustBeGrounded;
+    protected boolean mustBeAirborne;
+    protected int cooldownLeft;
 
     @Override
     public void activate() {
         super.activate();
+
+        this.cooldownLeft = 0;
+        this.cooldown = this.config.getInt("Cooldown");
+        this.energyCost = this.config.getFloat("EnergyCost");
+        this.autoStartCooldown = this.config.getOptionalBoolean("AutoStartCooldown").orElse(true);
+        this.autoSendUseMessage = this.config.getOptionalBoolean("AutoSendUseMessage").orElse(true);
+        this.mustBeGrounded = this.config.getBoolean("MustBeGrounded");
+        this.mustBeAirborne = this.config.getBoolean("MustBeAirborne");
+
         this.hotbarItem.setAction(this::onClickAttempt);
     }
 
@@ -56,7 +56,21 @@ public abstract class ClickableAbility extends Ability {
     }
 
     public boolean invalidate(PlayerInteractEvent event) {
-        return this.player.getExp() < this.energyCost || this.cooldownLeft > 0;
+        if (this.player.getExp() < this.energyCost || this.cooldownLeft > 0) return true;
+
+        if (EntityUtils.isPlayerGrounded(this.player)) {
+
+            if (this.mustBeAirborne) {
+                Chat.ABILITY.send(this.player, "&7You must be airborne to use this ability.");
+                return true;
+            }
+
+        } else if (this.mustBeGrounded) {
+            Chat.ABILITY.send(this.player, "&7You must be grounded to use this ability.");
+            return true;
+        }
+
+        return false;
     }
 
     public abstract void onClick(PlayerInteractEvent event);
@@ -104,10 +118,4 @@ public abstract class ClickableAbility extends Ability {
     protected void onTick() {}
 
     public void onCooldownEnd() {}
-
-    @Override
-    public void deactivate() {
-        super.deactivate();
-        this.cooldownLeft = 0;
-    }
 }

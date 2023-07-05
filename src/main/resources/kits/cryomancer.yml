@@ -1,0 +1,33 @@
+Name: "Cryomancer"
+Color: LIGHT_BLUE
+Description:
+  - "&7Cryomancer utilizes his advanced"
+  - "&7cryogenerator to compress and"
+  - "&7freeze the air around him. He is"
+  - "&7capable of slowing down enemies"
+  - "&7by freezing them solid."
+Skin: "Ernestitoninja"
+Damage: 5.5
+Armor: 0.55
+Kb: 1
+Regen: 0.30
+Jump:
+  Power: 1.1
+  Height: 0.9
+  Sound:
+    Type: GLASS
+    Volume: 1
+    Pitch: 2
+HurtSound:
+  Type: GLASS
+  Volume: 1
+  Pitch: 1
+DeathSound:
+  Type: GLASS
+  Volume: 3
+  Pitch: 0.5
+Abilities:
+  0: FRIGID_SPEAR
+  1: ARCTIC_BREATH
+  2: FROSTED_TWIRL
+  3: ICE_SKATES

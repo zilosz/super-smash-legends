@@ -3,15 +3,14 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
+import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.CustomEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
-import com.github.zilosz.ssl.utils.entity.finder.selector.DistanceSelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -33,16 +32,12 @@ public class Rasenshuriken extends RightClickAbility {
     private Location lastLocation;
     private int ticksCharged = -1;
 
-    public Rasenshuriken(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void onClick(PlayerInteractEvent event) {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.FIREWORK_LAUNCH, 1, 1);
         this.hotbarItem.hide();
 
-        this.task = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.task = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
             if (++this.ticksCharged >= this.config.getInt("Lifespan")) {
                 this.reset(true);
@@ -105,7 +100,7 @@ public class Rasenshuriken extends RightClickAbility {
     public void onPlayerAnimation(PlayerAnimationEvent event) {
         if (event.getPlayer() != this.player || this.ticksCharged == -1) return;
 
-        Shuriken shuriken = new Shuriken(this.plugin, this, this.config.getSection("Projectile"));
+        Shuriken shuriken = new Shuriken(this, this.config.getSection("Projectile"));
         this.lastLocation.setDirection(this.player.getEyeLocation().getDirection());
         shuriken.setOverrideLocation(this.lastLocation);
         shuriken.launch();
@@ -122,10 +117,10 @@ public class Rasenshuriken extends RightClickAbility {
 
     public static class Shuriken extends ItemProjectile {
 
-        public Shuriken(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
-            this.getAttackSettings().getDamageSettings().setDamage(config.getDouble("MaxDamage"));
-            this.getAttackSettings().getKbSettings().setKb(config.getDouble("MaxKb"));
+        public Shuriken(Ability ability, Section config) {
+            super(ability, config);
+            this.getAttack().getDamage().setDamage(config.getDouble("MaxDamage"));
+            this.getAttack().getKb().setKb(config.getDouble("MaxKb"));
         }
 
         @Override
@@ -163,20 +158,24 @@ public class Rasenshuriken extends RightClickAbility {
             this.entity.getWorld().playSound(loc, Sound.EXPLODE, 1.5f, 1);
             new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).solidSphere(loc, radius / 2, 40, 0.1);
 
-            EntityFinder finder = new EntityFinder(this.plugin, new DistanceSelector(radius)).avoid(avoid);
+            EntityFinder finder = new EntityFinder(new DistanceSelector(radius));
+
+            if (avoid != null) {
+                finder.avoid(avoid);
+            }
 
             finder.findAll(this.launcher, loc).forEach(target -> {
                 double distanceSq = target.getLocation().distanceSquared(loc);
-                double damage = YamlReader.decLin(this.config, "Damage", distanceSq, radius * radius);
-                double kb = YamlReader.decLin(this.config, "Kb", distanceSq, radius * radius);
+                double damage = YamlReader.getDecreasingValue(this.config, "Damage", distanceSq, radius * radius);
+                double kb = YamlReader.getDecreasingValue(this.config, "Kb", distanceSq, radius * radius);
 
                 Vector direction = VectorUtils.fromTo(this.entity, target);
 
-                AttackSettings settings = new AttackSettings(this.config, direction)
+                Attack settings = new Attack(this.config, direction)
                         .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
                         .modifyKb(kbSettings -> kbSettings.setKb(kb));
 
-                this.plugin.getDamageManager().attack(target, this.ability, settings);
+                SSL.getInstance().getDamageManager().attack(target, this.ability, settings);
             });
         }
     }

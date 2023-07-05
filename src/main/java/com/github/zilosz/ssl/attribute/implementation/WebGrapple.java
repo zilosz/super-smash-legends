@@ -5,8 +5,7 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
-import com.github.zilosz.ssl.event.attack.DamageEvent;
-import com.github.zilosz.ssl.kit.Kit;
+import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
 import com.github.zilosz.ssl.utils.SoundCanceller;
@@ -28,21 +27,17 @@ public class WebGrapple extends RightClickAbility {
     private SoundCanceller batSoundCanceller;
     private GrappleProjectile grappleProjectile;
 
-    public WebGrapple(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void activate() {
         super.activate();
 
-        this.batSoundCanceller = new SoundCanceller(this.plugin, "mob.bat.idle");
+        this.batSoundCanceller = new SoundCanceller(SSL.getInstance(), "mob.bat.idle");
         ProtocolLibrary.getProtocolManager().addPacketListener(this.batSoundCanceller);
     }
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        this.grappleProjectile = new GrappleProjectile(this.plugin, this, this.config.getSection("Projectile"));
+        this.grappleProjectile = new GrappleProjectile(this, this.config.getSection("Projectile"));
         this.grappleProjectile.launch();
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.MAGMACUBE_JUMP, 1, 1);
@@ -64,8 +59,8 @@ public class WebGrapple extends RightClickAbility {
     private static class GrappleProjectile extends ItemProjectile {
         private Bat bat;
 
-        public GrappleProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public GrappleProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override
@@ -101,7 +96,7 @@ public class WebGrapple extends RightClickAbility {
         }
 
         @EventHandler
-        public void onBatDamage(DamageEvent event) {
+        public void onBatAttack(AttackEvent event) {
             if (event.getVictim() == this.bat) {
                 event.setCancelled(true);
             }

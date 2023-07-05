@@ -1,36 +1,32 @@
 package com.github.zilosz.ssl.utils.entity.finder;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.team.Team;
 import com.github.zilosz.ssl.team.TeamPreference;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.entity.Entity;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class EntityFinder {
-    private final SSL plugin;
     private final EntitySelector rangeSelector;
-    private final List<UUID> toAvoid = new ArrayList<>();
+    private final Set<LivingEntity> toAvoid = new HashSet<>();
     private TeamPreference teamPreference = TeamPreference.ENEMY;
     private boolean avoidsUser = true;
     private EntityType entityType;
 
-    public EntityFinder(SSL plugin, EntitySelector rangeSelector) {
-        this.plugin = plugin;
+    public EntityFinder(EntitySelector rangeSelector) {
         this.rangeSelector = rangeSelector;
     }
 
@@ -44,10 +40,8 @@ public class EntityFinder {
         return this;
     }
 
-    public EntityFinder avoid(Entity target) {
-        if (target != null) {
-            this.toAvoid.add(target.getUniqueId());
-        }
+    public EntityFinder avoid(LivingEntity target) {
+        this.toAvoid.add(target);
         return this;
     }
 
@@ -61,25 +55,32 @@ public class EntityFinder {
     }
 
     public Optional<LivingEntity> findClosest(LivingEntity user, Location location) {
-        return this.getFilteredStream(user, location).min(Comparator.comparingDouble(entity -> location.distanceSquared(
-                entity.getLocation())));
+        return this.getFilteredStream(user, location)
+                .min(Comparator.comparingDouble(entity -> location.distanceSquared(entity.getLocation())));
     }
 
     private Stream<LivingEntity> getFilteredStream(LivingEntity user, Location location) {
         return this.rangeSelector.getEntityStream(location)
                 .filter(entity -> !CitizensAPI.getNPCRegistry().isNPC(entity))
-                .filter(entity -> this.entityType == null || entity.getType().equals(this.entityType))
-                .filter(entity -> !entity.getType().equals(EntityType.ARMOR_STAND))
+                .filter(entity -> this.entityType == null || this.entityType == entity.getType())
+                .filter(entity -> !(entity instanceof ArmorStand))
                 .filter(LivingEntity.class::isInstance)
                 .map(LivingEntity.class::cast)
-                .filter(entity -> !(entity instanceof Player) || this.plugin.getGameManager()
-                        .isPlayerAlive((Player) entity) && ((HumanEntity) entity).getGameMode() == GameMode.SURVIVAL)
+                .filter(this::isValidPlayer)
                 .filter(entity -> !this.avoidsUser || entity != user)
-                .filter(entity -> !this.toAvoid.contains(entity.getUniqueId()))
-                .filter(entity -> this.plugin.getTeamManager()
-                        .findEntityTeam(user)
-                        .map(team -> this.teamPreference.validate(team, entity))
-                        .orElse(false));
+                .filter(entity -> !this.toAvoid.contains(entity))
+                .filter(entity -> this.isCorrectTeam(user, entity));
+    }
+
+    private boolean isValidPlayer(LivingEntity entity) {
+        if (!(entity instanceof Player)) return true;
+        Player player = (Player) entity;
+        return SSL.getInstance().getGameManager().isPlayerAlive(player) && player.getGameMode() == GameMode.SURVIVAL;
+    }
+
+    private boolean isCorrectTeam(LivingEntity user, LivingEntity entity) {
+        Optional<Team> optionalTeam = SSL.getInstance().getTeamManager().findEntityTeam(user);
+        return optionalTeam.map(team -> this.teamPreference.validate(team, entity)).orElse(true);
     }
 
     public Set<LivingEntity> findAll(LivingEntity user) {

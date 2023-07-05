@@ -1,0 +1,25 @@
+Name: "Rasenshuriken"
+Item:
+  Material: DIAMOND_SPADE
+Description:
+  - "&7The Shuriken Spiral creates countless"
+  - "&7microscopic wind-blades that severely"
+  - "&7damage the body on a cellular level."
+Cooldown: 130
+AutoStartCooldown: false
+Lifespan: 60
+Height: 0.35
+Projectile:
+  Speed: 1.1
+  MinDamage: 2
+  MaxDamage: 6.5
+  MinKb: 0.85
+  MaxKb: 2.5
+  KbY: 0.8
+  Radius: 4
+  ParticleRadius: 0.3
+  Invisible: true
+  HasGravity: false
+  HitBox: 1.25
+  Item:
+    Material: DIAMOND

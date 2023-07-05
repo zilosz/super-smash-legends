@@ -3,7 +3,6 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.Bow;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.ArrowProjectile;
 import com.github.zilosz.ssl.utils.RunnableUtils;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
@@ -19,19 +18,15 @@ public class Barrage extends Bow {
     private int stage = 1;
     private BukkitTask stageTask;
 
-    public Barrage(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void onStart() {
 
-        this.stageTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        this.stageTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
             if (this.stage > this.getStages()) return;
 
             this.player.setExp((float) this.stage / this.getStages());
 
-            float pitch = (float) MathUtils.increasingLinear(0.5, 2, this.config.getInt("Stages"), this.stage - 1);
+            float pitch = (float) MathUtils.getIncreasingValue(0.5, 2, this.getStages(), this.stage - 1);
             this.player.playSound(this.player.getLocation(), Sound.ITEM_PICKUP, 2, pitch);
 
             if (this.stage == this.getStages()) {
@@ -50,13 +45,13 @@ public class Barrage extends Bow {
     public void onShot(double force) {
         this.launch(force, true);
         int arrowCount = this.config.getInt("MaxArrowCount");
-        int amount = (int) MathUtils.increasingLinear(1, arrowCount, this.getStages(), this.stage - 1);
+        int amount = (int) MathUtils.getIncreasingValue(1, arrowCount, this.getStages(), this.stage - 1);
         int interval = this.config.getInt("TicksBetweenShot");
-        RunnableUtils.runTaskWithIntervals(this.plugin, amount - 1, interval, () -> this.launch(force, false));
+        RunnableUtils.runTaskWithIntervals(SSL.getInstance(), amount - 1, interval, () -> this.launch(force, false));
     }
 
     private void launch(double force, boolean first) {
-        BarrageArrow arrow = new BarrageArrow(this.plugin, this, this.config);
+        BarrageArrow arrow = new BarrageArrow(this, this.config);
         arrow.setSpeed(force * this.config.getDouble("MaxSpeed"));
 
         if (first) {
@@ -82,10 +77,10 @@ public class Barrage extends Bow {
         this.onFinish();
     }
 
-    public static class BarrageArrow extends ArrowProjectile {
+    private static class BarrageArrow extends ArrowProjectile {
 
-        public BarrageArrow(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        public BarrageArrow(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override
@@ -101,7 +96,7 @@ public class Barrage extends Bow {
         @Override
         public void onTargetHit(LivingEntity target) {
             new ParticleBuilder(EnumParticle.REDSTONE).setRgb(200, 200, 200)
-                    .boom(this.plugin, this.entity.getLocation(), 1.2, 0.4, 6);
+                    .boom(SSL.getInstance(), this.entity.getLocation(), 1.2, 0.4, 6);
         }
     }
 }

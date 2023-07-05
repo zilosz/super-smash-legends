@@ -1,61 +1,60 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
-import com.github.zilosz.ssl.utils.CollectionUtils;
+import com.github.zilosz.ssl.utils.collection.RandomCollection;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.minecraft.server.v1_8_R3.EnumParticle;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class DiseasedFlesh extends RightClickAbility {
+    private RandomCollection<ItemStack> items;
 
-    private static final List<Material> ITEMS = Arrays.asList(
-            Material.ROTTEN_FLESH,
-            Material.SAND,
-            Material.SPIDER_EYE,
-            Material.FERMENTED_SPIDER_EYE,
-            Material.BONE
-    );
+    @Override
+    public void activate() {
+        super.activate();
+        this.items = new RandomCollection<>();
 
-    public DiseasedFlesh(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
+        for (Section section : YamlReader.getSections(this.config.getSection("Items"))) {
+            this.items.add(YamlReader.getStack(section), section.getDouble("Weight"));
+        }
     }
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        this.player.getWorld().playSound(this.player.getEyeLocation(), Sound.ZOMBIE_PIG_HURT, 1, 2);
-
-        FleshProjectile projectile = new FleshProjectile(this.plugin, this, this.config);
-        projectile.setSpread(0);
-        projectile.launch();
+        this.launch(true);
 
         for (int i = 1; i < this.config.getInt("Count"); i++) {
-            new FleshProjectile(this.plugin, this, this.config).launch();
+            this.launch(false);
         }
+
+        this.player.getWorld().playSound(this.player.getEyeLocation(), Sound.ZOMBIE_PIG_HURT, 1, 2);
+
     }
 
-    public static class FleshProjectile extends ItemProjectile {
+    private void launch(boolean first) {
+        FleshProjectile projectile = new FleshProjectile(this, this.config);
+        projectile.setItemStack(this.items.next());
 
-        public FleshProjectile(SSL plugin, Ability ability, Section config) {
-            super(plugin, ability, config);
+        if (first) {
+            projectile.setSpread(0);
         }
 
-        @Override
-        public ItemStack getStack() {
-            return new ItemStack(CollectionUtils.selectRandom(ITEMS));
+        projectile.launch();
+    }
+
+    private static class FleshProjectile extends ItemProjectile {
+
+        public FleshProjectile(Ability ability, Section config) {
+            super(ability, config);
         }
 
         @Override

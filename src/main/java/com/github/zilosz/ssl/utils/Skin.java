@@ -25,67 +25,15 @@ import java.util.UUID;
 public class Skin {
     private final String texture;
     private final String signature;
-    private String previousTexture;
-    private String previousSignature;
 
     public Skin(String texture, String signature) {
         this.texture = texture;
         this.signature = signature;
     }
 
-    public static void apply(Plugin plugin, Player player, String texture, String signature) {
-        showToOthers(player, texture, signature);
-        Location oldLoc = player.getLocation();
-        player.teleport(new Location(Bukkit.getWorld("world"), 0, 120, 0));
-        showToSelf(plugin, player, () -> player.teleport(oldLoc));
-    }
-
-    private static void showToOthers(Player player, String texture, String signature) {
-        updateProfile(NmsUtils.getPlayer(player).getProfile(), texture, signature);
-
-        for (Player other : Bukkit.getOnlinePlayers()) {
-            other.hidePlayer(player);
-            other.showPlayer(player);
-        }
-    }
-
-    private static BukkitTask showToSelf(Plugin plugin, Player player, Runnable onTp) {
-        sendAddRemovePackets(player);
-        return fakeRespawnAfterDelay(plugin, player, onTp);
-    }
-
-    public static void updateProfile(GameProfile gameProfile, String texture, String signature) {
-        gameProfile.getProperties().removeAll("textures");
-        gameProfile.getProperties().put("textures", new Property("textures", texture, signature));
-    }
-
-    private static void sendAddRemovePackets(Player player) {
-        EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
-
-        NmsUtils.sendPacket(
-                player,
-                new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, nmsPlayer)
-        );
-        NmsUtils.sendPacket(
-                player,
-                new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, nmsPlayer)
-        );
-
-    }
-
-    private static BukkitTask fakeRespawnAfterDelay(Plugin plugin, Player player, Runnable onTp) {
-        EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
-
-        return Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            onTp.run();
-
-            NmsUtils.sendPacket(player, new PacketPlayOutRespawn(
-                    nmsPlayer.dimension,
-                    nmsPlayer.getWorld().getDifficulty(),
-                    nmsPlayer.getWorld().getWorldData().getType(),
-                    nmsPlayer.playerInteractManager.getGameMode()
-            ));
-        }, 2);
+    public static Skin fromPlayer(Player player) {
+        Property property = NmsUtils.getPlayer(player).getProfile().getProperties().get("textures").iterator().next();
+        return new Skin(property.getValue(), property.getSignature());
     }
 
     public static Skin fromMojang(String playerName) {
@@ -108,14 +56,64 @@ public class Skin {
         }
     }
 
-    public void updatePrevious(String texture, String signature) {
-        this.previousTexture = texture;
-        this.previousSignature = signature;
+    public void apply(Plugin plugin, Player player) {
+        this.showToOthers(player);
+        Location oldLoc = player.getLocation();
+        player.teleport(new Location(Bukkit.getWorld("world"), 0, 120, 0));
+        showToSelf(plugin, player, () -> player.teleport(oldLoc));
+    }
+
+    private void showToOthers(Player player) {
+        this.updateProfile(NmsUtils.getPlayer(player).getProfile());
+
+        for (Player other : Bukkit.getOnlinePlayers()) {
+            other.hidePlayer(player);
+            other.showPlayer(player);
+        }
+    }
+
+    private static BukkitTask showToSelf(Plugin plugin, Player player, Runnable onTp) {
+        sendAddRemovePackets(player);
+        return fakeRespawnAfterDelay(plugin, player, onTp);
+    }
+
+    public void updateProfile(GameProfile gameProfile) {
+        gameProfile.getProperties().removeAll("textures");
+        gameProfile.getProperties().put("textures", new Property("textures", this.texture, this.signature));
+    }
+
+    private static void sendAddRemovePackets(Player player) {
+        EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
+
+        NmsUtils.sendPacket(
+                player,
+                new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, nmsPlayer)
+        );
+
+        NmsUtils.sendPacket(
+                player,
+                new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, nmsPlayer)
+        );
+    }
+
+    private static BukkitTask fakeRespawnAfterDelay(Plugin plugin, Player player, Runnable onTp) {
+        EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
+
+        return Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            onTp.run();
+
+            NmsUtils.sendPacket(player, new PacketPlayOutRespawn(
+                    nmsPlayer.dimension,
+                    nmsPlayer.getWorld().getDifficulty(),
+                    nmsPlayer.getWorld().getWorldData().getType(),
+                    nmsPlayer.playerInteractManager.getGameMode()
+            ));
+        }, 2);
     }
 
     public void applyToSkull(SkullMeta meta) {
         GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-        updateProfile(profile, this.texture, this.signature);
+        this.updateProfile(profile);
 
         try {
             Field profileField = meta.getClass().getDeclaredField("profile");
@@ -128,18 +126,7 @@ public class Skin {
     }
 
     public BukkitTask applyAcrossTp(Plugin plugin, Player player, Runnable onTp) {
-        EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
-        GameProfile profile = nmsPlayer.getProfile();
-
-        Property property = profile.getProperties().get("textures").iterator().next();
-        this.previousSignature = property.getSignature();
-        this.previousTexture = property.getValue();
-
-        return applyAcrossTp(plugin, player, this.texture, this.signature, onTp);
-    }
-
-    public static BukkitTask applyAcrossTp(Plugin plugin, Player player, String texture, String signature, Runnable onTp) {
-        showToOthers(player, texture, signature);
+        this.showToOthers(player);
         return showToSelf(plugin, player, onTp);
     }
 }

@@ -1,0 +1,28 @@
+Name: "Squid Dash"
+Item:
+  Material: DIAMOND_SPADE
+Description:
+  - "&7Shape-shift into a squid from the water's"
+  - "&7depths. You travel in a flat, straight"
+  - "&7path. Clicking a second time reverts you"
+  - "&7back into mermaid form and generates an"
+  - "&7inky explosion that hurts enemies and"
+  - "&7temporarily shrouds you with ink."
+Cooldown: 140
+AutoStartCooldown: false
+AutoSendUseMessage: false
+Velocity: 1.35
+MinDamage: 1.5
+MaxDamage: 8
+MinKb: 0.7
+MaxKb: 2
+KbY: 0.6
+MaxTicks: 28
+MinInvisibilityTicks: 0
+MaxInvisibilityTicks: 50
+HitBox: 2.5
+Particle:
+  Duration: 10
+  Speed: 0.65
+  CountPerTick: 2
+  Spread: 15

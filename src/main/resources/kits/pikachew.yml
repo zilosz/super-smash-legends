@@ -1,0 +1,31 @@
+Name: "Pikachew"
+Color: YELLOW
+Description:
+  - "&7Pikachew can generate electric attacks"
+  - "&7using the electric pouches located in both"
+  - "&7of his cheeks. He also has beautiful shoes"
+  - "&7that allow him to scamper at high speeds!"
+Skin: "bink10"
+Damage: 5
+Armor: 0.7
+Kb: 1.3
+Regen: 0.3
+Jump:
+  Power: 1.2
+  Height: 0.9
+  Sound:
+    Type: FIREWORK_LAUNCH
+    Volume: 1
+    Pitch: 1.1
+HurtSound:
+  Type: CAT_HIT
+  Volume: 1
+  Pitch: 1.2
+DeathSound:
+  Type: CAT_HIT
+  Volume: 3
+  Pitch: 0.5
+Abilities:
+  0: THUNDERBOLT
+  1: VOLT_TACKLE
+  2: ELECTROSTATIC_LEAP

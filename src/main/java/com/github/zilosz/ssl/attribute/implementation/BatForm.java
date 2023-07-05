@@ -8,13 +8,11 @@ import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
 import com.github.zilosz.ssl.event.attribute.RegenEvent;
-import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.ItemBuilder;
 import com.github.zilosz.ssl.utils.Noise;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.DisguiseUtils;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.libraryaddict.disguise.DisguiseAPI;
 import me.libraryaddict.disguise.disguisetypes.Disguise;
 import me.libraryaddict.disguise.disguisetypes.DisguiseType;
@@ -34,10 +32,6 @@ public class BatForm extends PassiveAbility {
     private Set<Attribute> removedAttributes;
     private boolean isBat = false;
 
-    public BatForm(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @EventHandler
     public void onAttributeDamage(AttributeDamageEvent event) {
         if (!(event.getAttribute().getPlayer() == this.player)) return;
@@ -47,7 +41,7 @@ public class BatForm extends PassiveAbility {
 
         Location center = EntityUtils.center(event.getVictim());
         this.player.getWorld().playSound(center, Sound.ZOMBIE_UNFECT, 1, 2);
-        new ParticleBuilder(EnumParticle.REDSTONE).boom(this.plugin, center, 3, 0.3, 7);
+        new ParticleBuilder(EnumParticle.REDSTONE).boom(SSL.getInstance(), center, 3, 0.3, 7);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -56,7 +50,7 @@ public class BatForm extends PassiveAbility {
 
         if (this.isBat) {
             double multiplier = this.config.getDouble("DamageTakenMultiplier");
-            event.getDamageSettings().setDamage(event.getDamageSettings().getDamage() * multiplier);
+            event.getDamage().setDamage(event.getDamage().getDamage() * multiplier);
             return;
         }
 
@@ -93,7 +87,7 @@ public class BatForm extends PassiveAbility {
 
     @Override
     public String getUseType() {
-        return "&oSimply &oExist";
+        return "Enter Low Health";
     }
 
     private void reset() {

@@ -1,0 +1,33 @@
+Name: "Rocket Launcher"
+Item:
+  Material: DIAMOND_SWORD
+Description:
+  - "&7Mechon's mechanized frame contains a"
+  - "&7vital, hidden weapon: a deadly rocket"
+  - "&7launcher. It's sheer power generates"
+  - "&7slight recoil and allows for Mechon to"
+  - "&7fire a thick bullet that breaks into"
+  - "&7shrapnel upon hitting entities or blocks."
+Cooldown: 100
+MaxChargeTicks: 25
+ShowExp: false
+Rocket:
+  KbY: 0.8
+  HitBox: 1.5
+  MinDamage: 0.75
+  MaxDamage: 6
+  MinKb: 1.1
+  MaxKb: 2.1
+  Invisible: true
+  HasGravity: false
+  MinSpeed: 0.5
+  MaxSpeed: 2.1
+  Item:
+    Material: GHAST_TEAR
+  Shrapnel:
+    Count: 8
+    Pitch: 18
+    YawSpread: 28
+    Multiplier: 0.85
+    Item:
+      Material: FIREWORK

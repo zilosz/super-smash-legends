@@ -16,20 +16,13 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class KitSelector extends CustomInventory<Kit> implements HasRandomOption {
 
     @Override
     public List<Kit> getItems() {
-        return SSL.getInstance()
-                .getKitManager()
-                .getKits()
-                .stream()
-                .sorted(Comparator.comparing(Kit::getConfigName))
-                .collect(Collectors.toList());
+        return SSL.getInstance().getKitManager().getKits();
     }
 
     @Override
@@ -47,9 +40,10 @@ public class KitSelector extends CustomInventory<Kit> implements HasRandomOption
         }
 
         KitManager kitManager = SSL.getInstance().getKitManager();
-        KitAccessType accessType = kitManager.getKitAccess(player, kit.getConfigName());
+        KitAccessType accessType = kitManager.getKitAccess(player, kit.getType());
 
-        Replacers replacers = new Replacers().add("STATUS", accessType.getLore(kit))
+        Replacers replacers = new Replacers()
+                .add("STATUS", accessType.getLore())
                 .add("REGEN", kit.getRegen())
                 .add("ARMOR", kit.getArmor())
                 .add("DAMAGE", kit.getDamage())
@@ -88,7 +82,7 @@ public class KitSelector extends CustomInventory<Kit> implements HasRandomOption
 
         return new ItemBuilder<SkullMeta>(Material.SKULL_ITEM).setData(3)
                 .applyMeta(meta -> kit.getSkin().applyToSkull(meta))
-                .setEnchanted(accessType == KitAccessType.ALREADY_SELECTED)
+                .setEnchanted(accessType == KitAccessType.SELECTED)
                 .setName("&l" + kit.getBoldedDisplayName())
                 .setLore(replacers.replaceLines(lore))
                 .get();
@@ -96,7 +90,7 @@ public class KitSelector extends CustomInventory<Kit> implements HasRandomOption
 
     @Override
     public void onItemClick(Player player, Kit kit, InventoryClickEvent event) {
-        SSL.getInstance().getKitManager().setKit(player, kit);
+        SSL.getInstance().getKitManager().setKit(player, kit.getType());
         player.closeInventory();
     }
 

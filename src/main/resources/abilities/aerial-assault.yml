@@ -1,0 +1,16 @@
+Name: "Aerial Assault"
+Item:
+  Material: IRON_SWORD
+Description:
+  - "&7Rapidly glide downwards until the time"
+  - "&7limit passes or you touch the ground."
+  - "&7Colliding with enemies harms them."
+Cooldown: 120
+MaxChargeTicks: 30
+ShowExp: false
+Speed: 1.2
+VelocityY: -0.625
+HitBox: 2
+Damage: 5
+Kb: 1.6
+KbY: 0.7

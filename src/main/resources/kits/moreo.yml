@@ -1,0 +1,32 @@
+Name: "Moreo"
+Color: RED
+Description:
+  - "&7His courage and jumping abilities have seen"
+  - "&7him through countless adventures. Moreo is"
+  - "&7a multi-talented plumber with the knowledge"
+  - "&7of a seasoned physician. Is his jumping"
+  - "&7prowess a boon from his grider-climbing days?"
+Skin: "PapaLegend"
+Damage: 4.5
+Armor: 0.625
+Kb: 1.1
+Regen: 0.275
+Jump:
+  Power: 1.1
+  Height: 1.2
+  Sound:
+    Type: VILLAGER_YES
+    Volume: 1
+    Pitch: 1
+HurtSound:
+  Type: VILLAGER_HIT
+  Volume: 1
+  Pitch: 2
+DeathSound:
+  Type: VILLAGER_DEATH
+  Volume: 3
+  Pitch: 2
+Abilities:
+  0: GROUND_POUND
+  1: BOMB_OMB
+  2: HAT_THROW

@@ -1,0 +1,15 @@
+Name: "Blinding Fists"
+Item:
+  Material: FERMENTED_SPIDER_EYE
+Description:
+  - "&7Consecutive, unanswered melee attacks"
+  - "&7rack up additional knock-back and damage."
+  - "&7The added power breaks webs, however."
+  - "&7The player is given speed when a chain"
+  - "&7begins."
+MaxChain: 5
+ChainDuration: 80
+MaxDamageMultiplier: 1.3
+MaxKbMultiplier: 2
+MaxKbYMultiplier: 2
+Speed: 1

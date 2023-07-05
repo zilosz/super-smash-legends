@@ -1,0 +1,17 @@
+Name: "Frosted Twirl"
+Item:
+  Material: GOLD_SWORD
+Description:
+  - "&7Despite his rather frosty and crude"
+  - "&7battle style, Cryomancer was once"
+  - "&7a renowned figure skater. He uses"
+  - "&7incredible balance and technique to"
+  - "&7twirl upwards into unsuspecting foes."
+Cooldown: 175
+MaxChargeTicks: 15
+Velocity: 0.6
+VelocityY: 0.8
+Damage: 5
+Kb: 2
+KbY: 0.5
+HitBox: 1.35

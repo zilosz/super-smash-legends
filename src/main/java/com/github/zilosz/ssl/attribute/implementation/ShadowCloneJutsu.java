@@ -1,12 +1,13 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attribute.AbilityType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.AttackSettings;
-import com.github.zilosz.ssl.damage.DamageSettings;
+import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.damage.Damage;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.projectile.ProjectileLaunchEvent;
-import com.github.zilosz.ssl.kit.Kit;
+import com.github.zilosz.ssl.projectile.CustomProjectile;
 import com.github.zilosz.ssl.team.Team;
 import com.github.zilosz.ssl.team.TeamPreference;
 import com.github.zilosz.ssl.utils.NmsUtils;
@@ -14,8 +15,8 @@ import com.github.zilosz.ssl.utils.block.BlockUtils;
 import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
-import com.github.zilosz.ssl.utils.entity.finder.selector.DistanceSelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
+import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -50,10 +51,6 @@ import java.util.Optional;
 public class ShadowCloneJutsu extends RightClickAbility {
     private final List<ShadowClone> clones = new ArrayList<>();
 
-    public ShadowCloneJutsu(SSL plugin, Section config, Kit kit) {
-        super(plugin, config, kit);
-    }
-
     @Override
     public void onClick(PlayerInteractEvent event) {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.BLAZE_HIT, 0.5f, 1);
@@ -74,8 +71,8 @@ public class ShadowCloneJutsu extends RightClickAbility {
 
         DisguiseAPI.disguiseEntity(creature, new PlayerDisguise(this.player.getName()));
 
-        ShadowClone clone = new ShadowClone(this.plugin, this, this.config, creature, this.clones);
-        this.plugin.getTeamManager().getPlayerTeam(this.player).addEntity(clone.creature);
+        ShadowClone clone = new ShadowClone(this, this.config, creature, this.clones);
+        SSL.getInstance().getTeamManager().getPlayerTeam(this.player).addEntity(clone.creature);
         this.clones.add(clone);
 
         if (this.clones.size() > this.config.getInt("Clone.Limit")) {
@@ -84,10 +81,10 @@ public class ShadowCloneJutsu extends RightClickAbility {
 
         clone.creature.setVelocity(direction.multiply(this.config.getDouble("Clone.Velocity")));
 
-        clone.runTaskTimer(this.plugin, 0, 10);
-        Bukkit.getPluginManager().registerEvents(clone, this.plugin);
+        clone.runTaskTimer(SSL.getInstance(), 0, 10);
+        Bukkit.getPluginManager().registerEvents(clone, SSL.getInstance());
 
-        Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+        Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
             if (clone.creature.isValid()) {
                 clone.destroy();
             }
@@ -101,7 +98,6 @@ public class ShadowCloneJutsu extends RightClickAbility {
     }
 
     private static class ShadowClone extends BukkitRunnable implements Listener {
-        private final SSL plugin;
         private final ShadowCloneJutsu ability;
         private final Section config;
         private final Creature creature;
@@ -110,8 +106,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
         private LivingEntity target;
         private BukkitTask rasenganTask;
 
-        public ShadowClone(SSL plugin, ShadowCloneJutsu ability, Section config, Creature creature, List<ShadowClone> friends) {
-            this.plugin = plugin;
+        public ShadowClone(ShadowCloneJutsu ability, Section config, Creature creature, List<ShadowClone> friends) {
             this.config = config;
             this.creature = creature;
             this.ability = ability;
@@ -142,7 +137,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
                     Rasengan.display(instance.creature);
                 }
 
-            }.runTaskTimer(this.plugin, 0, 0);
+            }.runTaskTimer(SSL.getInstance(), 0, 0);
         }
 
         private void endRasengan() {
@@ -182,13 +177,13 @@ public class ShadowCloneJutsu extends RightClickAbility {
             new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(this.creature.getLocation(), 1.5, 10, 0.1);
             this.ability.getPlayer().playSound(this.ability.getPlayer().getLocation(), Sound.BLAZE_HIT, 2, 1);
 
-            this.plugin.getTeamManager().getPlayerTeam(this.ability.getPlayer()).removeEntity(this.creature);
+            SSL.getInstance().getTeamManager().getPlayerTeam(this.ability.getPlayer()).removeEntity(this.creature);
         }
 
         @EventHandler
         public void onProjectileLaunch(ProjectileLaunchEvent event) {
-            if (!(event.getProjectile().getAbility() instanceof Rasenshuriken)) return;
             if (event.getProjectile().getLauncher() != this.ability.getPlayer()) return;
+            if (event.getProjectile().getAbility().getType() != AbilityType.RASENSHURIKEN) return;
 
             Vector direction;
 
@@ -199,13 +194,14 @@ public class ShadowCloneJutsu extends RightClickAbility {
                 direction = VectorUtils.fromTo(this.lastShurikenLocation, this.target.getLocation());
             }
 
-            Rasenshuriken.Shuriken shuriken = (Rasenshuriken.Shuriken) event.getProjectile().copy(this.ability);
+            CustomProjectile<?> shuriken = event.getProjectile().copy(this.ability);
             shuriken.setOverrideLocation(this.lastShurikenLocation.setDirection(direction));
+            shuriken.setSpeed(event.getProjectile().getSpeed());
 
-            DamageSettings damageSettings = shuriken.getAttackSettings().getDamageSettings();
+            Damage damageSettings = shuriken.getAttack().getDamage();
             double multiplier = this.config.getDouble("Clone.Rasenshuriken.DamageMultiplier");
             damageSettings.setDamage(damageSettings.getDamage() * multiplier);
-            shuriken.setSpeed(event.getProjectile().getSpeed());
+
             shuriken.launch();
         }
 
@@ -226,7 +222,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
         @Override
         public void run() {
             EntitySelector selector = new DistanceSelector(this.config.getDouble("Clone.Vision"));
-            EntityFinder finder = new EntityFinder(this.plugin, selector);
+            EntityFinder finder = new EntityFinder(selector);
 
             finder.findClosest(this.ability.getPlayer(), this.creature.getLocation()).ifPresent(target -> {
                 this.target = target;
@@ -249,7 +245,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
             Location curr = eye.subtract(0, 0.5, 0);
             Vector step = eye.getDirection().multiply(0.1);
 
-            Team team = this.plugin.getTeamManager().getPlayerTeam(this.ability.getPlayer());
+            Team team = SSL.getInstance().getTeamManager().getPlayerTeam(this.ability.getPlayer());
 
             while (!found && stepped < 3) {
                 curr.add(step);
@@ -259,20 +255,20 @@ public class ShadowCloneJutsu extends RightClickAbility {
                     if (TeamPreference.FRIENDLY.validate(team, target)) continue;
                     if (!BlockUtils.isLocationInsideBox(curr, NmsUtils.getLiving(target).getBoundingBox())) continue;
 
-                    AttackSettings settings;
+                    Attack attack;
 
                     if (this.rasenganTask == null) {
-                        settings = new AttackSettings(this.config.getSection("Clone.Melee"), step)
+                        attack = new Attack(this.config.getSection("Clone.Melee"), step)
                                 .modifyDamage(damage -> damage.setDamage(this.ability.getKit().getDamage()));
 
                     } else {
-                        settings = new AttackSettings(this.config.getSection("Clone.Rasengan"), step);
+                        attack = new Attack(this.config.getSection("Clone.Rasengan"), step);
 
                         Rasengan.displayAttackEffect(this.creature);
                         this.endRasengan();
                     }
 
-                    if (this.plugin.getDamageManager().attack(target, this.ability, settings)) {
+                    if (SSL.getInstance().getDamageManager().attack(target, this.ability, attack)) {
                         Location loc = this.ability.getPlayer().getLocation();
                         this.ability.getPlayer().playSound(loc, Sound.ORB_PICKUP, 1, 1);
                     }
