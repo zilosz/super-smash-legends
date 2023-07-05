@@ -102,12 +102,12 @@ public class Rasengan extends RightClickAbility {
 
         this.reset();
 
-        Damage damageSettings = event.getAttack().getDamage();
-        damageSettings.setDamage(this.config.getDouble("Damage"));
+        Damage damage = event.getAttack().getDamage();
+        damage.setDamage(this.config.getDouble("Damage"));
 
-        KnockBack kbSettings = event.getAttack().getKb();
-        kbSettings.setKb(this.config.getDouble("Kb"));
-        kbSettings.setKbY(this.config.getDouble("KbY"));
+        KnockBack kb = event.getAttack().getKb();
+        kb.setKb(this.config.getDouble("Kb"));
+        kb.setKbY(this.config.getDouble("KbY"));
 
         event.getVictim().getWorld().playSound(event.getVictim().getLocation(), Sound.EXPLODE, 3, 1);
         displayAttackEffect(event.getVictim());

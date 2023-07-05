@@ -12,7 +12,7 @@ public class PermanentPotion extends PassiveAbility {
         super.activate();
         int amplifier = this.config.getOptionalInt("Amplifier").orElse(1);
         this.type = PotionEffectType.getByName(this.config.getString("Type"));
-        new PotionEffectEvent(this.player, this.type, 10_000, amplifier).apply();
+        new PotionEffectEvent(this.player, this.type, 1_000_000, amplifier).apply();
     }
 
     @Override

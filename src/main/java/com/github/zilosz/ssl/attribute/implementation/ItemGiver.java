@@ -14,6 +14,8 @@ public class ItemGiver extends PassiveAbility {
     public void activate() {
         super.activate();
 
+        int ticksPerItem = this.config.getInt("TicksPerItem");
+
         this.giveTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
             ItemStack stack = this.player.getInventory().getItem(this.slot);
             int atOnce = this.config.getInt("AmountAtOnce");
@@ -22,7 +24,7 @@ public class ItemGiver extends PassiveAbility {
                 this.player.getInventory().addItem(this.hotbarItem.getItemStack());
                 this.player.playSound(this.player.getLocation(), Sound.ITEM_PICKUP, 1, 1);
             }
-        }, this.config.getInt("TicksPerItem"), this.config.getInt("TicksPerItem"));
+        }, ticksPerItem, ticksPerItem);
     }
 
     @Override

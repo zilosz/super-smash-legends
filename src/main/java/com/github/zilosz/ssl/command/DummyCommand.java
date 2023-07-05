@@ -1,6 +1,7 @@
 package com.github.zilosz.ssl.command;
 
 import com.github.zilosz.ssl.utils.message.Chat;
+import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -24,20 +25,34 @@ public class DummyCommand implements CommandExecutor, Listener {
 
         Player player = (Player) commandSender;
         EntityType type = EntityType.ZOMBIE;
+        double health = 1_000;
 
         if (strings.length > 0) {
 
-            try {
-                type = EntityType.valueOf(strings[0].toUpperCase());
+            if (NumberUtils.isNumber(strings[0])) {
+                health = Double.parseDouble(strings[0]);
 
-            } catch (IllegalArgumentException e) {
-                Chat.COMMAND.send(commandSender, "&7Invalid entity type.");
+            } else {
+
+                try {
+                    type = EntityType.valueOf(strings[0].toUpperCase());
+
+                } catch (IllegalArgumentException e) {
+                    Chat.COMMAND.send(commandSender, "&7Invalid entity type.");
+                    return false;
+                }
+
+                if (strings.length == 1 || !NumberUtils.isNumber(strings[1])) {
+                    return false;
+                }
+
+                health = Double.parseDouble(strings[1]);
             }
         }
 
         LivingEntity dummy = (LivingEntity) player.getWorld().spawnEntity(player.getLocation().add(0, 60, 0), type);
-        dummy.setMaxHealth(1000);
-        dummy.setHealth(1000);
+        dummy.setMaxHealth(health);
+        dummy.setHealth(health);
         this.dummies.add(dummy);
 
         return true;

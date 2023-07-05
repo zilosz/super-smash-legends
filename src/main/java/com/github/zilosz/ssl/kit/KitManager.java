@@ -87,8 +87,7 @@ public class KitManager implements Listener {
     }
 
     private void setPodiumSlab(Location beacon, int x, int z) {
-        Block block = beacon.clone().add(x, 0, z).getBlock();
-        block.setType(Material.STEP);
+        beacon.clone().add(x, 0, z).getBlock().setType(Material.STEP);
     }
 
     private void setPodiumWool(Location beacon, int x, int z, Kit kit) {

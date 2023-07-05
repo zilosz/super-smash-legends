@@ -39,17 +39,16 @@ public class DamageManager {
         if (this.indicators.containsKey(entity)) {
             indicator = this.indicators.get(entity);
             this.indicatorRemovers.remove(entity).cancel();
+            indicator.updateDamage(damage);
 
         } else {
-            indicator = DamageIndicator.create(SSL.getInstance(), entity);
+            indicator = DamageIndicator.create(SSL.getInstance(), entity, damage);
             this.indicators.put(entity, indicator);
 
             if (this.entitiesWithInvisibleIndicator.contains(entity)) {
                 indicator.setGlobalVisibility(VisibilitySettings.Visibility.HIDDEN);
             }
         }
-
-        indicator.stackDamage(damage);
 
         int comboDuration = SSL.getInstance().getResources().getConfig().getInt("Damage.Indicator.ComboDuration");
 

@@ -40,7 +40,7 @@ commands:
   dummy:
     description: Spawns a dummy above the player.
     permission: op
-    usage: "/<command>"
+    usage: "/<command> [entity type] [health]"
   loc:
     description: Sends the player's location.
     permission: op
