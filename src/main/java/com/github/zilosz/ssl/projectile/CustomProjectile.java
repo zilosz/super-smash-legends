@@ -145,34 +145,37 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         if (result.getFace() == null) return;
 
         if (++this.timesBounced > this.maxBounces) {
-            this.remove(ProjectileRemoveReason.HIT_BLOCK);
-            return;
+
+            if (this.removeOnBlockHit) {
+                this.remove(ProjectileRemoveReason.HIT_BLOCK);
+            }
+
+        } else {
+            Vector velocity = this.hasGravity ? this.launchVelocity : this.entity.getVelocity();
+
+            switch (result.getFace()) {
+
+                case UP:
+                case DOWN:
+                    velocity.setY(-velocity.getY());
+                    break;
+
+                case NORTH:
+                case SOUTH:
+                    velocity.setZ(-velocity.getZ());
+                    break;
+
+                default:
+                    velocity.setX(-velocity.getX());
+            }
+
+            if (this.recreateOnBounce) {
+                this.entity = this.createEntity(this.entity.getLocation());
+                this.applyEntityParams();
+            }
+
+            this.setVelocity(velocity);
         }
-
-        Vector velocity = this.hasGravity ? this.launchVelocity : this.entity.getVelocity();
-
-        switch (result.getFace()) {
-
-            case UP:
-            case DOWN:
-                velocity.setY(-velocity.getY());
-                break;
-
-            case NORTH:
-            case SOUTH:
-                velocity.setZ(-velocity.getZ());
-                break;
-
-            default:
-                velocity.setX(-velocity.getX());
-        }
-
-        if (this.recreateOnBounce) {
-            this.entity = this.createEntity(this.entity.getLocation());
-            this.applyEntityParams();
-        }
-
-        this.setVelocity(velocity);
     }
 
     protected void onBlockHit(BlockHitResult result) {}

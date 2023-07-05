@@ -2,10 +2,10 @@ Name: "Electrostatic Leap"
 Item:
   Material: IRON_SPADE
 Description:
-  - "&7Pikachew possesses strong hind legs that allow"
-  - "&7him to leap upwards. The liftoff power is"
-  - "&7strong and imbued with electricity, hurting"
-  - "&7enemies within a nearby radius."
+  - "&7Pikachew possesses strong hind legs that"
+  - "&7allow him to leap upwards. The liftoff power"
+  - "&7is strong and imbued with electricity,"
+  - "&7hurting enemies within a nearby radius."
 Cooldown: 160
 Radius: 4
 Velocity: 1.5

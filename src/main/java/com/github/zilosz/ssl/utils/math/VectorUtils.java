@@ -8,24 +8,26 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class VectorUtils {
 
-    public static Set<Location> getRectLocations(Location center, Vector alternative, double width, double height, int count) {
-        Vector direction = center.getDirection();
+    public static List<Location> getRectLocations(Location center, double width, double height, int count, boolean forceCenter) {
+        Vector unitHorizontal = center.getDirection().getCrossProduct(new Vector(0, 1, 0)).normalize();
+        Vector unitVertical = center.getDirection().getCrossProduct(unitHorizontal).normalize();
 
-        if (direction.getX() == 0 && direction.getZ() == 0) {
-            direction = alternative.clone().normalize();
+        List<Location> locations = new ArrayList<>();
+        int actualCount = count;
+
+        if (forceCenter) {
+            locations.add(center);
+            actualCount--;
         }
 
-        Vector unitHorizontal = direction.getCrossProduct(new Vector(0, 1, 0)).normalize();
-        Vector unitVertical = direction.getCrossProduct(unitHorizontal).normalize();
-
-        Set<Location> locations = new HashSet<>();
-
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < actualCount; i++) {
             double w = MathUtils.randRange(-width / 2, width / 2);
             double h = MathUtils.randRange(-height / 2, height / 2);
 

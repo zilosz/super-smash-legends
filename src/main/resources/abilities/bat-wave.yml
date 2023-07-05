@@ -5,8 +5,9 @@ Description:
   - "&7Harness the power of bats to damage"
   - "&7enemies from a distance and pull"
   - "&7yourself if needed. The bats are"
-  - "&7stronger than you think!"
-Cooldown: 100
+  - "&7stronger than you think! Press"
+  - "&7'q' to sling yourself forward once."
+Cooldown: 80
 AutoStartCooldown: false
 AutoSendUseMessage: false
 RemoveOnLongCollision: false
@@ -20,6 +21,7 @@ KbY: 0.5
 Damage: 2.5
 Width: 4
 Height: 4
-Lifespan: 100
+Lifespan: 80
 HitsMultiple: true
 HasGravity: false
+SlingVelocity: 2.3

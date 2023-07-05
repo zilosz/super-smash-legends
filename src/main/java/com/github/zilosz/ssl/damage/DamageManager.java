@@ -10,6 +10,7 @@ import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
@@ -23,6 +24,9 @@ public class DamageManager {
     private final Map<LivingEntity, BukkitTask> indicatorRemovers = new HashMap<>();
     private final Set<LivingEntity> entitiesWithInvisibleIndicator = new HashSet<>();
 
+    private final Map<Player, Double> playerComboDamages = new HashMap<>();
+    private final Map<Player, BukkitTask> comboDamageRemovers = new HashMap<>();
+
     private final Map<LivingEntity, Attribute> lastDamagingAttributes = new HashMap<>();
     private final Map<LivingEntity, BukkitTask> damageSourceRemovers = new HashMap<>();
 
@@ -31,6 +35,10 @@ public class DamageManager {
 
     public Attribute getLastDamagingAttribute(LivingEntity entity) {
         return this.lastDamagingAttributes.get(entity);
+    }
+
+    private int getComboDuration() {
+        return SSL.getInstance().getResources().getConfig().getInt("Damage.Indicator.ComboDuration");
     }
 
     public void updateIndicator(LivingEntity entity, double damage) {
@@ -50,10 +58,8 @@ public class DamageManager {
             }
         }
 
-        int comboDuration = SSL.getInstance().getResources().getConfig().getInt("Damage.Indicator.ComboDuration");
-
         this.indicatorRemovers.put(entity, Bukkit.getScheduler()
-                .runTaskLater(SSL.getInstance(), () -> this.destroyIndicator(entity), comboDuration));
+                .runTaskLater(SSL.getInstance(), () -> this.destroyIndicator(entity), this.getComboDuration()));
     }
 
     public void destroyIndicator(LivingEntity entity) {
@@ -92,7 +98,18 @@ public class DamageManager {
             victim.setMaximumNoDamageTicks(0);
             victim.setNoDamageTicks(0);
             victim.damage(finalDamage);
-            attribute.getPlayer().setLevel((int) finalDamage);
+
+            Player damager = attribute.getPlayer();
+
+            double newCombo = this.playerComboDamages.getOrDefault(damager, 0.0) + finalDamage;
+            damager.setLevel((int) newCombo);
+            this.playerComboDamages.put(damager, newCombo);
+
+            Optional.ofNullable(this.comboDamageRemovers.remove(damager)).ifPresent(BukkitTask::cancel);
+
+            this.comboDamageRemovers.put(damager, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
+                this.clearPlayerCombo(damager);
+            }, this.getComboDuration()));
 
             if (victim != attribute.getPlayer()) {
                 InGameProfile damagerProfile = SSL.getInstance().getGameManager().getProfile(attribute.getPlayer());
@@ -153,10 +170,21 @@ public class DamageManager {
         });
     }
 
+    private void clearPlayerCombo(Player player) {
+        this.playerComboDamages.remove(player);
+        player.setLevel(0);
+    }
+
+    public void removeComboIndicator(Player player) {
+        Optional.ofNullable(this.comboDamageRemovers.remove(player)).ifPresent(BukkitTask::cancel);
+        this.clearPlayerCombo(player);
+    }
+
     public void reset() {
         CollectionUtils.removeWhileIteratingOverValues(this.indicators, DamageIndicator::destroy);
         CollectionUtils.removeWhileIteratingOverValues(this.indicatorRemovers, BukkitTask::cancel);
         CollectionUtils.removeWhileIteratingOverValues(this.damageSourceRemovers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingOverValues(this.comboDamageRemovers, BukkitTask::cancel);
 
         CollectionUtils.removeWhileIteratingOverValues(
                 this.immunityRemovers,
@@ -166,5 +194,6 @@ public class DamageManager {
         this.entitiesWithInvisibleIndicator.clear();
         this.lastDamagingAttributes.clear();
         this.immunities.clear();
+        this.playerComboDamages.clear();
     }
 }

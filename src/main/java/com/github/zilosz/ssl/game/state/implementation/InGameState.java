@@ -463,6 +463,7 @@ public class InGameState extends GameState {
         damageManager.destroyIndicator(died);
         damageManager.removeDamageSource(died);
         damageManager.clearImmunities(died);
+        damageManager.removeComboIndicator(died);
 
         if (diedProfile.getLives() <= 0) {
             died.playSound(died.getLocation(), Sound.WITHER_DEATH, 2, 1);
