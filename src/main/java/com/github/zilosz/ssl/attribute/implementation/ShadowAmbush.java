@@ -24,7 +24,7 @@ public class ShadowAmbush extends RightClickAbility {
 
         finder.findClosest(this.player).ifPresentOrElse(target -> {
             Location targetLoc = target.getLocation();
-            Vector targetDir = targetLoc.getDirection();
+            Vector targetDir = targetLoc.getDirection().setY(0).normalize();
             Location spotBehind = targetLoc.subtract(targetDir).setDirection(targetDir);
 
             Block one = spotBehind.getBlock();
