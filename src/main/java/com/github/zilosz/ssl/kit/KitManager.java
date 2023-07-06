@@ -149,7 +149,13 @@ public class KitManager implements Listener {
         PlayerDatabase db = SSL.getInstance().getPlayerDatabase();
         String defaultName = SSL.getInstance().getResources().getConfig().getString("Kit.Default");
         String kitName = db.getOrDefault(player.getUniqueId(), "kit", defaultName, defaultName);
-        this.setKit(player, KitType.valueOf(kitName));
+
+        try {
+            this.setKit(player, KitType.valueOf(kitName));
+
+        } catch (IllegalArgumentException e) {
+            this.setKit(player, KitType.valueOf(defaultName));
+        }
     }
 
     public void setKit(Player player, KitType kitType) {
