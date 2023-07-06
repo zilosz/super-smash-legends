@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -17,8 +18,11 @@ public class HotbarItem implements Listener {
     @Getter private final Player player;
     @Getter private final ItemStack itemStack;
     @Getter private final int slot;
+
     @Setter private Consumer<PlayerInteractEvent> action;
+
     private Integer lastTick;
+    private Action lastAction;
 
     public HotbarItem(Player player, ItemStack itemStack, int slot) {
         this.player = player;
@@ -49,11 +53,16 @@ public class HotbarItem implements Listener {
         if (event.getPlayer() != this.player) return;
         if (event.getPlayer().getInventory().getHeldItemSlot() != this.slot) return;
 
-        int currTick = (int) this.player.getWorld().getFullTime();
+        int tick = (int) this.player.getWorld().getFullTime();
+        Action action = event.getAction();
 
-        if (this.lastTick != null && this.lastTick == currTick) return;
+        boolean sameTick = this.lastTick != null && tick == this.lastTick;
+        boolean sameAction = this.lastAction == Action.RIGHT_CLICK_BLOCK && action == Action.RIGHT_CLICK_AIR;
 
-        this.lastTick = currTick;
+        if (sameTick && sameAction) return;
+
+        this.lastTick = tick;
+        this.lastAction = action;
 
         if (this.action != null) {
             this.action.accept(event);
