@@ -10,6 +10,7 @@ import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.Chat;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
+import me.filoghost.holographicdisplays.api.hologram.HologramLines;
 import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.NPCLeftClickEvent;
@@ -104,7 +105,6 @@ public class KitManager implements Listener {
             location.add(0, SSL.getInstance().getResources().getConfig().getDouble("Kit.HologramHeight"), 0);
 
             Hologram hologram = HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(location);
-            hologram.getLines().appendText("");
             this.kitHolograms.get(player).put(kitType, hologram);
         });
     }
@@ -132,9 +132,9 @@ public class KitManager implements Listener {
     }
 
     private void updateAccessHologram(Player player, KitAccessType accessType, KitType kitType) {
-        Hologram hologram = this.kitHolograms.get(player).get(kitType);
-        hologram.getLines().remove(0);
-        hologram.getLines().appendText(accessType.getHologram());
+        HologramLines lines = this.kitHolograms.get(player).get(kitType).getLines();
+        lines.clear();
+        lines.appendText(accessType.getHologram());
     }
 
     public KitAccessType getKitAccess(Player player, KitType kitType) {
@@ -150,12 +150,16 @@ public class KitManager implements Listener {
         String defaultName = SSL.getInstance().getResources().getConfig().getString("Kit.Default");
         String kitName = db.getOrDefault(player.getUniqueId(), "kit", defaultName, defaultName);
 
+        KitType kitType;
+
         try {
-            this.setKit(player, KitType.valueOf(kitName));
+            kitType = KitType.valueOf(kitName);
 
         } catch (IllegalArgumentException e) {
-            this.setKit(player, KitType.valueOf(defaultName));
+            kitType = KitType.valueOf(defaultName);
         }
+
+        this.setKit(player, kitType);
     }
 
     public void setKit(Player player, KitType kitType) {
