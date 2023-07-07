@@ -52,12 +52,11 @@ public class Thunderbolt extends ChargedRightClickAbility {
             }
 
             for (LivingEntity target : finder.findAll(this.player, location)) {
+                Attack attack = new Attack(this.config, step);
+                attack.getDamage().setDamage(damage);
+                attack.getKb().setKb(kb);
 
-                Attack settings = new Attack(this.config, step)
-                        .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
-                        .modifyKb(kbSettings -> kbSettings.setKb(kb));
-
-                if (SSL.getInstance().getDamageManager().attack(target, this, settings)) {
+                if (SSL.getInstance().getDamageManager().attack(target, this, attack)) {
                     found = true;
                     break;
                 }

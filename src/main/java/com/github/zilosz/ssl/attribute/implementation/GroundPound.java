@@ -53,12 +53,11 @@ public class GroundPound extends RightClickAbility {
         EntityFinder finder = new EntityFinder(new HitBoxSelector(this.config.getDouble("HitBox")));
 
         for (LivingEntity target : finder.findAll(this.player)) {
+            Attack attack = new Attack(this.config, this.player.getLocation().getDirection());
+            attack.getDamage().setDamage(damage);
+            attack.getKb().setKb(kb);
 
-            Attack settings = new Attack(this.config, this.player.getLocation().getDirection())
-                    .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
-                    .modifyKb(kbSettings -> kbSettings.setKb(kb));
-
-            if (SSL.getInstance().getDamageManager().attack(target, this, settings)) {
+            if (SSL.getInstance().getDamageManager().attack(target, this, attack)) {
                 foundTarget = true;
 
                 this.player.getWorld().playSound(target.getLocation(), Sound.EXPLODE, 2, 2);

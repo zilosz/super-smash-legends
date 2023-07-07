@@ -60,10 +60,9 @@ public class SquidDash extends RightClickAbility {
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
         new EntityFinder(selector).findAll(this.player).forEach(target -> {
-
-            Attack attack = new Attack(this.config, VectorUtils.fromTo(this.player, target))
-                    .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
-                    .modifyKb(kbSettings -> kbSettings.setKb(kb));
+            Attack attack = new Attack(this.config, VectorUtils.fromTo(this.player, target));
+            attack.getDamage().setDamage(damage);
+            attack.getKb().setKb(kb);
 
             SSL.getInstance().getDamageManager().attack(target, this, attack);
         });

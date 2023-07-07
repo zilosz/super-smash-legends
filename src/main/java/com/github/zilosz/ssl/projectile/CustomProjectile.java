@@ -247,7 +247,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     protected void onTick() {}
 
     protected void hitTarget(LivingEntity target) {
-        this.attack.modifyKb(kb -> kb.setDirection(this.entity.getVelocity()));
+        this.attack.getKb().setDirection(this.entity.getVelocity());
 
         if (SSL.getInstance().getDamageManager().attack(target, this.ability, this.attack)) {
             this.onTargetHit(target);

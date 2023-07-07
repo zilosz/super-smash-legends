@@ -38,9 +38,9 @@ public class Melee extends Attribute implements Nameable {
         Vector direction = this.player.getEyeLocation().getDirection();
         double damage = SSL.getInstance().getKitManager().getSelectedKit(this.player).getDamage();
 
-        Attack settings = new Attack(config, direction)
-                .modifyDamage(damageSettings -> damageSettings.setDamage(damage));
+        Attack attack = new Attack(config, direction);
+        attack.getDamage().setDamage(damage);
 
-        SSL.getInstance().getDamageManager().attack(victim, this, settings);
+        SSL.getInstance().getDamageManager().attack(victim, this, attack);
     }
 }

@@ -171,9 +171,9 @@ public class Rasenshuriken extends RightClickAbility {
 
                 Vector direction = VectorUtils.fromTo(this.entity, target);
 
-                Attack settings = new Attack(this.config, direction)
-                        .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
-                        .modifyKb(kbSettings -> kbSettings.setKb(kb));
+                Attack settings = new Attack(this.config, direction);
+                settings.getDamage().setDamage(damage);
+                settings.getKb().setKb(kb);
 
                 SSL.getInstance().getDamageManager().attack(target, this.ability, settings);
             });

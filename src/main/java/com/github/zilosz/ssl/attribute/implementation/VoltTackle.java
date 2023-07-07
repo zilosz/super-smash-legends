@@ -80,11 +80,11 @@ public class VoltTackle extends RightClickAbility {
                 double damage = YamlReader.getIncreasingValue(this.config, "Damage", this.ticksMoving, duration);
                 double kb = YamlReader.getIncreasingValue(this.config, "Kb", this.ticksMoving, duration);
 
-                Attack settings = new Attack(this.config, velocity)
-                        .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
-                        .modifyKb(kbSettings -> kbSettings.setKb(kb));
+                Attack attack = new Attack(this.config, velocity);
+                attack.getDamage().setDamage(damage);
+                attack.getKb().setKb(kb);
 
-                if (SSL.getInstance().getDamageManager().attack(target, this, settings)) {
+                if (SSL.getInstance().getDamageManager().attack(target, this, attack)) {
                     this.player.getWorld().playSound(this.player.getLocation(), Sound.FALL_BIG, 1, 2);
                     this.player.getWorld().strikeLightningEffect(target.getLocation());
 
@@ -98,9 +98,9 @@ public class VoltTackle extends RightClickAbility {
                             recoilConfig, "Kb", this.ticksMoving, duration
                     );
 
-                    Attack recoil = new Attack(recoilConfig, velocity.multiply(-1))
-                            .modifyDamage(damageSettings -> damageSettings.setDamage(recoilDamage))
-                            .modifyKb(kbSettings -> kbSettings.setKb(recoilKb));
+                    Attack recoil = new Attack(recoilConfig, velocity.multiply(-1));
+                    recoil.getDamage().setDamage(recoilDamage);
+                    recoil.getKb().setKb(recoilKb);
 
                     SSL.getInstance().getDamageManager().attack(target, this, recoil);
                 }

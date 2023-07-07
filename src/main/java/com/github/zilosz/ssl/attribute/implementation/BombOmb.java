@@ -150,9 +150,9 @@ public class BombOmb extends RightClickAbility {
 
             Vector direction = VectorUtils.fromTo(this.bombBlock.getLocation(), target.getLocation());
 
-            Attack attack = new Attack(explode, direction)
-                    .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
-                    .modifyKb(kbSettings -> kbSettings.setKb(kb));
+            Attack attack = new Attack(explode, direction);
+            attack.getDamage().setDamage(damage);
+            attack.getKb().setKb(kb);
 
             SSL.getInstance().getDamageManager().attack(target, this.ability, attack);
         }

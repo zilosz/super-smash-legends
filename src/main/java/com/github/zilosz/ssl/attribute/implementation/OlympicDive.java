@@ -135,11 +135,11 @@ public class OlympicDive extends RightClickAbility {
             double damage = YamlReader.getDecreasingValue(this.config, "DiveDamage", distance, radius);
             double kb = YamlReader.getDecreasingValue(this.config, "DiveKb", distance, radius);
 
-            Attack settings = new Attack(this.config, VectorUtils.fromTo(this.player, target))
-                    .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
-                    .modifyKb(kbSettings -> kbSettings.setKb(kb));
+            Attack attack = new Attack(this.config, VectorUtils.fromTo(this.player, target));
+            attack.getDamage().setDamage(damage);
+            attack.getKb().setKb(kb);
 
-            SSL.getInstance().getDamageManager().attack(target, this, settings);
+            SSL.getInstance().getDamageManager().attack(target, this, attack);
         });
     }
 

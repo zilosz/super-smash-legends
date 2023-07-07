@@ -33,9 +33,9 @@ public class BoneExplosion extends RightClickAbility {
 
             Vector direction = VectorUtils.fromTo(this.player, target);
 
-            Attack attack = new Attack(this.config, direction)
-                    .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
-                    .modifyKb(kbSettings -> kbSettings.setKb(kb));
+            Attack attack = new Attack(this.config, direction);
+            attack.getDamage().setDamage(damage);
+            attack.getKb().setKb(kb);
 
             SSL.getInstance().getDamageManager().attack(target, this, attack);
         });

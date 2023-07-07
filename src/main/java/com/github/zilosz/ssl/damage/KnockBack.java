@@ -6,6 +6,7 @@ import com.github.zilosz.ssl.kit.KitManager;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -13,6 +14,7 @@ import org.bukkit.util.Vector;
 import java.util.Optional;
 
 @Getter
+@Setter
 public class KnockBack {
     private Vector direction;
     private double kb;
@@ -22,6 +24,18 @@ public class KnockBack {
     private boolean isLinear;
     private boolean factorsPreviousVelocity;
 
+    public KnockBack(Vector direction, Section config) {
+        this(
+                direction,
+                config.getDouble("Kb"),
+                config.getDouble("KbY"),
+                config.getOptionalBoolean("FactorsKit").orElse(true),
+                config.getOptionalBoolean("FactorsHealth").orElse(true),
+                config.getOptionalBoolean("IsLinear").orElse(false),
+                config.getOptionalBoolean("FactorsPreviousVelocity").orElse(false)
+        );
+    }
+
     public KnockBack(Vector direction, double kb, double kbY, boolean factorsKit, boolean factorsHealth, boolean isLinear, boolean factorsPreviousVelocity) {
         this.direction = direction;
         this.kb = kb;
@@ -30,51 +44,6 @@ public class KnockBack {
         this.factorsHealth = factorsHealth;
         this.isLinear = isLinear;
         this.factorsPreviousVelocity = factorsPreviousVelocity;
-    }
-
-    public KnockBack(Vector direction, Section config) {
-        this.direction = direction;
-        this.kb = config.getDouble("Kb");
-        this.kbY = config.getDouble("KbY");
-        this.factorsKit = config.getOptionalBoolean("FactorsKit").orElse(true);
-        this.factorsHealth = config.getOptionalBoolean("FactorsHealth").orElse(true);
-        this.isLinear = config.getOptionalBoolean("IsLinear").orElse(false);
-        this.factorsPreviousVelocity = config.getOptionalBoolean("FactorsPreviousVelocity").orElse(false);
-    }
-
-    public KnockBack setDirection(Vector direction) {
-        this.direction = direction;
-        return this;
-    }
-
-    public KnockBack setKb(double kb) {
-        this.kb = kb;
-        return this;
-    }
-
-    public KnockBack setKbY(double kbY) {
-        this.kbY = kbY;
-        return this;
-    }
-
-    public KnockBack setFactorsKit(boolean factorsKit) {
-        this.factorsKit = factorsKit;
-        return this;
-    }
-
-    public KnockBack setFactorsHealth(boolean factorsHealth) {
-        this.factorsHealth = factorsHealth;
-        return this;
-    }
-
-    public KnockBack setLinear(boolean isLinear) {
-        this.isLinear = isLinear;
-        return this;
-    }
-
-    public KnockBack setFactorsPreviousVelocity(boolean factorsPreviousVelocity) {
-        this.factorsPreviousVelocity = factorsPreviousVelocity;
-        return this;
     }
 
     public Optional<Vector> getFinalKbVector(LivingEntity victim) {

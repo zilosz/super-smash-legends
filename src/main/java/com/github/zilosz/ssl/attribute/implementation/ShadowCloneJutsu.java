@@ -258,8 +258,8 @@ public class ShadowCloneJutsu extends RightClickAbility {
                     Attack attack;
 
                     if (this.rasenganTask == null) {
-                        attack = new Attack(this.config.getSection("Clone.Melee"), step)
-                                .modifyDamage(damage -> damage.setDamage(this.ability.getKit().getDamage()));
+                        attack = new Attack(this.config.getSection("Clone.Melee"), step);
+                        attack.getDamage().setDamage(this.ability.getKit().getDamage());
 
                     } else {
                         attack = new Attack(this.config.getSection("Clone.Rasengan"), step);

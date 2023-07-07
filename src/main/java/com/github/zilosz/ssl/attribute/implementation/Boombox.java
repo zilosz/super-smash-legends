@@ -207,9 +207,9 @@ public class Boombox extends RightClickAbility {
             double damage = YamlReader.getDecreasingValue(mixTapeConfig, "Damage", distance, radius);
             double kb = YamlReader.getDecreasingValue(mixTapeConfig, "Kb", distance, radius);
 
-            Attack attack = new Attack(mixTapeConfig, direction)
-                    .modifyDamage(damageSettings -> damageSettings.setDamage(damage))
-                    .modifyKb(kbSettings -> kbSettings.setKb(kb));
+            Attack attack = new Attack(mixTapeConfig, direction);
+            attack.getDamage().setDamage(damage);
+            attack.getKb().setKb(kb);
 
             SSL.getInstance().getDamageManager().attack(target, this, attack);
         });

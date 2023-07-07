@@ -4,10 +4,11 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.kit.KitManager;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
-@Getter
+@Getter @Setter
 public class Damage {
     private double damage;
     private boolean factorsArmor;
@@ -19,16 +20,6 @@ public class Damage {
     public Damage(double damage, boolean factorsArmor) {
         this.damage = damage;
         this.factorsArmor = factorsArmor;
-    }
-
-    public Damage setDamage(double damage) {
-        this.damage = damage;
-        return this;
-    }
-
-    public Damage setFactorsArmor(boolean factorsArmor) {
-        this.factorsArmor = factorsArmor;
-        return this;
     }
 
     public double getFinalDamage(LivingEntity victim) {

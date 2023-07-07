@@ -89,6 +89,7 @@ public class Earthquake extends RightClickAbility {
 
         int id = Material.AIR.getId();
         int duration = this.config.getInt("UprootDuration");
+
         Bukkit.getScheduler()
                 .runTaskLater(SSL.getInstance(), () -> BlockUtils.setBlockFast(loc, id, (byte) 2), duration);
     }

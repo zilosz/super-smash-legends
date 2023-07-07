@@ -30,12 +30,10 @@ public class ViceGrip extends RightClickAbility {
         while (stepped <= this.config.getDouble("Range") && !location.getBlock().getType().isSolid() && !found) {
 
             for (LivingEntity target : finder.findAll(this.player, location)) {
-                double kbY = step.clone().getY() + this.config.getDouble("ExtraY");
+                Attack attack = new Attack(this.config, step);
+                attack.getKb().setKbY(step.clone().getY() + this.config.getDouble("ExtraY"));
 
-                Attack settings = new Attack(this.config, step)
-                        .modifyKb(kbSettings -> kbSettings.setKbY(kbY));
-
-                if (SSL.getInstance().getDamageManager().attack(target, this, settings)) {
+                if (SSL.getInstance().getDamageManager().attack(target, this, attack)) {
                     this.player.playSound(this.player.getLocation(), Sound.ORB_PICKUP, 1, 1);
                     found = true;
                     break;

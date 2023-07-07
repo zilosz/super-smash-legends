@@ -42,7 +42,8 @@ public class ArcticBreath extends RightClickAbility {
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
         new EntityFinder(selector).findAll(this.player, center).forEach(target -> {
-            Attack attack = new Attack(this.config, step).modifyDamage(dmg -> dmg.setDamage(damage));
+            Attack attack = new Attack(this.config, step);
+            attack.getDamage().setDamage(damage);
             SSL.getInstance().getDamageManager().attack(target, this, attack);
         });
 
