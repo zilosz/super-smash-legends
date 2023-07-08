@@ -7,7 +7,7 @@ Description:
   - "&7a renowned figure skater. He uses"
   - "&7incredible balance and technique to"
   - "&7twirl upwards into unsuspecting foes."
-Cooldown: 175
+Cooldown: 160
 MaxChargeTicks: 15
 Velocity: 0.6
 VelocityY: 0.8

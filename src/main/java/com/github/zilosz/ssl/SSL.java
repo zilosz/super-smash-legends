@@ -4,6 +4,7 @@ import com.github.zilosz.ssl.arena.ArenaManager;
 import com.github.zilosz.ssl.command.DamageCommand;
 import com.github.zilosz.ssl.command.DummyCommand;
 import com.github.zilosz.ssl.command.EndCommand;
+import com.github.zilosz.ssl.command.HealCommand;
 import com.github.zilosz.ssl.command.KitCommand;
 import com.github.zilosz.ssl.command.LocCommand;
 import com.github.zilosz.ssl.command.PlayCommand;
@@ -111,6 +112,7 @@ public class SSL extends JavaPlugin {
         this.getCommand("damage").setExecutor(new DamageCommand());
         this.getCommand("spec").setExecutor(new SpecCommand());
         this.getCommand("play").setExecutor(new PlayCommand());
+        this.getCommand("heal").setExecutor(new HealCommand());
 
         DummyCommand dummyCommand = new DummyCommand();
         this.getCommand("dummy").setExecutor(dummyCommand);

@@ -16,11 +16,11 @@ public class RegenEvent extends CustomEvent {
     }
 
     public static boolean attempt(Player player, double regen) {
-        if (player.getHealth() == 20) return false;
+        if (player.getHealth() == player.getMaxHealth()) return false;
 
         RegenEvent event = new RegenEvent(player, regen);
         Bukkit.getPluginManager().callEvent(event);
-        player.setHealth(Math.min(20, player.getHealth() + event.regen));
+        player.setHealth(Math.min(player.getMaxHealth(), player.getHealth() + event.regen));
 
         return true;
     }

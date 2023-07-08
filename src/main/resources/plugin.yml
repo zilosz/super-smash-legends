@@ -52,3 +52,7 @@ commands:
   spec:
     description: Toggle spectator mode in lobby.
     usage: "/<command>"
+  heal:
+    description: Heals a specified amount.
+    usage: "/<heal> <amount> [player]"
+    permission: op

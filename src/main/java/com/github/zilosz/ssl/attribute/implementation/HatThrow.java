@@ -23,7 +23,6 @@ public class HatThrow extends RightClickAbility {
 
         if (this.hatProjectile == null || this.hatProjectile.state == State.INACTIVE) {
             this.hatProjectile = new HatProjectile(this, this.config);
-            this.hatProjectile.setLifespan(this.config.getInt("TicksToReturn") + this.config.getInt("ExtraLifespan"));
             this.hatProjectile.launch();
 
         } else if (this.hatProjectile.state == State.DISMOUNTED) {
@@ -84,7 +83,7 @@ public class HatThrow extends RightClickAbility {
         }
 
         private double speedFunction(int ticks) {
-            return -2 * ticks * this.launchSpeed / this.config.getInt("TicksToReturn") + this.launchSpeed;
+            return -2 * ticks * this.launchSpeed / this.lifespan + this.launchSpeed;
         }
 
         public void mount(Entity passenger) {
