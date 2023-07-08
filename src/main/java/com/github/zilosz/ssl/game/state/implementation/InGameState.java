@@ -11,6 +11,7 @@ import com.github.zilosz.ssl.damage.Damage;
 import com.github.zilosz.ssl.damage.DamageManager;
 import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
+import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.InGameProfile;
 import com.github.zilosz.ssl.game.state.GameState;
 import com.github.zilosz.ssl.kit.Kit;
@@ -26,6 +27,7 @@ import com.github.zilosz.ssl.game.PlayerViewerInventory;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
+import com.google.common.util.concurrent.AtomicDouble;
 import com.nametagedit.plugin.NametagEdit;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Bukkit;
@@ -42,7 +44,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
@@ -57,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class InGameState extends GameState {
@@ -339,6 +341,11 @@ public class InGameState extends GameState {
         if (victim instanceof Player) {
             Player player = (Player) victim;
 
+            if (player.getGameMode() == GameMode.SPECTATOR) {
+                event.setCancelled(true);
+                return;
+            }
+
             if (SSL.getInstance().getGameManager().isSpectator(player)) {
                 event.setCancelled(true);
 
@@ -423,7 +430,8 @@ public class InGameState extends GameState {
             DeathNPC.spawn(SSL.getInstance(), died);
         }
 
-        InGameProfile diedProfile = SSL.getInstance().getGameManager().getProfile(died);
+        GameManager gameManager = SSL.getInstance().getGameManager();
+        InGameProfile diedProfile = gameManager.getProfile(died);
 
         diedProfile.setLives(diedProfile.getLives() - 1);
         diedProfile.setDeaths(diedProfile.getDeaths() + 1);
@@ -471,7 +479,7 @@ public class InGameState extends GameState {
             } else {
                 tpLocation = killer.getLocation();
 
-                InGameProfile killerProfile = SSL.getInstance().getGameManager().getProfile(killer);
+                InGameProfile killerProfile = gameManager.getProfile(killer);
                 killerProfile.setKills(killerProfile.getKills() + 1);
             }
         }
@@ -499,8 +507,14 @@ public class InGameState extends GameState {
             Team diedTeam = teamManager.getPlayerTeam(died);
 
             if (!diedTeam.isAlive()) {
-                diedTeam.setLifespan(SSL.getInstance().getGameManager().getTicksActive());
-                SSL.getInstance().getGameManager().addSpectator(died);
+                diedTeam.setLifespan(gameManager.getTicksActive());
+
+                if (teamManager.isGameTieOrWin()) {
+                    gameManager.advanceState();
+
+                } else {
+                    gameManager.addSpectator(died);
+                }
             }
 
             if (teamManager.isGameTieOrWin()) {
@@ -509,35 +523,31 @@ public class InGameState extends GameState {
 
         } else {
             died.setGameMode(GameMode.SPECTATOR);
-
             String title = MessageUtils.color("&7You &cdied!");
             TitleAPI.sendTitle(died, title, MessageUtils.color("&7Respawning soon..."), 7, 25, 7);
-
             died.playSound(died.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 1);
 
-            this.respawnTasks.put(died, new BukkitRunnable() {
-                int secondsLeft = SSL.getInstance().getResources().getConfig().getInt("Game.DeathWaitSeconds");
-                final double pitchStep = 1.5 / this.secondsLeft;
-                float pitch = 0.5f;
+            int deathSeconds = SSL.getInstance().getResources().getConfig().getInt("Game.DeathWaitSeconds");
+            AtomicInteger secondsLeft = new AtomicInteger(deathSeconds);
 
-                @Override
-                public void run() {
+            double pitchStep = 1.5 / deathSeconds;
+            AtomicDouble pitch = new AtomicDouble(0.5);
 
-                    if (this.secondsLeft == 0) {
-                        InGameState.this.respawnPlayer(died);
-                        InGameState.this.respawnTasks.remove(died).cancel();
-                        return;
-                    }
+            this.respawnTasks.put(died, Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
-                    String message = String.format("&7Respawning in &e&l%d &7seconds.", this.secondsLeft);
-                    ActionBarAPI.sendActionBar(died, MessageUtils.color(message));
-                    died.playSound(died.getLocation(), Sound.ENDERDRAGON_HIT, 2, this.pitch);
-
-                    this.pitch += this.pitchStep;
-                    this.secondsLeft--;
+                if (secondsLeft.get() == 0) {
+                    this.respawnPlayer(died);
+                    this.respawnTasks.remove(died).cancel();
+                    return;
                 }
 
-            }.runTaskTimer(SSL.getInstance(), 60, 20));
+                String message = String.format("&7Respawning in &e&l%d &7seconds.", secondsLeft.get());
+                ActionBarAPI.sendActionBar(died, MessageUtils.color(message));
+                died.playSound(died.getLocation(), Sound.ENDERDRAGON_HIT, 2, (float) pitch.get());
+
+                pitch.set(pitch.get() + pitchStep);
+                secondsLeft.set(secondsLeft.get() - 1);
+            }, 40, 20));
         }
     }
 

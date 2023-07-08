@@ -185,6 +185,7 @@ public class LobbyState extends GameState {
 
     private void initializePlayer(Player player) {
         player.setGameMode(GameMode.SURVIVAL);
+        player.setHealth(20);
         player.teleport(this.getSpawn());
         player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
 
