@@ -57,7 +57,7 @@ public class YamlReader {
         ItemBuilder<ItemMeta> builder = new ItemBuilder<>(material);
         section.getOptionalString("Name").ifPresent(builder::setName);
         section.getOptionalStringList("Lore").ifPresent(builder::setLore);
-        section.getOptionalInt("Amount").ifPresent(builder::setAmount);
+        section.getOptionalInt("Amount").ifPresent(builder::setCount);
         section.getOptionalInt("Data").ifPresent(builder::setData);
         return builder.get();
     }

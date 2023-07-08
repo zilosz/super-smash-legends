@@ -14,7 +14,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,23 +33,22 @@ public class PlayerViewerInventory extends CustomInventory<Player> {
 
     @Override
     public ItemStack getItemStack(Player clicker, Player other) {
-        ItemBuilder<SkullMeta> itemBuilder = new ItemBuilder<>(Material.SKULL_ITEM);
+        int lives = SSL.getInstance().getGameManager().getProfile(other).getLives();
+
+        ItemBuilder<SkullMeta> itemBuilder = new ItemBuilder<SkullMeta>(Material.SKULL_ITEM)
+                .setData(3)
+                .setName(this.getPlayerName(other))
+                .setCount(Math.max(1, lives));
+
         Skin skin = SSL.getInstance().getKitManager().getSelectedKit(other).getSkin();
         itemBuilder.applyMeta(skin::applyToSkull);
 
-        List<String> description = Arrays.asList(
-                "&3&lHealth: &7{HEALTH}%",
-                "&3&lLives: &7{LIVES}"
-        );
+        List<String> description = List.of("&3&lHealth: &7{HEALTH}%");
 
         Replacers replacers = new Replacers()
-                .add("HEALTH", (int) Math.ceil(100 * other.getHealth() / other.getMaxHealth()))
-                .add("LIVES", SSL.getInstance().getGameManager().getProfile(other).getLives());
+                .add("HEALTH", (int) Math.ceil(100 * other.getHealth() / other.getMaxHealth()));
 
-        return itemBuilder
-                .setName(this.getPlayerName(other))
-                .setLore(replacers.replaceLines(description))
-                .get();
+        return itemBuilder.setLore(replacers.replaceLines(description)).get();
     }
 
     @Override

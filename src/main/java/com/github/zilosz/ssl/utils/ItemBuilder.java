@@ -15,19 +15,19 @@ import java.util.function.Supplier;
 public class ItemBuilder<T extends ItemMeta> implements Supplier<ItemStack> {
     private final Material material;
     private boolean isEnchanted = false;
-    private int amount;
+    private int count;
     private byte data;
     private Consumer<T> meta = ($) -> {};
 
     public ItemBuilder(Material material) {
         this.material = material;
-        this.amount = 1;
+        this.count = 1;
         this.data = 0;
     }
 
     public ItemBuilder(ItemStack itemStack) {
         this.material = itemStack.getType();
-        this.amount = itemStack.getAmount();
+        this.count = itemStack.getAmount();
         this.data = itemStack.getData().getData();
 
         Optional.ofNullable(itemStack.getItemMeta().getDisplayName()).ifPresent(this::setName);
@@ -47,18 +47,14 @@ public class ItemBuilder<T extends ItemMeta> implements Supplier<ItemStack> {
         return this;
     }
 
-    public ItemBuilder<T> setAmount(int amount) {
-        this.amount = amount;
+    public ItemBuilder<T> setCount(int amount) {
+        this.count = amount;
         return this;
     }
 
     public ItemBuilder<T> setData(int data) {
         this.data = (byte) data;
         return this;
-    }
-
-    public ItemBuilder<T> addEnchantment(Enchantment enchantment) {
-        return this.applyMeta(meta -> meta.addEnchant(enchantment, 0, false));
     }
 
     public ItemBuilder<T> setEnchanted(boolean isEnchanted) {
@@ -69,7 +65,7 @@ public class ItemBuilder<T extends ItemMeta> implements Supplier<ItemStack> {
     @Override
     @SuppressWarnings("unchecked")
     public ItemStack get() {
-        ItemStack itemStack = new ItemStack(this.material, this.amount, this.data);
+        ItemStack itemStack = new ItemStack(this.material, this.count, this.data);
         if (this.isEnchanted) itemStack.addUnsafeEnchantment(Enchantment.KNOCKBACK, 1);
         ItemMeta meta = itemStack.getItemMeta();
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
