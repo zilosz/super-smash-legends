@@ -8,7 +8,6 @@ import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.GameResult;
 import com.github.zilosz.ssl.game.InGameProfile;
 import com.github.zilosz.ssl.game.state.GameState;
-import com.github.zilosz.ssl.game.state.TeleportsOnVoid;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.team.Team;
 import com.github.zilosz.ssl.team.TeamManager;
@@ -17,9 +16,10 @@ import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +35,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class EndState extends GameState implements TeleportsOnVoid {
+public class EndState extends GameState {
     @Nullable private String winnerString;
     private BukkitTask endCountdown;
 
@@ -293,8 +293,12 @@ public class EndState extends GameState implements TeleportsOnVoid {
         return false;
     }
 
-    @Override
-    public Location getTeleportLocation() {
-        return SSL.getInstance().getArenaManager().getArena().getWaitLocation();
+    @EventHandler
+    public void onEndDamage(EntityDamageEvent event) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.VOID && event.getEntity() instanceof Player) {
+            Player player = (Player) event.getEntity();
+            player.teleport(SSL.getInstance().getArenaManager().getArena().getWaitLocation());
+            player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
+        }
     }
 }

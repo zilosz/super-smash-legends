@@ -69,6 +69,11 @@ public class TeamSelector extends CustomInventory<Team> implements HasRandomOpti
     }
 
     @Override
+    public boolean updatesItems() {
+        return false;
+    }
+
+    @Override
     public String getTitle() {
         return "Team Selector";
     }

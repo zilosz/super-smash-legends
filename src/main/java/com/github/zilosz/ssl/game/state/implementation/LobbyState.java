@@ -10,7 +10,6 @@ import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.InGameProfile;
 import com.github.zilosz.ssl.game.state.GameState;
-import com.github.zilosz.ssl.game.state.TeleportsOnVoid;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.kit.KitManager;
 import com.github.zilosz.ssl.kit.KitSelector;
@@ -35,6 +34,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -51,7 +51,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class LobbyState extends GameState implements TeleportsOnVoid {
+public class LobbyState extends GameState {
     private final Set<HotbarItem> hotbarItems = new HashSet<>();
     private final Set<Hologram> holograms = new HashSet<>();
 
@@ -185,8 +185,6 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
 
     private void initializePlayer(Player player) {
         player.setGameMode(GameMode.SURVIVAL);
-        player.setHealth(20);
-        player.setLevel(0);
         player.teleport(this.getSpawn());
         player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
 
@@ -325,7 +323,6 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
         this.stopCountdownTask(false);
 
         Chat.GAME.broadcast("&7The game is starting...");
-        SSL.getInstance().getGameManager().startTicks();
 
         SSL.getInstance().getArenaManager().setupArena();
         Arena arena = SSL.getInstance().getArenaManager().getArena();
@@ -336,6 +333,7 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
         List<String> description = replacers.replaceLines(resources.getConfig().getStringList("Description"));
 
         GameManager gameManager = SSL.getInstance().getGameManager();
+        gameManager.startTicks();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             description.forEach(player::sendMessage);
@@ -382,7 +380,6 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
     @EventHandler
     public void onLobbyJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        player.getInventory().clear();
         this.initializePlayer(player);
 
         KitManager kitManager = SSL.getInstance().getKitManager();
@@ -424,8 +421,12 @@ public class LobbyState extends GameState implements TeleportsOnVoid {
         }
     }
 
-    @Override
-    public Location getTeleportLocation() {
-        return this.getSpawn();
+    @EventHandler
+    public void onLobbyDamage(EntityDamageEvent event) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.VOID && event.getEntity() instanceof Player) {
+            Player player = (Player) event.getEntity();
+            player.teleport(this.getSpawn());
+            player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
+        }
     }
 }

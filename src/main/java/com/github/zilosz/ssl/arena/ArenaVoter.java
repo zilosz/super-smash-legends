@@ -63,6 +63,11 @@ public class ArenaVoter extends CustomInventory<Arena> implements HasRandomOptio
     }
 
     @Override
+    public boolean updatesItems() {
+        return false;
+    }
+
+    @Override
     public String getTitle() {
         return "Arena Voter";
     }

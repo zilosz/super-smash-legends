@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -78,15 +79,19 @@ public class CollectionUtils {
         return items[(int) MathUtils.randRange(0, items.length)];
     }
 
-    public static <K, V> void removeWhileIteratingOverValues(Map<K, V> map, Consumer<V> valueAction) {
-        removeWhileIteratingOverValues(map, key -> {}, valueAction);
+    public static <K, V> void removeWhileIteratingOverEntry(Map<K, V> map, Consumer<V> valueAction) {
+        removeWhileIteratingOverEntry(map, key -> {}, valueAction);
     }
 
-    public static <K, V> void removeWhileIteratingOverValues(Map<K, V> map, Consumer<K> keyAction, Consumer<V> valueAction) {
+    public static <K, V> void removeWhileIteratingOverEntry(Map<K, V> map, Consumer<K> keyAction, Consumer<V> valueAction) {
         removeWhileIterating(map.entrySet(), entry -> {
             keyAction.accept(entry.getKey());
             valueAction.accept(entry.getValue());
         });
+    }
+
+    public static <K, V> void removeWhileIteratingOverEntry(Map<K, V> map, BiConsumer<K, V> dualAction) {
+        removeWhileIterating(map.entrySet(), entry -> dualAction.accept(entry.getKey(), entry.getValue()));
     }
 
     public static <T> void removeWhileIterating(Iterable<T> iterable, Consumer<T> action) {

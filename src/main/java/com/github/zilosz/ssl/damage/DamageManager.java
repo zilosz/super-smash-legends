@@ -181,14 +181,14 @@ public class DamageManager {
     }
 
     public void reset() {
-        CollectionUtils.removeWhileIteratingOverValues(this.indicators, DamageIndicator::destroy);
-        CollectionUtils.removeWhileIteratingOverValues(this.indicatorRemovers, BukkitTask::cancel);
-        CollectionUtils.removeWhileIteratingOverValues(this.damageSourceRemovers, BukkitTask::cancel);
-        CollectionUtils.removeWhileIteratingOverValues(this.comboDamageRemovers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingOverEntry(this.indicators, DamageIndicator::destroy);
+        CollectionUtils.removeWhileIteratingOverEntry(this.indicatorRemovers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingOverEntry(this.damageSourceRemovers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingOverEntry(this.comboDamageRemovers, BukkitTask::cancel);
 
-        CollectionUtils.removeWhileIteratingOverValues(
+        CollectionUtils.removeWhileIteratingOverEntry(
                 this.immunityRemovers,
-                map -> CollectionUtils.removeWhileIteratingOverValues(map, BukkitTask::cancel)
+                map -> CollectionUtils.removeWhileIteratingOverEntry(map, BukkitTask::cancel)
         );
 
         this.entitiesWithInvisibleIndicator.clear();

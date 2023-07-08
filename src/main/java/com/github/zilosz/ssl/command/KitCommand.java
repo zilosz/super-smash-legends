@@ -20,6 +20,11 @@ public class KitCommand implements CommandExecutor {
 
         Player player = (Player) commandSender;
 
+        if (SSL.getInstance().getGameManager().isSpectator(player)) {
+            Chat.GAME.send(player, "&7You can't use this command in spectator mode.");
+            return true;
+        }
+
         if (SSL.getInstance().getGameManager().getState().allowsKitSelection()) {
 
             if (strings.length > 1) {

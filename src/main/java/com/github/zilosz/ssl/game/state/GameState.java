@@ -13,6 +13,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
@@ -60,15 +61,22 @@ public abstract class GameState implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onGeneralJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+
+        player.getInventory().clear();
+        player.setHealth(20);
+        player.setLevel(0);
 
         if (this.isInArena()) {
             event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined mid-game.", player.getName())));
             Chat.GAME.send(player, "&7The game you joined is in progress.");
-            SSL.getInstance().getGameManager().addSpectator(event.getPlayer());
             player.teleport(SSL.getInstance().getArenaManager().getArena().getWaitLocation());
+
+            GameManager gameManager = SSL.getInstance().getGameManager();
+            gameManager.addSpectator(player);
+            gameManager.getSpectators().forEach(player::hidePlayer);
 
         } else {
             event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined the game.", player.getName())));
@@ -113,18 +121,10 @@ public abstract class GameState implements Listener {
 
     public abstract boolean isPlaying();
 
-    @EventHandler
-    public void onEntityDamage(EntityDamageEvent event) {
-
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onGeneralEntityDamage(EntityDamageEvent event) {
         if (!this.allowsDamage()) {
             event.setCancelled(true);
-        }
-
-        boolean isVoid = event.getCause() == EntityDamageEvent.DamageCause.VOID;
-
-        if (isVoid && this instanceof TeleportsOnVoid && event.getEntity() instanceof Player) {
-            event.getEntity().teleport(((TeleportsOnVoid) this).getTeleportLocation());
-            ((Player) event.getEntity()).playSound(event.getEntity().getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
         }
     }
 

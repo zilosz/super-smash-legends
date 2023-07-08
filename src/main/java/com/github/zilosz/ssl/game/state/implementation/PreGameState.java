@@ -4,13 +4,13 @@ import com.connorlinfoot.titleapi.TitleAPI;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.arena.Arena;
 import com.github.zilosz.ssl.game.state.GameState;
-import com.github.zilosz.ssl.game.state.TeleportsOnVoid;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class PreGameState extends GameState implements TeleportsOnVoid {
+public class PreGameState extends GameState {
     private BukkitTask startCountdown;
 
     @Override
@@ -131,8 +131,12 @@ public class PreGameState extends GameState implements TeleportsOnVoid {
         return false;
     }
 
-    @Override
-    public Location getTeleportLocation() {
-        return SSL.getInstance().getArenaManager().getArena().getWaitLocation();
+    @EventHandler
+    public void onPreGameDamage(EntityDamageEvent event) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.VOID && event.getEntity() instanceof Player) {
+            Player player = (Player) event.getEntity();
+            player.teleport(SSL.getInstance().getArenaManager().getArena().getWaitLocation());
+            player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
+        }
     }
 }

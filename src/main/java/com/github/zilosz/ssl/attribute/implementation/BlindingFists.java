@@ -36,7 +36,7 @@ public class BlindingFists extends PassiveAbility {
         super.deactivate();
         this.chainCounts.clear();
         this.player.removePotionEffect(PotionEffectType.SPEED);
-        CollectionUtils.removeWhileIteratingOverValues(this.chainResetters, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingOverEntry(this.chainResetters, BukkitTask::cancel);
     }
 
     @Override

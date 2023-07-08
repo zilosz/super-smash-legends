@@ -50,5 +50,5 @@ commands:
     usage: "/<command> <damage> [player]"
     permission: op
   spec:
-    description: Toggle spectator mode for upcoming games.
+    description: Toggle spectator mode in lobby.
     usage: "/<command>"

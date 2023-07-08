@@ -6,16 +6,17 @@ import com.github.zilosz.ssl.game.state.GameStateType;
 import com.github.zilosz.ssl.kit.Kit;
 import lombok.Getter;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -102,11 +103,15 @@ public class GameManager {
     }
 
     public boolean isPlayerAlive(Player player) {
-        return !this.isSpectator(player) && this.getProfile(player).getLives() > 0;
+        return Optional.ofNullable(this.getProfile(player)).map(profile -> profile.getLives() > 0).orElse(false);
     }
 
     public boolean isSpectator(Player player) {
         return this.spectators.contains(player);
+    }
+
+    public Set<Player> getSpectators() {
+        return Collections.unmodifiableSet(this.spectators);
     }
 
     public InGameProfile getProfile(Player player) {
@@ -125,12 +130,16 @@ public class GameManager {
     }
 
     public void removeSpectator(Player player) {
-        player.setGameMode(GameMode.SURVIVAL);
         this.spectators.remove(player);
+        player.setAllowFlight(false);
+        player.setFlySpeed(0.1f);
+        Bukkit.getOnlinePlayers().forEach(other -> other.showPlayer(player));
     }
 
     public void addSpectator(Player player) {
-        player.setGameMode(GameMode.SPECTATOR);
         this.spectators.add(player);
+        player.setAllowFlight(true);
+        player.setFlySpeed(0.2f);
+        Bukkit.getOnlinePlayers().forEach(other -> other.hidePlayer(player));
     }
 }

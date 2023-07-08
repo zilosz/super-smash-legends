@@ -22,6 +22,7 @@ import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.effect.DeathNPC;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.file.YamlReader;
+import com.github.zilosz.ssl.game.PlayerViewerInventory;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
@@ -32,11 +33,14 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -228,13 +232,18 @@ public class InGameState extends GameState {
 
         this.trackerItems.put(player, YamlReader.giveHotbarItem("PlayerTracker", player, e -> {
 
-            Optional.ofNullable(this.closestTargets.get(player)).ifPresentOrElse(target -> {
-                String distance = FORMAT.format(EntityUtils.getDistance(player, target));
-                String name = SSL.getInstance().getTeamManager().getPlayerColor(target) + target.getName();
-                Chat.TRACKER.send(player, String.format("%s &7is &e%s &7blocks away.", name, distance));
-            }, () -> {
-                Chat.TRACKER.send(player, "&7There are no players to track.");
-            });
+            if (SSL.getInstance().getGameManager().isSpectator(player)) {
+                new PlayerViewerInventory().build().open(player);
+
+            } else {
+                Optional.ofNullable(this.closestTargets.get(player)).ifPresentOrElse(target -> {
+                    String distance = FORMAT.format(EntityUtils.getDistance(player, target));
+                    String name = SSL.getInstance().getTeamManager().getPlayerColor(target) + target.getName();
+                    Chat.TRACKER.send(player, String.format("%s &7is &e%s &7blocks away.", name, distance));
+                }, () -> {
+                    Chat.TRACKER.send(player, "&7There are no players to track.");
+                });
+            }
         }));
 
         this.trackerTasks.put(player, Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
@@ -277,13 +286,14 @@ public class InGameState extends GameState {
         this.gameTimer.cancel();
 
         CollectionUtils.removeWhileIterating(this.skinRestorers, BukkitTask::cancel);
-        CollectionUtils.removeWhileIteratingOverValues(this.respawnTasks, this::respawnPlayer, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingOverEntry(this.respawnTasks, this::respawnPlayer, BukkitTask::cancel);
 
         ProtocolLibrary.getProtocolManager().removePacketListener(this.meleeSoundCanceller);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             this.removeTracker(player);
             TitleAPI.clearTitle(player);
+            player.closeInventory();
 
             if (SSL.getInstance().getGameManager().isPlayerAlive(player)) {
                 SSL.getInstance().getKitManager().getSelectedKit(player).deactivate();
@@ -303,6 +313,16 @@ public class InGameState extends GameState {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent event) {
+
+        if (event instanceof EntityDamageByEntityEvent) {
+            Entity damager = ((EntityDamageByEntityEvent) event).getDamager();
+
+            if (damager instanceof Player && SSL.getInstance().getGameManager().isSpectator((Player) damager)) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+
         if (!(event.getEntity() instanceof LivingEntity)) return;
 
         LivingEntity victim = (LivingEntity) event.getEntity();
@@ -314,18 +334,23 @@ public class InGameState extends GameState {
             return;
         }
 
-        if (victim instanceof Player) {
-            Player player = (Player) event.getEntity();
-            boolean isAlive = SSL.getInstance().getGameManager().isPlayerAlive(player);
-            boolean isSpec = player.getGameMode() == GameMode.SPECTATOR;
+        boolean isVoid = event.getCause() == EntityDamageEvent.DamageCause.VOID;
 
-            if (!isAlive || isSpec) {
+        if (victim instanceof Player) {
+            Player player = (Player) victim;
+
+            if (SSL.getInstance().getGameManager().isSpectator(player)) {
                 event.setCancelled(true);
+
+                if (isVoid) {
+                    player.teleport(SSL.getInstance().getArenaManager().getArena().getWaitLocation());
+                    player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
+                }
+
                 return;
             }
         }
 
-        boolean isVoid = event.getCause() == EntityDamageEvent.DamageCause.VOID;
         Damage damageSettings = new Damage(event.getFinalDamage(), true);
         DamageEvent damageEvent = new DamageEvent(victim, damageSettings, isVoid);
         Bukkit.getPluginManager().callEvent(damageEvent);
@@ -452,7 +477,6 @@ public class InGameState extends GameState {
         }
 
         Chat.DEATH.broadcast(deathMessage);
-        died.setGameMode(GameMode.SPECTATOR);
 
         if (teleportPlayer) {
             died.teleport(tpLocation);
@@ -467,53 +491,59 @@ public class InGameState extends GameState {
 
         if (diedProfile.getLives() <= 0) {
             died.playSound(died.getLocation(), Sound.WITHER_DEATH, 2, 1);
-
             String title = MessageUtils.color("&7You have been");
             TitleAPI.sendTitle(died, title, MessageUtils.color("&celiminated!"), 7, 25, 7);
-
             Chat.DEATH.broadcast(MessageUtils.color(String.format("%s &7has been &celiminated!", diedName)));
 
-            Team diedTeam = SSL.getInstance().getTeamManager().getPlayerTeam(died);
+            TeamManager teamManager = SSL.getInstance().getTeamManager();
+            Team diedTeam = teamManager.getPlayerTeam(died);
 
             if (!diedTeam.isAlive()) {
                 diedTeam.setLifespan(SSL.getInstance().getGameManager().getTicksActive());
+                SSL.getInstance().getGameManager().addSpectator(died);
             }
 
-            if (SSL.getInstance().getTeamManager().isGameTieOrWin()) {
+            if (teamManager.isGameTieOrWin()) {
                 SSL.getInstance().getGameManager().advanceState();
             }
 
-            return;
-        }
+        } else {
+            died.setGameMode(GameMode.SPECTATOR);
 
-        String title = MessageUtils.color("&7You &cdied!");
-        TitleAPI.sendTitle(died, title, MessageUtils.color("&7Respawning soon..."), 7, 25, 7);
+            String title = MessageUtils.color("&7You &cdied!");
+            TitleAPI.sendTitle(died, title, MessageUtils.color("&7Respawning soon..."), 7, 25, 7);
 
-        died.playSound(died.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 1);
+            died.playSound(died.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 1);
 
-        this.respawnTasks.put(died, new BukkitRunnable() {
-            int secondsLeft = SSL.getInstance().getResources().getConfig().getInt("Game.DeathWaitSeconds");
-            final double pitchStep = 1.5 / this.secondsLeft;
-            float pitch = 0.5f;
+            this.respawnTasks.put(died, new BukkitRunnable() {
+                int secondsLeft = SSL.getInstance().getResources().getConfig().getInt("Game.DeathWaitSeconds");
+                final double pitchStep = 1.5 / this.secondsLeft;
+                float pitch = 0.5f;
 
-            @Override
-            public void run() {
+                @Override
+                public void run() {
 
-                if (this.secondsLeft == 0) {
-                    InGameState.this.respawnPlayer(died);
-                    InGameState.this.respawnTasks.remove(died).cancel();
-                    return;
+                    if (this.secondsLeft == 0) {
+                        InGameState.this.respawnPlayer(died);
+                        InGameState.this.respawnTasks.remove(died).cancel();
+                        return;
+                    }
+
+                    String message = String.format("&7Respawning in &e&l%d &7seconds.", this.secondsLeft);
+                    ActionBarAPI.sendActionBar(died, MessageUtils.color(message));
+                    died.playSound(died.getLocation(), Sound.ENDERDRAGON_HIT, 2, this.pitch);
+
+                    this.pitch += this.pitchStep;
+                    this.secondsLeft--;
                 }
 
-                String message = String.format("&7Respawning in &e&l%d &7seconds.", this.secondsLeft);
-                ActionBarAPI.sendActionBar(died, MessageUtils.color(message));
-                died.playSound(died.getLocation(), Sound.ENDERDRAGON_HIT, 2, this.pitch);
+            }.runTaskTimer(SSL.getInstance(), 60, 20));
+        }
+    }
 
-                this.pitch += this.pitchStep;
-                this.secondsLeft--;
-            }
-
-        }.runTaskTimer(SSL.getInstance(), 60, 20));
+    @EventHandler
+    public void onJoinInGame(PlayerJoinEvent event) {
+        this.giveTracker(event.getPlayer());
     }
 
     @EventHandler
