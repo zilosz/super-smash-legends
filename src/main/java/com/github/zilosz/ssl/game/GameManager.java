@@ -106,16 +106,16 @@ public class GameManager {
         return Optional.ofNullable(this.getProfile(player)).map(profile -> profile.getLives() > 0).orElse(false);
     }
 
+    public InGameProfile getProfile(Player player) {
+        return this.profiles.get(player);
+    }
+
     public boolean isSpectator(Player player) {
         return this.spectators.contains(player);
     }
 
     public Set<Player> getSpectators() {
         return Collections.unmodifiableSet(this.spectators);
-    }
-
-    public InGameProfile getProfile(Player player) {
-        return this.profiles.get(player);
     }
 
     public void reset() {

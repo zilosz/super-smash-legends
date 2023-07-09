@@ -25,9 +25,13 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import fr.minuskube.inv.InventoryManager;
 import io.github.thatkawaiisam.assemble.Assemble;
 import lombok.Getter;
+import net.citizensnpcs.api.CitizensPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.IllegalPluginAccessException;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.server.PluginDisableEvent;
+import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
@@ -35,7 +39,7 @@ import java.io.File;
 
 @Getter
 @SuppressWarnings("OverlyCoupledClass")
-public class SSL extends JavaPlugin {
+public class SSL extends JavaPlugin implements Listener {
     @Getter private static SSL instance;
 
     private Resources resources;
@@ -56,15 +60,9 @@ public class SSL extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        this.kitManager.destroyNpcs();
-
         for (Player player : Bukkit.getOnlinePlayers()) {
             this.kitManager.wipePlayer(player);
         }
-
-        try {
-            this.gameManager.getState().end();
-        } catch (IllegalPluginAccessException ignored) {}
     }
 
     @Override
@@ -91,13 +89,13 @@ public class SSL extends JavaPlugin {
         }
 
         Bukkit.getPluginManager().registerEvents(this.kitManager, this);
+        Bukkit.getPluginManager().registerEvents(this, this);
 
         Vector pasteVector = YamlReader.getVector(this.resources.getLobby().getString("PasteVector"));
         File schematic = FileUtility.loadSchematic(this, "lobby");
         this.worldManager.createWorld("lobby", schematic, pasteVector);
 
         this.inventoryManager.init();
-        this.kitManager.setupKits();
         this.gameManager.activateState();
 
         Assemble scoreboard = new Assemble(this, new GameScoreboard());
@@ -117,5 +115,19 @@ public class SSL extends JavaPlugin {
         DummyCommand dummyCommand = new DummyCommand();
         this.getCommand("dummy").setExecutor(dummyCommand);
         Bukkit.getPluginManager().registerEvents(dummyCommand, this);
+    }
+
+    @EventHandler
+    public void onPluginEnable(PluginEnableEvent event) {
+        if (event.getPlugin() instanceof CitizensPlugin) {
+            this.kitManager.setupKits();
+        }
+    }
+
+    @EventHandler
+    public void onPluginDisable(PluginDisableEvent event) {
+        if (event.getPlugin() instanceof CitizensPlugin) {
+            this.kitManager.destroyNpcs();
+        }
     }
 }

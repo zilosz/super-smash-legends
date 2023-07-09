@@ -27,10 +27,6 @@ public class PlayerViewerInventory extends CustomInventory<Player> {
                 .collect(Collectors.toList());
     }
 
-    private String getPlayerName(Player player) {
-        return SSL.getInstance().getTeamManager().getPlayerColor(player) + player.getName();
-    }
-
     @Override
     public ItemStack getItemStack(Player clicker, Player other) {
         int lives = SSL.getInstance().getGameManager().getProfile(other).getLives();
@@ -51,6 +47,10 @@ public class PlayerViewerInventory extends CustomInventory<Player> {
         return itemBuilder.setLore(replacers.replaceLines(description)).get();
     }
 
+    private String getPlayerName(Player player) {
+        return SSL.getInstance().getTeamManager().getPlayerColor(player) + player.getName();
+    }
+
     @Override
     public void onItemClick(Player clicker, Player other, InventoryClickEvent event) {
 
@@ -65,12 +65,12 @@ public class PlayerViewerInventory extends CustomInventory<Player> {
     }
 
     @Override
-    public String getTitle() {
-        return "Player Viewer";
+    public boolean updatesItems() {
+        return true;
     }
 
     @Override
-    public boolean updatesItems() {
-        return true;
+    public String getTitle() {
+        return "Player Viewer";
     }
 }

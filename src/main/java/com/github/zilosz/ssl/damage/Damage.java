@@ -8,7 +8,8 @@ import lombok.Setter;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
-@Getter @Setter
+@Getter
+@Setter
 public class Damage {
     private double damage;
     private boolean factorsArmor;

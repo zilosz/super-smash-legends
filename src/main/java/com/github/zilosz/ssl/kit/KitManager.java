@@ -211,7 +211,7 @@ public class KitManager implements Listener {
 
     @EventHandler
     public void onNpcClick(NPCLeftClickEvent event) {
-        Optional.ofNullable(this.kitsPerNpc.get(event.getNPC()))
-                .ifPresent(kitType -> this.setKit(event.getClicker(), kitType));
+        Optional<KitType> kitType = Optional.ofNullable(this.kitsPerNpc.get(event.getNPC()));
+        kitType.ifPresent(type -> this.setKit(event.getClicker(), type));
     }
 }

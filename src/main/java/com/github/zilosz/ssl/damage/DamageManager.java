@@ -37,10 +37,6 @@ public class DamageManager {
         return this.lastDamagingAttributes.get(entity);
     }
 
-    private int getComboDuration() {
-        return SSL.getInstance().getResources().getConfig().getInt("Damage.Indicator.ComboDuration");
-    }
-
     public void updateIndicator(LivingEntity entity, double damage) {
         DamageIndicator indicator;
 
@@ -65,6 +61,10 @@ public class DamageManager {
     public void destroyIndicator(LivingEntity entity) {
         Optional.ofNullable(this.indicators.remove(entity)).ifPresent(DamageIndicator::destroy);
         Optional.ofNullable(this.indicatorRemovers.remove(entity)).ifPresent(BukkitTask::cancel);
+    }
+
+    private int getComboDuration() {
+        return SSL.getInstance().getResources().getConfig().getInt("Damage.Indicator.ComboDuration");
     }
 
     public void hideEntityIndicator(LivingEntity entity) {
@@ -148,6 +148,11 @@ public class DamageManager {
         return true;
     }
 
+    private void clearPlayerCombo(Player player) {
+        this.playerComboDamages.remove(player);
+        player.setLevel(0);
+    }
+
     private void cancelDamageSourceRemover(LivingEntity entity) {
         Optional.ofNullable(this.damageSourceRemovers.get(entity)).ifPresent(BukkitTask::cancel);
     }
@@ -168,11 +173,6 @@ public class DamageManager {
             immunities.forEach(attribute -> this.destroyImmunityRemover(entity, attribute));
             immunities.clear();
         });
-    }
-
-    private void clearPlayerCombo(Player player) {
-        this.playerComboDamages.remove(player);
-        player.setLevel(0);
     }
 
     public void removeComboIndicator(Player player) {

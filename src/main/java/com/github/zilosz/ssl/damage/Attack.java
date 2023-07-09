@@ -7,7 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.util.Vector;
 
-@Getter @Setter
+@Getter
+@Setter
 public class Attack {
     private final Damage damage;
     private final KnockBack kb;

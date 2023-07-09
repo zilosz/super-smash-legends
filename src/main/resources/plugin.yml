@@ -1,16 +1,21 @@
 name: SuperSmashLegends
 version: 1.0.0-alpha
 main: com.github.zilosz.ssl.SSL
-authors: [Zilosz]
+authors: [ Zilosz ]
 api-version: 1.8.8
-softdepend:
-  - TitleAPI
-  - NameTagEdit
-  - ActionBarAPI
-  - LibsDisguises
-  - HolographicDisplays
-  - ProtocolLib
+
+depend:
   - FastAsyncWorldEdit
+
+softdepend:
+  - HolographicDisplays
+  - TitleAPI
+  - NametagEdit
+  - LibsDisguises
+  - ActionBarAPI
+  - ProtocolLib
+
+loadbefore:
   - Citizens
 
 commands:

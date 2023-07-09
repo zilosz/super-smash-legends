@@ -26,7 +26,15 @@ public abstract class CustomInventory<T> implements InventoryProvider {
 
     private final Map<InventoryCoordinate, T> itemsByCoordinate = new HashMap<>();
 
-    @Override
+    public SmartInventory build() {
+        return SmartInventory.builder()
+                .provider(this)
+                .type(InventoryType.CHEST)
+                .size(this.getRowCount(), this.getColumnCount())
+                .manager(SSL.getInstance().getInventoryManager())
+                .title(MessageUtils.color(this.getTitle()))
+                .build();
+    }    @Override
     public void init(Player clicker, InventoryContents contents) {
         List<T> items = this.getItems();
 
@@ -55,9 +63,11 @@ public abstract class CustomInventory<T> implements InventoryProvider {
         }
     }
 
-    public abstract List<T> getItems();
+    public int getRowCount() {
+        return Math.min(MAX_ROWS, (int) Math.ceil(this.getItems().size() / 7.0)) + 2;
+    }    public abstract List<T> getItems();
 
-    private void setItem(InventoryContents contents, Player clicker, T item, int row, int column) {
+    public abstract String getTitle();    private void setItem(InventoryContents contents, Player clicker, T item, int row, int column) {
         ItemStack itemStack = this.getItemStack(clicker, item);
         Consumer<InventoryClickEvent> action = e -> this.onItemClick(clicker, item, e);
         contents.set(row, column, ClickableItem.of(itemStack, action));
@@ -114,19 +124,9 @@ public abstract class CustomInventory<T> implements InventoryProvider {
 
     public abstract boolean updatesItems();
 
-    public SmartInventory build() {
-        return SmartInventory.builder()
-                .provider(this)
-                .type(InventoryType.CHEST)
-                .size(this.getRowCount(), this.getColumnCount())
-                .manager(SSL.getInstance().getInventoryManager())
-                .title(MessageUtils.color(this.getTitle()))
-                .build();
-    }
 
-    public int getRowCount() {
-        return Math.min(MAX_ROWS, (int) Math.ceil(this.getItems().size() / 7.0)) + 2;
-    }
 
-    public abstract String getTitle();
+
+
+
 }

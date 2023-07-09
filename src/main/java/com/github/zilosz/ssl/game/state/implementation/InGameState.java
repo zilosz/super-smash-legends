@@ -13,6 +13,7 @@ import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.InGameProfile;
+import com.github.zilosz.ssl.game.PlayerViewerInventory;
 import com.github.zilosz.ssl.game.state.GameState;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.team.Team;
@@ -23,7 +24,6 @@ import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.effect.DeathNPC;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.file.YamlReader;
-import com.github.zilosz.ssl.game.PlayerViewerInventory;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
@@ -313,6 +313,34 @@ public class InGameState extends GameState {
         return true;
     }
 
+    @Override
+    public boolean allowsDamage() {
+        return true;
+    }
+
+    private void respawnPlayer(Player player) {
+        if (!SSL.getInstance().getGameManager().isPlayerAlive(player)) return;
+
+        player.teleport(SSL.getInstance().getArenaManager().getArena().getFarthestSpawnFromPlayers());
+
+        Chat.GAME.send(player, "&7You have &arespawned.");
+        player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 2);
+        player.playSound(player.getLocation(), Sound.LEVEL_UP, 1, 0.8f);
+
+        player.setGameMode(GameMode.SURVIVAL);
+        player.setHealth(20);
+
+        Kit kit = SSL.getInstance().getKitManager().getSelectedKit(player);
+        kit.equip();
+        kit.activate();
+    }
+
+    private void removeTracker(Player player) {
+        Optional.ofNullable(this.trackerItems.remove(player)).ifPresent(HotbarItem::destroy);
+        Optional.ofNullable(this.trackerTasks.remove(player)).ifPresent(BukkitTask::cancel);
+        this.closestTargets.remove(player);
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent event) {
 
@@ -368,34 +396,6 @@ public class InGameState extends GameState {
         }
     }
 
-    @Override
-    public boolean allowsDamage() {
-        return true;
-    }
-
-    private void respawnPlayer(Player player) {
-        if (!SSL.getInstance().getGameManager().isPlayerAlive(player)) return;
-
-        player.teleport(SSL.getInstance().getArenaManager().getArena().getFarthestSpawnFromPlayers());
-
-        Chat.GAME.send(player, "&7You have &arespawned.");
-        player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 2);
-        player.playSound(player.getLocation(), Sound.LEVEL_UP, 1, 0.8f);
-
-        player.setGameMode(GameMode.SURVIVAL);
-        player.setHealth(20);
-
-        Kit kit = SSL.getInstance().getKitManager().getSelectedKit(player);
-        kit.equip();
-        kit.activate();
-    }
-
-    private void removeTracker(Player player) {
-        Optional.ofNullable(this.trackerItems.remove(player)).ifPresent(HotbarItem::destroy);
-        Optional.ofNullable(this.trackerTasks.remove(player)).ifPresent(BukkitTask::cancel);
-        this.closestTargets.remove(player);
-    }
-
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(DamageEvent event) {
         double finalDamage = event.getFinalDamage();
@@ -410,6 +410,7 @@ public class InGameState extends GameState {
 
         if (event instanceof AttributeDamageEvent && event.willDie()) {
             this.handleDeath(player, true, false, ((AttributeDamageEvent) event).getAttribute(), true);
+            System.out.println("died from attribute.");
 
         } else if (event.isVoid()) {
             this.handleDeath(player, false, true, null, true);
@@ -420,6 +421,7 @@ public class InGameState extends GameState {
             event.setCancelled(true);
 
         } else {
+            System.out.println(player.getName() + " didn't die with " + player.getHealth() + " health left.");
             SSL.getInstance().getKitManager().getSelectedKit(player).getHurtNoise().playForAll(player.getLocation());
         }
     }
@@ -515,10 +517,6 @@ public class InGameState extends GameState {
                 } else {
                     gameManager.addSpectator(died);
                 }
-            }
-
-            if (teamManager.isGameTieOrWin()) {
-                SSL.getInstance().getGameManager().advanceState();
             }
 
         } else {

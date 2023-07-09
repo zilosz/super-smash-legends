@@ -90,10 +90,6 @@ public class CollectionUtils {
         });
     }
 
-    public static <K, V> void removeWhileIteratingOverEntry(Map<K, V> map, BiConsumer<K, V> dualAction) {
-        removeWhileIterating(map.entrySet(), entry -> dualAction.accept(entry.getKey(), entry.getValue()));
-    }
-
     public static <T> void removeWhileIterating(Iterable<T> iterable, Consumer<T> action) {
         Iterator<T> iterator = iterable.iterator();
 
@@ -101,5 +97,9 @@ public class CollectionUtils {
             action.accept(iterator.next());
             iterator.remove();
         }
+    }
+
+    public static <K, V> void removeWhileIteratingOverEntry(Map<K, V> map, BiConsumer<K, V> dualAction) {
+        removeWhileIterating(map.entrySet(), entry -> dualAction.accept(entry.getKey(), entry.getValue()));
     }
 }
