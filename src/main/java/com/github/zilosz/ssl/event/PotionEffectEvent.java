@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 @Getter
@@ -27,7 +28,7 @@ public class PotionEffectEvent extends CustomEvent implements Cancellable {
         Bukkit.getPluginManager().callEvent(this);
 
         if (!this.cancelled) {
-            this.entity.addPotionEffect(this.type.createEffect(this.duration, this.amplifier));
+            this.entity.addPotionEffect(new PotionEffect(this.type, this.duration, this.amplifier));
         }
     }
 }
