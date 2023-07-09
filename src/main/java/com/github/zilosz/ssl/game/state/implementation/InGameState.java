@@ -34,8 +34,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -357,35 +357,12 @@ public class InGameState extends GameState {
 
         LivingEntity victim = (LivingEntity) event.getEntity();
 
-        if (event.getEntity() instanceof ArmorStand) return;
-
-        if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.FALL || victim.getType() == EntityType.ARMOR_STAND) {
             event.setCancelled(true);
             return;
         }
 
         boolean isVoid = event.getCause() == EntityDamageEvent.DamageCause.VOID;
-
-        if (victim instanceof Player) {
-            Player player = (Player) victim;
-
-            if (player.getGameMode() == GameMode.SPECTATOR) {
-                event.setCancelled(true);
-                return;
-            }
-
-            if (SSL.getInstance().getGameManager().isSpectator(player)) {
-                event.setCancelled(true);
-
-                if (isVoid) {
-                    player.teleport(SSL.getInstance().getArenaManager().getArena().getWaitLocation());
-                    player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
-                }
-
-                return;
-            }
-        }
-
         Damage damageSettings = new Damage(event.getFinalDamage(), true);
         DamageEvent damageEvent = new DamageEvent(victim, damageSettings, isVoid);
         Bukkit.getPluginManager().callEvent(damageEvent);
@@ -399,31 +376,53 @@ public class InGameState extends GameState {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(DamageEvent event) {
         double finalDamage = event.getFinalDamage();
-        SSL.getInstance().getDamageManager().updateIndicator(event.getVictim(), finalDamage);
+        boolean isPlayer = event.getVictim() instanceof Player;
 
-        if (!(event.getVictim() instanceof Player)) return;
+        if (isPlayer) {
+            Player player = (Player) event.getVictim();
+            GameManager gameManager = SSL.getInstance().getGameManager();
 
-        Player player = (Player) event.getVictim();
+            if (gameManager.isSpectator(player)) {
+                event.setCancelled(true);
 
-        InGameProfile profile = SSL.getInstance().getGameManager().getProfile(player);
-        profile.setDamageTaken(profile.getDamageTaken() + Math.min(player.getHealth(), finalDamage));
+                if (event.isVoid()) {
+                    player.teleport(SSL.getInstance().getArenaManager().getArena().getWaitLocation());
+                    player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
+                }
 
-        if (event instanceof AttributeDamageEvent && event.willDie()) {
-            this.handleDeath(player, true, false, ((AttributeDamageEvent) event).getAttribute(), true);
-            System.out.println("died from attribute.");
+                return;
+            }
 
-        } else if (event.isVoid()) {
-            this.handleDeath(player, false, true, null, true);
-            event.setCancelled(true);
+            InGameProfile profile = SSL.getInstance().getGameManager().getProfile(player);
+            profile.setDamageTaken(profile.getDamageTaken() + Math.min(player.getHealth(), finalDamage));
 
-        } else if (event.willDie()) {
-            this.handleDeath(player, true, false, null, false);
-            event.setCancelled(true);
+            if (event instanceof AttributeDamageEvent) {
 
-        } else {
-            System.out.println(player.getName() + " didn't die with " + player.getHealth() + " health left.");
-            SSL.getInstance().getKitManager().getSelectedKit(player).getHurtNoise().playForAll(player.getLocation());
+                if (event.willDie()) {
+                    this.handleDeath(player, true, false, ((AttributeDamageEvent) event).getAttribute(), true);
+                    return;
+                }
+
+            } else {
+
+                if (event.isVoid()) {
+                    this.handleDeath(player, false, true, null, true);
+                    event.setCancelled(true);
+                    return;
+                }
+
+                if (event.willDie()) {
+                    this.handleDeath(player, true, false, null, false);
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+
+            Kit kit = SSL.getInstance().getKitManager().getSelectedKit(player);
+            kit.getHurtNoise().playForAll(player.getLocation());
         }
+
+        SSL.getInstance().getDamageManager().updateIndicator(event.getVictim(), finalDamage);
     }
 
     private void handleDeath(Player died, boolean spawnNpc, boolean teleportPlayer, Attribute directKillingAttribute, boolean preferAttributeDamage) {
@@ -499,6 +498,8 @@ public class InGameState extends GameState {
         damageManager.clearImmunities(died);
         damageManager.removeComboIndicator(died);
 
+        died.setGameMode(GameMode.SPECTATOR);
+
         if (diedProfile.getLives() <= 0) {
             died.playSound(died.getLocation(), Sound.WITHER_DEATH, 2, 1);
             String title = MessageUtils.color("&7You have been");
@@ -520,7 +521,6 @@ public class InGameState extends GameState {
             }
 
         } else {
-            died.setGameMode(GameMode.SPECTATOR);
             String title = MessageUtils.color("&7You &cdied!");
             TitleAPI.sendTitle(died, title, MessageUtils.color("&7Respawning soon..."), 7, 25, 7);
             died.playSound(died.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 1);
