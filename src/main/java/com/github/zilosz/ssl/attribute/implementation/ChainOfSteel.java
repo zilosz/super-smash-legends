@@ -4,13 +4,12 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.utils.collection.CollectionUtils;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.FloatingEntity;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -22,6 +21,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +88,7 @@ public class ChainOfSteel extends RightClickAbility {
                     if (SSL.getInstance().getDamageManager().attack(target, this, attackSettings)) {
                         this.player.playSound(this.player.getLocation(), Sound.ORB_PICKUP, 1, 1);
                         this.player.getWorld().playSound(currLocation, Sound.EXPLODE, 1, 1.5f);
-                        new ParticleBuilder(EnumParticle.EXPLOSION_NORMAL).show(currLocation);
+                        new ParticleMaker(new ParticleBuilder(ParticleEffect.EXPLOSION_LARGE)).show(currLocation);
                         this.pullTowardsLocation(currLocation);
                     }
                 });

@@ -9,12 +9,11 @@ import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
 import com.github.zilosz.ssl.utils.Noise;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.FloatingEntity;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -31,6 +30,8 @@ import org.bukkit.event.player.PlayerVelocityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 public class HungryFish extends RightClickAbility {
 
@@ -65,7 +66,7 @@ public class HungryFish extends RightClickAbility {
             Location center = EntityUtils.center(this.entity);
             double radius = this.hitBox * radiusMultiplier;
             int count = (int) (100 * radiusMultiplier);
-            new ParticleBuilder(EnumParticle.WATER_DROP).hollowSphere(center, radius, count);
+            new ParticleMaker(new ParticleBuilder(ParticleEffect.WATER_DROP)).hollowSphere(center, radius, count);
         }
 
         @Override
@@ -95,7 +96,8 @@ public class HungryFish extends RightClickAbility {
             this.soakTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
                 for (int i = 0; i < 5; i++) {
-                    new ParticleBuilder(EnumParticle.WATER_DROP).setSpread(0.7f, 0.5f, 0.7f).show(target.getLocation());
+                    ParticleBuilder particle = new ParticleBuilder(ParticleEffect.WATER_DROP);
+                    new ParticleMaker(particle).setSpread(0.75, 0.5, 0.75).show(target.getLocation());
                 }
             }, 0, 0);
 

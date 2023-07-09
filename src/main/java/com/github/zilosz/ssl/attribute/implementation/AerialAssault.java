@@ -3,16 +3,17 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.ChargedRightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 public class AerialAssault extends ChargedRightClickAbility {
     private Vector velocity;
@@ -33,7 +34,7 @@ public class AerialAssault extends ChargedRightClickAbility {
 
         Vector forward = this.velocity.clone().normalize().multiply(2);
         Location particleCenter = EntityUtils.center(this.player).setDirection(this.velocity).add(forward);
-        new ParticleBuilder(EnumParticle.FIREWORKS_SPARK).ring(particleCenter, 1.5, 20);
+        new ParticleMaker(new ParticleBuilder(ParticleEffect.FIREWORKS_SPARK)).ring(particleCenter, 1.5, 20);
 
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 

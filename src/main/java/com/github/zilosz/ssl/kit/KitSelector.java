@@ -21,6 +21,11 @@ import java.util.List;
 public class KitSelector extends CustomInventory<Kit> implements HasRandomOption {
 
     @Override
+    public String getTitle() {
+        return "Kit Selector";
+    }
+
+    @Override
     public List<Kit> getItems() {
         return SSL.getInstance().getKitManager().getKits();
     }
@@ -98,11 +103,6 @@ public class KitSelector extends CustomInventory<Kit> implements HasRandomOption
     @Override
     public boolean updatesItems() {
         return false;
-    }
-
-    @Override
-    public String getTitle() {
-        return "Kit Selector";
     }
 
     @Override

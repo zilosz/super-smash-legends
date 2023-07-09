@@ -6,20 +6,21 @@ import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
 import com.github.zilosz.ssl.team.TeamPreference;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 public class OlympicDive extends RightClickAbility {
     private BukkitTask task;
@@ -82,9 +83,8 @@ public class OlympicDive extends RightClickAbility {
             } else if (this.diveState == State.ASCENDING) {
 
                 for (int i = 0; i < 10; i++) {
-                    new ParticleBuilder(EnumParticle.DRIP_WATER)
-                            .setSpread(0.5f, 0.5f, 0.5f)
-                            .show(this.player.getLocation());
+                    ParticleBuilder particle = new ParticleBuilder(ParticleEffect.DRIP_WATER);
+                    new ParticleMaker(particle).setSpread(0.5).show(this.player.getLocation());
                 }
             }
         }, 4, 0);
@@ -123,8 +123,8 @@ public class OlympicDive extends RightClickAbility {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.EXPLODE, 0.5f, 2);
 
         for (int i = 0; i < 10; i++) {
-            new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).setSpread(3.5f, 0.6f, 3.5f)
-                    .show(this.player.getLocation());
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.EXPLOSION_LARGE);
+            new ParticleMaker(particle).setSpread(3.5, 0.6, 3.5).show(this.player.getLocation());
         }
 
         double radius = this.config.getDouble("DiveDamageRadius");

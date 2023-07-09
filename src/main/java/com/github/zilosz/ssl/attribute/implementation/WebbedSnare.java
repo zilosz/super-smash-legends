@@ -7,11 +7,10 @@ import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,6 +20,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -91,7 +92,7 @@ public class WebbedSnare extends RightClickAbility {
                 this.remove(ProjectileRemoveReason.HIT_BLOCK);
 
             } else if (this.ticksAlive % 2 == 0) {
-                new ParticleBuilder(EnumParticle.SNOWBALL).show(this.entity.getLocation());
+                new ParticleMaker(new ParticleBuilder(ParticleEffect.SNOWBALL)).show(this.entity.getLocation());
             }
         }
 

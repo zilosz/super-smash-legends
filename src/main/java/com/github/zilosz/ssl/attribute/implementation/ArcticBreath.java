@@ -3,15 +3,16 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 public class ArcticBreath extends RightClickAbility {
 
@@ -37,7 +38,9 @@ public class ArcticBreath extends RightClickAbility {
         if (ringCount == this.config.getInt("RingCount")) return;
 
         this.player.getWorld().playSound(center, Sound.GLASS, 2, 2);
-        new ParticleBuilder(EnumParticle.SNOW_SHOVEL).ring(center, radius, this.config.getDouble("ParticleDensity"));
+
+        double density = this.config.getDouble("ParticleDensity");
+        new ParticleMaker(new ParticleBuilder(ParticleEffect.SNOW_SHOVEL)).ring(center, radius, density);
 
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 

@@ -5,8 +5,7 @@ import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
 import com.github.zilosz.ssl.utils.NmsUtils;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
-import net.minecraft.server.v1_8_R3.EnumParticle;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import net.minecraft.server.v1_8_R3.PacketPlayOutAnimation;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -18,6 +17,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerVelocityEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 public class SuperhumanPunch extends RightClickAbility {
     private boolean hit = false;
@@ -75,7 +76,8 @@ public class SuperhumanPunch extends RightClickAbility {
                 this.particleTask.cancel();
 
             } else {
-                new ParticleBuilder(EnumParticle.SMOKE_LARGE).show(this.victim.getLocation());
+                ParticleBuilder particle = new ParticleBuilder(ParticleEffect.SMOKE_LARGE).setSpeed(0);
+                new ParticleMaker(particle).show(this.victim.getLocation());
             }
         }, 0, 0);
     }

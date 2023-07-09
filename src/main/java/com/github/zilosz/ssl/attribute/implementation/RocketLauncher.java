@@ -8,20 +8,19 @@ import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.effect.ColorType;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import net.minecraft.server.v1_8_R3.EnumParticle;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.Color;
 
 public class RocketLauncher extends ChargedRightClickAbility {
     private float pitch;
@@ -55,7 +54,6 @@ public class RocketLauncher extends ChargedRightClickAbility {
     }
 
     private static class Rocket extends ItemProjectile {
-        private final List<Location> particles = new ArrayList<>();
 
         public Rocket(Ability ability, Section config) {
             super(ability, config);
@@ -63,14 +61,13 @@ public class RocketLauncher extends ChargedRightClickAbility {
 
         @Override
         public void onBlockHit(BlockHitResult result) {
-            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.EXPLODE, 3, 1);
+            Location loc = this.entity.getLocation();
+            this.entity.getWorld().playSound(loc, Sound.EXPLODE, 3, 1);
 
-            for (int i = 0; i < 3; i++) {
-                new ParticleBuilder(EnumParticle.EXPLOSION_NORMAL).show(this.entity.getLocation());
-            }
+            new ParticleMaker(new ParticleBuilder(ParticleEffect.EXPLOSION_LARGE)).show(loc);
 
             if (result.getFace() == BlockFace.UP || result.getFace() == BlockFace.DOWN) {
-                Location location = this.entity.getLocation().setDirection(this.entity.getVelocity());
+                Location location = loc.setDirection(this.entity.getVelocity());
                 float pitch = this.config.getFloat("Shrapnel.Pitch");
                 location.setPitch(result.getFace() == BlockFace.UP ? -pitch : pitch);
                 this.launchShrapnel(location.getDirection(), null);
@@ -82,10 +79,9 @@ public class RocketLauncher extends ChargedRightClickAbility {
             Location location = this.entity.getLocation();
             this.entity.getWorld().playSound(location, Sound.FUSE, 0.5f, 1);
 
-            this.particles.add(location);
-
-            for (Location loc : this.particles) {
-                new ParticleBuilder(EnumParticle.SMOKE_LARGE).setSpread(0.3f, 0.3f, 0.3f).show(loc);
+            for (int i = 0; i < 3; i++) {
+                ParticleBuilder particle = new ParticleBuilder(ParticleEffect.SMOKE_LARGE).setSpeed(0);
+                new ParticleMaker(particle).setSpread(0.2).show(location);
             }
         }
 
@@ -104,13 +100,8 @@ public class RocketLauncher extends ChargedRightClickAbility {
                 Location launchLocation = location.clone();
                 launchLocation.setYaw(yaw);
 
-                Color colorType = CollectionUtils.selectRandom(ColorType.values()).getColor();
-
-                ParticleBuilder particle = new ParticleBuilder(EnumParticle.REDSTONE).setRgb(
-                        colorType.getRed(),
-                        colorType.getGreen(),
-                        colorType.getBlue()
-                );
+                Color color = CollectionUtils.selectRandom(ColorType.values()).getParticleColor();
+                ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(color);
 
                 Section shrapnelConfig = this.config.getSection("Shrapnel");
                 Shrapnel shrapnel = new Shrapnel(this.ability, shrapnelConfig, particle, toAvoid);
@@ -153,7 +144,7 @@ public class RocketLauncher extends ChargedRightClickAbility {
         @Override
         public void onTick() {
             for (int i = 0; i < 3; i++) {
-                this.particle.setSpread(0.2f, 0.2f, 0.2f).show(this.entity.getLocation());
+                new ParticleMaker(this.particle).setSpread(0.2).show(this.entity.getLocation());
             }
         }
     }

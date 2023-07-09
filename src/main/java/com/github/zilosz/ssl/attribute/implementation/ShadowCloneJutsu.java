@@ -12,7 +12,7 @@ import com.github.zilosz.ssl.team.Team;
 import com.github.zilosz.ssl.team.TeamPreference;
 import com.github.zilosz.ssl.utils.NmsUtils;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
@@ -23,7 +23,6 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.libraryaddict.disguise.DisguiseAPI;
 import me.libraryaddict.disguise.disguisetypes.PlayerDisguise;
 import net.minecraft.server.v1_8_R3.EntityLiving;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import net.minecraft.server.v1_8_R3.PacketPlayOutAnimation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -43,6 +42,8 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -174,8 +175,10 @@ public class ShadowCloneJutsu extends RightClickAbility {
             Optional.ofNullable(this.rasenganTask).ifPresent(BukkitTask::cancel);
 
             this.creature.getWorld().playSound(this.creature.getLocation(), Sound.FIRE, 1, 1);
-            new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(this.creature.getLocation(), 1.5, 10, 0.1);
             this.ability.getPlayer().playSound(this.ability.getPlayer().getLocation(), Sound.BLAZE_HIT, 2, 1);
+
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.SMOKE_LARGE).setSpeed(0);
+            new ParticleMaker(particle).solidSphere(this.creature.getLocation(), 1.5, 10, 0.1);
 
             SSL.getInstance().getTeamManager().getPlayerTeam(this.ability.getPlayer()).removeEntity(this.creature);
         }

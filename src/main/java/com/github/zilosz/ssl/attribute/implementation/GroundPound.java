@@ -4,12 +4,11 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
@@ -18,6 +17,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 public class GroundPound extends RightClickAbility {
     @Nullable private BukkitTask fallTask;
@@ -42,7 +43,8 @@ public class GroundPound extends RightClickAbility {
     }
 
     private void onRun(double initialHeight) {
-        new ParticleBuilder(EnumParticle.REDSTONE).ring(EntityUtils.center(this.player), 90, 0, 1, 10);
+        ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE);
+        new ParticleMaker(particle).ring(EntityUtils.center(this.player), 90, 0, 1, 10);
 
         double fallen = Math.max(0, initialHeight - this.player.getLocation().getY());
         double maxFall = this.config.getDouble("MaxFall");
@@ -61,7 +63,7 @@ public class GroundPound extends RightClickAbility {
                 foundTarget = true;
 
                 this.player.getWorld().playSound(target.getLocation(), Sound.EXPLODE, 2, 2);
-                new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).show(target.getLocation());
+                new ParticleMaker(new ParticleBuilder(ParticleEffect.EXPLOSION_LARGE)).show(EntityUtils.top(target));
             }
         }
 

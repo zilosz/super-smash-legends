@@ -4,14 +4,13 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import com.github.zilosz.ssl.utils.math.MathUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,6 +19,10 @@ import org.bukkit.block.Block;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
+
+import java.awt.Color;
 
 public class Earthquake extends RightClickAbility {
     private BukkitTask quakeTask;
@@ -60,8 +63,14 @@ public class Earthquake extends RightClickAbility {
             }
 
             Location location = this.player.getLocation().add(0, 0.3, 0);
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(139, 69, 19).ring(location, 90, 0, 1.5, 30);
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(160, 82, 45).ring(location, 90, 0, 0.75, 15);
+
+            ParticleBuilder largeParticle = new ParticleBuilder(ParticleEffect.REDSTONE)
+                    .setColor(new Color(139, 69, 19));
+            new ParticleMaker(largeParticle).ring(location, 90, 0, 1.5, 30);
+
+            ParticleBuilder smallParticle = new ParticleBuilder(ParticleEffect.REDSTONE)
+                    .setColor(new Color(160, 82, 45));
+            new ParticleMaker(smallParticle).ring(location, 90, 0, 0.75, 15);
 
             EntitySelector selector = new HitBoxSelector(horizontal, vertical, horizontal);
 

@@ -4,12 +4,11 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -17,6 +16,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 public class DrillTornado extends RightClickAbility {
     private BukkitTask prepareTask;
@@ -40,7 +41,8 @@ public class DrillTornado extends RightClickAbility {
             this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_METAL, 1, this.pitch);
 
             if (this.ticksPreparing % 2 == 0) {
-                new ParticleBuilder(EnumParticle.FIREWORKS_SPARK).hollowSphere(EntityUtils.center(this.player), 1, 20);
+                ParticleBuilder particle = new ParticleBuilder(ParticleEffect.FIREWORKS_SPARK);
+                new ParticleMaker(particle).hollowSphere(EntityUtils.center(this.player), 1, 20);
             }
 
             if (this.ticksPreparing++ < prepareDuration) {
@@ -60,7 +62,7 @@ public class DrillTornado extends RightClickAbility {
 
                 for (double y = 0; y < 2 * Math.PI; y += this.config.getDouble("ParticleGap")) {
                     Location particleLoc = this.player.getLocation().add(1.5 * Math.cos(y), y, 1.5 * Math.sin(y));
-                    new ParticleBuilder(EnumParticle.FIREWORKS_SPARK).show(particleLoc);
+                    new ParticleMaker(new ParticleBuilder(ParticleEffect.FIREWORKS_SPARK)).show(particleLoc);
                 }
 
                 EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));

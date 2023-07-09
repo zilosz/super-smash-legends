@@ -4,12 +4,13 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.PassiveAbility;
 import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.event.attribute.RegenEvent;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 public class Bloodlust extends PassiveAbility {
 
@@ -27,6 +28,6 @@ public class Bloodlust extends PassiveAbility {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_UNFECT, 1, 2);
 
         Location loc = EntityUtils.center(event.getVictim());
-        new ParticleBuilder(EnumParticle.REDSTONE).boom(SSL.getInstance(), loc, 3, 0.3, 7);
+        new ParticleMaker(new ParticleBuilder(ParticleEffect.REDSTONE)).boom(SSL.getInstance(), loc, 3, 0.3, 7);
     }
 }

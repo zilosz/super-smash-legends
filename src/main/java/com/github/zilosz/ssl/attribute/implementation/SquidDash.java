@@ -5,7 +5,7 @@ import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.DisguiseUtils;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
@@ -18,7 +18,6 @@ import me.libraryaddict.disguise.DisguiseAPI;
 import me.libraryaddict.disguise.disguisetypes.Disguise;
 import me.libraryaddict.disguise.disguisetypes.DisguiseType;
 import me.libraryaddict.disguise.disguisetypes.MobDisguise;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -30,6 +29,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -48,8 +49,9 @@ public class SquidDash extends RightClickAbility {
 
     private void stopDash() {
         Location center = EntityUtils.center(this.player);
-        new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(center, 1.5, 7, 0.5);
-        new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).setSpread(0.6f, 0.6f, 0.6f).show(center);
+
+        new ParticleMaker(new ParticleBuilder(ParticleEffect.SMOKE_LARGE).setSpeed(0)).solidSphere(center, 1.5, 7, 0.5);
+        new ParticleBuilder(ParticleEffect.EXPLOSION_LARGE).setOffset(0.6f, 0.6f, 0.6f).setLocation(center).display();
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SPLASH, 2, 0.5f);
         this.player.getWorld().playSound(this.player.getLocation(), Sound.EXPLODE, 1, 1);
@@ -157,10 +159,14 @@ public class SquidDash extends RightClickAbility {
     private void unHidePlayer() {
         this.invisibilityTask.cancel();
         this.invisible = false;
+
         SSL.getInstance().getDamageManager().showEntityIndicator(this.player);
         Bukkit.getOnlinePlayers().forEach(other -> other.showPlayer(this.player));
-        new ParticleBuilder(EnumParticle.SMOKE_LARGE).solidSphere(EntityUtils.center(this.player), 1, 5, 0.5);
+
         this.player.getWorld().playSound(this.player.getLocation(), Sound.WITHER_HURT, 1, 2);
+
+        ParticleBuilder particle = new ParticleBuilder(ParticleEffect.SMOKE_LARGE).setSpeed(0);
+        new ParticleMaker(particle).solidSphere(EntityUtils.center(this.player), 1, 5, 0.5);
     }
 
     private void resetDash() {

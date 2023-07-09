@@ -8,10 +8,9 @@ import com.github.zilosz.ssl.damage.KnockBack;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.utils.collection.CollectionUtils;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.math.MathUtils;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -22,6 +21,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -79,8 +80,8 @@ public class BlindingFists extends PassiveAbility {
             double pitch = MathUtils.getIncreasingValue(0.5, 2, maxChain - 1, currChain - 1);
             this.player.playSound(this.player.getLocation(), Sound.ZOMBIE_REMEDY, 0.5f, (float) pitch);
 
-            Location center = EntityUtils.center(victim);
-            new ParticleBuilder(EnumParticle.REDSTONE).boom(SSL.getInstance(), center, 1.5, 0.375, 5);
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE);
+            new ParticleMaker(particle).boom(SSL.getInstance(), EntityUtils.center(victim), 1.5, 0.375, 5);
 
             for (int x = -1; x <= 1; x++) {
 

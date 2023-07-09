@@ -8,9 +8,8 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.SkinTrait;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
-import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -21,6 +20,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
+
+import java.awt.Color;
 
 public class DeathNPC extends BukkitRunnable implements Listener {
     private final NPC npc;
@@ -63,7 +66,8 @@ public class DeathNPC extends BukkitRunnable implements Listener {
         }
 
         this.npc.getEntity().setVelocity(new Vector(0, this.velocity, 0));
-        new ParticleBuilder(EnumParticle.SMOKE_LARGE).show(this.npc.getStoredLocation().subtract(0, 0.4, 0));
+        Location loc = this.npc.getStoredLocation().subtract(0, 0.4, 0);
+        new ParticleMaker(new ParticleBuilder(ParticleEffect.SMOKE_LARGE)).show(loc);
         this.player.getWorld().playSound(this.npc.getStoredLocation(), Sound.FIREWORK_LAUNCH, 2, 2);
     }
 
@@ -73,10 +77,10 @@ public class DeathNPC extends BukkitRunnable implements Listener {
         this.player.getWorld().playSound(this.npc.getStoredLocation(), Sound.WITHER_DEATH, 3, 1.5f);
 
         KitManager kitManager = SSL.getInstance().getKitManager();
-        Color color = kitManager.getSelectedKit(this.player).getColor().getColor();
+        Color color = kitManager.getSelectedKit(this.player).getColor().getParticleColor();
 
-        new ParticleBuilder(EnumParticle.REDSTONE).setRgb(color.getRed(), color.getGreen(), color.getBlue())
-                .boom(SSL.getInstance(), EntityUtils.center(this.npc.getEntity()), 5, 0.25, 50);
+        ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(color);
+        new ParticleMaker(particle).boom(SSL.getInstance(), EntityUtils.center(this.npc.getEntity()), 5, 0.25, 50);
 
         this.npc.destroy();
 

@@ -3,15 +3,18 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
+
+import java.awt.Color;
 
 public class ViceGrip extends RightClickAbility {
 
@@ -40,7 +43,8 @@ public class ViceGrip extends RightClickAbility {
                 }
             }
 
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 0, 255).show(location);
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(255, 0, 255));
+            new ParticleMaker(particle).show(location);
 
             stepped += 0.25;
             location.add(step);

@@ -6,12 +6,10 @@ import com.github.zilosz.ssl.damage.KnockBack;
 import com.github.zilosz.ssl.event.CustomEvent;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import lombok.Getter;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
@@ -22,6 +20,10 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
+
+import java.awt.Color;
 
 public class Rasengan extends RightClickAbility {
     @Nullable private BukkitTask task;
@@ -72,8 +74,8 @@ public class Rasengan extends RightClickAbility {
     }
 
     public static void display(LivingEntity entity) {
-        Location location = EntityUtils.underHand(entity, 0);
-        new ParticleBuilder(EnumParticle.REDSTONE).setRgb(173, 216, 230).hollowSphere(location, 0.15, 20);
+        ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(173, 216, 230));
+        new ParticleMaker(particle).hollowSphere(EntityUtils.underHand(entity, 0), 0.15, 20);
     }
 
     public static void end(LivingEntity entity) {
@@ -112,10 +114,10 @@ public class Rasengan extends RightClickAbility {
     }
 
     public static void displayAttackEffect(LivingEntity victim) {
-        Location loc = EntityUtils.center(victim);
 
         for (int i = 0; i < 3; i++) {
-            new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).setSpread(0.4f, 0.4f, 0.4f).show(loc);
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.EXPLOSION_LARGE);
+            new ParticleMaker(particle).setSpread(0.4f).show(EntityUtils.center(victim));
         }
     }
 

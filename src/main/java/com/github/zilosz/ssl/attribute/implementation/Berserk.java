@@ -5,8 +5,7 @@ import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.utils.effect.Effects;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
-import net.minecraft.server.v1_8_R3.EnumParticle;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -16,6 +15,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 public class Berserk extends RightClickAbility {
     private boolean active = false;
@@ -40,11 +41,10 @@ public class Berserk extends RightClickAbility {
         new PotionEffectEvent(this.player, PotionEffectType.SPEED, Integer.MAX_VALUE, speed).apply();
 
         this.firework = Effects.launchFirework(this.player.getLocation(), Color.RED, 1);
-        ParticleBuilder particle = new ParticleBuilder(EnumParticle.REDSTONE);
 
         this.particleTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
             Location loc = this.player.getLocation().add(0, 0.3, 0);
-            particle.ring(loc, 90, 0, 0.5, 20);
+            new ParticleMaker(new ParticleBuilder(ParticleEffect.REDSTONE)).ring(loc, 90, 0, 0.5, 20);
         }, 0, 5);
 
         this.player.playSound(this.player.getLocation(), Sound.WOLF_GROWL, 1, 1);

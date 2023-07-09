@@ -6,14 +6,13 @@ import com.github.zilosz.ssl.attribute.ChargedRightClickBlockAbility;
 import com.github.zilosz.ssl.projectile.BlockProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.collection.CollectionUtils;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.FloatingEntity;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.MathUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,6 +23,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -186,14 +187,15 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
         @Override
         public void onBlockHit(BlockHitResult result) {
             this.entity.getWorld().playSound(this.entity.getLocation(), Sound.EXPLODE, 2, 1);
-            new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).show(this.entity.getLocation());
+            new ParticleMaker(new ParticleBuilder(ParticleEffect.EXPLOSION_LARGE)).show(this.entity.getLocation());
         }
 
         @Override
         public void onTick() {
             if (this.createParticles) {
                 for (int i = 0; i < 3; i++) {
-                    new ParticleBuilder(EnumParticle.EXPLOSION_NORMAL).show(this.entity.getLocation());
+                    ParticleBuilder particle = new ParticleBuilder(ParticleEffect.EXPLOSION_NORMAL);
+                    new ParticleMaker(particle).show(this.entity.getLocation());
                 }
             }
         }
@@ -202,7 +204,9 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
         public void onTargetHit(LivingEntity target) {
             Location loc = this.entity.getLocation();
             this.entity.getWorld().playSound(loc, Sound.IRONGOLEM_DEATH, 2, 0.5f);
-            new ParticleBuilder(EnumParticle.SMOKE_LARGE).boom(SSL.getInstance(), loc, 5, 0.5, 15);
+
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.SMOKE_LARGE).setSpeed(0);
+            new ParticleMaker(particle).boom(SSL.getInstance(), loc, 5, 0.5, 15);
         }
     }
 }

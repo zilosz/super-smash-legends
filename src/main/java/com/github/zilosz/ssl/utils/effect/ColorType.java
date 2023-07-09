@@ -44,6 +44,11 @@ public enum ColorType {
         this.color = color;
     }
 
+    public java.awt.Color getParticleColor() {
+        Color realColor = this.getColor();
+        return new java.awt.Color(realColor.getRed(), realColor.getGreen(), realColor.getBlue());
+    }
+
     public Color getColor() {
         return this.color == null ? this.dyeColor.getColor() : this.color;
     }

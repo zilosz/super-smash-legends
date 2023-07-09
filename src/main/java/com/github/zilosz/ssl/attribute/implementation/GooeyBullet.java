@@ -5,14 +5,17 @@ import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.projectile.LivingProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.player.PlayerInteractEvent;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
+
+import java.awt.Color;
 
 public class GooeyBullet extends RightClickAbility {
 
@@ -39,14 +42,14 @@ public class GooeyBullet extends RightClickAbility {
         public void onBlockHit(BlockHitResult result) {
             this.entity.getWorld().playSound(this.entity.getLocation(), Sound.SLIME_WALK, 2, 1);
 
-            new ParticleBuilder(EnumParticle.REDSTONE)
-                    .setRgb(0, 255, 0)
-                    .boom(SSL.getInstance(), this.entity.getLocation(), 2.5, 0.4, 5);
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(0, 255, 0));
+            new ParticleMaker(particle).boom(SSL.getInstance(), this.entity.getLocation(), 2.5, 0.4, 5);
         }
 
         @Override
         public void onTick() {
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(124, 252, 0).show(this.entity.getLocation());
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(124, 252, 0));
+            new ParticleMaker(particle).show(this.entity.getLocation());
         }
 
         @Override

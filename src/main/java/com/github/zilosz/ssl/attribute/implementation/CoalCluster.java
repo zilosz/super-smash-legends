@@ -5,14 +5,15 @@ import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.projectile.BlockProjectile;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.math.MathUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.player.PlayerInteractEvent;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 public class CoalCluster extends RightClickAbility {
 
@@ -35,7 +36,8 @@ public class CoalCluster extends RightClickAbility {
 
         @Override
         public void onTick() {
-            new ParticleBuilder(EnumParticle.SMOKE_LARGE).show(this.entity.getLocation());
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.SMOKE_LARGE).setSpeed(0);
+            new ParticleMaker(particle).show(this.entity.getLocation());
         }
 
         @Override
@@ -51,7 +53,7 @@ public class CoalCluster extends RightClickAbility {
             this.entity.getWorld().playSound(this.entity.getLocation(), Sound.EXPLODE, 2, 1);
 
             for (int i = 0; i < 3; i++) {
-                new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).show(this.entity.getLocation());
+                new ParticleMaker(new ParticleBuilder(ParticleEffect.EXPLOSION_LARGE)).show(this.entity.getLocation());
             }
 
             float yawStep = 360f / (this.config.getInt("FragmentCount") - 1);
@@ -79,12 +81,12 @@ public class CoalCluster extends RightClickAbility {
 
         @Override
         public void onBlockHit(BlockHitResult result) {
-            new ParticleBuilder(EnumParticle.EXPLOSION_NORMAL).show(this.entity.getLocation());
+            new ParticleMaker(new ParticleBuilder(ParticleEffect.EXPLOSION_NORMAL)).show(this.entity.getLocation());
         }
 
         @Override
         public void onTick() {
-            new ParticleBuilder(EnumParticle.FLAME).show(this.entity.getLocation());
+            new ParticleMaker(new ParticleBuilder(ParticleEffect.FLAME)).show(this.entity.getLocation());
         }
 
         @Override

@@ -8,11 +8,10 @@ import com.github.zilosz.ssl.damage.KnockBack;
 import com.github.zilosz.ssl.projectile.BlockProjectile;
 import com.github.zilosz.ssl.utils.RunnableUtils;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -21,6 +20,10 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
+
+import java.awt.Color;
 
 public class TerraShot extends ChargedRightClickBlockAbility {
     private Item blockItem;
@@ -59,7 +62,7 @@ public class TerraShot extends ChargedRightClickBlockAbility {
 
     @Override
     public void onChargeTick() {
-        new ParticleBuilder(EnumParticle.REDSTONE).show(this.blockItem.getLocation());
+        new ParticleMaker(new ParticleBuilder(ParticleEffect.REDSTONE)).show(this.blockItem.getLocation());
 
         if (this.ticksCharging % this.config.getInt("StageDuration") == 0) {
             this.player.playSound(this.player.getLocation(), Sound.IRONGOLEM_HIT, 1, this.pitch);
@@ -120,21 +123,26 @@ public class TerraShot extends ChargedRightClickBlockAbility {
 
         @Override
         public void onBlockHit(BlockHitResult result) {
-            new ParticleBuilder(EnumParticle.REDSTONE).setFace(result.getFace())
-                    .setRgb(255, 0, 255)
-                    .boom(SSL.getInstance(), this.entity.getLocation(), 4, 0.5, 15);
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(255, 0, 255));
+            new ParticleMaker(particle).boom(SSL.getInstance(), this.entity.getLocation(), 4, 0.5, 15);
         }
 
         @Override
         public void onTick() {
             for (int i = 0; i < 5; i++) {
-                new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 0, 255).show(this.entity.getLocation());
+                ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(
+                        255,
+                        0,
+                        255
+                ));
+                new ParticleMaker(particle).show(this.entity.getLocation());
             }
         }
 
         @Override
         public void onTargetHit(LivingEntity victim) {
-            new ParticleBuilder(EnumParticle.REDSTONE).boom(SSL.getInstance(), this.entity.getLocation(), 4, 0.5, 15);
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE);
+            new ParticleMaker(particle).boom(SSL.getInstance(), this.entity.getLocation(), 4, 0.5, 15);
         }
     }
 }

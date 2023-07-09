@@ -4,14 +4,17 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.LeftClickAbility;
 import com.github.zilosz.ssl.projectile.ArrowProjectile;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
+
+import java.awt.Color;
 
 public class RopedArrow extends LeftClickAbility {
 
@@ -29,7 +32,7 @@ public class RopedArrow extends LeftClickAbility {
 
         @Override
         public void onTick() {
-            new ParticleBuilder(EnumParticle.SMOKE_NORMAL).show(this.entity.getLocation());
+            new ParticleMaker(new ParticleBuilder(ParticleEffect.SMOKE_NORMAL)).show(this.entity.getLocation());
         }
 
         @Override
@@ -42,8 +45,8 @@ public class RopedArrow extends LeftClickAbility {
 
         @Override
         public void onTargetHit(LivingEntity target) {
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(200, 200, 200)
-                    .boom(SSL.getInstance(), this.entity.getLocation(), 1.2, 0.4, 6);
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(200, 200, 200));
+            new ParticleMaker(particle).boom(SSL.getInstance(), this.entity.getLocation(), 1.2, 0.4, 6);
         }
     }
 }

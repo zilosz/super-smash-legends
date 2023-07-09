@@ -9,13 +9,12 @@ import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
 import com.github.zilosz.ssl.team.TeamPreference;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -24,6 +23,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 public class BombOmb extends RightClickAbility {
     private BombProjectile bombProjectile;
@@ -87,7 +88,8 @@ public class BombOmb extends RightClickAbility {
 
         @Override
         public void onTick() {
-            new ParticleBuilder(EnumParticle.SMOKE_LARGE).show(this.entity.getLocation());
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.SMOKE_LARGE).setSpeed(0);
+            new ParticleMaker(particle).show(this.entity.getLocation());
         }
 
         @Override
@@ -126,7 +128,8 @@ public class BombOmb extends RightClickAbility {
             this.bombBlock.getWorld().playSound(this.bombBlock.getLocation(), Sound.EXPLODE, 2, 1);
 
             for (int i = 0; i < 3; i++) {
-                new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).show(this.bombBlock.getLocation());
+                ParticleBuilder particle = new ParticleBuilder(ParticleEffect.EXPLOSION_LARGE);
+                new ParticleMaker(particle).show(this.bombBlock.getLocation());
             }
 
             new EntityFinder(new DistanceSelector(this.config.getDouble("Explode.Range")))

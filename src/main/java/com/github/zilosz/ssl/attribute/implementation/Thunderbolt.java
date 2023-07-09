@@ -3,15 +3,21 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.ChargedRightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.block.BlockHitResult;
+import com.github.zilosz.ssl.utils.block.BlockUtils;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
+
+import java.awt.Color;
 
 public class Thunderbolt extends ChargedRightClickAbility {
 
@@ -62,7 +68,8 @@ public class Thunderbolt extends ChargedRightClickAbility {
                 }
             }
 
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 255, 0).show(location);
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(255, 255, 0));
+            new ParticleMaker(particle).show(location);
 
             stepped += 0.25;
             location.add(step);
@@ -72,6 +79,11 @@ public class Thunderbolt extends ChargedRightClickAbility {
     private void endEffect(Location location) {
         location.getWorld().strikeLightningEffect(location);
         location.getWorld().playSound(location, Sound.AMBIENCE_THUNDER, 4, 0.5f);
-        new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 255, 0).boom(SSL.getInstance(), location, 5, 0.5, 18);
+
+        BlockHitResult result = BlockUtils.findBlockHitByBox(location, 1, 1, 1, 0.25);
+        BlockFace face = result == null ? null : result.getFace();
+
+        ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(255, 255, 0));
+        new ParticleMaker(particle).setFace(face).boom(SSL.getInstance(), location, 5, 0.5, 18);
     }
 }

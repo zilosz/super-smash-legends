@@ -21,6 +21,11 @@ import java.util.stream.Collectors;
 public class PlayerViewerInventory extends CustomInventory<Player> {
 
     @Override
+    public String getTitle() {
+        return "Player Viewer";
+    }
+
+    @Override
     public List<Player> getItems() {
         return SSL.getInstance().getGameManager().getAlivePlayers().stream()
                 .sorted(Comparator.comparing(Player::getName))
@@ -67,10 +72,5 @@ public class PlayerViewerInventory extends CustomInventory<Player> {
     @Override
     public boolean updatesItems() {
         return true;
-    }
-
-    @Override
-    public String getTitle() {
-        return "Player Viewer";
     }
 }

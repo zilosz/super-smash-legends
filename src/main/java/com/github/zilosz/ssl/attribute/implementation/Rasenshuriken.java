@@ -7,7 +7,7 @@ import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.CustomEvent;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
@@ -15,7 +15,6 @@ import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -26,6 +25,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
+
+import java.awt.Color;
 
 public class Rasenshuriken extends RightClickAbility {
     private BukkitTask task;
@@ -83,11 +86,13 @@ public class Rasenshuriken extends RightClickAbility {
         }
 
         for (double radius = 0; radius <= 0.5; radius += 0.16) {
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 255, 255).ring(loc, pitch, yaw, radius, 18);
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(255, 255, 255));
+            new ParticleMaker(particle).ring(loc, pitch, yaw, radius, 18);
         }
 
         double radius = config.getDouble("ParticleRadius");
-        new ParticleBuilder(EnumParticle.REDSTONE).setRgb(173, 216, 230).hollowSphere(loc, radius, 5);
+        ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(173, 216, 230));
+        new ParticleMaker(particle).hollowSphere(loc, radius, 5);
     }
 
     @Override
@@ -156,7 +161,9 @@ public class Rasenshuriken extends RightClickAbility {
             double radius = this.config.getDouble("Radius");
 
             this.entity.getWorld().playSound(loc, Sound.EXPLODE, 1.5f, 1);
-            new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).solidSphere(loc, radius / 2, 40, 0.1);
+
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.EXPLOSION_LARGE);
+            new ParticleMaker(particle).solidSphere(loc, radius / 2, 40, 0.1);
 
             EntityFinder finder = new EntityFinder(new DistanceSelector(radius));
 

@@ -3,11 +3,12 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Sound;
 import org.bukkit.event.player.PlayerInteractEvent;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 public class FrigidSpear extends RightClickAbility {
 
@@ -25,7 +26,7 @@ public class FrigidSpear extends RightClickAbility {
 
         @Override
         public void onTick() {
-            new ParticleBuilder(EnumParticle.SNOW_SHOVEL).show(this.entity.getLocation());
+            new ParticleMaker(new ParticleBuilder(ParticleEffect.SNOW_SHOVEL)).show(this.entity.getLocation());
         }
     }
 }

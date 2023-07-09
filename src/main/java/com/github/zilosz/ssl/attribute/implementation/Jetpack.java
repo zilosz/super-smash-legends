@@ -2,13 +2,14 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.attribute.PassiveAbility;
 import com.github.zilosz.ssl.event.attribute.EnergyEvent;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 public class Jetpack extends PassiveAbility {
 
@@ -41,8 +42,8 @@ public class Jetpack extends PassiveAbility {
         while (spread > 0) {
 
             for (int i = 0; i < this.config.getDouble("ParticlesPerSpread") * spread; i++) {
-                Location particleLoc = new Location(this.player.getWorld(), particleX, particleY, particleZ);
-                new ParticleBuilder(EnumParticle.FLAME).setSpread(spread, 0, spread).show(particleLoc);
+                Location loc = new Location(this.player.getWorld(), particleX, particleY, particleZ);
+                new ParticleMaker(new ParticleBuilder(ParticleEffect.FLAME)).setSpread(spread, 0, spread).show(loc);
             }
 
             spread -= this.config.getDouble("StreamSpreadStep");

@@ -10,19 +10,20 @@ import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
 import com.github.zilosz.ssl.event.attribute.RegenEvent;
 import com.github.zilosz.ssl.utils.ItemBuilder;
 import com.github.zilosz.ssl.utils.Noise;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.DisguiseUtils;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import me.libraryaddict.disguise.DisguiseAPI;
 import me.libraryaddict.disguise.disguisetypes.Disguise;
 import me.libraryaddict.disguise.disguisetypes.DisguiseType;
 import me.libraryaddict.disguise.disguisetypes.MobDisguise;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,7 +42,7 @@ public class BatForm extends PassiveAbility {
 
         Location center = EntityUtils.center(event.getVictim());
         this.player.getWorld().playSound(center, Sound.ZOMBIE_UNFECT, 1, 2);
-        new ParticleBuilder(EnumParticle.REDSTONE).boom(SSL.getInstance(), center, 3, 0.3, 7);
+        new ParticleMaker(new ParticleBuilder(ParticleEffect.REDSTONE)).boom(SSL.getInstance(), center, 3, 0.3, 7);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -61,7 +62,8 @@ public class BatForm extends PassiveAbility {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.BAT_HURT, 1, 0.5f);
 
         for (int i = 0; i < 3; i++) {
-            new ParticleBuilder(EnumParticle.SMOKE_LARGE).setSpread(0.5f, 0.5f, 0.5f).show(this.player.getLocation());
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.SMOKE_LARGE).setSpeed(0);
+            new ParticleMaker(particle).setSpread(0.5).show(this.player.getLocation());
         }
 
         Disguise disguise = DisguiseUtils.applyDisguiseParams(this.player, new MobDisguise(DisguiseType.BAT));
@@ -118,7 +120,8 @@ public class BatForm extends PassiveAbility {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.BAT_HURT, 1, 2);
 
         for (int i = 0; i < 3; i++) {
-            new ParticleBuilder(EnumParticle.SMOKE_LARGE).setSpread(0.5f, 0.5f, 0.5f).show(this.player.getLocation());
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.SMOKE_LARGE).setSpeed(0);
+            new ParticleMaker(particle).setSpread(0.3).show(this.player.getLocation());
         }
     }
 

@@ -13,7 +13,7 @@ import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.team.TeamPreference;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.block.BlockRay;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
@@ -27,7 +27,6 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
 import me.filoghost.holographicdisplays.api.hologram.line.TextHologramLine;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -39,6 +38,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
+import xyz.xenondevs.particle.data.color.NoteColor;
 
 import java.text.DecimalFormat;
 
@@ -187,7 +189,8 @@ public class Boombox extends RightClickAbility {
     private void explode() {
 
         for (int i = 0; i < 3; i++) {
-            new ParticleBuilder(EnumParticle.EXPLOSION_HUGE).setSpread(0.5f, 0.5f, 0.5f).show(this.block.getLocation());
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.EXPLOSION_HUGE);
+            new ParticleMaker(particle).setSpread(0.5).show(this.block.getLocation());
         }
 
         this.player.getWorld().playSound(this.block.getLocation(), Sound.EXPLODE, 3, 2);
@@ -248,8 +251,10 @@ public class Boombox extends RightClickAbility {
         this.player.getWorld().playSound(this.block.getLocation(), Sound.NOTE_PLING, 2, pitch);
 
         for (int i = 0; i < 5; i++) {
-            new ParticleBuilder(EnumParticle.NOTE).setSpread(0.3f, 0.3f, 0.3f)
-                    .show(this.block.getLocation().add(0, 1.4, 0));
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.NOTE)
+                    .setParticleData(new NoteColor((int) MathUtils.randRange(0, 25)));
+            new ParticleMaker(particle).setSpread(0.4, 0.4, 0.4).show(this.block.getLocation().add(0.5, 1.6, 0.5));
+
         }
 
         Vector direction = this.player.getEyeLocation().getDirection();
@@ -310,6 +315,7 @@ public class Boombox extends RightClickAbility {
     }
 
     private static class MusicDiscProjectile extends ItemProjectile {
+        private final int note = (int) MathUtils.randRange(0, 25);
 
         public MusicDiscProjectile(Ability ability, Section config) {
             super(ability, config);
@@ -327,7 +333,9 @@ public class Boombox extends RightClickAbility {
 
         @Override
         public void onTick() {
-            new ParticleBuilder(EnumParticle.FIREWORKS_SPARK).show(this.entity.getLocation());
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.NOTE)
+                    .setParticleData(new NoteColor(this.note));
+            new ParticleMaker(particle).show(this.entity.getLocation());
         }
 
         @Override
@@ -336,8 +344,8 @@ public class Boombox extends RightClickAbility {
         }
 
         private void showEffect() {
-            new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).show(this.entity.getLocation());
-            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.NOTE_PLING, 2, 2);
+            new ParticleMaker(new ParticleBuilder(ParticleEffect.EXPLOSION_LARGE)).show(this.entity.getLocation());
+            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.NOTE_PLING, 3, 2);
         }
     }
 }

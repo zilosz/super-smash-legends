@@ -6,17 +6,20 @@ import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
+import com.github.zilosz.ssl.utils.math.MathUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
+import xyz.xenondevs.particle.data.color.NoteColor;
 
 public class MixTapeDrop extends RightClickAbility {
 
@@ -52,7 +55,9 @@ public class MixTapeDrop extends RightClickAbility {
 
         @Override
         public void onTick() {
-            new ParticleBuilder(EnumParticle.NOTE).show(this.entity.getLocation());
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.NOTE)
+                    .setParticleData(new NoteColor((int) MathUtils.randRange(0, 25)));
+            new ParticleMaker(particle).show(this.entity.getLocation());
         }
 
         @Override
@@ -62,7 +67,7 @@ public class MixTapeDrop extends RightClickAbility {
 
         private void showEffect() {
             this.entity.getWorld().playSound(this.entity.getLocation(), Sound.EXPLODE, 2, 1);
-            new ParticleBuilder(EnumParticle.EXPLOSION_LARGE).show(this.entity.getLocation());
+            new ParticleMaker(new ParticleBuilder(ParticleEffect.EXPLOSION_LARGE)).show(this.entity.getLocation());
         }
     }
 }

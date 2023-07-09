@@ -19,6 +19,11 @@ import java.util.stream.Collectors;
 public class TeamSelector extends CustomInventory<Team> implements HasRandomOption {
 
     @Override
+    public String getTitle() {
+        return "Team Selector";
+    }
+
+    @Override
     public List<Team> getItems() {
         return SSL.getInstance().getTeamManager().getTeamList();
     }
@@ -71,11 +76,6 @@ public class TeamSelector extends CustomInventory<Team> implements HasRandomOpti
     @Override
     public boolean updatesItems() {
         return false;
-    }
-
-    @Override
-    public String getTitle() {
-        return "Team Selector";
     }
 
     @Override

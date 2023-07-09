@@ -34,6 +34,14 @@ public abstract class CustomInventory<T> implements InventoryProvider {
                 .manager(SSL.getInstance().getInventoryManager())
                 .title(MessageUtils.color(this.getTitle()))
                 .build();
+    }
+
+    public int getRowCount() {
+        return Math.min(MAX_ROWS, (int) Math.ceil(this.getItems().size() / 7.0)) + 2;
+    }
+
+    public int getColumnCount() {
+        return MAX_COLUMNS + 2;
     }    @Override
     public void init(Player clicker, InventoryContents contents) {
         List<T> items = this.getItems();
@@ -63,19 +71,18 @@ public abstract class CustomInventory<T> implements InventoryProvider {
         }
     }
 
-    public int getRowCount() {
-        return Math.min(MAX_ROWS, (int) Math.ceil(this.getItems().size() / 7.0)) + 2;
-    }    public abstract List<T> getItems();
+    public abstract String getTitle();
 
-    public abstract String getTitle();    private void setItem(InventoryContents contents, Player clicker, T item, int row, int column) {
+    public abstract List<T> getItems();
+
+
+
+    private void setItem(InventoryContents contents, Player clicker, T item, int row, int column) {
         ItemStack itemStack = this.getItemStack(clicker, item);
         Consumer<InventoryClickEvent> action = e -> this.onItemClick(clicker, item, e);
         contents.set(row, column, ClickableItem.of(itemStack, action));
     }
 
-    public int getColumnCount() {
-        return MAX_COLUMNS + 2;
-    }
 
     public abstract ItemStack getItemStack(Player player, T item);
 
@@ -123,10 +130,6 @@ public abstract class CustomInventory<T> implements InventoryProvider {
     }
 
     public abstract boolean updatesItems();
-
-
-
-
 
 
 }

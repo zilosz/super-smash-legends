@@ -6,10 +6,9 @@ import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attribute.AbilityUseEvent;
 import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
 import com.github.zilosz.ssl.event.attribute.EnergyEvent;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.message.Chat;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -19,6 +18,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -151,7 +152,8 @@ public class GoldRush extends PassiveAbility {
             }
 
             for (int i = 0; i < 5; i++) {
-                new ParticleBuilder(EnumParticle.EXPLOSION_NORMAL).setSpread(0.75f, 0, 0.75f).show(location);
+                ParticleBuilder particle = new ParticleBuilder(ParticleEffect.EXPLOSION_NORMAL);
+                new ParticleMaker(particle).setSpread(0.75, 0, 0.75).show(location);
             }
         }, ticksPerParticle, ticksPerParticle);
     }

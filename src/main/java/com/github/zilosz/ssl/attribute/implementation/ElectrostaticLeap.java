@@ -3,16 +3,18 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
-import com.github.zilosz.ssl.utils.effect.ParticleBuilder;
+import com.github.zilosz.ssl.utils.effect.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
-import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
+
+import java.awt.Color;
 
 public class ElectrostaticLeap extends RightClickAbility {
     private BukkitTask task;
@@ -25,8 +27,8 @@ public class ElectrostaticLeap extends RightClickAbility {
         this.kit.getJump().giveExtraJumps(1);
 
         for (double radius = 0.2; radius < this.config.getDouble("Radius"); radius += 0.25) {
-            Location loc = this.player.getLocation();
-            new ParticleBuilder(EnumParticle.REDSTONE).setRgb(255, 255, 0).ring(loc, 90, 0, radius, 20);
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(255, 255, 0));
+            new ParticleMaker(particle).ring(this.player.getLocation(), 90, 0, radius, 20);
         }
 
         this.task = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
@@ -36,7 +38,7 @@ public class ElectrostaticLeap extends RightClickAbility {
                 return;
             }
 
-            new ParticleBuilder(EnumParticle.FIREWORKS_SPARK).show(this.player.getLocation());
+            new ParticleMaker(new ParticleBuilder(ParticleEffect.FIREWORKS_SPARK)).show(this.player.getLocation());
             HitBoxSelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
             new EntityFinder(selector).findAll(this.player).forEach(target -> {
