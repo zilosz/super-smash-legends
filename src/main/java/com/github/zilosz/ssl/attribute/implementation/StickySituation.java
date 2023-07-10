@@ -5,7 +5,7 @@ import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.event.attribute.EnergyEvent;
 import com.github.zilosz.ssl.event.attribute.RegenEvent;
-import com.github.zilosz.ssl.utils.effect.Effects;
+import com.github.zilosz.ssl.utils.effects.Effects;
 import org.bukkit.Color;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;

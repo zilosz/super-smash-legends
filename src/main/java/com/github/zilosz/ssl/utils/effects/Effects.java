@@ -1,4 +1,4 @@
-package com.github.zilosz.ssl.utils.effect;
+package com.github.zilosz.ssl.utils.effects;
 
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import org.bukkit.Bukkit;

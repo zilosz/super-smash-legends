@@ -1,4 +1,4 @@
-package com.github.zilosz.ssl.utils.effect;
+package com.github.zilosz.ssl.utils.effects;
 
 import com.github.zilosz.ssl.utils.math.MathUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
@@ -73,8 +73,10 @@ public class ParticleMaker {
         this.ring(center, center.getPitch(), center.getYaw(), radius, gap);
     }
 
-    public void ring(Location center, float pitch, float yaw, double radius, double gap) {
-        for (double radians = 0; radians < 2 * Math.PI; radians += 2 * Math.PI / gap) {
+    public void ring(Location center, float pitch, float yaw, double radius, double degreeStep) {
+        double radianStep = MathUtils.degToRad(degreeStep);
+
+        for (double radians = 0; radians < 2 * Math.PI; radians += radianStep) {
             this.show(MathUtils.ringPoint(center, pitch, yaw, radius, radians));
         }
     }
@@ -88,15 +90,6 @@ public class ParticleMaker {
     public void hollowSphere(Location center, double radius, int particleCount) {
         for (int i = 0; i < particleCount; i++) {
             this.show(center.clone().add(VectorUtils.getRandomVector(this.face).multiply(radius)));
-        }
-    }
-
-    public void verticalRing(Location center, double radius, double gap) {
-        for (double radians = 0; radians < 2 * Math.PI; radians += 2 * Math.PI / gap) {
-            Location loc = center.clone();
-            loc.setPitch((float) ((Math.sin(radians) + 1) * 180));
-            loc.setYaw(radians > Math.PI ? center.getYaw() : center.getYaw() - 180);
-            this.show(loc.add(loc.getDirection().multiply(radius)));
         }
     }
 }

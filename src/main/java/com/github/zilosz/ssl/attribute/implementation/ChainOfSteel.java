@@ -3,8 +3,9 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.utils.block.BlockUtils;
 import com.github.zilosz.ssl.utils.collection.CollectionUtils;
-import com.github.zilosz.ssl.utils.effect.ParticleMaker;
+import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.FloatingEntity;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
@@ -63,11 +64,7 @@ public class ChainOfSteel extends RightClickAbility {
 
                     @Override
                     public FallingBlock createEntity(Location location) {
-                        FallingBlock entity = location.getWorld()
-                                .spawnFallingBlock(location, Material.IRON_FENCE, (byte) 0);
-                        entity.setHurtEntities(false);
-                        entity.setDropItem(false);
-                        return entity;
+                        return BlockUtils.spawnFallingBlock(location, Material.IRON_FENCE);
                     }
                 };
 

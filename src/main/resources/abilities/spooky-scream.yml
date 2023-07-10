@@ -1,0 +1,41 @@
+Name: "Spooky Scream"
+Item:
+  Material: IRON_AXE
+Description:
+  - "&7Skarekrow generates a piercing and"
+  - "&7frightening scream. The radial sound"
+  - "&7waves travel some distance away, hitting"
+  - "&7enemies. These waves travel through blocks."
+  - "&7Hit targets become temporarily withered."
+Cooldown: 120
+AutoStartCooldown: false
+Radius: 0.5
+ExtraHitBox: 1
+RingGap: 1.4
+TicksPerRing: 1
+Rings: 18
+DegreeGap: 12
+RadiusGrowthPerTick: 0.085
+Notes:
+  - 17
+  - 2
+  - 4
+  - 18
+  - 3
+  - 9
+  - 21
+  - 20
+Wither:
+  Type: WITHER
+  Duration: 20
+Damage: 5
+Kb: 1.2
+KbY: 0.7
+NormalAttack:
+  Damage: 4.5
+  Kb: 1.2
+  KbY: 0.7
+PumpkinAttack:
+  Damage: 7
+  Kb: 2
+  KbY: 0.8

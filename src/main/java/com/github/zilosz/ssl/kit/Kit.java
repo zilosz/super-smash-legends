@@ -10,7 +10,7 @@ import com.github.zilosz.ssl.attribute.implementation.Melee;
 import com.github.zilosz.ssl.attribute.implementation.Regeneration;
 import com.github.zilosz.ssl.utils.Noise;
 import com.github.zilosz.ssl.utils.Skin;
-import com.github.zilosz.ssl.utils.effect.ColorType;
+import com.github.zilosz.ssl.utils.effects.ColorType;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import dev.dejvokep.boostedyaml.YamlDocument;

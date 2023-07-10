@@ -5,8 +5,9 @@ import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.ChargedRightClickBlockAbility;
 import com.github.zilosz.ssl.projectile.BlockProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
+import com.github.zilosz.ssl.utils.block.BlockUtils;
 import com.github.zilosz.ssl.utils.collection.CollectionUtils;
-import com.github.zilosz.ssl.utils.effect.ParticleMaker;
+import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.FloatingEntity;
 import com.github.zilosz.ssl.utils.file.YamlReader;
@@ -77,11 +78,7 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
 
                     @Override
                     public FallingBlock createEntity(Location location) {
-                        FallingBlock entity = centerInGround.getWorld()
-                                .spawnFallingBlock(location, finalType, block.getData());
-                        entity.setHurtEntities(false);
-                        entity.setDropItem(false);
-                        return entity;
+                        return BlockUtils.spawnFallingBlock(location, finalType, block.getData());
                     }
                 };
 
@@ -130,9 +127,9 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
         int val = this.currSize - minSize;
         int limit = this.getMaxSize() - minSize;
 
-        double speed = YamlReader.getIncreasingValue(this.config, "Speed", val, limit);
-        double damage = YamlReader.getIncreasingValue(this.config, "Damage", val, limit);
-        double kb = YamlReader.getIncreasingValue(this.config, "Kb", val, limit);
+        double speed = YamlReader.increasingValue(this.config, "Speed", val, limit);
+        double damage = YamlReader.increasingValue(this.config, "Damage", val, limit);
+        double kb = YamlReader.increasingValue(this.config, "Kb", val, limit);
 
         this.launch(true, damage, kb, speed, this.blocks.get(0).getEntity());
 

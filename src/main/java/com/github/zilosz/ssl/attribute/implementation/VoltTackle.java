@@ -51,7 +51,7 @@ public class VoltTackle extends RightClickAbility {
             }
 
             Location eyeLoc = this.player.getEyeLocation();
-            double speed = YamlReader.getIncreasingValue(this.config, "Velocity", this.ticksMoving, duration);
+            double speed = YamlReader.increasingValue(this.config, "Velocity", this.ticksMoving, duration);
             Vector velocity = eyeLoc.getDirection().multiply(speed);
 
             if (Math.abs(velocity.getY()) > this.config.getDouble("MaxVelocityY")) {
@@ -77,8 +77,8 @@ public class VoltTackle extends RightClickAbility {
             this.player.getWorld().playSound(this.player.getLocation(), Sound.FIREWORK_LARGE_BLAST, 1, pitch);
 
             new EntityFinder(selector).findClosest(this.player).ifPresent(target -> {
-                double damage = YamlReader.getIncreasingValue(this.config, "Damage", this.ticksMoving, duration);
-                double kb = YamlReader.getIncreasingValue(this.config, "Kb", this.ticksMoving, duration);
+                double damage = YamlReader.increasingValue(this.config, "Damage", this.ticksMoving, duration);
+                double kb = YamlReader.increasingValue(this.config, "Kb", this.ticksMoving, duration);
 
                 Attack attack = new Attack(this.config, velocity);
                 attack.getDamage().setDamage(damage);
@@ -90,11 +90,11 @@ public class VoltTackle extends RightClickAbility {
 
                     Section recoilConfig = this.config.getSection("Recoil");
 
-                    double recoilDamage = YamlReader.getIncreasingValue(
+                    double recoilDamage = YamlReader.increasingValue(
                             recoilConfig, "Damage", this.ticksMoving, duration
                     );
 
-                    double recoilKb = YamlReader.getIncreasingValue(
+                    double recoilKb = YamlReader.increasingValue(
                             recoilConfig, "Kb", this.ticksMoving, duration
                     );
 

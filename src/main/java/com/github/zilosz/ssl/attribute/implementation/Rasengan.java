@@ -6,7 +6,7 @@ import com.github.zilosz.ssl.damage.KnockBack;
 import com.github.zilosz.ssl.event.CustomEvent;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
-import com.github.zilosz.ssl.utils.effect.ParticleMaker;
+import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import lombok.Getter;
 import org.bukkit.Bukkit;

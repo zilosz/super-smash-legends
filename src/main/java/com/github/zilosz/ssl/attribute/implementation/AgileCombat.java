@@ -5,7 +5,7 @@ import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
 import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
-import com.github.zilosz.ssl.utils.effect.Effects;
+import com.github.zilosz.ssl.utils.effects.Effects;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;

@@ -247,6 +247,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     protected void onTick() {}
 
     protected void hitTarget(LivingEntity target) {
+        this.onPreTargetHit(target);
         this.attack.getKb().setDirection(this.entity.getVelocity());
 
         if (SSL.getInstance().getDamageManager().attack(target, this.ability, this.attack)) {
@@ -258,6 +259,8 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
             }
         }
     }
+
+    protected void onPreTargetHit(LivingEntity target) {}
 
     protected void onTargetHit(LivingEntity target) {}
 }

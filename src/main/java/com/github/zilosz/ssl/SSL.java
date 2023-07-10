@@ -18,6 +18,7 @@ import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.GameScoreboard;
 import com.github.zilosz.ssl.kit.KitManager;
 import com.github.zilosz.ssl.team.TeamManager;
+import com.github.zilosz.ssl.utils.NpcStorage;
 import com.github.zilosz.ssl.utils.WorldManager;
 import com.github.zilosz.ssl.utils.file.FileUtility;
 import com.github.zilosz.ssl.utils.file.YamlReader;
@@ -51,6 +52,7 @@ public class SSL extends JavaPlugin implements Listener {
     private TeamManager teamManager;
     private WorldManager worldManager;
     private DamageManager damageManager;
+    private NpcStorage npcStorage;
 
     @Override
     public void onLoad() {
@@ -78,6 +80,7 @@ public class SSL extends JavaPlugin implements Listener {
         this.playerDatabase = new PlayerDatabase();
         this.kitManager = new KitManager();
         this.gameManager = new GameManager();
+        this.npcStorage = new NpcStorage();
 
         Section dbConfig = this.resources.getConfig().getSection("Database");
 
@@ -127,7 +130,7 @@ public class SSL extends JavaPlugin implements Listener {
     @EventHandler
     public void onPluginDisable(PluginDisableEvent event) {
         if (event.getPlugin() instanceof CitizensPlugin) {
-            this.kitManager.destroyNpcs();
+            this.npcStorage.destroyNpcs();
         }
     }
 }

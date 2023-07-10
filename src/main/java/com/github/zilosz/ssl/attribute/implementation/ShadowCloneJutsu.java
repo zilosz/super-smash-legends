@@ -12,7 +12,7 @@ import com.github.zilosz.ssl.team.Team;
 import com.github.zilosz.ssl.team.TeamPreference;
 import com.github.zilosz.ssl.utils.NmsUtils;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
-import com.github.zilosz.ssl.utils.effect.ParticleMaker;
+import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;

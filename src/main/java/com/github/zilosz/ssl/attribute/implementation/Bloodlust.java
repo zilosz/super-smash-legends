@@ -4,7 +4,7 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.PassiveAbility;
 import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.event.attribute.RegenEvent;
-import com.github.zilosz.ssl.utils.effect.ParticleMaker;
+import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import org.bukkit.Location;
 import org.bukkit.Sound;

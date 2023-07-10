@@ -1,0 +1,31 @@
+Name: "Skarekrow"
+Color: ORANGE
+Description:
+  - "&7Skarekrow combines his knowledge of"
+  - "&7farmland and his corrupted soul to lay"
+  - "&7siege on the battlefield. His evil"
+  - "&7nature keeps him from showing any mercy."
+Skin: "HyxNess"
+Damage: 5
+Armor: 0.62
+Kb: 1.25
+Regen: 0.3
+Jump:
+  Power: 1.1
+  Height: 0.9
+  Sound:
+    Type: DIG_GRASS
+    Volume: 1
+    Pitch: 1.3
+HurtSound:
+  Type: WITHER_HURT
+  Volume: 0.5
+  Pitch: 1
+DeathSound:
+  Type: WITHER_DEATH
+  Volume: 1
+  Pitch: 2
+Abilities:
+  0: SPOOKY_SCREAM
+  1: GHOULISH_WRATH
+  2: SCARECROW

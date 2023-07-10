@@ -65,7 +65,6 @@ public abstract class ChargedRightClickAbility extends RightClickAbility {
     }
 
     public void onChargeEnd() {
-        this.onGeneralCharge();
 
         if (this.ticksCharging < this.minChargeTicks) {
             this.onFailedCharge();
@@ -86,8 +85,6 @@ public abstract class ChargedRightClickAbility extends RightClickAbility {
     }
 
     public void onChargeTick() {}
-
-    public void onGeneralCharge() {}
 
     public void onFailedCharge() {}
 

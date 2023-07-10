@@ -3,7 +3,7 @@ package com.github.zilosz.ssl.utils.inventory;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.utils.ItemBuilder;
 import com.github.zilosz.ssl.utils.collection.CollectionUtils;
-import com.github.zilosz.ssl.utils.effect.ColorType;
+import com.github.zilosz.ssl.utils.effects.ColorType;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.SmartInventory;
@@ -42,7 +42,9 @@ public abstract class CustomInventory<T> implements InventoryProvider {
 
     public int getColumnCount() {
         return MAX_COLUMNS + 2;
-    }    @Override
+    }
+
+    public abstract String getTitle();    @Override
     public void init(Player clicker, InventoryContents contents) {
         List<T> items = this.getItems();
 
@@ -71,9 +73,8 @@ public abstract class CustomInventory<T> implements InventoryProvider {
         }
     }
 
-    public abstract String getTitle();
-
     public abstract List<T> getItems();
+
 
 
 

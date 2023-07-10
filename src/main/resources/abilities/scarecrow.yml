@@ -1,0 +1,32 @@
+Name: "Scarecrow"
+Item:
+  Material: DIAMOND_SPADE
+Description:
+  - "&7Skarekrow launches a spooky scarecrow"
+  - "&7that plants itself on soil. Enemies"
+  - "&7within a certain range of the scarecrow"
+  - "&7are infected with a deadly, pumpkin-"
+  - "&7based parasite that makes them more"
+  - "&7susceptible to attacks. Click again"
+  - "&7to swap places with the scarecrow."
+Cooldown: 160
+AutoStartCooldown: false
+AutoSendUseMessage: false
+LaunchVelocity: 1.75
+InitialTpDelay: 10
+ActiveTpDelay: 60
+CrowLifetime: 220
+EyeDistance: 1
+MinYDistanceFromPlayer: 40
+EffectRange: 10
+MeleePumpkinBoost:
+  Damage: 1.3
+  Kb: 1.5
+Slowness:
+  Amplifier: 1
+Hologram:
+  HeightAboveHead: 0.5
+  Title: "&7Your &6&lScarecrow"
+  TpHint:
+    No: "&c&lCannot &r&cteleport."
+    Yes: "&a&lClick &r&aability to teleport."

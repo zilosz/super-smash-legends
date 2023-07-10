@@ -5,7 +5,7 @@ import com.github.zilosz.ssl.attribute.ChargedRightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
-import com.github.zilosz.ssl.utils.effect.ParticleMaker;
+import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
@@ -40,9 +40,9 @@ public class Thunderbolt extends ChargedRightClickAbility {
         int ticks = this.ticksCharging - this.minChargeTicks;
         int max = this.maxChargeTicks - this.minChargeTicks;
 
-        double damage = YamlReader.getIncreasingValue(this.config, "Damage", ticks, max);
-        double kb = YamlReader.getIncreasingValue(this.config, "Kb", ticks, max);
-        double range = YamlReader.getIncreasingValue(this.config, "Range", ticks, max);
+        double damage = YamlReader.increasingValue(this.config, "Damage", ticks, max);
+        double kb = YamlReader.increasingValue(this.config, "Kb", ticks, max);
+        double range = YamlReader.increasingValue(this.config, "Range", ticks, max);
 
         Location location = this.player.getEyeLocation();
         Vector step = location.getDirection().multiply(0.25);

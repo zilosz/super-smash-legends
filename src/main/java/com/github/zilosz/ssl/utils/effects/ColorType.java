@@ -1,4 +1,4 @@
-package com.github.zilosz.ssl.utils.effect;
+package com.github.zilosz.ssl.utils.effects;
 
 import lombok.Getter;
 import org.bukkit.Color;

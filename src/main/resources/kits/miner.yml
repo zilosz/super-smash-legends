@@ -14,13 +14,13 @@ Jump:
   Power: 1.1
   Height: 0.9
   Sound:
-    Type: DIG_GRASS
+    Type: DIG_STONE
     Volume: 1
     Pitch: 2
 HurtSound:
-  Type: VILLAGER_HIT
+  Type: DIG_STONE
   Volume: 1
-  Pitch: 1.5
+  Pitch: 0.8
 DeathSound:
   Type: VILLAGER_DEATH
   Volume: 3

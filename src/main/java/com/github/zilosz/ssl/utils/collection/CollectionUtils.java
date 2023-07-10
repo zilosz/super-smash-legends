@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class CollectionUtils {
 
@@ -91,11 +92,19 @@ public class CollectionUtils {
     }
 
     public static <T> void removeWhileIterating(Iterable<T> iterable, Consumer<T> action) {
+        removeWhileIterating(iterable, action, el -> true);
+    }
+
+    public static <T> void removeWhileIterating(Iterable<T> iterable, Consumer<T> action, Predicate<T> predicate) {
         Iterator<T> iterator = iterable.iterator();
 
         while (iterator.hasNext()) {
-            action.accept(iterator.next());
-            iterator.remove();
+            T next = iterator.next();
+
+            if (predicate.test(next)) {
+                action.accept(next);
+                iterator.remove();
+            }
         }
     }
 

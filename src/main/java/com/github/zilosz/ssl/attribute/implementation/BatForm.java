@@ -10,7 +10,7 @@ import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
 import com.github.zilosz.ssl.event.attribute.RegenEvent;
 import com.github.zilosz.ssl.utils.ItemBuilder;
 import com.github.zilosz.ssl.utils.Noise;
-import com.github.zilosz.ssl.utils.effect.ParticleMaker;
+import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.DisguiseUtils;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import me.libraryaddict.disguise.DisguiseAPI;

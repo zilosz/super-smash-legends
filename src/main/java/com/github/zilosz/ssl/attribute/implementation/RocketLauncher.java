@@ -7,8 +7,8 @@ import com.github.zilosz.ssl.damage.KnockBack;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.collection.CollectionUtils;
-import com.github.zilosz.ssl.utils.effect.ColorType;
-import com.github.zilosz.ssl.utils.effect.ParticleMaker;
+import com.github.zilosz.ssl.utils.effects.ColorType;
+import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Location;
@@ -42,12 +42,12 @@ public class RocketLauncher extends ChargedRightClickAbility {
         Rocket rocket = new Rocket(this, main);
 
         Damage damage = rocket.getAttack().getDamage();
-        damage.setDamage(YamlReader.getIncreasingValue(main, "Damage", this.ticksCharging, this.maxChargeTicks));
+        damage.setDamage(YamlReader.increasingValue(main, "Damage", this.ticksCharging, this.maxChargeTicks));
 
         KnockBack kb = rocket.getAttack().getKb();
-        kb.setKb(YamlReader.getIncreasingValue(main, "Kb", this.ticksCharging, this.maxChargeTicks));
+        kb.setKb(YamlReader.increasingValue(main, "Kb", this.ticksCharging, this.maxChargeTicks));
 
-        rocket.setSpeed(YamlReader.getIncreasingValue(main, "Speed", this.ticksCharging, this.maxChargeTicks));
+        rocket.setSpeed(YamlReader.increasingValue(main, "Speed", this.ticksCharging, this.maxChargeTicks));
         rocket.launch();
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.FIREWORK_LAUNCH, 2, 1);
