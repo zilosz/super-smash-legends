@@ -1,12 +1,16 @@
 package com.github.zilosz.ssl.damage;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.kit.KitManager;
+import com.google.common.util.concurrent.AtomicDouble;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -24,13 +28,14 @@ public class Damage {
     }
 
     public double getFinalDamage(LivingEntity victim) {
-        double damageValue = this.damage;
+        AtomicDouble damageValue = new AtomicDouble(this.damage);
 
         if (this.factorsArmor && victim instanceof Player) {
             KitManager kitManager = SSL.getInstance().getKitManager();
-            damageValue *= kitManager.getSelectedKit((Player) victim).getArmor();
+            Optional<Kit> optionalKit = Optional.ofNullable(kitManager.getSelectedKit((Player) victim));
+            optionalKit.ifPresent(kit -> damageValue.set(damageValue.get() * kit.getArmor()));
         }
 
-        return damageValue;
+        return damageValue.get();
     }
 }

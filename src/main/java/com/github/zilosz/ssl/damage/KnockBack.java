@@ -2,8 +2,10 @@ package com.github.zilosz.ssl.damage;
 
 import com.github.zilosz.ssl.Resources;
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.kit.KitManager;
 import com.github.zilosz.ssl.utils.file.YamlReader;
+import com.google.common.util.concurrent.AtomicDouble;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
 import lombok.Setter;
@@ -65,7 +67,7 @@ public class KnockBack {
     }
 
     public double getFinalKb(LivingEntity victim) {
-        double kbVal = this.kb;
+        AtomicDouble kbValue = new AtomicDouble(this.kb);
 
         if (this.factorsHealth) {
             Resources resources = SSL.getInstance().getResources();
@@ -74,14 +76,15 @@ public class KnockBack {
             double health = victim.getHealth();
             double maxHealth = victim.getMaxHealth();
 
-            kbVal *= YamlReader.getDecreasingValue(config, "KbHealthMultiplier", health, maxHealth);
+            kbValue.set(kbValue.get() * YamlReader.getDecreasingValue(config, "KbHealthMultiplier", health, maxHealth));
         }
 
         if (this.factorsKit && victim instanceof Player) {
             KitManager kitManager = SSL.getInstance().getKitManager();
-            kbVal *= kitManager.getSelectedKit((Player) victim).getKb();
+            Optional<Kit> optionalKit = Optional.ofNullable(kitManager.getSelectedKit((Player) victim));
+            optionalKit.ifPresent(kit -> kbValue.set(kbValue.get() * kit.getKb()));
         }
 
-        return kbVal;
+        return kbValue.get();
     }
 }

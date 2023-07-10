@@ -61,7 +61,7 @@ public abstract class GameState implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOW)
     public void onGeneralJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
@@ -121,7 +121,7 @@ public abstract class GameState implements Listener {
 
     public abstract boolean isPlaying();
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onGeneralEntityDamage(EntityDamageEvent event) {
         if (!this.allowsDamage()) {
             event.setCancelled(true);

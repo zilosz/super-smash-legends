@@ -67,7 +67,6 @@ public class EntityFinder {
 
     private Stream<LivingEntity> getFilteredStream(LivingEntity user, Location location) {
         return this.rangeSelector.getEntityStream(location)
-                .filter(entity -> !CitizensAPI.getNPCRegistry().isNPC(entity))
                 .filter(entity -> this.entityType == null || this.entityType == entity.getType())
                 .filter(entity -> !(entity instanceof ArmorStand))
                 .filter(LivingEntity.class::isInstance)
@@ -79,7 +78,7 @@ public class EntityFinder {
     }
 
     private boolean isValidPlayer(LivingEntity entity) {
-        if (!(entity instanceof Player)) return true;
+        if (!(entity instanceof Player) || CitizensAPI.getNPCRegistry().isNPC(entity)) return true;
         Player player = (Player) entity;
         return SSL.getInstance().getGameManager().isPlayerAlive(player) && player.getGameMode() == GameMode.SURVIVAL;
     }

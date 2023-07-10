@@ -376,12 +376,10 @@ public class InGameState extends GameState {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(DamageEvent event) {
-        if (CitizensAPI.getNPCRegistry().isNPC(event.getVictim())) return;
-
         double finalDamage = event.getFinalDamage();
         boolean isPlayer = event.getVictim() instanceof Player;
 
-        if (isPlayer) {
+        if (isPlayer && !CitizensAPI.getNPCRegistry().isNPC(event.getVictim())) {
             Player player = (Player) event.getVictim();
             GameManager gameManager = SSL.getInstance().getGameManager();
 

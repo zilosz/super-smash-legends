@@ -17,15 +17,16 @@ InitialTpDelay: 10
 ActiveTpDelay: 60
 CrowLifetime: 220
 EyeDistance: 1
-MinYDistanceFromPlayer: 40
 EffectRange: 10
+Health: 15
+VoidDetectionAccuracy: 5
 MeleePumpkinBoost:
   Damage: 1.3
   Kb: 1.5
 Slowness:
   Amplifier: 1
 Hologram:
-  HeightAboveHead: 0.5
+  HeightAboveHead: 1.15
   Title: "&7Your &6&lScarecrow"
   TpHint:
     No: "&c&lCannot &r&cteleport."

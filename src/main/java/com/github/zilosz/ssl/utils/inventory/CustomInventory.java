@@ -44,7 +44,9 @@ public abstract class CustomInventory<T> implements InventoryProvider {
         return MAX_COLUMNS + 2;
     }
 
-    public abstract String getTitle();    @Override
+    public abstract String getTitle();
+
+    public abstract List<T> getItems();    @Override
     public void init(Player clicker, InventoryContents contents) {
         List<T> items = this.getItems();
 
@@ -72,8 +74,6 @@ public abstract class CustomInventory<T> implements InventoryProvider {
             }
         }
     }
-
-    public abstract List<T> getItems();
 
 
 
