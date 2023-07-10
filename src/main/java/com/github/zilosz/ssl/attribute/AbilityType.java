@@ -24,6 +24,7 @@ import com.github.zilosz.ssl.attribute.implementation.ElectrostaticLeap;
 import com.github.zilosz.ssl.attribute.implementation.FrigidSpear;
 import com.github.zilosz.ssl.attribute.implementation.FrostedTwirl;
 import com.github.zilosz.ssl.attribute.implementation.GaiaToss;
+import com.github.zilosz.ssl.attribute.implementation.GhoulishWrath;
 import com.github.zilosz.ssl.attribute.implementation.GoldRush;
 import com.github.zilosz.ssl.attribute.implementation.GooeyBullet;
 import com.github.zilosz.ssl.attribute.implementation.GroundPound;
@@ -40,17 +41,16 @@ import com.github.zilosz.ssl.attribute.implementation.Rasengan;
 import com.github.zilosz.ssl.attribute.implementation.Rasenshuriken;
 import com.github.zilosz.ssl.attribute.implementation.RocketLauncher;
 import com.github.zilosz.ssl.attribute.implementation.RopedArrow;
-import com.github.zilosz.ssl.attribute.implementation.SaberSpin;
+import com.github.zilosz.ssl.attribute.implementation.Scarecrow;
 import com.github.zilosz.ssl.attribute.implementation.ShadowAmbush;
 import com.github.zilosz.ssl.attribute.implementation.ShadowCloneJutsu;
+import com.github.zilosz.ssl.attribute.implementation.SpookyScream;
 import com.github.zilosz.ssl.attribute.implementation.SpringTrap;
 import com.github.zilosz.ssl.attribute.implementation.SquidDash;
 import com.github.zilosz.ssl.attribute.implementation.StickySituation;
 import com.github.zilosz.ssl.attribute.implementation.SuperhumanPunch;
 import com.github.zilosz.ssl.attribute.implementation.Teleport;
-import com.github.zilosz.ssl.attribute.implementation.TerraShot;
 import com.github.zilosz.ssl.attribute.implementation.Thunderbolt;
-import com.github.zilosz.ssl.attribute.implementation.ViceGrip;
 import com.github.zilosz.ssl.attribute.implementation.VoltTackle;
 import com.github.zilosz.ssl.attribute.implementation.WebGrapple;
 import com.github.zilosz.ssl.attribute.implementation.WebbedSnare;
@@ -85,6 +85,7 @@ public enum AbilityType implements Supplier<Ability> {
     FRIGID_SPEAR("frigid-spear", FrigidSpear::new),
     FROSTED_TWIRL("frosted-twirl", FrostedTwirl::new),
     GAIA_TOSS("gaia-toss", GaiaToss::new),
+    GHOULISH_WRATH("ghoulish-wrath", GhoulishWrath::new),
     GOLD_RUSH("gold-rush", GoldRush::new),
     GOOEY_BULLET("gooey-bullet", GooeyBullet::new),
     GROUND_POUND("ground-pound", GroundPound::new),
@@ -100,18 +101,16 @@ public enum AbilityType implements Supplier<Ability> {
     RASENSHURIKEN("rasenshuriken", Rasenshuriken::new),
     ROCKET_LAUNCHER("rocket-launcher", RocketLauncher::new),
     ROPED_ARROW("roped-arrow", RopedArrow::new),
-    SABER_SPIN("saber-spin", SaberSpin::new),
+    SCARECROW("scarecrow", Scarecrow::new),
     SHADOW_AMBUSH("shadow-ambush", ShadowAmbush::new),
     SHADOW_CLONE_JUTSU("shadow-clone-jutsu", ShadowCloneJutsu::new),
-    SLOWNESS("slowness", PermanentPotion::new),
+    SPOOKY_SCREAM("spooky-scream", SpookyScream::new),
     SPRING_TRAP("spring-trap", SpringTrap::new),
     SQUID_DASH("squid-dash", SquidDash::new),
     STICKY_SITUATION("sticky-situation", StickySituation::new),
     SUPERHUMAN_PUNCH("superhuman-punch", SuperhumanPunch::new),
     TELEPORT("teleport", Teleport::new),
-    TERRA_SHOT("terra-shot", TerraShot::new),
     THUNDERBOLT("thunderbolt", Thunderbolt::new),
-    VICE_GRIP("vice-grip", ViceGrip::new),
     VOLT_TACKLE("volt-tackle", VoltTackle::new),
     WEBBED_SNARE("webbed-snare", WebbedSnare::new),
     WEB_GRAPPLE("web-grapple", WebGrapple::new);

@@ -4,7 +4,6 @@ import com.github.zilosz.ssl.utils.NmsUtils;
 import net.minecraft.server.v1_8_R3.AxisAlignedBB;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 public class EntityUtils {
@@ -14,7 +13,7 @@ public class EntityUtils {
         return isTripleGrounded || ((Entity) player).isOnGround();
     }
 
-    public static Location top(LivingEntity entity) {
+    public static Location top(Entity entity) {
         return entity.getLocation().add(0, height(entity), 0);
     }
 

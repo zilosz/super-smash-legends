@@ -21,7 +21,7 @@ import com.github.zilosz.ssl.team.TeamManager;
 import com.github.zilosz.ssl.utils.HotbarItem;
 import com.github.zilosz.ssl.utils.SoundCanceller;
 import com.github.zilosz.ssl.utils.collection.CollectionUtils;
-import com.github.zilosz.ssl.utils.effect.DeathNPC;
+import com.github.zilosz.ssl.utils.effects.DeathNPC;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.Chat;
@@ -30,6 +30,7 @@ import com.github.zilosz.ssl.utils.message.Replacers;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.nametagedit.plugin.NametagEdit;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
+import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -375,6 +376,8 @@ public class InGameState extends GameState {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(DamageEvent event) {
+        if (CitizensAPI.getNPCRegistry().isNPC(event.getVictim())) return;
+
         double finalDamage = event.getFinalDamage();
         boolean isPlayer = event.getVictim() instanceof Player;
 

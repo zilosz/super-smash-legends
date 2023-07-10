@@ -12,6 +12,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Optional;
@@ -42,6 +43,11 @@ public class EntityFinder {
 
     public EntityFinder avoid(LivingEntity target) {
         this.toAvoid.add(target);
+        return this;
+    }
+
+    public EntityFinder avoidAll(Collection<LivingEntity> targets) {
+        this.toAvoid.addAll(targets);
         return this;
     }
 

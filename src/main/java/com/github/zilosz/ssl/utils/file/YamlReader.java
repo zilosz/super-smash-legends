@@ -14,6 +14,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.Arrays;
@@ -67,7 +69,7 @@ public class YamlReader {
         return new Noise(sound, section.getFloat("Volume"), section.getFloat("Pitch"));
     }
 
-    public static double getIncreasingValue(Section config, String stat, double val, double limit) {
+    public static double increasingValue(Section config, String stat, double val, double limit) {
         double min = config.getDouble("Min" + stat);
         double max = config.getDouble("Max" + stat);
         return MathUtils.getIncreasingValue(min, max, limit, val);
@@ -85,5 +87,15 @@ public class YamlReader {
                 .map(config::getSection)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+    }
+
+    public static PotionEffect getPotionEffect(Section config) {
+        return getPotionEffect(config, PotionEffectType.getByName(config.getString("Type")));
+    }
+
+    public static PotionEffect getPotionEffect(Section config, PotionEffectType type) {
+        int duration = config.getOptionalInt("Duration").orElse(100_000);
+        int amplifier = config.getOptionalInt("Amplifier").orElse(1);
+        return new PotionEffect(type, duration, amplifier);
     }
 }

@@ -8,10 +8,12 @@ import net.minecraft.server.v1_8_R3.Chunk;
 import net.minecraft.server.v1_8_R3.IBlockData;
 import net.minecraft.server.v1_8_R3.World;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.util.Vector;
 
 public class BlockUtils {
@@ -100,5 +102,16 @@ public class BlockUtils {
         boolean betweenY = MathUtils.isBetween(location.getY(), box.b, box.e);
         boolean betweenZ = MathUtils.isBetween(location.getZ(), box.c, box.f);
         return betweenX && betweenY && betweenZ;
+    }
+
+    public static FallingBlock spawnFallingBlock(Location location, Material material) {
+        return spawnFallingBlock(location, material, (byte) 0);
+    }
+
+    public static FallingBlock spawnFallingBlock(Location location, Material material, byte data) {
+        FallingBlock block = location.getWorld().spawnFallingBlock(location, material, data);
+        block.setHurtEntities(false);
+        block.setDropItem(false);
+        return block;
     }
 }

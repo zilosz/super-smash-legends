@@ -24,6 +24,10 @@ public class PotionEffectEvent extends CustomEvent implements Cancellable {
         this.amplifier = amplifier;
     }
 
+    public static PotionEffectEvent fromPotionEffect(LivingEntity entity, PotionEffect effect) {
+        return new PotionEffectEvent(entity, effect.getType(), effect.getDuration(), effect.getAmplifier());
+    }
+
     public void apply() {
         Bukkit.getPluginManager().callEvent(this);
 

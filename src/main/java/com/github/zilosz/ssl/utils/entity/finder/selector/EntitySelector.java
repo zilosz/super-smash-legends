@@ -7,5 +7,9 @@ import java.util.stream.Stream;
 
 public interface EntitySelector {
 
-    Stream<Entity> getEntityStream(Location location);
+    default boolean containsEntity(Location source, Entity entity) {
+        return this.getEntityStream(source).anyMatch(other -> other.equals(entity));
+    }
+
+    Stream<Entity> getEntityStream(Location source);
 }

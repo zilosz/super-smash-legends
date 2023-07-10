@@ -1,6 +1,7 @@
 package com.github.zilosz.ssl.projectile;
 
 import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.utils.block.BlockUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Setter;
 import org.bukkit.Location;
@@ -9,23 +10,21 @@ import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 
+@Setter
 public class BlockProjectile extends EmulatedProjectile<FallingBlock> {
-    @Setter private Material material;
-    @Setter private byte data;
+    private Material material;
+    private byte data;
 
     public BlockProjectile(Ability ability, Section config) {
         super(ability, config);
-        this.material = Material.valueOf(config.getOptionalString("Block.Material").orElse("OBSIDIAN"));
+        this.material = Material.valueOf(config.getOptionalString("Block.Material").orElse("DIRT"));
         this.data = config.getOptionalByte("Block.Data").orElse((byte) 0);
         this.defaultHitBox = 1;
     }
 
     @Override
     public FallingBlock createEntity(Location location) {
-        FallingBlock block = location.getWorld().spawnFallingBlock(location, this.material, this.data);
-        block.setDropItem(false);
-        block.setHurtEntities(false);
-        return block;
+        return BlockUtils.spawnFallingBlock(location, this.material, this.data);
     }
 
     @EventHandler

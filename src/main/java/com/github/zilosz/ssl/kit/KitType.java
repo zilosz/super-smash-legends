@@ -9,7 +9,7 @@ public enum KitType {
     DEADMORTAL("deadmortal", "Deadmortal"),
     DRAKULA("drakula", "Drakula"),
     GLOBBY("globby", "Globby"),
-    MASTER_BLADE("master-blade", "MasterBlade"),
+    SKAREKROW("skarekrow", "Skarekrow"),
     MECHON("mechon", "Mechon"),
     MERMAID("mermaid", "Mermaid"),
     MINER("miner", "Miner"),

@@ -1,7 +1,7 @@
 package com.github.zilosz.ssl.team;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.utils.effect.ColorType;
+import com.github.zilosz.ssl.utils.effects.ColorType;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import lombok.Getter;
 import lombok.Setter;

@@ -4,7 +4,7 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
-import com.github.zilosz.ssl.utils.effect.ParticleMaker;
+import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
@@ -48,8 +48,8 @@ public class GroundPound extends RightClickAbility {
 
         double fallen = Math.max(0, initialHeight - this.player.getLocation().getY());
         double maxFall = this.config.getDouble("MaxFall");
-        double damage = YamlReader.getIncreasingValue(this.config, "Damage", fallen, maxFall);
-        double kb = YamlReader.getIncreasingValue(this.config, "Kb", fallen, maxFall);
+        double damage = YamlReader.increasingValue(this.config, "Damage", fallen, maxFall);
+        double kb = YamlReader.increasingValue(this.config, "Kb", fallen, maxFall);
 
         boolean foundTarget = false;
         EntityFinder finder = new EntityFinder(new HitBoxSelector(this.config.getDouble("HitBox")));
@@ -71,7 +71,7 @@ public class GroundPound extends RightClickAbility {
             this.resetFall(false);
             this.kit.getJump().giveExtraJumps(1);
 
-            double bounce = YamlReader.getIncreasingValue(this.config, "Bounce", fallen, maxFall);
+            double bounce = YamlReader.increasingValue(this.config, "Bounce", fallen, maxFall);
             this.player.setVelocity(new Vector(0, bounce, 0));
         }
     }

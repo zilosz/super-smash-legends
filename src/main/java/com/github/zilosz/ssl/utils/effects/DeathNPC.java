@@ -1,4 +1,4 @@
-package com.github.zilosz.ssl.utils.effect;
+package com.github.zilosz.ssl.utils.effects;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
@@ -43,6 +43,8 @@ public class DeathNPC extends BukkitRunnable implements Listener {
         Section death = plugin.getResources().getConfig().getSection("Death");
 
         NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, "Death NPC");
+        SSL.getInstance().getNpcStorage().addNpc(npc);
+
         npc.setName(player.getName());
 
         SkinTrait skinTrait = npc.getTrait(SkinTrait.class);
@@ -83,6 +85,7 @@ public class DeathNPC extends BukkitRunnable implements Listener {
         new ParticleMaker(particle).boom(SSL.getInstance(), EntityUtils.center(this.npc.getEntity()), 5, 0.25, 50);
 
         this.npc.destroy();
+        SSL.getInstance().getNpcStorage().removeNpc(this.npc);
 
         HandlerList.unregisterAll(this);
         this.cancel();

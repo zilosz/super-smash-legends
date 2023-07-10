@@ -1,7 +1,7 @@
 package com.github.zilosz.ssl.team;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.utils.effect.ColorType;
+import com.github.zilosz.ssl.utils.effects.ColorType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 

@@ -1,5 +1,6 @@
 package com.github.zilosz.ssl.utils.entity.finder.selector.implementation;
 
+import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -14,8 +15,10 @@ public class DistanceSelector implements EntitySelector {
     }
 
     @Override
-    public Stream<Entity> getEntityStream(Location location) {
-        return location.getWorld().getEntities().stream()
-                .filter(entity -> entity.getLocation().distanceSquared(location) <= this.distance * this.distance);
+    public Stream<Entity> getEntityStream(Location source) {
+        double distanceSquared = this.distance * this.distance;
+
+        return source.getWorld().getEntities().stream()
+                .filter(entity -> EntityUtils.center(entity).distanceSquared(source) <= distanceSquared);
     }
 }

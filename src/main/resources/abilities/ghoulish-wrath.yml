@@ -1,0 +1,30 @@
+Name: "Ghoulish Wrath"
+Item:
+  Material: GOLD_SWORD
+Description:
+  - "&7Corrupt the soil, turning it into a"
+  - "&7debilitating ranged weapon. If targets"
+  - "&7are infected by the a scarecrow's"
+  - "&7parasite, they take greater damage and"
+  - "&7knock-back. Otherwise, each piece of"
+  - "&7soil locks the target into place. Soil"
+  - "&7is launched after an initial charge."
+Cooldown: 100
+BlockCount: 6
+MinChargeTicks: 5
+MaxChargeTicks: 25
+MinVelocity: 0.8
+MaxVelocity: 1.7
+Material: SOUL_SAND
+EyeDistance: 1
+LaunchInterval: 1
+Projectile:
+  NormalAttack:
+    Damage: 1
+    ImmunityTicks: 0
+  PumpkinAttack:
+    Damage: 7
+    Kb: 2.2
+    KbY: 0.8
+  Item:
+    Material: SOUL_SAND

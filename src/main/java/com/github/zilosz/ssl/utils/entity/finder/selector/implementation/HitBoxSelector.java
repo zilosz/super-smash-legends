@@ -22,7 +22,7 @@ public class HitBoxSelector implements EntitySelector {
     }
 
     @Override
-    public Stream<Entity> getEntityStream(Location location) {
-        return location.getWorld().getNearbyEntities(location, this.x, this.y, this.z).stream();
+    public Stream<Entity> getEntityStream(Location source) {
+        return source.getWorld().getNearbyEntities(source, this.x, this.y, this.z).stream();
     }
 }

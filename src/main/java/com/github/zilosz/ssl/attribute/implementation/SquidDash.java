@@ -5,7 +5,7 @@ import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
-import com.github.zilosz.ssl.utils.effect.ParticleMaker;
+import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.DisguiseUtils;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
@@ -56,8 +56,8 @@ public class SquidDash extends RightClickAbility {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SPLASH, 2, 0.5f);
         this.player.getWorld().playSound(this.player.getLocation(), Sound.EXPLODE, 1, 1);
 
-        double damage = YamlReader.getIncreasingValue(this.config, "Damage", this.ticksDashing, this.getMaxDashTicks());
-        double kb = YamlReader.getIncreasingValue(this.config, "Kb", this.ticksDashing, this.getMaxDashTicks());
+        double damage = YamlReader.increasingValue(this.config, "Damage", this.ticksDashing, this.getMaxDashTicks());
+        double kb = YamlReader.increasingValue(this.config, "Kb", this.ticksDashing, this.getMaxDashTicks());
 
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
@@ -73,7 +73,7 @@ public class SquidDash extends RightClickAbility {
         SSL.getInstance().getDamageManager().hideEntityIndicator(this.player);
         Bukkit.getOnlinePlayers().forEach(other -> other.hidePlayer(this.player));
 
-        int ticks = (int) YamlReader.getIncreasingValue(
+        int ticks = (int) YamlReader.increasingValue(
                 this.config,
                 "InvisibilityTicks",
                 this.ticksDashing,

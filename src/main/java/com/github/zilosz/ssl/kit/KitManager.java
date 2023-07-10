@@ -58,13 +58,14 @@ public class KitManager implements Listener {
         Kit kit = this.createKit(kitType);
         this.kits.add(kit);
 
-        NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, kit.getSkinName());
+        NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, kitType.name());
+        SSL.getInstance().getNpcStorage().addNpc(npc);
+
         this.kitsPerNpc.put(npc, kitType);
         npc.setName(kit.getBoldedDisplayName());
 
-        SkinTrait skinTrait = npc.getTrait(SkinTrait.class);
+        SkinTrait skinTrait = npc.getOrAddTrait(SkinTrait.class);
         skinTrait.setSkinName(kit.getSkinName());
-        npc.addTrait(skinTrait);
 
         String locString = SSL.getInstance().getResources().getLobby().getString("KitNpcs." + kitType.getConfigName());
         Location location = YamlReader.getLocation("lobby", locString);
@@ -203,10 +204,6 @@ public class KitManager implements Listener {
             kit.destroy();
             SSL.getInstance().getPlayerDatabase().set(player.getUniqueId(), "kit", kit.getType().name());
         });
-    }
-
-    public void destroyNpcs() {
-        this.kitsPerNpc.keySet().forEach(NPC::destroy);
     }
 
     @EventHandler

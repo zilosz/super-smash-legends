@@ -5,7 +5,7 @@ import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.Bow;
 import com.github.zilosz.ssl.projectile.ArrowProjectile;
 import com.github.zilosz.ssl.utils.RunnableUtils;
-import com.github.zilosz.ssl.utils.effect.ParticleMaker;
+import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.math.MathUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Bukkit;
