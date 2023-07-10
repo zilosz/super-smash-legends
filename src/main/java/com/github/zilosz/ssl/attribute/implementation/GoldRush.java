@@ -15,6 +15,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
@@ -180,6 +181,13 @@ public class GoldRush extends PassiveAbility {
     public void onEnergy(EnergyEvent event) {
         if (event.getPlayer() == this.player && this.isMining) {
             event.setEnergy(0);
+        }
+    }
+
+    @EventHandler
+    public void onEntityDamage(EntityDamageEvent event) {
+        if (event.getEntity() == this.player && event.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
+            event.setCancelled(true);
         }
     }
 }
