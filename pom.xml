@@ -151,12 +151,6 @@
             <version>2.0.30-SNAPSHOT</version>
             <type>jar</type>
             <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.github.ConnorLinfoot</groupId>

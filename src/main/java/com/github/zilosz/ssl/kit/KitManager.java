@@ -8,6 +8,7 @@ import com.github.zilosz.ssl.game.state.GameStateType;
 import com.github.zilosz.ssl.utils.Skin;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.Chat;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
 import me.filoghost.holographicdisplays.api.hologram.HologramLines;
@@ -15,6 +16,7 @@ import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.NPCLeftClickEvent;
 import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.trait.LookClose;
 import net.citizensnpcs.trait.SkinTrait;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -66,6 +68,12 @@ public class KitManager implements Listener {
 
         SkinTrait skinTrait = npc.getOrAddTrait(SkinTrait.class);
         skinTrait.setSkinName(kit.getSkinName());
+
+        Section lookConfig = SSL.getInstance().getResources().getConfig().getSection("Kit.LookClose");
+        LookClose lookClose = npc.getOrAddTrait(LookClose.class);
+        lookClose.setRandomLook(lookConfig.getBoolean("Enabled"));
+        lookClose.setRange(lookConfig.getDouble("Range"));
+        lookClose.setRandomLookDelay(lookConfig.getInt("RandomLookDelay"));
 
         String locString = SSL.getInstance().getResources().getLobby().getString("KitNpcs." + kitType.getConfigName());
         Location location = YamlReader.getLocation("lobby", locString);

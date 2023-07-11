@@ -72,15 +72,11 @@ public class Scarecrow extends RightClickAbility {
                 this.tpHintLine.setText(this.getTpHint(false));
 
                 Location playerLoc = this.player.getLocation();
-                Vector playerVel = this.player.getVelocity();
+                this.scarecrow.getEntity().teleport(playerLoc);
+                playerLoc.getWorld().playSound(playerLoc, Sound.ENDERMAN_TELEPORT, 1, 2);
 
                 this.player.teleport(this.scarecrow.getStoredLocation());
                 this.player.playSound(this.player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 0.75f);
-
-                this.scarecrow.getEntity().teleport(playerLoc);
-                this.scarecrow.getEntity().setVelocity(playerVel);
-
-                playerLoc.getWorld().playSound(playerLoc, Sound.ENDERMAN_TELEPORT, 1, 2);
 
                 this.ticksUntilCanTp = this.config.getInt("ActiveTpDelay");
 

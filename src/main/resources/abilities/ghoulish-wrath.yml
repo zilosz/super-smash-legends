@@ -12,7 +12,7 @@ Description:
 Cooldown: 100
 BlockCount: 6
 MinChargeTicks: 5
-MaxChargeTicks: 25
+MaxChargeTicks: 20
 MinVelocity: 0.8
 MaxVelocity: 1.7
 Material: SOUL_SAND

@@ -15,11 +15,11 @@ Jump:
   Height: 0.9
   Sound:
     Type: DIG_STONE
-    Volume: 1
+    Volume: 2
     Pitch: 2
 HurtSound:
   Type: DIG_STONE
-  Volume: 1
+  Volume: 2
   Pitch: 0.8
 DeathSound:
   Type: VILLAGER_DEATH
