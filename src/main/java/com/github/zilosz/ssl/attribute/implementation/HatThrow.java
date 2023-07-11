@@ -51,7 +51,7 @@ public class HatThrow extends RightClickAbility {
             ArmorStand stand = location.getWorld().spawn(location, ArmorStand.class);
             stand.setArms(true);
             stand.setCanPickupItems(false);
-            stand.setItemInHand(YamlReader.getStack(this.config.getSection("HatItem")));
+            stand.setItemInHand(YamlReader.stack(this.config.getSection("HatItem")));
             stand.setMarker(true);
             stand.setVisible(false);
             return stand;

@@ -4,22 +4,21 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.utils.file.FileUtility;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
+import com.github.zilosz.ssl.utils.world.StaticWorldType;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Arena {
     private final Section config;
-    private final List<Player> playersWithVotes = new ArrayList<>();
+    private final Set<Player> playersWithVotes = new HashSet<>();
 
     public Arena(Section config) {
         this.config = config;
@@ -34,7 +33,7 @@ public class Arena {
     }
 
     public ItemStack getItemStack() {
-        return YamlReader.getStack(this.config.getSection("Item"));
+        return YamlReader.stack(this.config.getSection("Item"));
     }
 
     public void addVote(Player player) {
@@ -54,32 +53,25 @@ public class Arena {
     }
 
     public void create() {
-        Vector pasteVector = YamlReader.getVector(this.config.getString("PasteVector"));
+        Vector pasteVector = YamlReader.vector(this.config.getString("PasteVector"));
         String path = FileUtility.buildPath("arenas", this.config.getString("SchematicName"));
         File schematic = FileUtility.loadSchematic(SSL.getInstance(), path);
-        SSL.getInstance().getWorldManager().createWorld("arena", schematic, pasteVector);
+        SSL.getInstance().getWorldManager().createWorld(StaticWorldType.ARENA, schematic, pasteVector);
     }
 
     public Location getWaitLocation() {
-        return YamlReader.getLocation("arena", this.config.getString("WaitLocation"));
+        return YamlReader.location(StaticWorldType.ARENA.getWorldName(), this.config.getString("WaitLocation"));
     }
 
     public List<Location> getTutorialLocations() {
-        return YamlReader.getLocations("arena", this.config.getStringList("TutorialLocations"));
+        return this.getLocations("TutorialLocations");
     }
 
-    public Location getFarthestSpawnFromPlayers() {
-        return Collections.max(this.getSpawnLocations(), Comparator.comparingDouble(Arena::getTotalDistanceToPlayers));
+    private List<Location> getLocations(String path) {
+        return YamlReader.locations(StaticWorldType.ARENA.getWorldName(), this.config.getStringList(path));
     }
 
     public List<Location> getSpawnLocations() {
-        return YamlReader.getLocations("arena", this.config.getStringList("SpawnLocations"));
-    }
-
-    public static double getTotalDistanceToPlayers(Location location) {
-        return Bukkit.getOnlinePlayers().stream()
-                .filter(player -> SSL.getInstance().getGameManager().isPlayerAlive(player))
-                .mapToDouble(player -> player.getLocation().distanceSquared(location))
-                .sum();
+        return this.getLocations("SpawnLocations");
     }
 }

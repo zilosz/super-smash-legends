@@ -9,6 +9,7 @@ import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -68,9 +69,9 @@ public class DrillTornado extends RightClickAbility {
                 EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
                 new EntityFinder(selector).findAll(this.player).forEach(target -> {
-                    Attack settings = new Attack(this.config, this.player.getLocation().getDirection());
+                    Attack attack = YamlReader.attack(this.config, this.player.getVelocity());
 
-                    if (SSL.getInstance().getDamageManager().attack(target, this, settings)) {
+                    if (SSL.getInstance().getDamageManager().attack(target, this, attack)) {
                         this.player.getWorld().playSound(target.getLocation(), Sound.ANVIL_LAND, 1, 0.5f);
                     }
                 });

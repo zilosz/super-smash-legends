@@ -96,10 +96,7 @@ public class GameManager {
     }
 
     public Set<Player> getAlivePlayers() {
-        return this.profiles.keySet().stream()
-                .filter(Player::isOnline)
-                .filter(this::isPlayerAlive)
-                .collect(Collectors.toSet());
+        return this.profiles.keySet().stream().filter(this::isPlayerAlive).collect(Collectors.toSet());
     }
 
     public boolean isPlayerAlive(Player player) {

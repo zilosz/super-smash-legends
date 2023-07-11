@@ -8,6 +8,7 @@ import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -17,13 +18,6 @@ import xyz.xenondevs.particle.ParticleEffect;
 
 public class AerialAssault extends ChargedRightClickAbility {
     private Vector velocity;
-
-    @Override
-    public void onInitialClick(PlayerInteractEvent event) {
-        double speed = this.config.getDouble("Speed");
-        double y = this.config.getDouble("VelocityY");
-        this.velocity = this.player.getEyeLocation().getDirection().multiply(speed).setY(y);
-    }
 
     @Override
     public void onChargeTick() {
@@ -39,11 +33,18 @@ public class AerialAssault extends ChargedRightClickAbility {
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
         new EntityFinder(selector).findAll(this.player).forEach(target -> {
-            Attack attack = new Attack(this.config, this.velocity);
+            Attack attack = YamlReader.attack(this.config, this.velocity);
 
             if (SSL.getInstance().getDamageManager().attack(target, this, attack)) {
                 this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_METAL, 1, 1);
             }
         });
+    }
+
+    @Override
+    public void onInitialClick(PlayerInteractEvent event) {
+        double speed = this.config.getDouble("Speed");
+        double y = this.config.getDouble("VelocityY");
+        this.velocity = this.player.getEyeLocation().getDirection().multiply(speed).setY(y);
     }
 }

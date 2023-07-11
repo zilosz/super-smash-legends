@@ -46,7 +46,9 @@ public abstract class CustomInventory<T> implements InventoryProvider {
 
     public abstract String getTitle();
 
-    public abstract List<T> getItems();    @Override
+    public abstract List<T> getItems();
+
+    @Override
     public void init(Player clicker, InventoryContents contents) {
         List<T> items = this.getItems();
 
@@ -74,8 +76,6 @@ public abstract class CustomInventory<T> implements InventoryProvider {
             }
         }
     }
-
-
 
 
     private void setItem(InventoryContents contents, Player clicker, T item, int row, int column) {

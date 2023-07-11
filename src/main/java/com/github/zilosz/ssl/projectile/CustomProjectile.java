@@ -13,6 +13,7 @@ import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
@@ -62,7 +63,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         this.config = config;
 
         this.launcher = this.ability.getPlayer();
-        this.attack = new Attack(this.config, null);
+        this.attack = YamlReader.attack(this.config);
 
         Section defaults = SSL.getInstance().getResources().getConfig().getSection("Projectile");
 
@@ -108,7 +109,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
 
         Location eyeLoc = this.launcher.getEyeLocation();
         Location location = this.overrideLocation == null ? eyeLoc : this.overrideLocation.clone();
-        location.setDirection(VectorUtils.getRandomVectorInDirection(location, this.spread));
+        location.setDirection(VectorUtils.randomVectorInDirection(location, this.spread));
         location.add(location.getDirection().multiply(this.distanceFromEye));
 
         this.launchSpeed = projectileLaunchEvent.getSpeed();

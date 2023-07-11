@@ -14,7 +14,7 @@ public class ItemProjectile extends EmulatedProjectile<Item> {
 
     public ItemProjectile(Ability ability, Section config) {
         super(ability, config);
-        this.config.getOptionalSection("Item").ifPresent(section -> this.itemStack = YamlReader.getStack(section));
+        this.config.getOptionalSection("Item").ifPresent(section -> this.itemStack = YamlReader.stack(section));
     }
 
     @Override

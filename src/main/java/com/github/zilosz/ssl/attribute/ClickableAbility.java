@@ -11,26 +11,12 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import java.text.DecimalFormat;
 
 public abstract class ClickableAbility extends Ability {
-    protected int cooldown;
-    protected float energyCost;
-    protected boolean autoStartCooldown;
-    protected boolean autoSendUseMessage;
-    protected boolean mustBeGrounded;
-    protected boolean mustBeAirborne;
     protected int cooldownLeft;
 
     @Override
     public void activate() {
         super.activate();
-
         this.cooldownLeft = 0;
-        this.cooldown = this.config.getInt("Cooldown");
-        this.energyCost = this.config.getFloat("EnergyCost");
-        this.autoStartCooldown = this.config.getOptionalBoolean("AutoStartCooldown").orElse(true);
-        this.autoSendUseMessage = this.config.getOptionalBoolean("AutoSendUseMessage").orElse(true);
-        this.mustBeGrounded = this.config.getBoolean("MustBeGrounded");
-        this.mustBeAirborne = this.config.getBoolean("MustBeAirborne");
-
         this.hotbarItem.setAction(this::onClickAttempt);
     }
 
@@ -44,28 +30,28 @@ public abstract class ClickableAbility extends Ability {
 
         this.onClick(event);
 
-        if (this.autoSendUseMessage) {
+        if (this.sendsUseMessageInstantly()) {
             this.sendUseMessage();
         }
 
-        if (this.autoStartCooldown) {
+        if (this.startsCooldownInstantly()) {
             this.startCooldown();
         }
 
-        this.player.setExp(this.player.getExp() - this.energyCost);
+        this.player.setExp(this.player.getExp() - this.getEnergyCost());
     }
 
     public boolean invalidate(PlayerInteractEvent event) {
-        if (this.player.getExp() < this.energyCost || this.cooldownLeft > 0) return true;
+        if (this.player.getExp() < this.getEnergyCost() || this.cooldownLeft > 0) return true;
 
         if (EntityUtils.isPlayerGrounded(this.player)) {
 
-            if (this.mustBeAirborne) {
+            if (this.mustBeAirborne()) {
                 Chat.ABILITY.send(this.player, "&7You must be airborne to use this ability.");
                 return true;
             }
 
-        } else if (this.mustBeGrounded) {
+        } else if (this.mustBeGrounded()) {
             Chat.ABILITY.send(this.player, "&7You must be grounded to use this ability.");
             return true;
         }
@@ -75,12 +61,36 @@ public abstract class ClickableAbility extends Ability {
 
     public abstract void onClick(PlayerInteractEvent event);
 
+    public boolean sendsUseMessageInstantly() {
+        return this.config.getOptionalBoolean("AutoSendUseMessage").orElse(true);
+    }
+
     public void sendUseMessage() {
         Chat.ABILITY.send(this.player, String.format("&7You used %s&7.", this.getDisplayName()));
     }
 
+    public boolean startsCooldownInstantly() {
+        return this.config.getOptionalBoolean("AutoStartCooldown").orElse(true);
+    }
+
     public void startCooldown() {
-        this.cooldownLeft = this.cooldown;
+        this.cooldownLeft = this.getCooldown();
+    }
+
+    public float getEnergyCost() {
+        return this.config.getFloat("EnergyCost");
+    }
+
+    public boolean mustBeAirborne() {
+        return this.config.getBoolean("MustBeAirborne");
+    }
+
+    public boolean mustBeGrounded() {
+        return this.config.getBoolean("MustBeGrounded");
+    }
+
+    public int getCooldown() {
+        return this.config.getInt("Cooldown");
     }
 
     @Override
@@ -102,8 +112,8 @@ public abstract class ClickableAbility extends Ability {
         } else {
             String color = this.kit.getColor().getChatSymbol();
             String emptyColor = color.equals("&7") ? "&8&l" : "&7&l";
-            int cooldownSoFar = this.cooldown - this.cooldownLeft;
-            String bar = MessageUtils.progressBar("❚", "❚", color, emptyColor, cooldownSoFar, this.cooldown, 20);
+            int cooldownSoFar = this.getCooldown() - this.cooldownLeft;
+            String bar = MessageUtils.progressBar("❚", "❚", color, emptyColor, cooldownSoFar, this.getCooldown(), 20);
 
             DecimalFormat format = new DecimalFormat("#.#");
             format.setMinimumFractionDigits(1);

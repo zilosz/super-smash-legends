@@ -54,7 +54,7 @@ public abstract class Ability extends Attribute implements Nameable {
         Replacers replacers = new Replacers().add("DESCRIPTION", this.getDescription());
         List<String> lore = replacers.replaceLines(Arrays.asList("&3&lDescription", "{DESCRIPTION}"));
 
-        return new ItemBuilder<>(YamlReader.getStack(this.config.getSection("Item")))
+        return new ItemBuilder<>(YamlReader.stack(this.config.getSection("Item")))
                 .setName(this.getBoldedDisplayName())
                 .setLore(lore)
                 .get();

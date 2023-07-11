@@ -10,6 +10,7 @@ import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.MathUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -45,9 +46,9 @@ public class MixTapeDrop extends RightClickAbility {
 
             finder.findAll(this.launcher, this.entity.getLocation()).forEach(target -> {
                 Vector direction = VectorUtils.fromTo(this.entity, target);
-                Attack settings = new Attack(this.config.getSection("Ground"), direction);
+                Attack attack = YamlReader.attack(this.config.getSection("Ground"), direction);
 
-                if (SSL.getInstance().getDamageManager().attack(target, this.ability, settings)) {
+                if (SSL.getInstance().getDamageManager().attack(target, this.ability, attack)) {
                     this.launcher.playSound(this.launcher.getLocation(), Sound.NOTE_PLING, 2, 2);
                 }
             });

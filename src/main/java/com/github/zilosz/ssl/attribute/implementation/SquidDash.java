@@ -62,7 +62,7 @@ public class SquidDash extends RightClickAbility {
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
         new EntityFinder(selector).findAll(this.player).forEach(target -> {
-            Attack attack = new Attack(this.config, VectorUtils.fromTo(this.player, target));
+            Attack attack = YamlReader.attack(this.config, VectorUtils.fromTo(this.player, target));
             attack.getDamage().setDamage(damage);
             attack.getKb().setKb(kb);
 
@@ -121,7 +121,7 @@ public class SquidDash extends RightClickAbility {
                 Item particle = this.player.getWorld().dropItem(particleLoc, new ItemStack(Material.INK_SACK));
                 particle.setPickupDelay(Integer.MAX_VALUE);
 
-                particle.setVelocity(VectorUtils.getRandomVectorInDirection(particleLoc, spread).multiply(speed));
+                particle.setVelocity(VectorUtils.randomVectorInDirection(particleLoc, spread).multiply(speed));
 
                 Bukkit.getScheduler().runTaskLater(SSL.getInstance(), particle::remove, duration);
                 this.particles.add(particle);

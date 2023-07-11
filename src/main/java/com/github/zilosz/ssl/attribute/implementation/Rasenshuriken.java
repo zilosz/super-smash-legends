@@ -173,12 +173,11 @@ public class Rasenshuriken extends RightClickAbility {
 
             finder.findAll(this.launcher, loc).forEach(target -> {
                 double distanceSq = target.getLocation().distanceSquared(loc);
-                double damage = YamlReader.getDecreasingValue(this.config, "Damage", distanceSq, radius * radius);
-                double kb = YamlReader.getDecreasingValue(this.config, "Kb", distanceSq, radius * radius);
+                double damage = YamlReader.decreasingValue(this.config, "Damage", distanceSq, radius * radius);
+                double kb = YamlReader.decreasingValue(this.config, "Kb", distanceSq, radius * radius);
 
                 Vector direction = VectorUtils.fromTo(this.entity, target);
-
-                Attack settings = new Attack(this.config, direction);
+                Attack settings = YamlReader.attack(this.config, direction);
                 settings.getDamage().setDamage(damage);
                 settings.getKb().setKb(kb);
 

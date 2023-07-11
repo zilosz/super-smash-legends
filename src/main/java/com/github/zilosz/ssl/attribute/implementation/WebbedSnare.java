@@ -46,7 +46,7 @@ public class WebbedSnare extends RightClickAbility {
         double angle = this.config.getDouble("ConicAngle");
         int count = this.config.getInt("ExtraWebCount");
 
-        for (Vector vector : VectorUtils.getConicVectors(source, angle, count)) {
+        for (Vector vector : VectorUtils.conicVectors(source, angle, count)) {
             this.launch(source.setDirection(vector), false);
         }
     }

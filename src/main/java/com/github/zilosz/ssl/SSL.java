@@ -19,9 +19,10 @@ import com.github.zilosz.ssl.game.GameScoreboard;
 import com.github.zilosz.ssl.kit.KitManager;
 import com.github.zilosz.ssl.team.TeamManager;
 import com.github.zilosz.ssl.utils.NpcStorage;
-import com.github.zilosz.ssl.utils.WorldManager;
 import com.github.zilosz.ssl.utils.file.FileUtility;
 import com.github.zilosz.ssl.utils.file.YamlReader;
+import com.github.zilosz.ssl.utils.world.StaticWorldType;
+import com.github.zilosz.ssl.utils.world.WorldManager;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import fr.minuskube.inv.InventoryManager;
 import io.github.thatkawaiisam.assemble.Assemble;
@@ -56,8 +57,8 @@ public class SSL extends JavaPlugin implements Listener {
 
     @Override
     public void onLoad() {
-        FileUtility.deleteWorld("lobby");
-        FileUtility.deleteWorld("arena");
+        FileUtility.deleteWorld(StaticWorldType.LOBBY.getWorldName());
+        FileUtility.deleteWorld(StaticWorldType.ARENA.getWorldName());
     }
 
     @Override
@@ -94,9 +95,9 @@ public class SSL extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(this.kitManager, this);
         Bukkit.getPluginManager().registerEvents(this, this);
 
-        Vector pasteVector = YamlReader.getVector(this.resources.getLobby().getString("PasteVector"));
+        Vector pasteVector = YamlReader.vector(this.resources.getLobby().getString("PasteVector"));
         File schematic = FileUtility.loadSchematic(this, "lobby");
-        this.worldManager.createWorld("lobby", schematic, pasteVector);
+        this.worldManager.createWorld(StaticWorldType.LOBBY, schematic, pasteVector);
 
         this.inventoryManager.init();
         this.gameManager.activateState();

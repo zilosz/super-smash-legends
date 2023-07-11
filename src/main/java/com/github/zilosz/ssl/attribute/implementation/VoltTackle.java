@@ -64,7 +64,7 @@ public class VoltTackle extends RightClickAbility {
                 Location center = EntityUtils.center(this.player);
                 Item gold = this.player.getWorld().dropItem(center, new ItemStack(Material.GOLD_INGOT));
                 gold.setPickupDelay(Integer.MAX_VALUE);
-                gold.setVelocity(VectorUtils.getRandomVector(null).multiply(this.config.getDouble("ParticleSpeed")));
+                gold.setVelocity(VectorUtils.randomVector(null).multiply(this.config.getDouble("ParticleSpeed")));
                 int particleDuration = this.config.getInt("ParticleDuration");
 
                 this.particles.put(
@@ -73,14 +73,14 @@ public class VoltTackle extends RightClickAbility {
                 );
             }
 
-            float pitch = (float) MathUtils.getIncreasingValue(0.5, 2, duration, this.ticksMoving);
+            float pitch = (float) MathUtils.increasingValue(0.5, 2, duration, this.ticksMoving);
             this.player.getWorld().playSound(this.player.getLocation(), Sound.FIREWORK_LARGE_BLAST, 1, pitch);
 
             new EntityFinder(selector).findClosest(this.player).ifPresent(target -> {
                 double damage = YamlReader.increasingValue(this.config, "Damage", this.ticksMoving, duration);
                 double kb = YamlReader.increasingValue(this.config, "Kb", this.ticksMoving, duration);
 
-                Attack attack = new Attack(this.config, velocity);
+                Attack attack = YamlReader.attack(this.config, velocity);
                 attack.getDamage().setDamage(damage);
                 attack.getKb().setKb(kb);
 
@@ -98,7 +98,7 @@ public class VoltTackle extends RightClickAbility {
                             recoilConfig, "Kb", this.ticksMoving, duration
                     );
 
-                    Attack recoil = new Attack(recoilConfig, velocity.multiply(-1));
+                    Attack recoil = YamlReader.attack(recoilConfig, velocity.multiply(-1));
                     recoil.getDamage().setDamage(recoilDamage);
                     recoil.getKb().setKb(recoilKb);
 

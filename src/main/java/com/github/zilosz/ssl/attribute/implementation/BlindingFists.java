@@ -77,7 +77,7 @@ public class BlindingFists extends PassiveAbility {
         int currChain = this.chainCounts.get(victim);
 
         if (currChain > 0) {
-            double pitch = MathUtils.getIncreasingValue(0.5, 2, maxChain - 1, currChain - 1);
+            double pitch = MathUtils.increasingValue(0.5, 2, maxChain - 1, currChain - 1);
             this.player.playSound(this.player.getLocation(), Sound.ZOMBIE_REMEDY, 0.5f, (float) pitch);
 
             ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE);
@@ -104,13 +104,13 @@ public class BlindingFists extends PassiveAbility {
         }
 
         double maxDamageMul = this.config.getDouble("MaxDamageMultiplier");
-        double damageMul = MathUtils.getIncreasingValue(1, maxDamageMul, maxChain - 1, currChain);
+        double damageMul = MathUtils.increasingValue(1, maxDamageMul, maxChain - 1, currChain);
 
         double maxKbMul = this.config.getDouble("MaxKbMultiplier");
-        double kbMul = MathUtils.getIncreasingValue(1, maxKbMul, maxChain - 1, currChain);
+        double kbMul = MathUtils.increasingValue(1, maxKbMul, maxChain - 1, currChain);
 
         double maxKbYMul = this.config.getDouble("MaxKbYMultiplier");
-        double kbYMul = MathUtils.getIncreasingValue(1, maxKbYMul, maxChain - 1, currChain);
+        double kbYMul = MathUtils.increasingValue(1, maxKbYMul, maxChain - 1, currChain);
 
         Attack settings = event.getAttack();
         settings.getDamage().setDamage(settings.getDamage().getDamage() * damageMul);

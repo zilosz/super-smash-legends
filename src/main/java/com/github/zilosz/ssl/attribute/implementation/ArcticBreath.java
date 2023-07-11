@@ -7,6 +7,7 @@ import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -45,7 +46,7 @@ public class ArcticBreath extends RightClickAbility {
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
         new EntityFinder(selector).findAll(this.player, center).forEach(target -> {
-            Attack attack = new Attack(this.config, step);
+            Attack attack = YamlReader.attack(this.config, step);
             attack.getDamage().setDamage(damage);
             SSL.getInstance().getDamageManager().attack(target, this, attack);
         });

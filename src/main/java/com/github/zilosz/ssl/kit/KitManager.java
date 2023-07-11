@@ -8,6 +8,7 @@ import com.github.zilosz.ssl.game.state.GameStateType;
 import com.github.zilosz.ssl.utils.Skin;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.Chat;
+import com.github.zilosz.ssl.utils.world.StaticWorldType;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
@@ -76,7 +77,7 @@ public class KitManager implements Listener {
         lookClose.setRandomLookDelay(lookConfig.getInt("RandomLookDelay"));
 
         String locString = SSL.getInstance().getResources().getLobby().getString("KitNpcs." + kitType.getConfigName());
-        Location location = YamlReader.getLocation("lobby", locString);
+        Location location = YamlReader.location(StaticWorldType.LOBBY.getWorldName(), locString);
         npc.spawn(location);
 
         location.subtract(0, 1, 0).getBlock().setType(Material.BEACON);

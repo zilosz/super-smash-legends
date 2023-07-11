@@ -83,7 +83,7 @@ public class AgileCombat extends RightClickAbility {
 
             new EntityFinder(selector).findClosest(this.player).ifPresent(target -> {
                 Vector direction = this.player.getEyeLocation().getDirection();
-                Attack attack = new Attack(this.config.getSection("Leap"), direction.clone().multiply(-1));
+                Attack attack = YamlReader.attack(this.config.getSection("Leap"), direction.clone().multiply(-1));
 
                 if (SSL.getInstance().getDamageManager().attack(target, this, attack)) {
                     this.endLeap(true);
@@ -149,7 +149,7 @@ public class AgileCombat extends RightClickAbility {
             Section jumpConfig = this.config.getSection("Jump");
             event.setPower(jumpConfig.getDouble("Power"));
             event.setHeight(jumpConfig.getDouble("Height"));
-            event.setNoise(YamlReader.getNoise(jumpConfig.getSection("Sound")));
+            event.setNoise(YamlReader.noise(jumpConfig.getSection("Sound")));
         }
     }
 

@@ -21,6 +21,7 @@ import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
+import com.github.zilosz.ssl.utils.world.StaticWorldType;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
@@ -39,7 +40,6 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.text.DecimalFormat;
@@ -58,6 +58,7 @@ public class LobbyState extends GameState {
     private BukkitTask countdownTask;
     private int secUntilStart;
     private boolean isCounting = false;
+    private float pitch;
 
     @Override
     public boolean allowsSpecCommand() {
@@ -147,7 +148,7 @@ public class LobbyState extends GameState {
                     .add("DAMAGE_DEALT", format.format(profile.getDamageDealt()));
 
             String lastGameLoc = SSL.getInstance().getResources().getLobby().getString("LastGame");
-            Location lastGameLocation = YamlReader.getLocation("lobby", lastGameLoc);
+            Location lastGameLocation = YamlReader.location(StaticWorldType.LOBBY.getWorldName(), lastGameLoc);
             Hologram lastGameHolo = HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(lastGameLocation);
             this.holograms.add(lastGameHolo);
 
@@ -207,7 +208,8 @@ public class LobbyState extends GameState {
 
     private void createLeaderboard(String titleName, String statName, String configName) {
         Resources resources = SSL.getInstance().getResources();
-        Location location = YamlReader.getLocation("lobby", resources.getLobby().getString(configName));
+        String worldName = StaticWorldType.LOBBY.getWorldName();
+        Location location = YamlReader.location(worldName, resources.getLobby().getString(configName));
 
         Hologram hologram = HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(location);
         this.holograms.add(hologram);
@@ -274,46 +276,43 @@ public class LobbyState extends GameState {
 
         if (this.isCounting || this.getParticipantCount() < minPlayersNeeded) return;
 
-        int notifyInterval = config.getInt("Game.LobbyCountdown.NotifyInterval");
-        int totalSec = config.getInt("Game.LobbyCountdown.Seconds");
+        Section countdownConfig = config.getSection("Game.LobbyCountdown.NotifyInterval");
+        int notifyInterval = countdownConfig.getInt("NotifyInterval");
+        int totalSec = countdownConfig.getInt("Seconds");
+        int notifyThreshold = countdownConfig.getInt("NotifyThreshold");
+
         this.secUntilStart = totalSec + 1;
-
         this.isCounting = true;
+        this.pitch = 0.5f;
 
-        this.countdownTask = new BukkitRunnable() {
-            float pitch = 0.5f;
+        this.countdownTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
-            @Override
-            public void run() {
-                LobbyState.this.secUntilStart--;
+            if (--this.secUntilStart == 0) {
+                SSL.getInstance().getGameManager().advanceState();
+                return;
+            }
 
-                if (LobbyState.this.secUntilStart == 0) {
-                    SSL.getInstance().getGameManager().advanceState();
-                    return;
+            if (this.secUntilStart <= notifyThreshold || this.secUntilStart % notifyInterval == 0) {
+                String message = "&7Starting in &e&l%d &7seconds.";
+                Chat.GAME.broadcast(String.format(message, this.secUntilStart));
+
+                if (this.secUntilStart < notifyThreshold) {
+                    this.pitch += 1.5f / totalSec;
                 }
 
-                if (LobbyState.this.secUntilStart <= 5 || LobbyState.this.secUntilStart % notifyInterval == 0) {
-                    String message = "&7Starting in &e&l%d &7seconds.";
-                    Chat.GAME.broadcast(String.format(message, LobbyState.this.secUntilStart));
+                if (this.secUntilStart != totalSec) {
 
-                    if (LobbyState.this.secUntilStart <= 4) {
-                        this.pitch += 1.5f / totalSec;
-                    }
-
-                    if (LobbyState.this.secUntilStart != totalSec) {
-
-                        for (Player player : Bukkit.getOnlinePlayers()) {
-                            player.playSound(player.getLocation(), Sound.CLICK, 1, this.pitch);
-                        }
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        player.playSound(player.getLocation(), Sound.CLICK, 1, this.pitch);
                     }
                 }
             }
-
-        }.runTaskTimer(SSL.getInstance(), 0, 20);
+        }, 0, 20);
     }
 
     private Location getSpawn() {
-        return YamlReader.getLocation("lobby", SSL.getInstance().getResources().getLobby().getString("Spawn"));
+        String spawnString = SSL.getInstance().getResources().getLobby().getString("Spawn");
+        return YamlReader.location(StaticWorldType.LOBBY.getWorldName(), spawnString);
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.github.zilosz.ssl.utils.entity.FloatingEntity;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -80,7 +81,7 @@ public class ChainOfSteel extends RightClickAbility {
             } else {
 
                 new EntityFinder(selector).findClosest(this.player, currLocation).ifPresent(target -> {
-                    Attack attackSettings = new Attack(this.config, null);
+                    Attack attackSettings = YamlReader.attack(this.config, null);
 
                     if (SSL.getInstance().getDamageManager().attack(target, this, attackSettings)) {
                         this.player.playSound(this.player.getLocation(), Sound.ORB_PICKUP, 1, 1);

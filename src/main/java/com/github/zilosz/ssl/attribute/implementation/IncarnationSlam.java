@@ -9,6 +9,7 @@ import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import me.libraryaddict.disguise.DisguiseAPI;
 import me.libraryaddict.disguise.disguisetypes.DisguiseType;
 import me.libraryaddict.disguise.disguisetypes.MobDisguise;
@@ -56,7 +57,7 @@ public class IncarnationSlam extends RightClickAbility {
             EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
             new EntityFinder(selector).findAll(this.player).forEach(target -> {
-                Attack settings = new Attack(this.config, this.player.getLocation().getDirection());
+                Attack settings = YamlReader.attack(this.config, this.player.getVelocity());
                 SSL.getInstance().getDamageManager().attack(target, this, settings);
 
                 target.getWorld().playSound(target.getLocation(), Sound.SLIME_ATTACK, 2, 2);

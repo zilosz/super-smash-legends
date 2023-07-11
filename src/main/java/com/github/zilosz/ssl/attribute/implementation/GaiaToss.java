@@ -39,10 +39,37 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
     private BukkitTask sizeTask;
 
     @Override
+    public void onFailedCharge() {
+        this.playSound();
+        this.reset(true);
+    }
+
+    @Override
+    public void onSuccessfulCharge() {
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.IRONGOLEM_DEATH, 4, 0.5f);
+
+        int minSize = this.config.getInt("MinSize");
+        int val = this.currSize - minSize;
+        int limit = this.getMaxSize() - minSize;
+
+        double speed = YamlReader.increasingValue(this.config, "Speed", val, limit);
+        double damage = YamlReader.increasingValue(this.config, "Damage", val, limit);
+        double kb = YamlReader.increasingValue(this.config, "Kb", val, limit);
+
+        this.launch(true, damage, kb, speed, this.blocks.get(0).getEntity());
+
+        for (int i = 1; i < this.blocks.size(); i++) {
+            this.launch(false, damage, kb, speed, this.blocks.get(i).getEntity());
+        }
+
+        this.reset(true);
+    }
+
+    @Override
     public void onInitialClick(PlayerInteractEvent event) {
 
         this.soundTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
-            double pitch = MathUtils.getIncreasingValue(0.5, 2, this.maxChargeTicks, this.ticksCharging);
+            double pitch = MathUtils.increasingValue(0.5, 2, this.getMaxChargeTicks(), this.ticksCharging);
             this.player.getWorld().playSound(this.player.getLocation(), Sound.FIREWORK_LAUNCH, 1, (float) pitch);
         }, 0, 3);
 
@@ -59,7 +86,7 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
             this.playSound();
             this.destroyBlocks();
 
-            List<Location> locations = MathUtils.getLocationCube(centerInGround, this.currSize);
+            List<Location> locations = MathUtils.locationCube(centerInGround, this.currSize);
             double heightAboveHead = this.currSize / 2.0 + this.config.getDouble("HeightAboveHead");
             Location centerAboveHead = EntityUtils.top(this.player).add(new Vector(0, heightAboveHead, 0));
             Vector relative = VectorUtils.fromTo(locations.get(0), centerAboveHead);
@@ -92,7 +119,7 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
                     blockEntity.teleport(this.player.getLocation().add(relativeToLoc));
                 }, 2, 2));
             }
-        }, 0, (long) (this.maxChargeTicks / (this.config.getDouble("IncrementCount") + 1)));
+        }, 0, (long) (this.getMaxChargeTicks() / (this.config.getDouble("IncrementCount") + 1)));
     }
 
     private int getMaxSize() {
@@ -114,30 +141,12 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
     }
 
     @Override
-    public void onFailedCharge() {
-        this.playSound();
-        this.reset(true);
-    }
+    public void deactivate() {
+        super.deactivate();
 
-    @Override
-    public void onSuccessfulCharge() {
-        this.player.getWorld().playSound(this.player.getLocation(), Sound.IRONGOLEM_DEATH, 4, 0.5f);
-
-        int minSize = this.config.getInt("MinSize");
-        int val = this.currSize - minSize;
-        int limit = this.getMaxSize() - minSize;
-
-        double speed = YamlReader.increasingValue(this.config, "Speed", val, limit);
-        double damage = YamlReader.increasingValue(this.config, "Damage", val, limit);
-        double kb = YamlReader.increasingValue(this.config, "Kb", val, limit);
-
-        this.launch(true, damage, kb, speed, this.blocks.get(0).getEntity());
-
-        for (int i = 1; i < this.blocks.size(); i++) {
-            this.launch(false, damage, kb, speed, this.blocks.get(i).getEntity());
+        if (this.increments != -1) {
+            this.reset(false);
         }
-
-        this.reset(true);
     }
 
     private void launch(boolean particles, double damage, double kb, double speed, FallingBlock block) {
@@ -149,15 +158,6 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
         projectile.getAttack().getDamage().setDamage(damage);
         projectile.getAttack().getKb().setKb(kb);
         projectile.launch();
-    }
-
-    @Override
-    public void deactivate() {
-        super.deactivate();
-
-        if (this.increments != -1) {
-            this.reset(false);
-        }
     }
 
     private void reset(boolean cooldown) {

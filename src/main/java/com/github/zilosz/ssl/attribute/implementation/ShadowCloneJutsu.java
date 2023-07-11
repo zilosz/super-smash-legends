@@ -17,6 +17,7 @@ import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -261,12 +262,11 @@ public class ShadowCloneJutsu extends RightClickAbility {
                     Attack attack;
 
                     if (this.rasenganTask == null) {
-                        attack = new Attack(this.config.getSection("Clone.Melee"), step);
+                        attack = YamlReader.attack(this.config.getSection("Clone.Melee"), step);
                         attack.getDamage().setDamage(this.ability.getKit().getDamage());
 
                     } else {
-                        attack = new Attack(this.config.getSection("Clone.Rasengan"), step);
-
+                        attack = YamlReader.attack(this.config.getSection("Clone.Rasengan"), step);
                         Rasengan.displayAttackEffect(this.creature);
                         this.endRasengan();
                     }

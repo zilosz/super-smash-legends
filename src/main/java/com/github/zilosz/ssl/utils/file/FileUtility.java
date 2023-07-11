@@ -49,14 +49,14 @@ public class FileUtility {
         return path.toString();
     }
 
-    public static void deleteWorld(String name) {
-        File world = new File(Bukkit.getWorldContainer(), name);
+    public static void deleteWorld(String worldName) {
+        File world = new File(Bukkit.getWorldContainer(), worldName);
 
         if (world.exists()) {
 
             try {
                 FileUtils.deleteDirectory(world);
-                Bukkit.getLogger().log(Level.INFO, String.format("Deleted the %s world.", name));
+                Bukkit.getLogger().log(Level.INFO, String.format("Deleted the '%s' world.", worldName));
 
             } catch (IOException e) {
                 e.printStackTrace();

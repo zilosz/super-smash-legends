@@ -132,10 +132,10 @@ public class OlympicDive extends RightClickAbility {
 
         new EntityFinder(selector).findAll(this.player).forEach(target -> {
             double distance = target.getLocation().distance(this.player.getLocation());
-            double damage = YamlReader.getDecreasingValue(this.config, "DiveDamage", distance, radius);
-            double kb = YamlReader.getDecreasingValue(this.config, "DiveKb", distance, radius);
+            double damage = YamlReader.decreasingValue(this.config, "DiveDamage", distance, radius);
+            double kb = YamlReader.decreasingValue(this.config, "DiveKb", distance, radius);
 
-            Attack attack = new Attack(this.config, VectorUtils.fromTo(this.player, target));
+            Attack attack = YamlReader.attack(this.config, VectorUtils.fromTo(this.player, target));
             attack.getDamage().setDamage(damage);
             attack.getKb().setKb(kb);
 

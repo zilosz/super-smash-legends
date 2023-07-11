@@ -82,13 +82,13 @@ public class SpookyScream extends RightClickAbility {
             new EntityFinder(new DistanceSelector(searchRadius)).findAll(this.player, currLocation).forEach(target -> {
                 boolean isPumpkin = target.hasMetadata("pumpkin");
                 String attackPath = isPumpkin ? "PumpkinAttack" : "NormalAttack";
-                Attack attack = new Attack(this.config.getSection(attackPath), step);
+                Attack attack = YamlReader.attack(this.config.getSection(attackPath), step);
 
                 if (SSL.getInstance().getDamageManager().attack(target, this, attack)) {
                     this.player.playSound(this.player.getLocation(), Sound.ORB_PICKUP, 1, 1);
                     target.getWorld().playSound(target.getLocation(), Sound.WITHER_HURT, 1, 1);
 
-                    PotionEffect effect = YamlReader.getPotionEffect(this.config.getSection("Wither"));
+                    PotionEffect effect = YamlReader.potionEffect(this.config.getSection("Wither"));
                     PotionEffectEvent.fromPotionEffect(target, effect).apply();
 
                     if (isPumpkin) {

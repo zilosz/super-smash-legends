@@ -50,6 +50,7 @@ Game:
   LobbyCountdown:
     Seconds: 20
     NotifyInterval: 5
+    NotifyThreshold: 5
   Timer:
     DefaultSeconds: 720
     SecondsPerExtraPlayer: 60

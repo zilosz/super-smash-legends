@@ -26,14 +26,9 @@ public class RocketLauncher extends ChargedRightClickAbility {
     private float pitch;
 
     @Override
-    public void onInitialClick(PlayerInteractEvent event) {
-        this.pitch = 0.5f;
-    }
-
-    @Override
     public void onChargeTick() {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_METAL, 0.5f, this.pitch);
-        this.pitch += 1.5 / this.maxChargeTicks;
+        this.pitch += 1.5 / this.getMaxChargeTicks();
     }
 
     @Override
@@ -42,15 +37,20 @@ public class RocketLauncher extends ChargedRightClickAbility {
         Rocket rocket = new Rocket(this, main);
 
         Damage damage = rocket.getAttack().getDamage();
-        damage.setDamage(YamlReader.increasingValue(main, "Damage", this.ticksCharging, this.maxChargeTicks));
+        damage.setDamage(YamlReader.increasingValue(main, "Damage", this.ticksCharging, this.getMaxChargeTicks()));
 
         KnockBack kb = rocket.getAttack().getKb();
-        kb.setKb(YamlReader.increasingValue(main, "Kb", this.ticksCharging, this.maxChargeTicks));
+        kb.setKb(YamlReader.increasingValue(main, "Kb", this.ticksCharging, this.getMaxChargeTicks()));
 
-        rocket.setSpeed(YamlReader.increasingValue(main, "Speed", this.ticksCharging, this.maxChargeTicks));
+        rocket.setSpeed(YamlReader.increasingValue(main, "Speed", this.ticksCharging, this.getMaxChargeTicks()));
         rocket.launch();
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.FIREWORK_LAUNCH, 2, 1);
+    }
+
+    @Override
+    public void onInitialClick(PlayerInteractEvent event) {
+        this.pitch = 0.5f;
     }
 
     private static class Rocket extends ItemProjectile {

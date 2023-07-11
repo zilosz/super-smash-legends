@@ -1,5 +1,6 @@
 package com.github.zilosz.ssl.utils;
 
+import com.github.zilosz.ssl.utils.world.StaticWorldType;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
@@ -59,8 +60,8 @@ public class Skin {
     public void apply(Plugin plugin, Player player) {
         this.showToOthers(player);
         Location oldLoc = player.getLocation();
-        player.teleport(new Location(Bukkit.getWorld("world"), 0, 120, 0));
-        showToSelf(plugin, player, () -> player.teleport(oldLoc));
+        player.teleport(new Location(StaticWorldType.WORLD.getWorld(), 0, 120, 0));
+        showToPlayer(plugin, player, () -> player.teleport(oldLoc));
     }
 
     private void showToOthers(Player player) {
@@ -72,12 +73,12 @@ public class Skin {
         }
     }
 
-    private static BukkitTask showToSelf(Plugin plugin, Player player, Runnable onTp) {
+    private static BukkitTask showToPlayer(Plugin plugin, Player player, Runnable onTp) {
         sendAddRemovePackets(player);
         return fakeRespawnAfterDelay(plugin, player, onTp);
     }
 
-    public void updateProfile(GameProfile gameProfile) {
+    private void updateProfile(GameProfile gameProfile) {
         gameProfile.getProperties().removeAll("textures");
         gameProfile.getProperties().put("textures", new Property("textures", this.texture, this.signature));
     }
@@ -127,6 +128,6 @@ public class Skin {
 
     public BukkitTask applyAcrossTp(Plugin plugin, Player player, Runnable onTp) {
         this.showToOthers(player);
-        return showToSelf(plugin, player, onTp);
+        return showToPlayer(plugin, player, onTp);
     }
 }

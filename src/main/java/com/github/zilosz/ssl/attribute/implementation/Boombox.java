@@ -207,10 +207,10 @@ public class Boombox extends RightClickAbility {
             Vector direction = VectorUtils.fromTo(center, target.getLocation());
 
             double distance = target.getLocation().distance(center);
-            double damage = YamlReader.getDecreasingValue(mixTapeConfig, "Damage", distance, radius);
-            double kb = YamlReader.getDecreasingValue(mixTapeConfig, "Kb", distance, radius);
+            double damage = YamlReader.decreasingValue(mixTapeConfig, "Damage", distance, radius);
+            double kb = YamlReader.decreasingValue(mixTapeConfig, "Kb", distance, radius);
 
-            Attack attack = new Attack(mixTapeConfig, direction);
+            Attack attack = YamlReader.attack(mixTapeConfig, direction);
             attack.getDamage().setDamage(damage);
             attack.getKb().setKb(kb);
 
@@ -247,7 +247,7 @@ public class Boombox extends RightClickAbility {
 
         int maxPunches = this.config.getInt("MaxPunches");
 
-        float pitch = (float) MathUtils.getIncreasingValue(0.5, 2, maxPunches - 1, this.charge);
+        float pitch = (float) MathUtils.increasingValue(0.5, 2, maxPunches - 1, this.charge);
         this.player.getWorld().playSound(this.block.getLocation(), Sound.NOTE_PLING, 2, pitch);
 
         for (int i = 0; i < 5; i++) {
@@ -265,7 +265,7 @@ public class Boombox extends RightClickAbility {
         int count = this.config.getInt("Count");
         double conicAngle = this.config.getDouble("ConicAngle");
 
-        for (Vector vector : VectorUtils.getConicVectors(source, conicAngle, count - 1)) {
+        for (Vector vector : VectorUtils.conicVectors(source, conicAngle, count - 1)) {
             Location loc = source.clone().setDirection(vector);
             this.launch(false, loc);
         }

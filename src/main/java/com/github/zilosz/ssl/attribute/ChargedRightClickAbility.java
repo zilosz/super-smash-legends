@@ -3,39 +3,22 @@ package com.github.zilosz.ssl.attribute;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public abstract class ChargedRightClickAbility extends RightClickAbility {
-    protected boolean showExpBar;
-    protected boolean expIncreases;
-    protected int minChargeTicks;
-    protected int maxChargeTicks;
-    protected boolean endChargeInstantly;
     protected int ticksCharging = 0;
-    protected boolean startCooldownAfterCharge;
-
-    @Override
-    public void activate() {
-        super.activate();
-
-        this.showExpBar = this.config.getOptionalBoolean("ShowExp").orElse(true);
-        this.expIncreases = this.config.getOptionalBoolean("ExpIncreases").orElse(true);
-        this.minChargeTicks = this.config.getInt("MinChargeTicks");
-        this.maxChargeTicks = this.config.getOptionalInt("MaxChargeTicks").orElse(Integer.MAX_VALUE);
-        this.endChargeInstantly = this.config.getOptionalBoolean("EndChargeInstantly").orElse(true);
-        this.startCooldownAfterCharge = this.config.getOptionalBoolean("StartCooldownAfterCharge").orElse(true);
-
-        this.autoStartCooldown = false;
-    }
 
     @Override
     public void onClick(PlayerInteractEvent event) {
         this.ticksCharging = 1;
         this.onInitialClick(event);
 
-        if (this.energyCost == 0 && this.showExpBar) {
-            this.player.setExp(this.expIncreases ? 0 : 1);
+        if (this.getEnergyCost() == 0 && this.showsExpBar()) {
+            this.player.setExp(this.doesProgressIncrease() ? 0 : 1);
         }
     }
 
-    public void onInitialClick(PlayerInteractEvent event) {}
+    @Override
+    public boolean startsCooldownInstantly() {
+        return false;
+    }
 
     @Override
     public void run() {
@@ -43,20 +26,28 @@ public abstract class ChargedRightClickAbility extends RightClickAbility {
 
         if (this.ticksCharging == 0) return;
 
-        if (!this.player.isBlocking() || this.endChargeInstantly && this.ticksCharging >= this.maxChargeTicks) {
+        if (!this.player.isBlocking() || this.endsChargeInstantly() && this.ticksCharging >= this.getMaxChargeTicks()) {
             this.onChargeEnd();
             return;
         }
 
-        if (this.player.getExp() >= this.energyCost) {
+        if (this.player.getExp() >= this.getEnergyCost()) {
             this.onChargeTick();
 
-            if (this.showExpBar) {
-                this.player.setExp(this.player.getExp() - this.energyCost);
+            if (this.showsExpBar()) {
+                this.player.setExp(this.player.getExp() - this.getEnergyCost());
 
-                if (this.energyCost == 0 && this.maxChargeTicks < Integer.MAX_VALUE) {
-                    float percent = this.expIncreases ? this.ticksCharging : this.maxChargeTicks - this.ticksCharging;
-                    this.player.setExp(percent / this.maxChargeTicks);
+                if (this.getEnergyCost() == 0 && this.getMaxChargeTicks() < Integer.MAX_VALUE) {
+                    float percent;
+
+                    if (this.doesProgressIncrease()) {
+                        percent = this.ticksCharging;
+
+                    } else {
+                        percent = this.getMaxChargeTicks() - this.ticksCharging;
+                    }
+
+                    this.player.setExp(percent / this.getMaxChargeTicks());
                 }
             }
         }
@@ -64,9 +55,17 @@ public abstract class ChargedRightClickAbility extends RightClickAbility {
         this.ticksCharging++;
     }
 
+    public boolean endsChargeInstantly() {
+        return this.config.getOptionalBoolean("EndChargeInstantly").orElse(true);
+    }
+
+    public int getMaxChargeTicks() {
+        return this.config.getOptionalInt("MaxChargeTicks").orElse(Integer.MAX_VALUE);
+    }
+
     public void onChargeEnd() {
 
-        if (this.ticksCharging < this.minChargeTicks) {
+        if (this.ticksCharging < this.getMinChargeTicks()) {
             this.onFailedCharge();
 
         } else {
@@ -75,27 +74,40 @@ public abstract class ChargedRightClickAbility extends RightClickAbility {
 
         this.ticksCharging = 0;
 
-        if (this.energyCost == 0 && this.showExpBar) {
+        if (this.getEnergyCost() == 0 && this.showsExpBar()) {
             this.player.setExp(0);
         }
 
-        if (this.startCooldownAfterCharge) {
-            this.startCooldown();
-        }
+        this.startCooldown();
     }
 
     public void onChargeTick() {}
+
+    public int getMinChargeTicks() {
+        return this.config.getInt("MinChargeTicks");
+    }
 
     public void onFailedCharge() {}
 
     public void onSuccessfulCharge() {}
 
+    public void onInitialClick(PlayerInteractEvent event) {}
+
+    public boolean showsExpBar() {
+        return this.config.getOptionalBoolean("ShowExp").orElse(true);
+    }
+
+    public boolean doesProgressIncrease() {
+        return this.config.getOptionalBoolean("ExpIncreases").orElse(true);
+    }
+
     @Override
     public void deactivate() {
+        super.deactivate();
+
         if (this.ticksCharging > 0) {
             this.onChargeEnd();
         }
-        super.deactivate();
     }
 
     @Override

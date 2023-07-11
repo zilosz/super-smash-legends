@@ -12,7 +12,7 @@ public class PermanentPotion extends PassiveAbility {
     @Override
     public void activate() {
         super.activate();
-        PotionEffect effect = YamlReader.getPotionEffect(this.config.getSection("Potion"));
+        PotionEffect effect = YamlReader.potionEffect(this.config.getSection("Potion"));
         this.type = effect.getType();
         PotionEffectEvent.fromPotionEffect(this.player, effect).apply();
     }

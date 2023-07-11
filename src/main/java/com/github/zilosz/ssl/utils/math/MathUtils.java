@@ -28,11 +28,11 @@ public class MathUtils {
         return min <= value && value <= max;
     }
 
-    public static double getIncreasingValue(double min, double max, double rangeAtMax, double x) {
+    public static double increasingValue(double min, double max, double rangeAtMax, double x) {
         return x * (max - min) / rangeAtMax + min;
     }
 
-    public static double getDecreasingValue(double min, double max, double rangeAtMin, double x) {
+    public static double decreasingValue(double min, double max, double rangeAtMin, double x) {
         return -x * (max - min) / rangeAtMin + max;
     }
 
@@ -53,7 +53,7 @@ public class MathUtils {
         return degrees * Math.PI / 180;
     }
 
-    public static List<Location> getLocationCube(Location center, int size) {
+    public static List<Location> locationCube(Location center, int size) {
         List<Location> locations = new ArrayList<>();
 
         int mid = size / 2;

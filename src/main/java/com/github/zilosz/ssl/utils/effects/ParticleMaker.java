@@ -39,7 +39,7 @@ public class ParticleMaker {
     public void boom(Plugin plugin, Location center, double radius, double radiusStep, int streaks) {
 
         for (int i = 0; i < streaks; i++) {
-            Vector step = VectorUtils.getRandomVector(this.face).multiply(radiusStep);
+            Vector step = VectorUtils.randomVector(this.face).multiply(radiusStep);
             Location curr = center.clone();
 
             new BukkitRunnable() {
@@ -89,7 +89,7 @@ public class ParticleMaker {
 
     public void hollowSphere(Location center, double radius, int particleCount) {
         for (int i = 0; i < particleCount; i++) {
-            this.show(center.clone().add(VectorUtils.getRandomVector(this.face).multiply(radius)));
+            this.show(center.clone().add(VectorUtils.randomVector(this.face).multiply(radius)));
         }
     }
 }

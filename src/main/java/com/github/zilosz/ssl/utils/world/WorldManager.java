@@ -1,4 +1,4 @@
-package com.github.zilosz.ssl.utils;
+package com.github.zilosz.ssl.utils.world;
 
 import com.boydti.fawe.object.schematic.Schematic;
 import com.sk89q.worldedit.EditSession;
@@ -18,9 +18,9 @@ import java.util.Optional;
 public class WorldManager {
     private final Map<String, EditSession> worlds = new HashMap<>();
 
-    public void createWorld(String name, File schematic, Vector paste) {
+    public void createWorld(StaticWorldType worldType, File schematic, Vector paste) {
 
-        WorldCreator config = WorldCreator.name(name)
+        WorldCreator config = WorldCreator.name(worldType.getWorldName())
                 .type(WorldType.FLAT)
                 .generateStructures(false)
                 .generatorSettings("3;minecraft:air;2");
@@ -30,14 +30,14 @@ public class WorldManager {
         try {
             Schematic schem = ClipboardFormat.SCHEMATIC.load(schematic);
             EditSession editSession = schem.paste(new BukkitWorld(Bukkit.createWorld(config)), weVector);
-            this.worlds.put(name, editSession);
+            this.worlds.put(worldType.getWorldName(), editSession);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void resetWorld(String name) {
-        Optional.ofNullable(this.worlds.remove(name)).ifPresent(session -> session.undo(session));
+    public void resetWorld(StaticWorldType worldType) {
+        Optional.ofNullable(this.worlds.remove(worldType.getWorldName())).ifPresent(session -> session.undo(session));
     }
 }

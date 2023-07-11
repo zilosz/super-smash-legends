@@ -6,6 +6,7 @@ import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
 import com.github.zilosz.ssl.utils.NmsUtils;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import net.minecraft.server.v1_8_R3.PacketPlayOutAnimation;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -60,7 +61,7 @@ public class SuperhumanPunch extends RightClickAbility {
         this.victim = (LivingEntity) event.getRightClicked();
 
         Vector direction = this.player.getEyeLocation().getDirection();
-        Attack settings = new Attack(this.config, direction);
+        Attack settings = YamlReader.attack(this.config, direction);
         SSL.getInstance().getDamageManager().attack(this.victim, this, settings);
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SPIDER_DEATH, 2, 2);

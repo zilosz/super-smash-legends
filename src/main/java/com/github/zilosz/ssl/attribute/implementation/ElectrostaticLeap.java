@@ -6,6 +6,7 @@ import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -42,7 +43,7 @@ public class ElectrostaticLeap extends RightClickAbility {
             HitBoxSelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
             new EntityFinder(selector).findAll(this.player).forEach(target -> {
-                Attack settings = new Attack(this.config, this.player.getLocation().getDirection());
+                Attack settings = YamlReader.attack(this.config, this.player.getLocation().getDirection());
 
                 if (SSL.getInstance().getDamageManager().attack(target, this, settings)) {
                     this.player.playSound(this.player.getLocation(), Sound.ORB_PICKUP, 2, 1);

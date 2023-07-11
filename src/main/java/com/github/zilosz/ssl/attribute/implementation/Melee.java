@@ -6,6 +6,7 @@ import com.github.zilosz.ssl.attribute.Nameable;
 import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.team.Team;
 import com.github.zilosz.ssl.team.TeamPreference;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
@@ -38,7 +39,7 @@ public class Melee extends Attribute implements Nameable {
         Vector direction = this.player.getEyeLocation().getDirection();
         double damage = SSL.getInstance().getKitManager().getSelectedKit(this.player).getDamage();
 
-        Attack attack = new Attack(config, direction);
+        Attack attack = YamlReader.attack(config, direction);
         attack.getDamage().setDamage(damage);
 
         SSL.getInstance().getDamageManager().attack(victim, this, attack);

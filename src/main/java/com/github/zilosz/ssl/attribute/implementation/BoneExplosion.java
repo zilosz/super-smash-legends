@@ -28,12 +28,12 @@ public class BoneExplosion extends RightClickAbility {
 
         new EntityFinder(new DistanceSelector(radius)).findAll(this.player).forEach(target -> {
             double distanceSq = this.player.getLocation().distanceSquared(target.getLocation());
-            double damage = YamlReader.getDecreasingValue(this.config, "Damage", distanceSq, radius * radius);
-            double kb = YamlReader.getDecreasingValue(this.config, "Kb", distanceSq, radius * radius);
+            double damage = YamlReader.decreasingValue(this.config, "Damage", distanceSq, radius * radius);
+            double kb = YamlReader.decreasingValue(this.config, "Kb", distanceSq, radius * radius);
 
             Vector direction = VectorUtils.fromTo(this.player, target);
 
-            Attack attack = new Attack(this.config, direction);
+            Attack attack = YamlReader.attack(this.config, direction);
             attack.getDamage().setDamage(damage);
             attack.getKb().setKb(kb);
 

@@ -71,12 +71,12 @@ public class Scarecrow extends RightClickAbility {
             if (this.ticksUntilCanTp == 0) {
                 this.tpHintLine.setText(this.getTpHint(false));
 
-                Location playerLoc = this.player.getLocation();
-                this.scarecrow.getEntity().teleport(playerLoc);
-                playerLoc.getWorld().playSound(playerLoc, Sound.ENDERMAN_TELEPORT, 1, 2);
-
+                Location oldPlayerLoc = this.player.getLocation();
                 this.player.teleport(this.scarecrow.getStoredLocation());
                 this.player.playSound(this.player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 0.75f);
+
+                this.scarecrow.getEntity().teleport(oldPlayerLoc);
+                oldPlayerLoc.getWorld().playSound(oldPlayerLoc, Sound.ENDERMAN_TELEPORT, 1, 2);
 
                 this.ticksUntilCanTp = this.config.getInt("ActiveTpDelay");
 
@@ -169,7 +169,7 @@ public class Scarecrow extends RightClickAbility {
                     this.player.playSound(this.player.getLocation(), Sound.ENDERMAN_HIT, 1, 2);
 
                     Section slowConfig = this.config.getSection("Slowness");
-                    PotionEffect effect = YamlReader.getPotionEffect(slowConfig, PotionEffectType.SLOW);
+                    PotionEffect effect = YamlReader.potionEffect(slowConfig, PotionEffectType.SLOW);
                     PotionEffectEvent.fromPotionEffect(target, effect).apply();
 
                     target.setMetadata("pumpkin", new FixedMetadataValue(SSL.getInstance(), ""));

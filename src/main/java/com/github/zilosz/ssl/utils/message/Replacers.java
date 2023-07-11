@@ -18,7 +18,7 @@ public class Replacers {
         return this;
     }
 
-    private static String wrap(String placeholder) {
+    public static String wrap(String placeholder) {
         return "{" + placeholder + "}";
     }
 

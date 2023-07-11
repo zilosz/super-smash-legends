@@ -37,8 +37,8 @@ public class Thunderbolt extends ChargedRightClickAbility {
 
         EntityFinder finder = new EntityFinder(new HitBoxSelector(this.config.getDouble("HitBox")));
 
-        int ticks = this.ticksCharging - this.minChargeTicks;
-        int max = this.maxChargeTicks - this.minChargeTicks;
+        int ticks = this.ticksCharging - this.getMinChargeTicks();
+        int max = this.getMaxChargeTicks() - this.getMinChargeTicks();
 
         double damage = YamlReader.increasingValue(this.config, "Damage", ticks, max);
         double kb = YamlReader.increasingValue(this.config, "Kb", ticks, max);
@@ -58,7 +58,7 @@ public class Thunderbolt extends ChargedRightClickAbility {
             }
 
             for (LivingEntity target : finder.findAll(this.player, location)) {
-                Attack attack = new Attack(this.config, step);
+                Attack attack = YamlReader.attack(this.config, step);
                 attack.getDamage().setDamage(damage);
                 attack.getKb().setKb(kb);
 

@@ -15,6 +15,7 @@ import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
+import com.github.zilosz.ssl.utils.world.StaticWorldType;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -269,7 +270,7 @@ public class EndState extends GameState {
         this.endCountdown.cancel();
 
         SSL.getInstance().getTeamManager().reset();
-        SSL.getInstance().getWorldManager().resetWorld("arena");
+        SSL.getInstance().getWorldManager().resetWorld(StaticWorldType.ARENA);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setAllowFlight(false);

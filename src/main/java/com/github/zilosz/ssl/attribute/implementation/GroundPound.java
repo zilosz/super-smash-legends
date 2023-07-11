@@ -55,7 +55,7 @@ public class GroundPound extends RightClickAbility {
         EntityFinder finder = new EntityFinder(new HitBoxSelector(this.config.getDouble("HitBox")));
 
         for (LivingEntity target : finder.findAll(this.player)) {
-            Attack attack = new Attack(this.config, this.player.getLocation().getDirection());
+            Attack attack = YamlReader.attack(this.config, this.player.getLocation().getDirection());
             attack.getDamage().setDamage(damage);
             attack.getKb().setKb(kb);
 

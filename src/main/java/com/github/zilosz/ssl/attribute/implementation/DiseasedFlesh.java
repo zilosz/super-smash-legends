@@ -26,8 +26,8 @@ public class DiseasedFlesh extends RightClickAbility {
         super.activate();
         this.items = new RandomCollection<>();
 
-        for (Section section : YamlReader.getSections(this.config.getSection("Items"))) {
-            this.items.add(YamlReader.getStack(section), section.getDouble("Weight"));
+        for (Section section : YamlReader.sections(this.config.getSection("Items"))) {
+            this.items.add(YamlReader.stack(section), section.getDouble("Weight"));
         }
     }
 

@@ -89,10 +89,11 @@ public class BlockUtils {
         return findBlockHitByBox(location, box.d - box.a, box.e - box.b, box.f - box.c, accuracy);
     }
 
-    public static void setBlockFast(Location loc, int blockId, byte data) {
+    public static void setBlockFast(Location loc, MaterialInfo info) {
         World nmsWorld = ((CraftWorld) loc.getWorld()).getHandle();
         Chunk nmsChunk = nmsWorld.getChunkAt(loc.getBlockX() >> 4, loc.getBlockZ() >> 4);
-        IBlockData ibd = net.minecraft.server.v1_8_R3.Block.getByCombinedId(blockId + (data << 12));
+        int blockId = info.getMaterial().getId();
+        IBlockData ibd = net.minecraft.server.v1_8_R3.Block.getByCombinedId(blockId + (info.getData() << 12));
         nmsChunk.a(new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), ibd);
         loc.getWorld().refreshChunk(nmsChunk.bukkitChunk.getX(), nmsChunk.bukkitChunk.getZ());
     }

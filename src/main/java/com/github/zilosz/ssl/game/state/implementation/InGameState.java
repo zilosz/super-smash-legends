@@ -4,7 +4,6 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import com.connorlinfoot.titleapi.TitleAPI;
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.arena.Arena;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.attribute.Nameable;
 import com.github.zilosz.ssl.damage.Damage;
@@ -27,6 +26,7 @@ import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
+import com.github.zilosz.ssl.utils.world.StaticWorldType;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.nametagedit.plugin.NametagEdit;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -60,6 +60,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class InGameState extends GameState {
@@ -202,14 +203,12 @@ public class InGameState extends GameState {
 
         List<Location> spawnLocations = SSL.getInstance().getArenaManager().getArena().getSpawnLocations();
         List<Location> spawnsLeft = new ArrayList<>(spawnLocations);
-        Comparator<Location> comparator = Comparator.comparingDouble(Arena::getTotalDistanceToPlayers);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
 
             if (SSL.getInstance().getGameManager().isPlayerAlive(player)) {
-                Location spawn = Collections.max(spawnsLeft, comparator);
+                Location spawn = this.teleportToSpawnPoint(player, spawnsLeft::contains);
                 spawnsLeft.remove(spawn);
-                player.teleport(spawn);
                 player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
 
                 if (spawnsLeft.isEmpty()) {
@@ -231,6 +230,17 @@ public class InGameState extends GameState {
         }
     }
 
+    private Location teleportToSpawnPoint(Player player, Predicate<Location> spawnPredicate) {
+        List<Location> allSpawns = SSL.getInstance().getArenaManager().getArena().getSpawnLocations();
+        List<Location> possibleSpawns = allSpawns.stream().filter(spawnPredicate).collect(Collectors.toList());
+
+        Comparator<Location> comparator = Comparator.comparingDouble(loc -> this.getDistanceFromOthers(player, loc));
+        Location spawn = Collections.max(possibleSpawns, comparator);
+
+        player.teleport(spawn);
+        return spawn;
+    }
+
     private void giveTracker(Player player) {
 
         this.trackerItems.put(player, YamlReader.giveHotbarItem("PlayerTracker", player, e -> {
@@ -250,11 +260,12 @@ public class InGameState extends GameState {
         }));
 
         this.trackerTasks.put(player, Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
-            if (!player.getWorld().getName().equals("arena")) return;
+            String arena = StaticWorldType.ARENA.getWorldName();
 
-            List<Player> players = Bukkit.getOnlinePlayers()
-                    .stream()
-                    .filter(p -> p.getWorld().getName().equals("arena"))
+            if (!player.getWorld().getName().equals(arena)) return;
+
+            List<Player> players = Bukkit.getOnlinePlayers().stream()
+                    .filter(p -> p.getWorld().getName().equals(arena))
                     .filter(p -> SSL.getInstance().getGameManager().isPlayerAlive(p))
                     .filter(p -> p.getGameMode() == GameMode.SURVIVAL)
                     .filter(p -> p != player)
@@ -282,6 +293,19 @@ public class InGameState extends GameState {
                 ActionBarAPI.sendActionBar(player, MessageUtils.color(actionBar));
             }
         }, 0, 5));
+    }
+
+    private double getDistanceFromOthers(Player player, Location location) {
+        double distance = 0;
+
+        for (Player other : SSL.getInstance().getGameManager().getAlivePlayers()) {
+
+            if (other != player) {
+                distance += other.getLocation().distanceSquared(location);
+            }
+        }
+
+        return distance;
     }
 
     @Override
@@ -322,14 +346,13 @@ public class InGameState extends GameState {
     private void respawnPlayer(Player player) {
         if (!SSL.getInstance().getGameManager().isPlayerAlive(player)) return;
 
-        player.teleport(SSL.getInstance().getArenaManager().getArena().getFarthestSpawnFromPlayers());
-
-        Chat.GAME.send(player, "&7You have &arespawned.");
-        player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 2);
-        player.playSound(player.getLocation(), Sound.LEVEL_UP, 1, 0.8f);
-
+        Location spawn = this.teleportToSpawnPoint(player, loc -> true);
         player.setGameMode(GameMode.SURVIVAL);
         player.setHealth(20);
+
+        Chat.GAME.send(player, "&7You have &arespawned.");
+        player.playSound(spawn, Sound.ENDERMAN_TELEPORT, 3, 2);
+        player.playSound(spawn, Sound.LEVEL_UP, 1, 0.8f);
 
         Kit kit = SSL.getInstance().getKitManager().getSelectedKit(player);
         kit.equip();

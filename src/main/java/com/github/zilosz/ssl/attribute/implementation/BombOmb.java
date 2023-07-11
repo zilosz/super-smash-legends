@@ -148,12 +148,12 @@ public class BombOmb extends RightClickAbility {
 
             double max = explode.getDouble("Range") * explode.getDouble("Range");
             double distanceSq = this.bombBlock.getLocation().distanceSquared(target.getLocation());
-            double damage = YamlReader.getDecreasingValue(explode, "Damage", distanceSq, max);
-            double kb = YamlReader.getDecreasingValue(explode, "Kb", distanceSq, max);
+            double damage = YamlReader.decreasingValue(explode, "Damage", distanceSq, max);
+            double kb = YamlReader.decreasingValue(explode, "Kb", distanceSq, max);
 
             Vector direction = VectorUtils.fromTo(this.bombBlock.getLocation(), target.getLocation());
 
-            Attack attack = new Attack(explode, direction);
+            Attack attack = YamlReader.attack(explode, direction);
             attack.getDamage().setDamage(damage);
             attack.getKb().setKb(kb);
 

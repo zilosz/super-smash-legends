@@ -4,11 +4,13 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
+import com.github.zilosz.ssl.utils.block.MaterialInfo;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.MathUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import org.bukkit.Bukkit;
@@ -77,9 +79,9 @@ public class Earthquake extends RightClickAbility {
             new EntityFinder(selector).findAll(this.player).forEach(target -> {
                 if (!target.isOnGround()) return;
 
-                Attack settings = new Attack(this.config, VectorUtils.fromTo(this.player, target));
+                Attack attack = YamlReader.attack(this.config, VectorUtils.fromTo(this.player, target));
 
-                if (SSL.getInstance().getDamageManager().attack(target, this, settings)) {
+                if (SSL.getInstance().getDamageManager().attack(target, this, attack)) {
                     this.player.getWorld().playSound(target.getLocation(), Sound.ANVIL_LAND, 1, 1);
                     this.uproot(target.getLocation());
                 }
@@ -94,13 +96,13 @@ public class Earthquake extends RightClickAbility {
         this.player.getWorld().playSound(loc, Sound.DIG_GRASS, 1, 1);
 
         Block groundBlock = loc.clone().subtract(0, 0.5, 0).getBlock();
-        BlockUtils.setBlockFast(loc, groundBlock.getTypeId(), groundBlock.getData());
+        BlockUtils.setBlockFast(loc, MaterialInfo.fromBlock(groundBlock));
 
-        int id = Material.AIR.getId();
+        MaterialInfo airInfo = MaterialInfo.fromBlock(loc.getBlock());
         int duration = this.config.getInt("UprootDuration");
 
         Bukkit.getScheduler()
-                .runTaskLater(SSL.getInstance(), () -> BlockUtils.setBlockFast(loc, id, (byte) 2), duration);
+                .runTaskLater(SSL.getInstance(), () -> BlockUtils.setBlockFast(loc, airInfo), duration);
     }
 
     private void reset() {

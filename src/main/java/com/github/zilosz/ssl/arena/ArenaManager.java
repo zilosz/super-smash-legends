@@ -20,7 +20,7 @@ public class ArenaManager {
     public void setupArenas() {
         Section config = SSL.getInstance().getResources().getArenas();
 
-        this.arenas = YamlReader.getSections(config).stream()
+        this.arenas = YamlReader.sections(config).stream()
                 .map(Arena::new)
                 .sorted(Comparator.comparing(Arena::getName))
                 .collect(Collectors.toList());

@@ -4,7 +4,6 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.kit.KitManager;
 import com.google.common.util.concurrent.AtomicDouble;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.LivingEntity;
@@ -17,10 +16,6 @@ import java.util.Optional;
 public class Damage {
     private double damage;
     private boolean factorsArmor;
-
-    public Damage(Section config) {
-        this(config.getDouble("Damage"), config.getOptionalBoolean("FactorsArmor").orElse(true));
-    }
 
     public Damage(double damage, boolean factorsArmor) {
         this.damage = damage;

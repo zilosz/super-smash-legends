@@ -9,6 +9,7 @@ import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
+import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Location;
@@ -53,7 +54,7 @@ public class SpringTrap extends RightClickAbility {
 
             finder.findAll(this.launcher, this.entity.getLocation()).forEach(target -> {
                 Vector direction = VectorUtils.fromTo(this.entity, target);
-                Attack settings = new Attack(this.config.getSection("Aoe"), direction);
+                Attack settings = YamlReader.attack(this.config.getSection("Aoe"), direction);
                 SSL.getInstance().getDamageManager().attack(target, this.ability, settings);
             });
         }
