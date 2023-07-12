@@ -83,7 +83,7 @@ public class HatThrow extends RightClickAbility {
         }
 
         private double speedFunction(int ticks) {
-            return -2 * ticks * this.launchSpeed / this.lifespan + this.launchSpeed;
+            return -2 * ticks * this.speed / this.lifespan + this.speed;
         }
 
         public void mount(Entity passenger) {

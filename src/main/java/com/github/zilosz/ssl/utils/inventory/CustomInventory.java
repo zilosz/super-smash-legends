@@ -105,7 +105,7 @@ public abstract class CustomInventory<T> implements InventoryProvider {
 
             if (state % 40 == 0) {
 
-                CollectionUtils.removeWhileIteratingOverEntry(this.itemsByCoordinate, (coordinate, item) -> {
+                CollectionUtils.removeWhileIteratingOverValues(this.itemsByCoordinate, (coordinate, item) -> {
                     ClickableItem empty = ClickableItem.empty(new ItemStack(Material.AIR));
                     contents.set(coordinate.getRow(), coordinate.getColumn(), empty);
                 });

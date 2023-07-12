@@ -32,7 +32,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -175,7 +174,7 @@ public class Boombox extends RightClickAbility {
         if (!this.isPlaced) return;
         if (!(event.getResult().getBlock().equals(this.block))) return;
 
-        CustomProjectile<? extends Entity> projectile = event.getProjectile();
+        CustomProjectile<?> projectile = event.getProjectile();
 
         if (projectile.getAbility().getType() == AbilityType.MIX_TAPE_DROP) {
             this.explode();

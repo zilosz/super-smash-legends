@@ -61,14 +61,12 @@ public class KitManager implements Listener {
         Kit kit = this.createKit(kitType);
         this.kits.add(kit);
 
-        NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, kitType.name());
+        NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, kit.getBoldedDisplayName());
         SSL.getInstance().getNpcStorage().addNpc(npc);
-
         this.kitsPerNpc.put(npc, kitType);
-        npc.setName(kit.getBoldedDisplayName());
 
-        SkinTrait skinTrait = npc.getOrAddTrait(SkinTrait.class);
-        skinTrait.setSkinName(kit.getSkinName());
+        Skin skin = kit.getSkin();
+        npc.getOrAddTrait(SkinTrait.class).setSkinPersistent("", skin.getSignature(), skin.getTexture());
 
         Section lookConfig = SSL.getInstance().getResources().getConfig().getSection("Kit.LookClose");
         LookClose lookClose = npc.getOrAddTrait(LookClose.class);

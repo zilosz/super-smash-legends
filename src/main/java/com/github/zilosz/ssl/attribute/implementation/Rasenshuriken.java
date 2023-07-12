@@ -32,7 +32,6 @@ import java.awt.Color;
 
 public class Rasenshuriken extends RightClickAbility {
     private BukkitTask task;
-    private Location lastLocation;
     private int ticksCharged = -1;
 
     @Override
@@ -43,18 +42,15 @@ public class Rasenshuriken extends RightClickAbility {
         this.task = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
             if (++this.ticksCharged >= this.config.getInt("Lifespan")) {
-                this.reset(true);
+                this.reset();
+                this.startCooldown();
                 return;
             }
 
-            double y = this.config.getDouble("Height") + this.config.getDouble("ParticleRadius");
-            this.lastLocation = EntityUtils.top(this.player).add(0, y, 0);
-
             if (this.ticksCharged % 2 == 0) {
-                display(this.lastLocation, false, this.config.getSection("Projectile"));
+                this.displayOnHead(this.player);
+                Bukkit.getPluginManager().callEvent(new RasenshurikenDisplayEvent(this));
             }
-
-            Bukkit.getPluginManager().callEvent(new RasenshurikenDisplayEvent(this));
 
             if (this.ticksCharged % 7 == 0) {
                 this.player.getWorld().playSound(this.player.getLocation(), Sound.FUSE, 1, 1);
@@ -62,61 +58,77 @@ public class Rasenshuriken extends RightClickAbility {
         }, 0, 0);
     }
 
-    private void reset(boolean cooldown) {
+    private void reset() {
         if (this.ticksCharged == -1) return;
 
         this.ticksCharged = -1;
         this.task.cancel();
         this.hotbarItem.show();
 
-        if (cooldown) {
-            this.startCooldown();
-        }
-
         this.player.getWorld().playSound(this.player.getLocation(), Sound.FIRE_IGNITE, 3, 2);
     }
 
-    public static void display(Location loc, boolean tilted, Section config) {
+    public void displayOnHead(LivingEntity entity) {
+        display(this.getHeadLocation(entity), false);
+    }
+
+    public static void display(Location location, boolean tilted) {
         float pitch = 90;
-        float yaw = loc.getYaw();
+        float yaw = location.getYaw();
 
         if (tilted) {
-            float actual = loc.getPitch();
+            float actual = location.getPitch();
             pitch = actual >= 0 ? actual - 90 : actual + 90;
         }
 
         for (double radius = 0; radius <= 0.5; radius += 0.16) {
-            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(255, 255, 255));
-            new ParticleMaker(particle).ring(loc, pitch, yaw, radius, 18);
+            ParticleBuilder outerParticle = new ParticleBuilder(ParticleEffect.REDSTONE)
+                    .setColor(new Color(255, 255, 255));
+            new ParticleMaker(outerParticle).ring(location, pitch, yaw, radius, 18);
         }
 
-        double radius = config.getDouble("ParticleRadius");
-        ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(173, 216, 230));
-        new ParticleMaker(particle).hollowSphere(loc, radius, 5);
+        ParticleBuilder innerParticle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(173, 216, 230));
+        new ParticleMaker(innerParticle).hollowSphere(location, 0.3, 5);
+    }
+
+    private Location getHeadLocation(LivingEntity entity) {
+        return EntityUtils.top(entity).add(0, this.config.getDouble("Height"), 0);
     }
 
     @Override
     public void deactivate() {
         super.deactivate();
-        this.reset(false);
+        this.reset();
     }
 
     @EventHandler
     public void onPlayerAnimation(PlayerAnimationEvent event) {
-        if (event.getPlayer() != this.player || this.ticksCharged == -1) return;
+        if (event.getPlayer() != this.player) return;
+        if (this.ticksCharged == -1) return;
 
-        Shuriken shuriken = new Shuriken(this, this.config.getSection("Projectile"));
-        this.lastLocation.setDirection(this.player.getEyeLocation().getDirection());
-        shuriken.setOverrideLocation(this.lastLocation);
+        Bukkit.getPluginManager().callEvent(new RasenshurikenLaunchEvent(this));
+        this.launch(this.player, this);
+
+        this.reset();
+        this.startCooldown();
+    }
+
+    public Shuriken launch(LivingEntity entity, Ability owningAbility) {
+        Section config = this.config.getSection("Projectile");
+        Shuriken shuriken = new Shuriken(owningAbility, config);
+
+        Vector direction = entity.getEyeLocation().getDirection();
+        shuriken.setOverrideLocation(this.getHeadLocation(entity).setDirection(direction));
+
         shuriken.launch();
-
-        this.reset(true);
+        return shuriken;
     }
 
     @EventHandler
     public void onHandSwitch(PlayerItemHeldEvent event) {
         if (event.getPlayer() == this.player && event.getNewSlot() != this.slot && this.ticksCharged > -1) {
-            this.reset(true);
+            this.reset();
+            this.startCooldown();
         }
     }
 
@@ -142,7 +154,7 @@ public class Rasenshuriken extends RightClickAbility {
         public void onTick() {
 
             if (this.ticksAlive % 2 == 0) {
-                display(this.entity.getLocation(), true, this.config);
+                Rasenshuriken.display(this.entity.getLocation(), true);
             }
 
             if (this.ticksAlive % 5 == 0) {
@@ -187,11 +199,25 @@ public class Rasenshuriken extends RightClickAbility {
     }
 
     @Getter
-    public static class RasenshurikenDisplayEvent extends CustomEvent {
+    private static class RasenshurikenEvent extends CustomEvent {
         private final Rasenshuriken rasenshuriken;
 
-        protected RasenshurikenDisplayEvent(Rasenshuriken rasenshuriken) {
+        public RasenshurikenEvent(Rasenshuriken rasenshuriken) {
             this.rasenshuriken = rasenshuriken;
+        }
+    }
+
+    public static class RasenshurikenDisplayEvent extends RasenshurikenEvent {
+
+        public RasenshurikenDisplayEvent(Rasenshuriken rasenshuriken) {
+            super(rasenshuriken);
+        }
+    }
+
+    public static class RasenshurikenLaunchEvent extends RasenshurikenEvent {
+
+        public RasenshurikenLaunchEvent(Rasenshuriken rasenshuriken) {
+            super(rasenshuriken);
         }
     }
 }

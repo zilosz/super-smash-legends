@@ -7,6 +7,7 @@ import com.github.zilosz.ssl.damage.KnockBack;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
+import com.github.zilosz.ssl.utils.Skin;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
 import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
@@ -95,11 +96,10 @@ public class Scarecrow extends RightClickAbility {
             SSL.getInstance().getNpcStorage().addNpc(this.scarecrow);
             this.scarecrow.setProtected(false);
 
-            SkinTrait skinTrait = this.scarecrow.getOrAddTrait(SkinTrait.class);
-            skinTrait.setSkinName(this.kit.getSkinName());
+            Skin skin = this.kit.getSkin();
+            this.scarecrow.getOrAddTrait(SkinTrait.class).setSkinPersistent("", skin.getSignature(), skin.getTexture());
 
-            LookClose lookClose = this.scarecrow.getOrAddTrait(LookClose.class);
-            lookClose.setRange(this.getEffectRange());
+            this.scarecrow.getOrAddTrait(LookClose.class).setRange(this.getEffectRange());
 
             Location eyeLoc = this.player.getEyeLocation();
             Vector direction = eyeLoc.getDirection();

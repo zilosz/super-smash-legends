@@ -164,11 +164,11 @@ public class TutorialState extends GameState {
 
     @Override
     public void end() {
-        CollectionUtils.removeWhileIteratingOverEntry(this.movers, BukkitTask::cancel);
-        CollectionUtils.removeWhileIteratingOverEntry(this.ruleDisplayers, BukkitTask::cancel);
-        CollectionUtils.removeWhileIteratingOverEntry(this.tutorialSchedulers, BukkitTask::cancel);
-        CollectionUtils.removeWhileIteratingOverEntry(this.moveDelayers, BukkitTask::cancel);
-        CollectionUtils.removeWhileIteratingOverEntry(this.skinChangers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingOverValues(this.movers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingOverValues(this.ruleDisplayers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingOverValues(this.tutorialSchedulers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingOverValues(this.moveDelayers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingOverValues(this.skinChangers, BukkitTask::cancel);
 
         new HashSet<>(this.playersInTutorial).forEach(this::stopPlayerAfterCompletion);
 

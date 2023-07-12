@@ -74,11 +74,6 @@ public class GhoulishWrath extends ChargedRightClickAbility {
         this.floatingBlock.spawn(this.getFloatingLocation());
     }
 
-    private Location getFloatingLocation() {
-        Location eyeLoc = this.player.getEyeLocation();
-        return eyeLoc.add(eyeLoc.getDirection().multiply(this.config.getDouble("EyeDistance")));
-    }
-
     @Override
     public void deactivate() {
         super.deactivate();
@@ -89,6 +84,11 @@ public class GhoulishWrath extends ChargedRightClickAbility {
         if (this.floatingBlock != null) {
             this.floatingBlock.destroy();
         }
+    }
+
+    private Location getFloatingLocation() {
+        Location eyeLoc = this.player.getEyeLocation();
+        return eyeLoc.add(eyeLoc.getDirection().multiply(this.config.getDouble("EyeDistance")));
     }
 
     private static class SoulProjectile extends BlockProjectile {

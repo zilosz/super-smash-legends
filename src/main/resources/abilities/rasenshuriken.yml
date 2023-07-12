@@ -8,7 +8,7 @@ Description:
 Cooldown: 130
 AutoStartCooldown: false
 Lifespan: 60
-Height: 0.35
+Height: 0.65
 Projectile:
   Speed: 1.1
   MinDamage: 2
@@ -17,7 +17,6 @@ Projectile:
   MaxKb: 2.5
   KbY: 0.8
   Radius: 4
-  ParticleRadius: 0.3
   Invisible: true
   HasGravity: false
   HitBox: 1.25

@@ -1,285 +1,234 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.AbilityType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
-import com.github.zilosz.ssl.damage.Damage;
-import com.github.zilosz.ssl.event.PotionEffectEvent;
-import com.github.zilosz.ssl.event.projectile.ProjectileLaunchEvent;
-import com.github.zilosz.ssl.projectile.CustomProjectile;
-import com.github.zilosz.ssl.team.Team;
-import com.github.zilosz.ssl.team.TeamPreference;
+import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.utils.NmsUtils;
-import com.github.zilosz.ssl.utils.block.BlockUtils;
+import com.github.zilosz.ssl.utils.Skin;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
-import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
-import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
-import com.github.zilosz.ssl.utils.file.YamlReader;
-import com.github.zilosz.ssl.utils.math.VectorUtils;
-import com.github.zilosz.ssl.utils.message.MessageUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import me.libraryaddict.disguise.DisguiseAPI;
-import me.libraryaddict.disguise.disguisetypes.PlayerDisguise;
-import net.minecraft.server.v1_8_R3.EntityLiving;
+import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.event.NPCDeathEvent;
+import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.trait.LookClose;
+import net.citizensnpcs.trait.SkinTrait;
 import net.minecraft.server.v1_8_R3.PacketPlayOutAnimation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.entity.Creature;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import xyz.xenondevs.particle.ParticleBuilder;
 import xyz.xenondevs.particle.ParticleEffect;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 public class ShadowCloneJutsu extends RightClickAbility {
-    private final List<ShadowClone> clones = new ArrayList<>();
+    private final Map<NPC, CloneData> clones = new HashMap<>();
+    private NPC lastSpawnedClone;
+    private boolean isPlayerUsingRasengan = false;
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        this.player.getWorld().playSound(this.player.getLocation(), Sound.BLAZE_HIT, 0.5f, 1);
+        this.player.getWorld().playSound(this.player.getLocation(), Sound.WITHER_SPAWN, 0.5f, 1.5f);
 
-        Vector direction = this.player.getEyeLocation().getDirection();
+        Location eyeLoc = this.player.getEyeLocation();
+        Vector direction = eyeLoc.getDirection();
         this.player.setVelocity(direction.clone().multiply(-this.config.getDouble("Recoil")));
 
-        Skeleton creature = this.player.getWorld().spawn(this.player.getLocation(), Skeleton.class);
-        creature.setSkeletonType(Skeleton.SkeletonType.WITHER);
-
-        int speed = this.config.getInt("Clone.Speed");
-        new PotionEffectEvent(creature, PotionEffectType.SPEED, Integer.MAX_VALUE, speed).apply();
-
-        creature.setMaxHealth(this.config.getInt("Clone.Health"));
-        creature.getEquipment().setItemInHand(null);
-        creature.setCustomName(MessageUtils.color("&8Shadow Clone"));
-        creature.setCustomNameVisible(true);
-
-        DisguiseAPI.disguiseEntity(creature, new PlayerDisguise(this.player.getName()));
-
-        ShadowClone clone = new ShadowClone(this, this.config, creature, this.clones);
-        SSL.getInstance().getTeamManager().getPlayerTeam(this.player).addEntity(clone.creature);
-        this.clones.add(clone);
-
-        if (this.clones.size() > this.config.getInt("Clone.Limit")) {
-            this.clones.get(0).destroy();
+        if (this.clones.size() == this.config.getInt("Limit") && this.lastSpawnedClone != null) {
+            this.destroyClone(this.lastSpawnedClone);
         }
 
-        clone.creature.setVelocity(direction.multiply(this.config.getDouble("Clone.Velocity")));
+        NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, this.player.getDisplayName());
+        SSL.getInstance().getNpcStorage().addNpc(npc);
+        npc.setProtected(false);
 
-        clone.runTaskTimer(SSL.getInstance(), 0, 10);
-        Bukkit.getPluginManager().registerEvents(clone, SSL.getInstance());
+        Skin skin = this.kit.getSkin();
+        npc.getOrAddTrait(SkinTrait.class).setSkinPersistent("", skin.getSignature(), skin.getTexture());
 
-        Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
-            if (clone.creature.isValid()) {
-                clone.destroy();
+        LookClose lookClose = npc.getOrAddTrait(LookClose.class);
+        lookClose.setRange(this.config.getDouble("Vision"));
+        lookClose.setDisableWhileNavigating(true);
+
+        eyeLoc.setPitch(0);
+        npc.spawn(eyeLoc);
+        this.lastSpawnedClone = npc;
+
+        SSL.getInstance().getTeamManager().getPlayerTeam(this.player).addEntity(this.getNpcPlayer(npc));
+
+        Player npcPlayer = this.getNpcPlayer(npc);
+        npcPlayer.setWalkSpeed(this.config.getFloat("WalkSpeed"));
+        double health = this.config.getDouble("Health");
+        npcPlayer.setMaxHealth(health);
+        npcPlayer.setHealth(health);
+        npcPlayer.setVelocity(direction.multiply(this.config.getDouble("Velocity")));
+
+        BukkitTask removeTask = Bukkit.getScheduler()
+                .runTaskLater(SSL.getInstance(), () -> this.destroyClone(npc), this.config.getInt("Duration"));
+
+        double accuracy = this.config.getDouble("VoidDetectionAccuracy");
+
+        BukkitTask tickTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
+
+            if (Math.abs(npc.getEntity().getLocation().getY()) <= accuracy) {
+                this.destroyClone(npc);
+                return;
             }
-        }, this.config.getInt("Clone.Duration"));
+
+            EntityFinder finder = new EntityFinder(new DistanceSelector(this.config.getDouble("Vision")));
+
+            finder.findClosest(this.player, npc.getStoredLocation()).ifPresent(target -> {
+                npc.getNavigator().setTarget(target, false);
+            });
+        }, 0, 0);
+
+        this.clones.put(npc, new CloneData(removeTask, tickTask));
+    }
+
+    private void destroyClone(NPC npc) {
+        ParticleBuilder particle = new ParticleBuilder(ParticleEffect.SMOKE_LARGE).setSpeed(0);
+        new ParticleMaker(particle).solidSphere(npc.getStoredLocation(), 1.5, 10, 0.1);
+
+        this.player.getWorld().playSound(npc.getStoredLocation(), Sound.ZOMBIE_PIG_HURT, 1, 1.5f);
+        this.player.playSound(this.player.getLocation(), Sound.ZOMBIE_PIG_HURT, 1, 1.5f);
+
+        this.getNpcPlayer(npc).setWalkSpeed(0.2f);
+
+        SSL.getInstance().getTeamManager().getPlayerTeam(this.player).removeEntity(this.getNpcPlayer(npc));
+        SSL.getInstance().getNpcStorage().removeNpc(npc);
+        npc.destroy();
+
+        CloneData clone = this.clones.get(npc);
+        clone.removeTask.cancel();
+        clone.tickTask.cancel();
+        this.clones.remove(npc);
+    }
+
+    private Player getNpcPlayer(NPC npc) {
+        return (Player) npc.getEntity();
     }
 
     @Override
     public void deactivate() {
         super.deactivate();
-        new ArrayList<>(this.clones).forEach(ShadowClone::destroy);
+        new LinkedHashMap<>(this.clones).keySet().forEach(this::destroyClone);
     }
 
-    private static class ShadowClone extends BukkitRunnable implements Listener {
-        private final ShadowCloneJutsu ability;
-        private final Section config;
-        private final Creature creature;
-        private final List<ShadowClone> clones;
-        private Location lastShurikenLocation;
-        private LivingEntity target;
-        private BukkitTask rasenganTask;
-
-        public ShadowClone(ShadowCloneJutsu ability, Section config, Creature creature, List<ShadowClone> friends) {
-            this.config = config;
-            this.creature = creature;
-            this.ability = ability;
-            this.clones = friends;
+    @EventHandler
+    public void onNpcDeath(NPCDeathEvent event) {
+        if (this.clones.containsKey(event.getNPC())) {
+            this.destroyClone(event.getNPC());
+            ((PlayerDeathEvent) event.getEvent()).setDeathMessage("");
         }
+    }
 
-        @EventHandler
-        public void onRasenganStart(Rasengan.RasenganStartEvent event) {
-            if (event.getRasengan().getPlayer() != this.ability.getPlayer()) return;
+    @EventHandler
+    public void onRasenganStart(Rasengan.RasenganStartEvent event) {
+        this.distributeNpcAction(event.getRasengan(), Rasengan::start);
+        this.isPlayerUsingRasengan = true;
+    }
 
-            int speed = this.config.getInt("Clone.Speed");
-            int rasenganSpeed = this.config.getInt("Clone.Rasengan.Speed");
+    private <T extends Ability> void distributeNpcAction(T ability, BiConsumer<T, LivingEntity> action) {
+        if (ability.getPlayer() == this.player) {
+            this.clones.keySet().forEach(npc -> action.accept(ability, this.getNpcPlayer(npc)));
+        }
+    }
 
-            Rasengan.RasenganStartEvent.apply(this.creature, speed + rasenganSpeed);
-            ShadowClone instance = this;
+    @EventHandler
+    public void onRasenganDisplay(Rasengan.RasenganDisplayEvent event) {
+        this.distributeNpcAction(event.getRasengan(), Rasengan::display);
+    }
 
-            this.rasenganTask = new BukkitRunnable() {
-                int ticksCharged = 0;
+    @EventHandler
+    public void onRasenganLeap(Rasengan.RasenganLeapEvent event) {
+        this.distributeNpcAction(event.getRasengan(), Rasengan::leap);
+    }
 
-                @Override
-                public void run() {
+    @EventHandler
+    public void onRasenganEnd(Rasengan.RasenganEndEvent event) {
+        this.distributeNpcAction(event.getRasengan(), Rasengan::end);
+        this.isPlayerUsingRasengan = false;
+    }
 
-                    if (++this.ticksCharged >= ShadowClone.this.config.getInt("Clone.Rasengan.Lifespan")) {
-                        ShadowClone.this.endRasengan();
-                        return;
+    @EventHandler
+    public void onRasenshurikenDisplay(Rasenshuriken.RasenshurikenDisplayEvent event) {
+        this.distributeNpcAction(event.getRasenshuriken(), Rasenshuriken::displayOnHead);
+    }
+
+    @EventHandler
+    public void onRasenshurikenLaunch(Rasenshuriken.RasenshurikenLaunchEvent event) {
+        this.distributeNpcAction(event.getRasenshuriken(), (ability, entity) -> ability.launch(entity, this));
+    }
+
+    @EventHandler
+    public void onAttack(AttackEvent event) {
+        if (event.getAttribute().getPlayer() == this.player && event.getAttribute() == this) {
+            Attack attack = event.getAttack();
+            double multiplier = this.config.getDouble("AttackMultiplier");
+            attack.getDamage().setDamage(attack.getDamage().getDamage() * multiplier);
+            attack.getKb().setKb(attack.getKb().getKb() * multiplier);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerAnimation(PlayerAnimationEvent event) {
+        if (event.getPlayer() != this.player) return;
+
+        for (NPC npc : this.clones.keySet()) {
+            Player cloneEntity = this.getNpcPlayer(npc);
+            NmsUtils.broadcastPacket(new PacketPlayOutAnimation(NmsUtils.getPlayer(cloneEntity), 0));
+
+            Optional.ofNullable(npc.getNavigator().getEntityTarget()).ifPresent(target -> {
+                LivingEntity livingTarget = (LivingEntity) target.getTarget();
+                double distanceSquared = npc.getStoredLocation().distanceSquared(livingTarget.getLocation());
+
+                double meleeRange = this.config.getDouble("MeleeRange");
+
+                if (distanceSquared <= meleeRange * meleeRange && cloneEntity.hasLineOfSight(livingTarget)) {
+                    Attack attack = this.kit.getMelee().createAttack(cloneEntity);
+
+                    if (this.isPlayerUsingRasengan) {
+                        Section config = SSL.getInstance().getResources().getAbilityConfig(AbilityType.RASENGAN);
+                        Rasengan.modifyMeleeAttack(attack, config);
                     }
 
-                    Rasengan.display(instance.creature);
+                    if (SSL.getInstance().getDamageManager().attack(livingTarget, this, attack)) {
+                        this.player.playSound(this.player.getLocation(), Sound.WITHER_HURT, 0.5f, 1);
+                        livingTarget.getWorld().playSound(livingTarget.getLocation(), Sound.WITHER_HURT, 0.5f, 1);
+
+                        if (this.isPlayerUsingRasengan) {
+                            Rasengan.displayAttack(livingTarget);
+                        }
+                    }
                 }
-
-            }.runTaskTimer(SSL.getInstance(), 0, 0);
-        }
-
-        private void endRasengan() {
-            this.rasenganTask.cancel();
-            Rasengan.end(this.creature);
-
-            int speed = this.config.getInt("Clone.Speed");
-            new PotionEffectEvent(this.creature, PotionEffectType.SPEED, Integer.MAX_VALUE, speed).apply();
-        }
-
-        @EventHandler
-        public void onRasenshurikenDisplay(Rasenshuriken.RasenshurikenDisplayEvent event) {
-            if (event.getRasenshuriken().getPlayer() != this.ability.getPlayer()) return;
-
-            double height = this.config.getDouble("Clone.Rasenshuriken.Height");
-            this.lastShurikenLocation = EntityUtils.top(this.creature).add(0, height, 0);
-            Rasenshuriken.display(this.lastShurikenLocation, false, this.config);
-        }
-
-        @EventHandler
-        public void onEntityDeath(EntityDeathEvent event) {
-            if (event.getEntity() == this.creature) {
-                this.destroy();
-            }
-        }
-
-        private void destroy() {
-            this.cancel();
-
-            this.clones.remove(this);
-            this.creature.remove();
-
-            HandlerList.unregisterAll(this);
-            Optional.ofNullable(this.rasenganTask).ifPresent(BukkitTask::cancel);
-
-            this.creature.getWorld().playSound(this.creature.getLocation(), Sound.FIRE, 1, 1);
-            this.ability.getPlayer().playSound(this.ability.getPlayer().getLocation(), Sound.BLAZE_HIT, 2, 1);
-
-            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.SMOKE_LARGE).setSpeed(0);
-            new ParticleMaker(particle).solidSphere(this.creature.getLocation(), 1.5, 10, 0.1);
-
-            SSL.getInstance().getTeamManager().getPlayerTeam(this.ability.getPlayer()).removeEntity(this.creature);
-        }
-
-        @EventHandler
-        public void onProjectileLaunch(ProjectileLaunchEvent event) {
-            if (event.getProjectile().getLauncher() != this.ability.getPlayer()) return;
-            if (event.getProjectile().getAbility().getType() != AbilityType.RASENSHURIKEN) return;
-
-            Vector direction;
-
-            if (this.target == null) {
-                direction = this.ability.getPlayer().getEyeLocation().getDirection();
-
-            } else {
-                direction = VectorUtils.fromTo(this.lastShurikenLocation, this.target.getLocation());
-            }
-
-            CustomProjectile<?> shuriken = event.getProjectile().copy(this.ability);
-            shuriken.setOverrideLocation(this.lastShurikenLocation.setDirection(direction));
-            shuriken.setSpeed(event.getProjectile().getSpeed());
-
-            Damage damageSettings = shuriken.getAttack().getDamage();
-            double multiplier = this.config.getDouble("Clone.Rasenshuriken.DamageMultiplier");
-            damageSettings.setDamage(damageSettings.getDamage() * multiplier);
-
-            shuriken.launch();
-        }
-
-        @EventHandler
-        public void onCloneMelee(EntityDamageByEntityEvent event) {
-            if (event.getDamager() == this.creature) {
-                event.setCancelled(true);
-            }
-        }
-
-        @EventHandler
-        public void onTarget(EntityTargetLivingEntityEvent event) {
-            if (event.getEntity() == this.creature && event.getTarget() == this.ability.getPlayer()) {
-                event.setCancelled(true);
-            }
-        }
-
-        @Override
-        public void run() {
-            EntitySelector selector = new DistanceSelector(this.config.getDouble("Clone.Vision"));
-            EntityFinder finder = new EntityFinder(selector);
-
-            finder.findClosest(this.ability.getPlayer(), this.creature.getLocation()).ifPresent(target -> {
-                this.target = target;
-                this.creature.setTarget(target);
             });
         }
+    }
 
-        @EventHandler
-        public void onArmSwing(PlayerAnimationEvent event) {
-            if (event.getPlayer() != this.ability.getPlayer()) return;
+    private static class CloneData {
+        private final BukkitTask removeTask;
+        private final BukkitTask tickTask;
 
-            EntityLiving nmsEntity = NmsUtils.getLiving(this.creature);
-            PacketPlayOutAnimation packet = new PacketPlayOutAnimation(nmsEntity, 0);
-            Bukkit.getOnlinePlayers().forEach(player -> NmsUtils.sendPacket(player, packet));
-
-            double stepped = 0;
-            boolean found = false;
-
-            Location eye = this.creature.getEyeLocation();
-            Location curr = eye.subtract(0, 0.5, 0);
-            Vector step = eye.getDirection().multiply(0.1);
-
-            Team team = SSL.getInstance().getTeamManager().getPlayerTeam(this.ability.getPlayer());
-
-            while (!found && stepped < 3) {
-                curr.add(step);
-                stepped += 0.1;
-
-                for (LivingEntity target : this.creature.getWorld().getLivingEntities()) {
-                    if (TeamPreference.FRIENDLY.validate(team, target)) continue;
-                    if (!BlockUtils.isLocationInsideBox(curr, NmsUtils.getLiving(target).getBoundingBox())) continue;
-
-                    Attack attack;
-
-                    if (this.rasenganTask == null) {
-                        attack = YamlReader.attack(this.config.getSection("Clone.Melee"), step);
-                        attack.getDamage().setDamage(this.ability.getKit().getDamage());
-
-                    } else {
-                        attack = YamlReader.attack(this.config.getSection("Clone.Rasengan"), step);
-                        Rasengan.displayAttackEffect(this.creature);
-                        this.endRasengan();
-                    }
-
-                    if (SSL.getInstance().getDamageManager().attack(target, this.ability, attack)) {
-                        Location loc = this.ability.getPlayer().getLocation();
-                        this.ability.getPlayer().playSound(loc, Sound.ORB_PICKUP, 1, 1);
-                    }
-
-                    found = true;
-                    break;
-                }
-            }
+        public CloneData(BukkitTask removeTask, BukkitTask tickTask) {
+            this.removeTask = removeTask;
+            this.tickTask = tickTask;
         }
     }
 }

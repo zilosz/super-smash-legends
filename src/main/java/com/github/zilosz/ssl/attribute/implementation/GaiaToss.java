@@ -122,24 +122,6 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
         }, 0, (long) (this.getMaxChargeTicks() / (this.config.getDouble("IncrementCount") + 1)));
     }
 
-    private int getMaxSize() {
-        int minSize = this.config.getInt("MinSize");
-        int incrementCount = this.config.getInt("IncrementCount");
-        int incrementSize = this.config.getInt("IncrementSize");
-        return minSize + incrementCount * incrementSize;
-    }
-
-    private void playSound() {
-        for (FloatingEntity<FallingBlock> block : this.blocks) {
-            block.getEntity().getWorld().playSound(block.getEntity().getLocation(), Sound.DIG_GRASS, 1, 1);
-        }
-    }
-
-    private void destroyBlocks() {
-        CollectionUtils.removeWhileIterating(this.blocks, FloatingEntity::destroy);
-        CollectionUtils.removeWhileIterating(this.positionUpdaters, BukkitTask::cancel);
-    }
-
     @Override
     public void deactivate() {
         super.deactivate();
@@ -147,6 +129,13 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
         if (this.increments != -1) {
             this.reset(false);
         }
+    }
+
+    private int getMaxSize() {
+        int minSize = this.config.getInt("MinSize");
+        int incrementCount = this.config.getInt("IncrementCount");
+        int incrementSize = this.config.getInt("IncrementSize");
+        return minSize + incrementCount * incrementSize;
     }
 
     private void launch(boolean particles, double damage, double kb, double speed, FallingBlock block) {
@@ -160,6 +149,12 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
         projectile.launch();
     }
 
+    private void playSound() {
+        for (FloatingEntity<FallingBlock> block : this.blocks) {
+            block.getEntity().getWorld().playSound(block.getEntity().getLocation(), Sound.DIG_GRASS, 1, 1);
+        }
+    }
+
     private void reset(boolean cooldown) {
         this.increments = -1;
 
@@ -171,6 +166,11 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
         if (cooldown) {
             this.startCooldown();
         }
+    }
+
+    private void destroyBlocks() {
+        CollectionUtils.removeWhileIterating(this.blocks, FloatingEntity::destroy);
+        CollectionUtils.removeWhileIterating(this.positionUpdaters, BukkitTask::cancel);
     }
 
     private static class GaiaTossProjectile extends BlockProjectile {

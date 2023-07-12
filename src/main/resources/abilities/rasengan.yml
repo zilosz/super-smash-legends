@@ -12,6 +12,7 @@ AutoStartCooldown: false
 Damage: 7.5
 Kb: 3
 KbY: 0.85
+FactorsHealth: true
 Lifespan: 80
 Speed: 1
 LeapVelocity: 1.8

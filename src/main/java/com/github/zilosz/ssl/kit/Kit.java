@@ -25,8 +25,8 @@ import java.util.Optional;
 public class Kit {
     private final YamlDocument config;
     @Getter private final KitType type;
-
     @Getter private final Jump jump;
+    @Getter private final Melee melee;
     @Getter private final Skin skin;
     private final List<Attribute> attributes = new ArrayList<>();
     @Getter private Player player;
@@ -41,7 +41,9 @@ public class Kit {
         this.addAttribute(this.jump);
 
         this.addAttribute(new Regeneration());
-        this.addAttribute(new Melee());
+
+        this.melee = new Melee();
+        this.addAttribute(this.melee);
 
         if (config.isNumber("Energy")) {
             this.addAttribute(new Energy());

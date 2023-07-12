@@ -7,6 +7,7 @@ import com.github.zilosz.ssl.utils.math.MathUtils;
 import com.google.common.util.concurrent.AtomicDouble;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -60,7 +61,7 @@ public class KnockBack {
         AtomicDouble kbValue = new AtomicDouble(this.kb);
 
         if (this.factorsHealth) {
-            double multiplier = MathUtils.increasingValue(
+            double multiplier = MathUtils.decreasingValue(
                     this.minHealthBoost, this.maxHealthBoost, victim.getMaxHealth(), victim.getHealth());
             kbValue.set(kbValue.get() * multiplier);
         }

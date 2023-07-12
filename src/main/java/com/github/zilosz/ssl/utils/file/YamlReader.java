@@ -119,7 +119,7 @@ public class YamlReader {
     }
 
     public static KnockBack knockBack(Section config, Vector direction) {
-        Section mainConfig = SSL.getInstance().getResources().getConfig();
+        Section mainConfig = SSL.getInstance().getResources().getConfig().getSection("Damage");
 
         return new KnockBack(
                 direction,

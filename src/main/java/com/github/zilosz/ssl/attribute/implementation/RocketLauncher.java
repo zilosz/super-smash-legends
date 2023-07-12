@@ -115,7 +115,7 @@ public class RocketLauncher extends ChargedRightClickAbility {
                 kbSettings.setKb(kbSettings.getKb() * multiplier);
 
                 shrapnel.setOverrideLocation(launchLocation);
-                shrapnel.setSpeed(this.launchSpeed * multiplier);
+                shrapnel.setSpeed(this.speed * multiplier);
 
                 shrapnel.launch();
 

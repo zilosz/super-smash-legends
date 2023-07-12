@@ -80,7 +80,7 @@ public class CollectionUtils {
         return items[(int) MathUtils.randRange(0, items.length)];
     }
 
-    public static <K, V> void removeWhileIteratingOverEntry(Map<K, V> map, Consumer<V> valueAction) {
+    public static <K, V> void removeWhileIteratingOverValues(Map<K, V> map, Consumer<V> valueAction) {
         removeWhileIteratingOverEntry(map, key -> {}, valueAction);
     }
 
@@ -108,7 +108,11 @@ public class CollectionUtils {
         }
     }
 
-    public static <K, V> void removeWhileIteratingOverEntry(Map<K, V> map, BiConsumer<K, V> dualAction) {
+    public static <K, V> void removeWhileIteratingOverKeys(Map<K, V> map, Consumer<K> keyAction) {
+        removeWhileIteratingOverEntry(map, keyAction, value -> {});
+    }
+
+    public static <K, V> void removeWhileIteratingOverValues(Map<K, V> map, BiConsumer<K, V> dualAction) {
         removeWhileIterating(map.entrySet(), entry -> dualAction.accept(entry.getKey(), entry.getValue()));
     }
 }

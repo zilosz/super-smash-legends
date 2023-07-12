@@ -4,11 +4,8 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.projectile.ProjectileHitBlockEvent;
-import com.github.zilosz.ssl.event.projectile.ProjectileLaunchEvent;
-import com.github.zilosz.ssl.event.projectile.ProjectileRemoveEvent;
 import com.github.zilosz.ssl.game.state.GameStateType;
 import com.github.zilosz.ssl.utils.NmsUtils;
-import com.github.zilosz.ssl.utils.Reflector;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
@@ -52,7 +49,6 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     protected boolean recreateOnBounce = false;
     protected boolean useCustomHitBox = true;
     protected int ticksAlive = 0;
-    protected double launchSpeed;
     protected Vector launchVelocity;
     protected int timesBounced = 0;
     protected double defaultHitBox;
@@ -94,26 +90,15 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         return this.launchVelocity.clone();
     }
 
-    @SuppressWarnings("unchecked")
-    public CustomProjectile<T> copy(Ability ability) {
-        return (CustomProjectile<T>) Reflector.newInstance(this.getClass(), ability, this.config);
-    }
-
     public void launch() {
         this.speed = this.speed == null ? this.config.getDouble("Speed") : this.speed;
-
-        ProjectileLaunchEvent projectileLaunchEvent = new ProjectileLaunchEvent(this, this.speed);
-        Bukkit.getPluginManager().callEvent(projectileLaunchEvent);
-
-        if (projectileLaunchEvent.isCancelled()) return;
 
         Location eyeLoc = this.launcher.getEyeLocation();
         Location location = this.overrideLocation == null ? eyeLoc : this.overrideLocation.clone();
         location.setDirection(VectorUtils.randomVectorInDirection(location, this.spread));
         location.add(location.getDirection().multiply(this.distanceFromEye));
 
-        this.launchSpeed = projectileLaunchEvent.getSpeed();
-        this.launchVelocity = location.getDirection().multiply(this.launchSpeed);
+        this.launchVelocity = location.getDirection().multiply(this.speed);
 
         this.entity = this.createEntity(location);
         this.applyEntityParams();
@@ -182,15 +167,10 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     protected void onBlockHit(BlockHitResult result) {}
 
     public void remove(ProjectileRemoveReason reason) {
-        ProjectileRemoveEvent event = new ProjectileRemoveEvent(this, reason);
-        Bukkit.getPluginManager().callEvent(event);
-
-        if (!event.isCancelled()) {
-            HandlerList.unregisterAll(this);
-            this.entity.remove();
-            this.cancel();
-            this.onRemove(reason);
-        }
+        HandlerList.unregisterAll(this);
+        this.entity.remove();
+        this.cancel();
+        this.onRemove(reason);
     }
 
     protected void setVelocity(Vector velocity) {

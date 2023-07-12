@@ -12,7 +12,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.util.Vector;
 
 public class Melee extends Attribute implements Nameable {
 
@@ -28,20 +27,24 @@ public class Melee extends Attribute implements Nameable {
 
         event.setCancelled(true);
 
-        if (event.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK) return;
+        if (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
+            LivingEntity victim = (LivingEntity) event.getEntity();
+            Team team = SSL.getInstance().getTeamManager().getPlayerTeam(this.player);
 
-        LivingEntity victim = (LivingEntity) event.getEntity();
+            if (TeamPreference.ENEMY.validate(team, victim)) {
+                SSL.getInstance().getDamageManager().attack(victim, this, this.createAttack(this.player));
 
-        Team team = SSL.getInstance().getTeamManager().getPlayerTeam(this.player);
-        if (TeamPreference.FRIENDLY.validate(team, victim)) return;
+            }
+        }
+    }
 
+    public Attack createAttack(LivingEntity user) {
         Section config = SSL.getInstance().getResources().getConfig().getSection("Damage.Melee");
-        Vector direction = this.player.getEyeLocation().getDirection();
         double damage = SSL.getInstance().getKitManager().getSelectedKit(this.player).getDamage();
 
-        Attack attack = YamlReader.attack(config, direction);
+        Attack attack = YamlReader.attack(config, user.getEyeLocation().getDirection());
         attack.getDamage().setDamage(damage);
 
-        SSL.getInstance().getDamageManager().attack(victim, this, attack);
+        return attack;
     }
 }
