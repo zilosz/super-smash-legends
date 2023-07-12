@@ -13,6 +13,7 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -52,13 +53,13 @@ public class Rasengan extends RightClickAbility {
         this.cancelTask = Bukkit.getScheduler().runTaskLater(SSL.getInstance(), this::reset, lifespan);
     }
 
-    public void start(LivingEntity entity) {
+    public void start(Player entity) {
         entity.getWorld().playSound(entity.getLocation(), Sound.BLAZE_HIT, 0.5f, 1);
         int speed = this.config.getInt("Speed");
         new PotionEffectEvent(entity, PotionEffectType.SPEED, Integer.MAX_VALUE, speed).apply();
     }
 
-    public void display(LivingEntity entity) {
+    public void display(Player entity) {
         ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(173, 216, 230));
         new ParticleMaker(particle).hollowSphere(EntityUtils.underHand(entity, 0), 0.15, 20);
     }
@@ -80,7 +81,7 @@ public class Rasengan extends RightClickAbility {
         this.startCooldown();
     }
 
-    public void end(LivingEntity entity) {
+    public void end(Player entity) {
         entity.getWorld().playSound(entity.getLocation(), Sound.BLAZE_HIT, 2, 1);
         entity.removePotionEffect(PotionEffectType.SPEED);
     }

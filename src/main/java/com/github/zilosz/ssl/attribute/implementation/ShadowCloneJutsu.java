@@ -12,6 +12,7 @@ import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.ai.NavigatorParameters;
 import net.citizensnpcs.api.event.NPCDeathEvent;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.LookClose;
@@ -59,10 +60,11 @@ public class ShadowCloneJutsu extends RightClickAbility {
         npc.setProtected(false);
 
         this.kit.getSkin().applyToNpc(npc);
+        npc.removeTrait(LookClose.class);
 
-        LookClose lookClose = npc.getOrAddTrait(LookClose.class);
-        lookClose.setRange(this.config.getDouble("Vision"));
-        lookClose.setDisableWhileNavigating(true);
+        NavigatorParameters params = npc.getNavigator().getLocalParameters();
+        params.baseSpeed(this.config.getFloat("WalkSpeed"));
+        params.straightLineTargetingDistance(this.config.getFloat("StraightLineTargetDistance"));
 
         eyeLoc.setPitch(0);
         npc.spawn(eyeLoc);
@@ -71,7 +73,6 @@ public class ShadowCloneJutsu extends RightClickAbility {
         SSL.getInstance().getTeamManager().getPlayerTeam(this.player).addEntity(this.getNpcPlayer(npc));
 
         Player npcPlayer = this.getNpcPlayer(npc);
-        npcPlayer.setWalkSpeed(this.config.getFloat("WalkSpeed"));
         double health = this.config.getDouble("Health");
         npcPlayer.setMaxHealth(health);
         npcPlayer.setHealth(health);
@@ -91,8 +92,11 @@ public class ShadowCloneJutsu extends RightClickAbility {
 
             EntityFinder finder = new EntityFinder(new DistanceSelector(this.config.getDouble("Vision")));
 
-            finder.findClosest(this.player, npc.getStoredLocation()).ifPresent(target -> {
+            finder.findClosest(this.player, npc.getStoredLocation()).ifPresentOrElse(target -> {
                 npc.getNavigator().setTarget(target, false);
+                npc.faceLocation(target.getLocation());
+            }, () -> {
+                npc.faceLocation(npc.getStoredLocation().add(this.player.getEyeLocation().getDirection()));
             });
         }, 0, 0);
 
@@ -105,8 +109,6 @@ public class ShadowCloneJutsu extends RightClickAbility {
 
         this.player.getWorld().playSound(npc.getStoredLocation(), Sound.ZOMBIE_PIG_HURT, 1, 1.5f);
         this.player.playSound(this.player.getLocation(), Sound.ZOMBIE_PIG_HURT, 1, 1.5f);
-
-        this.getNpcPlayer(npc).setWalkSpeed(0.2f);
 
         SSL.getInstance().getTeamManager().getPlayerTeam(this.player).removeEntity(this.getNpcPlayer(npc));
         SSL.getInstance().getNpcStorage().removeNpc(npc);
@@ -138,11 +140,11 @@ public class ShadowCloneJutsu extends RightClickAbility {
 
     @EventHandler
     public void onRasenganStart(Rasengan.RasenganStartEvent event) {
-        this.distributeNpcAction(event.getRasengan(), Rasengan::start);
+        this.distributeNpcEntityAction(event.getRasengan(), Rasengan::start);
         this.isPlayerUsingRasengan = true;
     }
 
-    private <T extends Ability> void distributeNpcAction(T ability, BiConsumer<T, LivingEntity> action) {
+    private <T extends Ability> void distributeNpcEntityAction(T ability, BiConsumer<T, Player> action) {
         if (ability.getPlayer() == this.player) {
             this.clones.keySet().forEach(npc -> action.accept(ability, this.getNpcPlayer(npc)));
         }
@@ -150,28 +152,28 @@ public class ShadowCloneJutsu extends RightClickAbility {
 
     @EventHandler
     public void onRasenganDisplay(Rasengan.RasenganDisplayEvent event) {
-        this.distributeNpcAction(event.getRasengan(), Rasengan::display);
+        this.distributeNpcEntityAction(event.getRasengan(), Rasengan::display);
     }
 
     @EventHandler
     public void onRasenganLeap(Rasengan.RasenganLeapEvent event) {
-        this.distributeNpcAction(event.getRasengan(), Rasengan::leap);
+        this.distributeNpcEntityAction(event.getRasengan(), Rasengan::leap);
     }
 
     @EventHandler
     public void onRasenganEnd(Rasengan.RasenganEndEvent event) {
-        this.distributeNpcAction(event.getRasengan(), Rasengan::end);
+        this.distributeNpcEntityAction(event.getRasengan(), Rasengan::end);
         this.isPlayerUsingRasengan = false;
     }
 
     @EventHandler
     public void onRasenshurikenDisplay(Rasenshuriken.RasenshurikenDisplayEvent event) {
-        this.distributeNpcAction(event.getRasenshuriken(), Rasenshuriken::displayOnHead);
+        this.distributeNpcEntityAction(event.getRasenshuriken(), Rasenshuriken::displayOnHead);
     }
 
     @EventHandler
     public void onRasenshurikenLaunch(Rasenshuriken.RasenshurikenLaunchEvent event) {
-        this.distributeNpcAction(event.getRasenshuriken(), (ability, entity) -> ability.launch(entity, this));
+        this.distributeNpcEntityAction(event.getRasenshuriken(), (ability, entity) -> ability.launch(entity, this));
     }
 
     @EventHandler
@@ -181,6 +183,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
             double multiplier = this.config.getDouble("AttackMultiplier");
             attack.getDamage().setDamage(attack.getDamage().getDamage() * multiplier);
             attack.getKb().setKb(attack.getKb().getKb() * multiplier);
+            attack.setImmunityTicks(this.config.getInt("ImmunityTicks"));
         }
     }
 

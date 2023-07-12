@@ -19,6 +19,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -68,7 +69,7 @@ public class Rasenshuriken extends RightClickAbility {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.FIRE_IGNITE, 3, 2);
     }
 
-    public void displayOnHead(LivingEntity entity) {
+    public void displayOnHead(Player entity) {
         display(this.getHeadLocation(entity), false);
     }
 
@@ -91,7 +92,7 @@ public class Rasenshuriken extends RightClickAbility {
         new ParticleMaker(innerParticle).hollowSphere(location, 0.3, 5);
     }
 
-    private Location getHeadLocation(LivingEntity entity) {
+    private Location getHeadLocation(Player entity) {
         return EntityUtils.top(entity).add(0, this.config.getDouble("Height"), 0);
     }
 
@@ -113,13 +114,11 @@ public class Rasenshuriken extends RightClickAbility {
         this.startCooldown();
     }
 
-    public Shuriken launch(LivingEntity entity, Ability owningAbility) {
+    public Shuriken launch(Player entity, Ability owningAbility) {
         Section config = this.config.getSection("Projectile");
         Shuriken shuriken = new Shuriken(owningAbility, config);
-
         Vector direction = entity.getEyeLocation().getDirection();
         shuriken.setOverrideLocation(this.getHeadLocation(entity).setDirection(direction));
-
         shuriken.launch();
         return shuriken;
     }

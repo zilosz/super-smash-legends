@@ -7,10 +7,12 @@ EnergyCost: 0.5
 Recoil: 1.3
 Velocity: 1.3
 Vision: 30
-Health: 15
+StraightLineTargetDistance: 10
+Health: 12
 Limit: 2
-WalkSpeed: 0.3
-Duration: 200
+WalkSpeed: 1.5
+Duration: 240
 AttackMultiplier: 0.5
 MeleeRange: 3
 VoidDetectionAccuracy: 5
+ImmunityTicks: 0
