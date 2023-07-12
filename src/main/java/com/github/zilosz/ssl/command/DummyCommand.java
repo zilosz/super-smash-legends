@@ -42,11 +42,9 @@ public class DummyCommand implements CommandExecutor, Listener {
                     return false;
                 }
 
-                if (strings.length == 1 || !NumberUtils.isNumber(strings[1])) {
-                    return false;
+                if (strings.length == 2 && NumberUtils.isNumber(strings[1])) {
+                    health = Double.parseDouble(strings[1]);
                 }
-
-                health = Double.parseDouble(strings[1]);
             }
         }
 

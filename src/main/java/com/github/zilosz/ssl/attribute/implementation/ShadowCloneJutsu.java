@@ -178,12 +178,16 @@ public class ShadowCloneJutsu extends RightClickAbility {
 
     @EventHandler
     public void onAttack(AttackEvent event) {
-        if (event.getAttribute().getPlayer() == this.player && event.getAttribute() == this) {
-            Attack attack = event.getAttack();
-            double multiplier = this.config.getDouble("AttackMultiplier");
-            attack.getDamage().setDamage(attack.getDamage().getDamage() * multiplier);
-            attack.getKb().setKb(attack.getKb().getKb() * multiplier);
-            attack.setImmunityTicks(this.config.getInt("ImmunityTicks"));
+        if (event.getAttribute().getPlayer() != this.player) return;
+        if (event.getAttribute() != this) return;
+
+        Attack attack = event.getAttack();
+        double multiplier = this.config.getDouble("AttackMultiplier");
+        attack.getDamage().setDamage(attack.getDamage().getDamage() * multiplier);
+        attack.getKb().setKb(attack.getKb().getKb() * multiplier);
+
+        if (!(event.getAttribute() instanceof Melee)) {
+            attack.setImmunityTicks(0);
         }
     }
 
