@@ -18,7 +18,6 @@ import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.NPCLeftClickEvent;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.LookClose;
-import net.citizensnpcs.trait.SkinTrait;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -65,8 +64,7 @@ public class KitManager implements Listener {
         SSL.getInstance().getNpcStorage().addNpc(npc);
         this.kitsPerNpc.put(npc, kitType);
 
-        Skin skin = kit.getSkin();
-        npc.getOrAddTrait(SkinTrait.class).setSkinPersistent("", skin.getSignature(), skin.getTexture());
+        kit.getSkin().applyToNpc(npc);
 
         Section lookConfig = SSL.getInstance().getResources().getConfig().getSection("Kit.LookClose");
         LookClose lookClose = npc.getOrAddTrait(LookClose.class);

@@ -6,6 +6,8 @@ import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import lombok.Getter;
+import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.trait.SkinTrait;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
 import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_8_R3.PacketPlayOutRespawn;
@@ -129,5 +131,9 @@ public class Skin {
     public BukkitTask applyAcrossTp(Plugin plugin, Player player, Runnable onTp) {
         this.showToOthers(player);
         return showToPlayer(plugin, player, onTp);
+    }
+
+    public void applyToNpc(NPC npc) {
+        npc.getOrAddTrait(SkinTrait.class).setSkinPersistent("", this.signature, this.texture);
     }
 }

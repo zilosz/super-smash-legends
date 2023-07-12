@@ -7,7 +7,6 @@ import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.utils.NmsUtils;
-import com.github.zilosz.ssl.utils.Skin;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
@@ -16,7 +15,6 @@ import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.NPCDeathEvent;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.LookClose;
-import net.citizensnpcs.trait.SkinTrait;
 import net.minecraft.server.v1_8_R3.PacketPlayOutAnimation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -60,8 +58,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
         SSL.getInstance().getNpcStorage().addNpc(npc);
         npc.setProtected(false);
 
-        Skin skin = this.kit.getSkin();
-        npc.getOrAddTrait(SkinTrait.class).setSkinPersistent("", skin.getSignature(), skin.getTexture());
+        this.kit.getSkin().applyToNpc(npc);
 
         LookClose lookClose = npc.getOrAddTrait(LookClose.class);
         lookClose.setRange(this.config.getDouble("Vision"));

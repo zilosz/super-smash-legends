@@ -7,7 +7,6 @@ import com.github.zilosz.ssl.damage.KnockBack;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
-import com.github.zilosz.ssl.utils.Skin;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
 import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
@@ -27,7 +26,6 @@ import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.NPCDeathEvent;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.LookClose;
-import net.citizensnpcs.trait.SkinTrait;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -96,9 +94,7 @@ public class Scarecrow extends RightClickAbility {
             SSL.getInstance().getNpcStorage().addNpc(this.scarecrow);
             this.scarecrow.setProtected(false);
 
-            Skin skin = this.kit.getSkin();
-            this.scarecrow.getOrAddTrait(SkinTrait.class).setSkinPersistent("", skin.getSignature(), skin.getTexture());
-
+            this.kit.getSkin().applyToNpc(this.scarecrow);
             this.scarecrow.getOrAddTrait(LookClose.class).setRange(this.getEffectRange());
 
             Location eyeLoc = this.player.getEyeLocation();

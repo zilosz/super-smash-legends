@@ -24,7 +24,7 @@ HurtSound:
 DeathSound:
   Type: ZOMBIE_PIG_DEATH
   Volume: 3
-  Pitch: 0.5
+  Pitch: 1.5
 Abilities:
   0: DISEASED_FLESH
   1: AGILE_COMBAT

@@ -7,14 +7,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class HotbarItem implements Listener {
+    private static final String[] ARMOR_KEYWORDS = {"BOOTS", "CHESTPLATE", "LEGGINGS", "HELMET"};
+
     @Getter private final Player player;
     @Getter private final ItemStack itemStack;
     @Getter private final int slot;
@@ -22,7 +24,6 @@ public class HotbarItem implements Listener {
     @Setter private Consumer<PlayerInteractEvent> action;
 
     private Integer lastTick;
-    private Action lastAction;
 
     public HotbarItem(Player player, ItemStack itemStack, int slot) {
         this.player = player;
@@ -54,27 +55,27 @@ public class HotbarItem implements Listener {
         if (event.getPlayer().getInventory().getHeldItemSlot() != this.slot) return;
 
         int tick = (int) this.player.getWorld().getFullTime();
-        Action action = event.getAction();
 
-        boolean sameTick = this.lastTick != null && tick == this.lastTick;
-        boolean sameAction = this.lastAction == Action.RIGHT_CLICK_BLOCK && action == Action.RIGHT_CLICK_AIR;
+        if (this.lastTick == null || tick != this.lastTick) {
+            this.lastTick = tick;
 
-        if (sameTick && sameAction) return;
+            Optional.ofNullable(event.getItem()).ifPresent(item -> {
 
-        this.lastTick = tick;
-        this.lastAction = action;
+                if (this.action != null) {
+                    this.action.accept(event);
+                }
 
-        if (this.action != null) {
-            this.action.accept(event);
-        }
+                String name = item.getType().name();
 
-        if (event.getItem() == null) return;
+                for (String keyword : ARMOR_KEYWORDS) {
 
-        String name = event.getItem().getType().name();
-
-        if (name.contains("BOOTS") || name.contains("CHESTPLATE") || name.contains("LEGGINGS") || name.contains("HELMET")) {
-            event.setCancelled(true);
-            event.getPlayer().updateInventory();
+                    if (name.contains(keyword)) {
+                        event.setCancelled(true);
+                        event.getPlayer().updateInventory();
+                        break;
+                    }
+                }
+            });
         }
     }
 }

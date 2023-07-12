@@ -400,13 +400,13 @@ public class InGameState extends GameState {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(DamageEvent event) {
         double finalDamage = event.getFinalDamage();
-        boolean isPlayer = event.getVictim() instanceof Player;
+        SSL.getInstance().getDamageManager().updateIndicator(event.getVictim(), finalDamage);
 
-        if (isPlayer && !CitizensAPI.getNPCRegistry().isNPC(event.getVictim())) {
+        if (event.getVictim() instanceof Player && !CitizensAPI.getNPCRegistry().isNPC(event.getVictim())) {
             Player player = (Player) event.getVictim();
             GameManager gameManager = SSL.getInstance().getGameManager();
 
-            if (gameManager.isSpectator(player)) {
+            if (gameManager.isSpectator(player) || player.getGameMode() == GameMode.SPECTATOR) {
                 event.setCancelled(true);
 
                 if (event.isVoid()) {
@@ -414,39 +414,37 @@ public class InGameState extends GameState {
                     player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
                 }
 
-                return;
-            }
-
-            InGameProfile profile = SSL.getInstance().getGameManager().getProfile(player);
-            profile.setDamageTaken(profile.getDamageTaken() + Math.min(player.getHealth(), finalDamage));
-
-            if (event instanceof AttributeDamageEvent) {
-
-                if (event.willDie()) {
-                    this.handleDeath(player, true, false, ((AttributeDamageEvent) event).getAttribute(), true);
-                    return;
-                }
-
             } else {
+                double damageTaken;
 
                 if (event.isVoid()) {
+                    damageTaken = player.getHealth();
+
                     this.handleDeath(player, false, true, null, true);
                     event.setCancelled(true);
-                    return;
+
+                } else if (event.willDie()) {
+                    damageTaken = player.getHealth();
+
+                    if (event instanceof AttributeDamageEvent) {
+                        this.handleDeath(player, true, false, ((AttributeDamageEvent) event).getAttribute(), true);
+
+                    } else {
+                        this.handleDeath(player, true, false, null, false);
+                        event.setCancelled(true);
+                    }
+
+                } else {
+                    damageTaken = finalDamage;
+
+                    Kit kit = SSL.getInstance().getKitManager().getSelectedKit(player);
+                    kit.getHurtNoise().playForAll(player.getLocation());
                 }
 
-                if (event.willDie()) {
-                    this.handleDeath(player, true, false, null, false);
-                    event.setCancelled(true);
-                    return;
-                }
+                InGameProfile profile = SSL.getInstance().getGameManager().getProfile(player);
+                profile.setDamageTaken(profile.getDamageTaken() + damageTaken);
             }
-
-            Kit kit = SSL.getInstance().getKitManager().getSelectedKit(player);
-            kit.getHurtNoise().playForAll(player.getLocation());
         }
-
-        SSL.getInstance().getDamageManager().updateIndicator(event.getVictim(), finalDamage);
     }
 
     private void handleDeath(Player died, boolean spawnNpc, boolean teleportPlayer, Attribute directKillingAttribute, boolean preferAttributeDamage) {

@@ -7,7 +7,6 @@ import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
-import net.citizensnpcs.trait.SkinTrait;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -42,14 +41,9 @@ public class DeathNPC extends BukkitRunnable implements Listener {
     public static DeathNPC spawn(SSL plugin, Player player) {
         Section death = plugin.getResources().getConfig().getSection("Death");
 
-        NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, "Death NPC");
+        NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, player.getDisplayName());
         SSL.getInstance().getNpcStorage().addNpc(npc);
-
-        npc.setName(player.getName());
-
-        SkinTrait skinTrait = npc.getTrait(SkinTrait.class);
-        skinTrait.setSkinName(plugin.getKitManager().getSelectedKit(player).getSkinName());
-        npc.addTrait(skinTrait);
+        SSL.getInstance().getKitManager().getSelectedKit(player).getSkin().applyToNpc(npc);
         npc.spawn(player.getLocation());
 
         DeathNPC deathNPC = new DeathNPC(npc, player, death.getInt("Duration"), death.getDouble("Velocity"));

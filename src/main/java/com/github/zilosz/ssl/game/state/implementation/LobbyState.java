@@ -276,7 +276,7 @@ public class LobbyState extends GameState {
 
         if (this.isCounting || this.getParticipantCount() < minPlayersNeeded) return;
 
-        Section countdownConfig = config.getSection("Game.LobbyCountdown.NotifyInterval");
+        Section countdownConfig = config.getSection("Game.LobbyCountdown");
         int notifyInterval = countdownConfig.getInt("NotifyInterval");
         int totalSec = countdownConfig.getInt("Seconds");
         int notifyThreshold = countdownConfig.getInt("NotifyThreshold");
