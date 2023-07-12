@@ -2,7 +2,8 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
@@ -37,7 +38,8 @@ public class WebGrapple extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        this.grappleProjectile = new GrappleProjectile(this, this.config.getSection("Projectile"));
+        AttackInfo attackInfo = new AttackInfo(AttackType.WEB_GRAPPLE, this);
+        this.grappleProjectile = new GrappleProjectile(this.config.getSection("Projectile"), attackInfo);
         this.grappleProjectile.launch();
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.MAGMACUBE_JUMP, 1, 1);
@@ -59,8 +61,8 @@ public class WebGrapple extends RightClickAbility {
     private static class GrappleProjectile extends ItemProjectile {
         private Bat bat;
 
-        public GrappleProjectile(Ability ability, Section config) {
-            super(ability, config);
+        public GrappleProjectile(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override

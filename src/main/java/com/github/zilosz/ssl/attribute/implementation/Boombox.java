@@ -1,10 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
-import com.github.zilosz.ssl.attribute.AbilityType;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.event.attribute.AbilityUseEvent;
 import com.github.zilosz.ssl.event.projectile.ProjectileHitBlockEvent;
 import com.github.zilosz.ssl.kit.Kit;
@@ -176,7 +176,7 @@ public class Boombox extends RightClickAbility {
 
         CustomProjectile<?> projectile = event.getProjectile();
 
-        if (projectile.getAbility().getType() == AbilityType.MIX_TAPE_DROP) {
+        if (projectile.getAttackInfo().getType() == AttackType.MIX_TAPE_DROP) {
             this.explode();
 
         } else {
@@ -209,11 +209,12 @@ public class Boombox extends RightClickAbility {
             double damage = YamlReader.decreasingValue(mixTapeConfig, "Damage", distance, radius);
             double kb = YamlReader.decreasingValue(mixTapeConfig, "Kb", distance, radius);
 
-            Attack attack = YamlReader.attack(mixTapeConfig, direction);
+            Attack attack = YamlReader.attack(mixTapeConfig, direction, this.getDisplayName());
             attack.getDamage().setDamage(damage);
             attack.getKb().setKb(kb);
 
-            SSL.getInstance().getDamageManager().attack(target, this, attack);
+            AttackInfo attackInfo = new AttackInfo(AttackType.BOOMBOX_EXPLODE, this);
+            SSL.getInstance().getDamageManager().attack(target, attack, attackInfo);
         });
 
         this.reset(true);
@@ -276,7 +277,8 @@ public class Boombox extends RightClickAbility {
 
     private void launch(boolean first, Location source) {
         Section settings = this.config.getSection("Projectile");
-        MusicDiscProjectile projectile = new MusicDiscProjectile(this, settings);
+        AttackInfo attackInfo = new AttackInfo(AttackType.BOOMBOX_PROJECTILE, this);
+        MusicDiscProjectile projectile = new MusicDiscProjectile(settings, attackInfo);
         projectile.setOverrideLocation(source);
 
         if (first) {
@@ -316,8 +318,8 @@ public class Boombox extends RightClickAbility {
     private static class MusicDiscProjectile extends ItemProjectile {
         private final int note = (int) MathUtils.randRange(0, 25);
 
-        public MusicDiscProjectile(Ability ability, Section config) {
-            super(ability, config);
+        public MusicDiscProjectile(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override

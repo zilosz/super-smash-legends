@@ -1,10 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Attribute;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.PassiveAbility;
-import com.github.zilosz.ssl.damage.Attack;
-import com.github.zilosz.ssl.damage.KnockBack;
+import com.github.zilosz.ssl.attack.Attack;
+import com.github.zilosz.ssl.attack.KnockBack;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.utils.collection.CollectionUtils;
@@ -66,13 +66,12 @@ public class BlindingFists extends PassiveAbility {
             return;
         }
 
-        Attribute attribute = event.getAttribute();
+        if (event.getAttackInfo().getAttribute().getPlayer() != this.player) return;
+        if (event.getAttackInfo().getType() != AttackType.MELEE) return;
 
-        if (attribute.getPlayer() != this.player) return;
-        if (!(attribute instanceof Melee) && !(attribute instanceof SuperhumanPunch)) return;
+        event.getAttack().setName(this.getDisplayName());
 
         int maxChain = this.config.getInt("MaxChain");
-
         this.chainCounts.putIfAbsent(victim, 0);
         int currChain = this.chainCounts.get(victim);
 

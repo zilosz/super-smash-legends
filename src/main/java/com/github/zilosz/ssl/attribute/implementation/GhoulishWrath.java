@@ -1,7 +1,8 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.ChargedRightClickAbility;
 import com.github.zilosz.ssl.projectile.BlockProjectile;
 import com.github.zilosz.ssl.utils.RunnableUtils;
@@ -44,9 +45,12 @@ public class GhoulishWrath extends ChargedRightClickAbility {
         int interval = this.config.getInt("LaunchInterval");
         int ticksCharged = this.ticksCharging;
 
+        AttackInfo attackInfo = new AttackInfo(AttackType.GHOULISH_WRATH, this);
+
         RunnableUtils.runTaskWithIntervals(SSL.getInstance(), count, interval, () -> {
             this.player.getWorld().playSound(this.player.getLocation(), Sound.WITHER_SHOOT, 0.5f, 2);
-            SoulProjectile projectile = new SoulProjectile(this, this.config.getSection("Projectile"));
+
+            SoulProjectile projectile = new SoulProjectile(this.config.getSection("Projectile"), attackInfo);
             projectile.setMaterial(this.material);
 
             projectile.setSpeed(YamlReader.increasingValue(
@@ -93,8 +97,8 @@ public class GhoulishWrath extends ChargedRightClickAbility {
 
     private static class SoulProjectile extends BlockProjectile {
 
-        public SoulProjectile(Ability ability, Section config) {
-            super(ability, config);
+        public SoulProjectile(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override
@@ -115,7 +119,8 @@ public class GhoulishWrath extends ChargedRightClickAbility {
         @Override
         public void onPreTargetHit(LivingEntity target) {
             String attackPath = target.hasMetadata("pumpkin") ? "PumpkinAttack" : "NormalAttack";
-            this.attack = YamlReader.attack(this.config.getSection(attackPath));
+            String name = ((GhoulishWrath) this.attackInfo.getAttribute()).getDisplayName();
+            this.attack = YamlReader.attack(this.config.getSection(attackPath), null, name);
         }
 
         @Override

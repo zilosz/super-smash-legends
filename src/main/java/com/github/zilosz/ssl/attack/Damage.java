@@ -1,4 +1,4 @@
-package com.github.zilosz.ssl.damage;
+package com.github.zilosz.ssl.attack;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.kit.Kit;

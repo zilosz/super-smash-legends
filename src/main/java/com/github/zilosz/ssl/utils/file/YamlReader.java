@@ -2,9 +2,9 @@ package com.github.zilosz.ssl.utils.file;
 
 import com.github.zilosz.ssl.Resources;
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.damage.Attack;
-import com.github.zilosz.ssl.damage.Damage;
-import com.github.zilosz.ssl.damage.KnockBack;
+import com.github.zilosz.ssl.attack.Attack;
+import com.github.zilosz.ssl.attack.Damage;
+import com.github.zilosz.ssl.attack.KnockBack;
 import com.github.zilosz.ssl.utils.HotbarItem;
 import com.github.zilosz.ssl.utils.ItemBuilder;
 import com.github.zilosz.ssl.utils.Noise;
@@ -103,25 +103,23 @@ public class YamlReader {
         return new PotionEffect(type, duration, amplifier);
     }
 
-    public static Attack attack(Section config) {
-        return attack(config, null);
+    public static Attack attack(Section config, Vector direction) {
+        return attack(config, direction, "");
     }
 
-    public static Attack attack(Section config, Vector direction) {
+    public static Attack attack(Section config, Vector direction, String name) {
         Resources resources = SSL.getInstance().getResources();
         int defaultImmunity = resources.getConfig().getInt("Damage.DefaultImmunityTicks");
         int immunityTicks = config.getOptionalInt("ImmunityTicks").orElse(defaultImmunity);
-        return new Attack(damage(config), knockBack(config, direction), immunityTicks);
-    }
 
-    public static Damage damage(Section config) {
-        return new Damage(config.getDouble("Damage"), config.getOptionalBoolean("FactorsArmor").orElse(true));
-    }
+        Damage damage = new Damage(
+                config.getDouble("Damage"),
+                config.getOptionalBoolean("FactorsArmor").orElse(true)
+        );
 
-    public static KnockBack knockBack(Section config, Vector direction) {
-        Section mainConfig = SSL.getInstance().getResources().getConfig().getSection("Damage");
+        Section generalAttackSettings = SSL.getInstance().getResources().getConfig().getSection("Damage");
 
-        return new KnockBack(
+        KnockBack knockBack = new KnockBack(
                 direction,
                 config.getDouble("Kb"),
                 config.getDouble("KbY"),
@@ -129,8 +127,10 @@ public class YamlReader {
                 config.getOptionalBoolean("FactorsHealth").orElse(true),
                 config.getOptionalBoolean("IsLinear").orElse(false),
                 config.getOptionalBoolean("FactorsPreviousVelocity").orElse(false),
-                mainConfig.getDouble("MinKbHealthMultiplier"),
-                mainConfig.getDouble("MaxKbHealthMultiplier")
+                generalAttackSettings.getDouble("MinKbHealthMultiplier"),
+                generalAttackSettings.getDouble("MaxKbHealthMultiplier")
         );
+
+        return new Attack(config.getOptionalString("Name").orElse(name), damage, knockBack, immunityTicks);
     }
 }

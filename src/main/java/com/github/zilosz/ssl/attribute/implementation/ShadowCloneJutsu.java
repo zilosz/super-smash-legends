@@ -1,10 +1,12 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.AbilityType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.utils.NmsUtils;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
@@ -64,7 +66,6 @@ public class ShadowCloneJutsu extends RightClickAbility {
 
         NavigatorParameters params = npc.getNavigator().getLocalParameters();
         params.baseSpeed(this.config.getFloat("WalkSpeed"));
-        params.straightLineTargetingDistance(this.config.getFloat("StraightLineTargetDistance"));
 
         eyeLoc.setPitch(0);
         npc.spawn(eyeLoc);
@@ -173,21 +174,18 @@ public class ShadowCloneJutsu extends RightClickAbility {
 
     @EventHandler
     public void onRasenshurikenLaunch(Rasenshuriken.RasenshurikenLaunchEvent event) {
-        this.distributeNpcEntityAction(event.getRasenshuriken(), (ability, entity) -> ability.launch(entity, this));
+        this.distributeNpcEntityAction(event.getRasenshuriken(), (rasenshuriken, entity) -> {
+            rasenshuriken.launch(entity, this, AttackType.SHADOW_CLONE_RASENSHURIKEN);
+        });
     }
 
     @EventHandler
     public void onAttack(AttackEvent event) {
-        if (event.getAttribute().getPlayer() != this.player) return;
-        if (event.getAttribute() != this) return;
-
-        Attack attack = event.getAttack();
-        double multiplier = this.config.getDouble("AttackMultiplier");
-        attack.getDamage().setDamage(attack.getDamage().getDamage() * multiplier);
-        attack.getKb().setKb(attack.getKb().getKb() * multiplier);
-
-        if (!(event.getAttribute() instanceof Melee)) {
-            attack.setImmunityTicks(0);
+        if (event.getAttackInfo().getAttribute() == this) {
+            Attack attack = event.getAttack();
+            double multiplier = this.config.getDouble("AttackMultiplier");
+            attack.getDamage().setDamage(attack.getDamage().getDamage() * multiplier);
+            attack.getKb().setKb(attack.getKb().getKb() * multiplier);
         }
     }
 
@@ -213,7 +211,10 @@ public class ShadowCloneJutsu extends RightClickAbility {
                         Rasengan.modifyMeleeAttack(attack, config);
                     }
 
-                    if (SSL.getInstance().getDamageManager().attack(livingTarget, this, attack)) {
+                    attack.setName(this.getDisplayName());
+                    AttackInfo attackInfo = new AttackInfo(AttackType.MELEE, this);
+
+                    if (SSL.getInstance().getDamageManager().attack(livingTarget, attack, attackInfo)) {
                         this.player.playSound(this.player.getLocation(), Sound.WITHER_HURT, 0.5f, 1);
                         livingTarget.getWorld().playSound(livingTarget.getLocation(), Sound.WITHER_HURT, 0.5f, 1);
 

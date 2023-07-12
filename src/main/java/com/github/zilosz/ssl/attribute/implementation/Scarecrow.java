@@ -1,9 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.Damage;
-import com.github.zilosz.ssl.damage.KnockBack;
+import com.github.zilosz.ssl.attack.Damage;
+import com.github.zilosz.ssl.attack.KnockBack;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
@@ -95,7 +96,7 @@ public class Scarecrow extends RightClickAbility {
             this.scarecrow.setProtected(false);
 
             this.kit.getSkin().applyToNpc(this.scarecrow);
-            this.scarecrow.getOrAddTrait(LookClose.class).setRange(this.getEffectRange());
+            this.scarecrow.removeTrait(LookClose.class);
 
             Location eyeLoc = this.player.getEyeLocation();
             Vector direction = eyeLoc.getDirection();
@@ -163,6 +164,8 @@ public class Scarecrow extends RightClickAbility {
                 finder.findAll(this.player, location).forEach(target -> {
                     target.getWorld().playSound(target.getLocation(), Sound.DIG_GRASS, 1.2f, 0.8f);
                     this.player.playSound(this.player.getLocation(), Sound.ENDERMAN_HIT, 1, 2);
+
+                    this.scarecrow.faceLocation(target.getLocation());
 
                     Section slowConfig = this.config.getSection("Slowness");
                     PotionEffect effect = YamlReader.potionEffect(slowConfig, PotionEffectType.SLOW);
@@ -241,8 +244,8 @@ public class Scarecrow extends RightClickAbility {
 
     @EventHandler
     public void onMelee(AttackEvent event) {
-        if (event.getAttribute().getPlayer() != this.player) return;
-        if (!(event.getAttribute() instanceof Melee)) return;
+        if (event.getAttackInfo().getAttribute().getPlayer() != this.player) return;
+        if (event.getAttackInfo().getType() != AttackType.MELEE) return;
         if (!this.affectedTargets.contains(event.getVictim())) return;
 
         Section boostConfig = this.config.getSection("MeleePumpkinBoost");

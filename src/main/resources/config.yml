@@ -67,6 +67,7 @@ Damage:
       Entity: 0.7
       Player: 1.5
   Melee:
+    Name: "&cMelee"
     Kb: 1.05
     KbY: 0.6
     FactorsKit: false

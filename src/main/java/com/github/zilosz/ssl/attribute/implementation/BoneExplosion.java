@@ -1,8 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.utils.effects.Effects;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
@@ -33,11 +35,12 @@ public class BoneExplosion extends RightClickAbility {
 
             Vector direction = VectorUtils.fromTo(this.player, target);
 
-            Attack attack = YamlReader.attack(this.config, direction);
+            Attack attack = YamlReader.attack(this.config, direction, this.getDisplayName());
             attack.getDamage().setDamage(damage);
             attack.getKb().setKb(kb);
 
-            SSL.getInstance().getDamageManager().attack(target, this, attack);
+            AttackInfo attackInfo = new AttackInfo(AttackType.BONE_EXPLOSION, this);
+            SSL.getInstance().getDamageManager().attack(target, attack, attackInfo);
         });
     }
 }

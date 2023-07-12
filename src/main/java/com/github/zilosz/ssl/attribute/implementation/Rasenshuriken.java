@@ -1,9 +1,11 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.event.CustomEvent;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
@@ -108,15 +110,15 @@ public class Rasenshuriken extends RightClickAbility {
         if (this.ticksCharged == -1) return;
 
         Bukkit.getPluginManager().callEvent(new RasenshurikenLaunchEvent(this));
-        this.launch(this.player, this);
+        this.launch(this.player, this, AttackType.RASENSHURIKEN);
 
         this.reset();
         this.startCooldown();
     }
 
-    public Shuriken launch(Player entity, Ability owningAbility) {
+    public Shuriken launch(Player entity, Ability owningAbility, AttackType attackType) {
         Section config = this.config.getSection("Projectile");
-        Shuriken shuriken = new Shuriken(owningAbility, config);
+        Shuriken shuriken = new Shuriken(config, new AttackInfo(attackType, owningAbility));
         Vector direction = entity.getEyeLocation().getDirection();
         shuriken.setOverrideLocation(this.getHeadLocation(entity).setDirection(direction));
         shuriken.launch();
@@ -133,10 +135,10 @@ public class Rasenshuriken extends RightClickAbility {
 
     public static class Shuriken extends ItemProjectile {
 
-        public Shuriken(Ability ability, Section config) {
-            super(ability, config);
-            this.getAttack().getDamage().setDamage(config.getDouble("MaxDamage"));
-            this.getAttack().getKb().setKb(config.getDouble("MaxKb"));
+        public Shuriken(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
+            this.attack.getDamage().setDamage(config.getDouble("MaxDamage"));
+            this.attack.getKb().setKb(config.getDouble("MaxKb"));
         }
 
         @Override
@@ -188,11 +190,11 @@ public class Rasenshuriken extends RightClickAbility {
                 double kb = YamlReader.decreasingValue(this.config, "Kb", distanceSq, radius * radius);
 
                 Vector direction = VectorUtils.fromTo(this.entity, target);
-                Attack settings = YamlReader.attack(this.config, direction);
-                settings.getDamage().setDamage(damage);
-                settings.getKb().setKb(kb);
+                Attack attack = YamlReader.attack(this.config, direction);
+                attack.getDamage().setDamage(damage);
+                attack.getKb().setKb(kb);
 
-                SSL.getInstance().getDamageManager().attack(target, this.ability, settings);
+                SSL.getInstance().getDamageManager().attack(target, attack, this.attackInfo);
             });
         }
     }

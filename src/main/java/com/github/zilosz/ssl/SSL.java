@@ -12,7 +12,7 @@ import com.github.zilosz.ssl.command.ReloadConfigCommand;
 import com.github.zilosz.ssl.command.SkipCommand;
 import com.github.zilosz.ssl.command.SpecCommand;
 import com.github.zilosz.ssl.command.StartCommand;
-import com.github.zilosz.ssl.damage.DamageManager;
+import com.github.zilosz.ssl.attack.AttackManager;
 import com.github.zilosz.ssl.database.PlayerDatabase;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.GameScoreboard;
@@ -52,7 +52,7 @@ public class SSL extends JavaPlugin implements Listener {
     private ArenaManager arenaManager;
     private TeamManager teamManager;
     private WorldManager worldManager;
-    private DamageManager damageManager;
+    private AttackManager damageManager;
     private NpcStorage npcStorage;
 
     @Override
@@ -73,7 +73,7 @@ public class SSL extends JavaPlugin implements Listener {
         instance = this;
 
         this.resources = new Resources();
-        this.damageManager = new DamageManager();
+        this.damageManager = new AttackManager();
         this.worldManager = new WorldManager();
         this.inventoryManager = new InventoryManager(this);
         this.teamManager = new TeamManager();

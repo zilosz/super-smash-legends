@@ -26,6 +26,9 @@ import java.util.UUID;
 
 @Getter
 public class Skin {
+    private static final String PROFILE_API_URL = "https://api.mojang.com/users/profiles/minecraft/";
+    private static final String UUID_API_URL = "https://sessionserver.mojang.com/session/minecraft/profile/";
+
     private final String texture;
     private final String signature;
 
@@ -42,13 +45,14 @@ public class Skin {
     public static Skin fromMojang(String playerName) {
 
         try {
-            URL profileUrl = new URL("https://api.mojang.com/users/profiles/minecraft/" + playerName);
+            URL profileUrl = new URL(PROFILE_API_URL + playerName);
             InputStreamReader profileReader = new InputStreamReader(profileUrl.openStream());
             String uuid = new JsonParser().parse(profileReader).getAsJsonObject().get("id").getAsString();
 
-            URL uuidUrl = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid + "?unsigned=false");
+            URL uuidUrl = new URL(UUID_API_URL + uuid + "?unsigned=false");
             JsonObject uuidJson = new JsonParser().parse(new InputStreamReader(uuidUrl.openStream())).getAsJsonObject();
             JsonObject textureProperty = uuidJson.get("properties").getAsJsonArray().get(0).getAsJsonObject();
+
             String texture = textureProperty.get("value").getAsString();
             String signature = textureProperty.get("signature").getAsString();
 

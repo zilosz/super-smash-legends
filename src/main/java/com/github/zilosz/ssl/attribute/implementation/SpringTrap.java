@@ -1,9 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.projectile.BlockProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
@@ -25,7 +26,10 @@ public class SpringTrap extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new SpringProjectile(this, this.config).launch();
+        AttackInfo attackInfo = new AttackInfo(AttackType.SPRING_TRAP, this);
+        SpringProjectile springProjectile = new SpringProjectile(this.config, attackInfo);
+        springProjectile.setOverrideLocation(this.player.getLocation().setDirection(new Vector(0, -1, 0)));
+        springProjectile.launch();
 
         double velocity = this.config.getDouble("ForwardVelocity");
         double velocityY = this.config.getDouble("ForwardVelocityY");
@@ -41,9 +45,8 @@ public class SpringTrap extends RightClickAbility {
 
     private static class SpringProjectile extends BlockProjectile {
 
-        public SpringProjectile(Ability ability, Section config) {
-            super(ability, config);
-            this.overrideLocation = this.launcher.getLocation().setDirection(new Vector(0, -1, 0));
+        public SpringProjectile(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override
@@ -54,8 +57,8 @@ public class SpringTrap extends RightClickAbility {
 
             finder.findAll(this.launcher, this.entity.getLocation()).forEach(target -> {
                 Vector direction = VectorUtils.fromTo(this.entity, target);
-                Attack settings = YamlReader.attack(this.config.getSection("Aoe"), direction);
-                SSL.getInstance().getDamageManager().attack(target, this.ability, settings);
+                Attack attack = YamlReader.attack(this.config.getSection("Aoe"), direction);
+                SSL.getInstance().getDamageManager().attack(target, attack, this.attackInfo);
             });
         }
 

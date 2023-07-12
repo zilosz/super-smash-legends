@@ -1,8 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
 import com.github.zilosz.ssl.utils.block.MaterialInfo;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
@@ -20,6 +22,7 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.particle.ParticleBuilder;
 import xyz.xenondevs.particle.ParticleEffect;
@@ -79,9 +82,11 @@ public class Earthquake extends RightClickAbility {
             new EntityFinder(selector).findAll(this.player).forEach(target -> {
                 if (!target.isOnGround()) return;
 
-                Attack attack = YamlReader.attack(this.config, VectorUtils.fromTo(this.player, target));
+                Vector direction = VectorUtils.fromTo(this.player, target);
+                Attack attack = YamlReader.attack(this.config, direction, this.getDisplayName());
+                AttackInfo attackInfo = new AttackInfo(AttackType.EARTHQUAKE, this);
 
-                if (SSL.getInstance().getDamageManager().attack(target, this, attack)) {
+                if (SSL.getInstance().getDamageManager().attack(target, attack, attackInfo)) {
                     this.player.getWorld().playSound(target.getLocation(), Sound.ANVIL_LAND, 1, 1);
                     this.uproot(target.getLocation());
                 }

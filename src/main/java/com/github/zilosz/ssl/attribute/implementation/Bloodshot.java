@@ -1,7 +1,8 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
@@ -19,18 +20,20 @@ public class Bloodshot extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
+        AttackInfo attackInfo = new AttackInfo(AttackType.BLOOD_SHOT, this);
+
         RunnableUtils.runTaskWithIntervals(
                 SSL.getInstance(),
                 this.config.getInt("Count"),
                 this.config.getInt("Interval"),
-                () -> new BloodProjectile(this, this.config.getSection("Projectile")).launch()
+                () -> new BloodProjectile(this.config.getSection("Projectile"), attackInfo).launch()
         );
     }
 
     private static class BloodProjectile extends ItemProjectile {
 
-        public BloodProjectile(Ability ability, Section config) {
-            super(ability, config);
+        public BloodProjectile(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override

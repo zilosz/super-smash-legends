@@ -1,8 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
@@ -84,7 +86,9 @@ public class VoltTackle extends RightClickAbility {
                 attack.getDamage().setDamage(damage);
                 attack.getKb().setKb(kb);
 
-                if (SSL.getInstance().getDamageManager().attack(target, this, attack)) {
+                AttackInfo attackInfo = new AttackInfo(AttackType.VOLT_TACKLE, this);
+
+                if (SSL.getInstance().getDamageManager().attack(target, attack, attackInfo)) {
                     this.player.getWorld().playSound(this.player.getLocation(), Sound.FALL_BIG, 1, 2);
                     this.player.getWorld().strikeLightningEffect(target.getLocation());
 
@@ -102,7 +106,8 @@ public class VoltTackle extends RightClickAbility {
                     recoil.getDamage().setDamage(recoilDamage);
                     recoil.getKb().setKb(recoilKb);
 
-                    SSL.getInstance().getDamageManager().attack(target, this, recoil);
+                    AttackInfo info = new AttackInfo(AttackType.VOLT_TACKLE_RECOIL, this);
+                    SSL.getInstance().getDamageManager().attack(target, recoil, info);
                 }
 
                 this.reset(true, false);

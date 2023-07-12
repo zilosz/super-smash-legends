@@ -1,6 +1,7 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
@@ -14,14 +15,15 @@ public class FrigidSpear extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new SpearProjectile(this, this.config.getSection("Projectile")).launch();
+        AttackInfo attackInfo = new AttackInfo(AttackType.FRIGID_SPEAR, this);
+        new SpearProjectile(this.config.getSection("Projectile"), attackInfo).launch();
         this.player.getWorld().playSound(this.player.getLocation(), Sound.GLASS, 1, 2);
     }
 
     private static class SpearProjectile extends ItemProjectile {
 
-        public SpearProjectile(Ability ability, Section config) {
-            super(ability, config);
+        public SpearProjectile(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override

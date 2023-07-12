@@ -1,10 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
-import com.github.zilosz.ssl.attribute.ClickableAbility;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
 import com.github.zilosz.ssl.team.TeamPreference;
@@ -35,7 +35,8 @@ public class BombOmb extends RightClickAbility {
         if (this.bombProjectile == null || this.bombProjectile.state == State.INACTIVE) {
             this.sendUseMessage();
 
-            this.bombProjectile = new BombProjectile(this, this.config.getSection("Projectile"));
+            AttackInfo attackInfo = new AttackInfo(AttackType.BOMB_OMB_DIRECT, this);
+            this.bombProjectile = new BombProjectile(this.config.getSection("Projectile"), attackInfo);
             this.bombProjectile.launch();
 
         } else if (this.bombProjectile.state == State.THROWN) {
@@ -69,8 +70,8 @@ public class BombOmb extends RightClickAbility {
         private boolean hitTarget = false;
         private boolean canExplode = false;
 
-        public BombProjectile(Ability ability, Section config) {
-            super(ability, config);
+        public BombProjectile(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override
@@ -138,9 +139,7 @@ public class BombOmb extends RightClickAbility {
                     .findAll(this.launcher, this.bombBlock.getLocation())
                     .forEach(this::attemptExplodeHit);
 
-            if (this.ability instanceof ClickableAbility) {
-                ((ClickableAbility) this.ability).startCooldown();
-            }
+            ((BombOmb) this.attackInfo.getAttribute()).startCooldown();
         }
 
         private void attemptExplodeHit(LivingEntity target) {
@@ -153,11 +152,13 @@ public class BombOmb extends RightClickAbility {
 
             Vector direction = VectorUtils.fromTo(this.bombBlock.getLocation(), target.getLocation());
 
-            Attack attack = YamlReader.attack(explode, direction);
+            String name = ((BombOmb) this.attackInfo.getAttribute()).getDisplayName();
+            Attack attack = YamlReader.attack(explode, direction, name);
             attack.getDamage().setDamage(damage);
             attack.getKb().setKb(kb);
 
-            SSL.getInstance().getDamageManager().attack(target, this.ability, attack);
+            AttackInfo attackInfo = new AttackInfo(AttackType.BOMB_OMB_EXPLOSION, this.attackInfo.getAttribute());
+            SSL.getInstance().getDamageManager().attack(target, attack, attackInfo);
         }
 
         private void destroy() {

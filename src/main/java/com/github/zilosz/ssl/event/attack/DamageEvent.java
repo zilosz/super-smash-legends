@@ -1,34 +1,21 @@
 package com.github.zilosz.ssl.event.attack;
 
-import com.github.zilosz.ssl.damage.Damage;
-import com.github.zilosz.ssl.event.CustomEvent;
+import com.github.zilosz.ssl.attack.AttackSource;
+import com.github.zilosz.ssl.attack.Damage;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.Cancellable;
 
 @Getter
-public class DamageEvent extends CustomEvent implements Cancellable {
-    private final LivingEntity victim;
+public class DamageEvent extends AbstractDamageEvent {
     private final Damage damage;
-    @Setter private boolean cancelled = false;
     @Setter private boolean isVoid;
+    private final AttackSource attackSource;
 
-    public DamageEvent(LivingEntity victim, Damage damage, boolean isVoid) {
-        this.victim = victim;
+    public DamageEvent(LivingEntity victim, Damage damage, boolean isVoid, AttackSource attackSource) {
+        super(victim);
         this.damage = damage;
         this.isVoid = isVoid;
-    }
-
-    public boolean willDie() {
-        return this.getNewHealth() <= 0;
-    }
-
-    public double getNewHealth() {
-        return this.victim.getHealth() - this.getFinalDamage();
-    }
-
-    public double getFinalDamage() {
-        return this.damage.getFinalDamage(this.victim);
+        this.attackSource = attackSource;
     }
 }

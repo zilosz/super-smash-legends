@@ -1,7 +1,7 @@
 package com.github.zilosz.ssl.projectile;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Location;
@@ -14,8 +14,8 @@ import org.bukkit.util.Vector;
 
 public abstract class ActualProjectile<T extends Projectile> extends CustomProjectile<T> {
 
-    public ActualProjectile(Ability ability, Section config) {
-        super(ability, config);
+    public ActualProjectile(Section config, AttackInfo attackInfo) {
+        super(config, attackInfo);
         this.removeOnBlockHit = true;
         this.recreateOnBounce = true;
         this.useCustomHitBox = false;

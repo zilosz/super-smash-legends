@@ -1,6 +1,7 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.projectile.BlockProjectile;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
@@ -19,14 +20,15 @@ public class CoalCluster extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new ClusterProjectile(this, this.config.getSection("Cluster")).launch();
+        AttackInfo attackInfo = new AttackInfo(AttackType.COAL_CLUSTER, this);
+        new ClusterProjectile(this.config.getSection("Cluster"), attackInfo).launch();
         this.player.getWorld().playSound(this.player.getLocation(), Sound.ANVIL_LAND, 1, 2);
     }
 
     private static class ClusterProjectile extends BlockProjectile {
 
-        public ClusterProjectile(Ability ability, Section config) {
-            super(ability, config);
+        public ClusterProjectile(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override
@@ -66,7 +68,7 @@ public class CoalCluster extends RightClickAbility {
                 launchLoc.setYaw(i * yawStep);
 
                 Section settings = this.config.getSection("Fragment");
-                FragmentProjectile projectile = new FragmentProjectile(this.ability, settings);
+                FragmentProjectile projectile = new FragmentProjectile(settings, this.attackInfo);
                 projectile.setOverrideLocation(launchLoc);
                 projectile.launch();
             }
@@ -75,8 +77,8 @@ public class CoalCluster extends RightClickAbility {
 
     private static class FragmentProjectile extends ItemProjectile {
 
-        public FragmentProjectile(Ability ability, Section config) {
-            super(ability, config);
+        public FragmentProjectile(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override

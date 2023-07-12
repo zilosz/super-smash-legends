@@ -1,7 +1,7 @@
 package com.github.zilosz.ssl.projectile;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -14,8 +14,8 @@ public abstract class EmulatedProjectile<T extends Entity> extends CustomProject
     @Nullable private BlockFace lastHitFace;
     private int sameHitDuration = 0;
 
-    public EmulatedProjectile(Ability ability, Section config) {
-        super(ability, config);
+    public EmulatedProjectile(Section config, AttackInfo attackInfo) {
+        super(config, attackInfo);
         this.removeOnLongCollision = config.getOptionalBoolean("RemoveOnLongCollision").orElse(true);
     }
 

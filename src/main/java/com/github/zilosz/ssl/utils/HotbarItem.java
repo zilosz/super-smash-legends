@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -23,7 +24,8 @@ public class HotbarItem implements Listener {
 
     @Setter private Consumer<PlayerInteractEvent> action;
 
-    private Integer lastTick;
+    private Long lastTick;
+    private Action lastAction;
 
     public HotbarItem(Player player, ItemStack itemStack, int slot) {
         this.player = player;
@@ -54,28 +56,35 @@ public class HotbarItem implements Listener {
         if (event.getPlayer() != this.player) return;
         if (event.getPlayer().getInventory().getHeldItemSlot() != this.slot) return;
 
-        int tick = (int) this.player.getWorld().getFullTime();
+        long tick = event.getPlayer().getWorld().getFullTime();
+        Action action = event.getAction();
 
-        if (this.lastTick == null || tick != this.lastTick) {
-            this.lastTick = tick;
+        if (this.lastTick != null && this.lastTick == tick) {
+            boolean lastIsLeft = this.lastAction != null && this.lastAction.name().contains("LEFT");
+            boolean currIsLeft = action.name().contains("LEFT");
 
-            Optional.ofNullable(event.getItem()).ifPresent(item -> {
-
-                if (this.action != null) {
-                    this.action.accept(event);
-                }
-
-                String name = item.getType().name();
-
-                for (String keyword : ARMOR_KEYWORDS) {
-
-                    if (name.contains(keyword)) {
-                        event.setCancelled(true);
-                        event.getPlayer().updateInventory();
-                        break;
-                    }
-                }
-            });
+            if (lastIsLeft == currIsLeft) return;
         }
+
+        this.lastTick = tick;
+        this.lastAction = action;
+
+        Optional.ofNullable(event.getItem()).ifPresent(item -> {
+
+            if (this.action != null) {
+                this.action.accept(event);
+            }
+
+            String name = item.getType().name();
+
+            for (String keyword : ARMOR_KEYWORDS) {
+
+                if (name.contains(keyword)) {
+                    event.setCancelled(true);
+                    event.getPlayer().updateInventory();
+                    break;
+                }
+            }
+        });
     }
 }

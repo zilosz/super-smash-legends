@@ -25,6 +25,7 @@ ParticleDuration: 5
 ParticleSpeed: 0.4
 ImmunityTicks: 0
 Recoil:
+  Name: "&eVolt Tackle Recoil"
   MinDamage: 0.3
   MaxDamage: 3
   MinKb: 0.8

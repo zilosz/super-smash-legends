@@ -1,9 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
-import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
+import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.utils.effects.Effects;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import org.bukkit.Bukkit;
@@ -77,10 +78,15 @@ public class Berserk extends RightClickAbility {
     }
 
     @EventHandler
-    public void onDamage(AttributeDamageEvent event) {
-        if (this.active && event.getAttribute().getPlayer() == this.player) {
-            double multiplier = this.config.getDouble("DamageMultiplier");
-            event.getDamage().setDamage(event.getDamage().getDamage() * multiplier);
+    public void onAttack(AttackEvent event) {
+        if (event.getAttackInfo().getAttribute().getPlayer() != this.player) return;
+        if (!this.active) return;
+
+        double multiplier = this.config.getDouble("DamageMultiplier");
+        event.getDamage().setDamage(event.getDamage().getDamage() * multiplier);
+
+        if (event.getAttackInfo().getType() == AttackType.MELEE) {
+            event.getAttack().setName(this.getDisplayName());
         }
     }
 }

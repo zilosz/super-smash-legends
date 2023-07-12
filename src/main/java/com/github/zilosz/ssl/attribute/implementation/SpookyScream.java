@@ -1,8 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
@@ -83,8 +85,9 @@ public class SpookyScream extends RightClickAbility {
                 boolean isPumpkin = target.hasMetadata("pumpkin");
                 String attackPath = isPumpkin ? "PumpkinAttack" : "NormalAttack";
                 Attack attack = YamlReader.attack(this.config.getSection(attackPath), step);
+                AttackInfo attackInfo = new AttackInfo(AttackType.SPOOKY_SCREAM, this);
 
-                if (SSL.getInstance().getDamageManager().attack(target, this, attack)) {
+                if (SSL.getInstance().getDamageManager().attack(target, attack, attackInfo)) {
                     this.player.playSound(this.player.getLocation(), Sound.ORB_PICKUP, 1, 1);
                     target.getWorld().playSound(target.getLocation(), Sound.WITHER_HURT, 1, 1);
 

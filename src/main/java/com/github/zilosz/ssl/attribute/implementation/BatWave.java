@@ -1,7 +1,8 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.projectile.LivingProjectile;
@@ -60,7 +61,8 @@ public class BatWave extends RightClickAbility {
         int count = this.config.getInt("BatCount");
 
         List<Location> locations = VectorUtils.flatRectLocations(center, width, height, count, true);
-        locations.forEach(loc -> this.addAndLaunch(new BatProjectile(this, this.config), loc));
+        AttackInfo attackInfo = new AttackInfo(AttackType.BAT_WAVE, this);
+        locations.forEach(loc -> this.addAndLaunch(new BatProjectile(this.config, attackInfo), loc));
 
         this.resetTask = Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
             this.reset();
@@ -138,8 +140,8 @@ public class BatWave extends RightClickAbility {
     private static class BatProjectile extends LivingProjectile<ArmorStand> {
         private Bat bat;
 
-        public BatProjectile(Ability ability, Section config) {
-            super(ability, config);
+        public BatProjectile(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override

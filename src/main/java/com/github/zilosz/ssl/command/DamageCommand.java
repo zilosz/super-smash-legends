@@ -1,6 +1,6 @@
 package com.github.zilosz.ssl.command;
 
-import com.github.zilosz.ssl.damage.Damage;
+import com.github.zilosz.ssl.attack.Damage;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.utils.message.Chat;
 import org.apache.commons.lang.math.NumberUtils;
@@ -43,7 +43,7 @@ public class DamageCommand implements CommandExecutor {
 
     private static void damage(CommandSender sender, Player player, double damage) {
         Damage settings = new Damage(damage, false);
-        DamageEvent event = new DamageEvent(player, settings, false);
+        DamageEvent event = new DamageEvent(player, settings, false, null);
         Bukkit.getPluginManager().callEvent(event);
 
         double finalDamage = event.getFinalDamage();

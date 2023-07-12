@@ -1,9 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
@@ -26,15 +27,16 @@ public class MixTapeDrop extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new MixTapeProjectile(this, this.config.getSection("Projectile")).launch();
+        AttackInfo attackInfo = new AttackInfo(AttackType.MIX_TAPE_DROP, this);
+        new MixTapeProjectile(this.config.getSection("Projectile"), attackInfo).launch();
         this.player.getWorld().playSound(this.player.getLocation(), Sound.NOTE_SNARE_DRUM, 2, 1);
         this.player.setVelocity(this.player.getEyeLocation().getDirection().multiply(-this.config.getDouble("Recoil")));
     }
 
     private static class MixTapeProjectile extends ItemProjectile {
 
-        public MixTapeProjectile(Ability ability, Section config) {
-            super(ability, config);
+        public MixTapeProjectile(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override
@@ -48,7 +50,7 @@ public class MixTapeDrop extends RightClickAbility {
                 Vector direction = VectorUtils.fromTo(this.entity, target);
                 Attack attack = YamlReader.attack(this.config.getSection("Ground"), direction);
 
-                if (SSL.getInstance().getDamageManager().attack(target, this.ability, attack)) {
+                if (SSL.getInstance().getDamageManager().attack(target, attack, this.attackInfo)) {
                     this.launcher.playSound(this.launcher.getLocation(), Sound.NOTE_PLING, 2, 2);
                 }
             });

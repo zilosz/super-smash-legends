@@ -1,8 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
 import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
@@ -81,9 +83,10 @@ public class ChainOfSteel extends RightClickAbility {
             } else {
 
                 new EntityFinder(selector).findClosest(this.player, currLocation).ifPresent(target -> {
-                    Attack attackSettings = YamlReader.attack(this.config, null);
+                    Attack attack = YamlReader.attack(this.config, null, this.getDisplayName());
+                    AttackInfo attackInfo = new AttackInfo(AttackType.CHAIN_OF_STEEL, this);
 
-                    if (SSL.getInstance().getDamageManager().attack(target, this, attackSettings)) {
+                    if (SSL.getInstance().getDamageManager().attack(target, attack, attackInfo)) {
                         this.player.playSound(this.player.getLocation(), Sound.ORB_PICKUP, 1, 1);
                         this.player.getWorld().playSound(currLocation, Sound.EXPLODE, 1, 1.5f);
                         new ParticleMaker(new ParticleBuilder(ParticleEffect.EXPLOSION_LARGE)).show(currLocation);

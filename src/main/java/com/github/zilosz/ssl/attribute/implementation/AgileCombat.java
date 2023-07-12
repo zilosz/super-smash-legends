@@ -1,9 +1,11 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.Attack;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
-import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
+import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
 import com.github.zilosz.ssl.utils.effects.Effects;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
@@ -83,9 +85,10 @@ public class AgileCombat extends RightClickAbility {
 
             new EntityFinder(selector).findClosest(this.player).ifPresent(target -> {
                 Vector direction = this.player.getEyeLocation().getDirection();
-                Attack attack = YamlReader.attack(this.config.getSection("Leap"), direction.clone().multiply(-1));
+                Attack attack = YamlReader.attack(this.config.getSection("Leap"), direction, this.getDisplayName());
+                AttackInfo attackInfo = new AttackInfo(AttackType.AGILE_COMBAT, this);
 
-                if (SSL.getInstance().getDamageManager().attack(target, this, attack)) {
+                if (SSL.getInstance().getDamageManager().attack(target, attack, attackInfo)) {
                     this.endLeap(true);
 
                     double springVel = this.config.getDouble("SpringVelocity");
@@ -137,7 +140,7 @@ public class AgileCombat extends RightClickAbility {
     }
 
     @EventHandler
-    public void onKb(AttributeKbEvent event) {
+    public void onAttack(AttackEvent event) {
         if (event.getVictim() == this.player && this.state == State.DROPPING) {
             this.reset(true);
         }

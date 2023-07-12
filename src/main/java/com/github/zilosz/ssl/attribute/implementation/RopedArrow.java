@@ -1,7 +1,8 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.LeftClickAbility;
 import com.github.zilosz.ssl.projectile.ArrowProjectile;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
@@ -20,14 +21,14 @@ public class RopedArrow extends LeftClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new RopedProjectile(this, this.config).launch();
+        new RopedProjectile(this.config, new AttackInfo(AttackType.ROPED_ARROW, this)).launch();
         this.player.getWorld().playSound(this.player.getLocation(), Sound.MAGMACUBE_JUMP, 1, 2);
     }
 
     private static class RopedProjectile extends ArrowProjectile {
 
-        public RopedProjectile(Ability ability, Section config) {
-            super(ability, config);
+        public RopedProjectile(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override

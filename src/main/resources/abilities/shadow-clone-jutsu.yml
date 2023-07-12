@@ -6,8 +6,7 @@ Description:
 EnergyCost: 0.5
 Recoil: 1.3
 Velocity: 1.3
-Vision: 30
-StraightLineTargetDistance: 10
+Vision: 20
 Health: 12
 Limit: 2
 WalkSpeed: 1.5

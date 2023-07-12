@@ -1,6 +1,6 @@
 package com.github.zilosz.ssl.projectile;
 
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
 import com.github.zilosz.ssl.utils.NmsUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Location;
@@ -10,8 +10,8 @@ import org.bukkit.entity.Player;
 
 public class ArrowProjectile extends ActualProjectile<Arrow> {
 
-    public ArrowProjectile(Ability ability, Section config) {
-        super(ability, config);
+    public ArrowProjectile(Section config, AttackInfo attackInfo) {
+        super(config, attackInfo);
     }
 
     @Override

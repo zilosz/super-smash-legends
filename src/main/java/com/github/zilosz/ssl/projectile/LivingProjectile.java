@@ -1,7 +1,7 @@
 package com.github.zilosz.ssl.projectile;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.entity.LivingEntity;
@@ -11,8 +11,8 @@ import org.bukkit.event.entity.EntityDeathEvent;
 
 public abstract class LivingProjectile<T extends LivingEntity> extends EmulatedProjectile<T> {
 
-    public LivingProjectile(Ability ability, Section config) {
-        super(ability, config);
+    public LivingProjectile(Section config, AttackInfo attackInfo) {
+        super(config, attackInfo);
     }
 
     @Override

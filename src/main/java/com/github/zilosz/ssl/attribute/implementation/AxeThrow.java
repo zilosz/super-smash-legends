@@ -1,6 +1,7 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
@@ -16,7 +17,7 @@ public class AxeThrow extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new AxeProjectile(this, this.config.getSection("Projectile")).launch();
+        new AxeProjectile(this.config.getSection("Projectile"), new AttackInfo(AttackType.AXE_THROW, this)).launch();
         this.player.getWorld().playSound(this.player.getLocation(), Sound.IRONGOLEM_THROW, 2, 1);
         this.hotbarItem.hide();
     }
@@ -28,13 +29,13 @@ public class AxeThrow extends RightClickAbility {
 
     private static class AxeProjectile extends ItemProjectile {
 
-        public AxeProjectile(Ability ability, Section config) {
-            super(ability, config);
+        public AxeProjectile(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override
         public void onRemove(ProjectileRemoveReason reason) {
-            this.ability.getHotbarItem().show();
+            ((AxeThrow) this.attackInfo.getAttribute()).getHotbarItem().show();
         }
 
         @Override

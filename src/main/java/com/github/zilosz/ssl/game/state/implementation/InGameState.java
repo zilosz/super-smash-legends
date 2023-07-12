@@ -4,11 +4,9 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import com.connorlinfoot.titleapi.TitleAPI;
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Attribute;
-import com.github.zilosz.ssl.attribute.Nameable;
-import com.github.zilosz.ssl.damage.Damage;
-import com.github.zilosz.ssl.damage.DamageManager;
-import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
+import com.github.zilosz.ssl.attack.AttackSource;
+import com.github.zilosz.ssl.attack.Damage;
+import com.github.zilosz.ssl.attack.AttackManager;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.InGameProfile;
@@ -388,7 +386,7 @@ public class InGameState extends GameState {
 
         boolean isVoid = event.getCause() == EntityDamageEvent.DamageCause.VOID;
         Damage damageSettings = new Damage(event.getFinalDamage(), true);
-        DamageEvent damageEvent = new DamageEvent(victim, damageSettings, isVoid);
+        DamageEvent damageEvent = new DamageEvent(victim, damageSettings, isVoid, null);
         Bukkit.getPluginManager().callEvent(damageEvent);
         event.setDamage(damageEvent.getFinalDamage());
 
@@ -420,19 +418,18 @@ public class InGameState extends GameState {
                 if (event.isVoid()) {
                     damageTaken = player.getHealth();
 
-                    this.handleDeath(player, false, true, null, true);
+                    this.handleDeath(player, false, true, null);
                     event.setCancelled(true);
 
                 } else if (event.willDie()) {
                     damageTaken = player.getHealth();
 
-                    if (event instanceof AttributeDamageEvent) {
-                        this.handleDeath(player, true, false, ((AttributeDamageEvent) event).getAttribute(), true);
-
-                    } else {
-                        this.handleDeath(player, true, false, null, false);
+                    Optional.ofNullable(event.getAttackSource()).ifPresentOrElse(source -> {
+                        this.handleDeath(player, true, false, source);
+                    }, () -> {
+                        this.handleDeath(player, true, false, null);
                         event.setCancelled(true);
-                    }
+                    });
 
                 } else {
                     damageTaken = finalDamage;
@@ -447,7 +444,7 @@ public class InGameState extends GameState {
         }
     }
 
-    private void handleDeath(Player died, boolean spawnNpc, boolean teleportPlayer, Attribute directKillingAttribute, boolean preferAttributeDamage) {
+    private void handleDeath(Player died, boolean spawnNpc, boolean teleportPlayer, AttackSource attackSource) {
 
         if (spawnNpc) {
             DeathNPC.spawn(SSL.getInstance(), died);
@@ -463,38 +460,32 @@ public class InGameState extends GameState {
         diedKit.destroy();
         diedKit.getDeathNoise().playForAll(died.getLocation());
 
-        DamageManager damageManager = SSL.getInstance().getDamageManager();
-        Attribute killingAttribute = directKillingAttribute;
-
-        if (killingAttribute == null && preferAttributeDamage) {
-            killingAttribute = damageManager.getLastDamagingAttribute(died);
-        }
-
         String deathMessage;
         Location tpLocation;
 
         Location waitLocation = SSL.getInstance().getArenaManager().getArena().getWaitLocation();
         String diedName = SSL.getInstance().getTeamManager().getPlayerColor(died) + died.getName();
 
-        if (killingAttribute == null) {
+        AttackManager attackManager = SSL.getInstance().getDamageManager();
+        AttackSource realAttackSource = attackSource;
+
+        if (realAttackSource == null) {
+            realAttackSource = attackManager.getLastAttackSource(died);
+        }
+
+        Player killer = realAttackSource == null ? null : realAttackSource.getAttribute().getPlayer();
+
+        if (killer == null) {
             deathMessage = String.format("%s &7died.", diedName);
             tpLocation = waitLocation;
 
         } else {
-            Player killer = killingAttribute.getPlayer();
-
             killer.playSound(killer.getLocation(), Sound.LEVEL_UP, 2, 2);
             killer.playSound(killer.getLocation(), Sound.WOLF_HOWL, 3, 2);
 
             String killerName = SSL.getInstance().getTeamManager().getPlayerColor(killer) + killer.getName();
-
-            if (killingAttribute instanceof Nameable) {
-                String killName = ((Nameable) killingAttribute).getDisplayName();
-                deathMessage = String.format("%s &7killed by %s &7with %s.", diedName, killerName, killName);
-
-            } else {
-                deathMessage = String.format("%s &7was killed by %s.", diedName, killerName);
-            }
+            String attackName = realAttackSource.getAttack().getName();
+            deathMessage = String.format("%s &7killed by %s &7with %s&7.", diedName, killerName, attackName);
 
             if (killer == died) {
                 tpLocation = waitLocation;
@@ -515,10 +506,10 @@ public class InGameState extends GameState {
             died.playSound(died.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
         }
 
-        damageManager.destroyIndicator(died);
-        damageManager.removeDamageSource(died);
-        damageManager.clearImmunities(died);
-        damageManager.removeComboIndicator(died);
+        attackManager.destroyIndicator(died);
+        attackManager.removeDamageSource(died);
+        attackManager.clearImmunities(died);
+        attackManager.removeComboIndicator(died);
 
         died.setGameMode(GameMode.SPECTATOR);
 

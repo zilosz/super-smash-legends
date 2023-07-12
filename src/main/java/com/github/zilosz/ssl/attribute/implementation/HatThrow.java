@@ -1,7 +1,7 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.attribute.Ability;
-import com.github.zilosz.ssl.attribute.ClickableAbility;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.projectile.EmulatedProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
@@ -22,7 +22,7 @@ public class HatThrow extends RightClickAbility {
     public void onClick(PlayerInteractEvent event) {
 
         if (this.hatProjectile == null || this.hatProjectile.state == State.INACTIVE) {
-            this.hatProjectile = new HatProjectile(this, this.config);
+            this.hatProjectile = new HatProjectile(this.config, new AttackInfo(AttackType.HAT_THROW, this));
             this.hatProjectile.launch();
 
         } else if (this.hatProjectile.state == State.DISMOUNTED) {
@@ -42,8 +42,8 @@ public class HatThrow extends RightClickAbility {
     private static final class HatProjectile extends EmulatedProjectile<ArmorStand> {
         private State state = State.INACTIVE;
 
-        public HatProjectile(Ability ability, Section config) {
-            super(ability, config);
+        public HatProjectile(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override
@@ -70,7 +70,7 @@ public class HatThrow extends RightClickAbility {
         @Override
         public void onRemove(ProjectileRemoveReason reason) {
             this.state = State.INACTIVE;
-            ((ClickableAbility) this.ability).startCooldown();
+            ((HatThrow) this.attackInfo.getAttribute()).startCooldown();
         }
 
         @Override

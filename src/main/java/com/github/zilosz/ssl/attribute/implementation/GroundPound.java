@@ -1,9 +1,11 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
-import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
+import com.github.zilosz.ssl.attack.Attack;
+import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
@@ -55,11 +57,15 @@ public class GroundPound extends RightClickAbility {
         EntityFinder finder = new EntityFinder(new HitBoxSelector(this.config.getDouble("HitBox")));
 
         for (LivingEntity target : finder.findAll(this.player)) {
-            Attack attack = YamlReader.attack(this.config, this.player.getLocation().getDirection());
+            Vector direction = this.player.getLocation().getDirection();
+            Attack attack = YamlReader.attack(this.config, direction, this.getDisplayName());
+
             attack.getDamage().setDamage(damage);
             attack.getKb().setKb(kb);
 
-            if (SSL.getInstance().getDamageManager().attack(target, this, attack)) {
+            AttackInfo attackInfo = new AttackInfo(AttackType.GROUND_POUND, this);
+
+            if (SSL.getInstance().getDamageManager().attack(target, attack, attackInfo)) {
                 foundTarget = true;
 
                 this.player.getWorld().playSound(target.getLocation(), Sound.EXPLODE, 2, 2);
@@ -108,9 +114,9 @@ public class GroundPound extends RightClickAbility {
     }
 
     @EventHandler
-    public void onKb(AttributeKbEvent event) {
+    public void onKb(AttackEvent event) {
         if (event.getVictim() == this.player && this.fallTask != null) {
-            event.getKb().setDirection(null);
+            event.getAttack().getKb().setDirection(null);
         }
     }
 }

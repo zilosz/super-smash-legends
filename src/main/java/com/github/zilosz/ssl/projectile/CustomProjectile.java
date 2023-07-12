@@ -1,8 +1,8 @@
 package com.github.zilosz.ssl.projectile;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
-import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.event.projectile.ProjectileHitBlockEvent;
 import com.github.zilosz.ssl.game.state.GameStateType;
 import com.github.zilosz.ssl.utils.NmsUtils;
@@ -29,7 +29,7 @@ import org.bukkit.util.Vector;
 
 public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable implements Listener {
     protected final Section config;
-    @Getter protected final Ability ability;
+    @Getter protected AttackInfo attackInfo;
 
     @Getter protected Player launcher;
     @Getter protected T entity;
@@ -54,12 +54,12 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     protected double defaultHitBox;
     protected EntityFinder entityFinder;
 
-    public CustomProjectile(Ability ability, Section config) {
-        this.ability = ability;
+    public CustomProjectile(Section config, AttackInfo attackInfo) {
         this.config = config;
+        this.attackInfo = attackInfo;
 
-        this.launcher = this.ability.getPlayer();
-        this.attack = YamlReader.attack(this.config);
+        this.launcher = this.attackInfo.getAttribute().getPlayer();
+        this.attack = YamlReader.attack(this.config, null);
 
         Section defaults = SSL.getInstance().getResources().getConfig().getSection("Projectile");
 
@@ -231,7 +231,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         this.onPreTargetHit(target);
         this.attack.getKb().setDirection(this.entity.getVelocity());
 
-        if (SSL.getInstance().getDamageManager().attack(target, this.ability, this.attack)) {
+        if (SSL.getInstance().getDamageManager().attack(target, this.attack, this.attackInfo)) {
             this.onTargetHit(target);
             this.launcher.playSound(this.launcher.getLocation(), Sound.SUCCESSFUL_HIT, 2, 1);
 

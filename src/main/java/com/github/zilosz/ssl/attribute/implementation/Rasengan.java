@@ -1,8 +1,9 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.event.CustomEvent;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
@@ -101,8 +102,8 @@ public class Rasengan extends RightClickAbility {
 
     @EventHandler
     public void onMelee(AttackEvent event) {
-        if (event.getAttribute().getPlayer() != this.player) return;
-        if (!(event.getAttribute() instanceof Melee)) return;
+        if (event.getAttackInfo().getAttribute().getPlayer() != this.player) return;
+        if (event.getAttackInfo().getType() != AttackType.MELEE) return;
         if (!this.active) return;
 
         modifyMeleeAttack(event.getAttack(), this.config);

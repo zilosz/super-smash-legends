@@ -1,7 +1,8 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.projectile.LivingProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
@@ -21,14 +22,14 @@ public class GooeyBullet extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new GooeyProjectile(this, this.config).launch();
+        new GooeyProjectile(this.config, new AttackInfo(AttackType.GOOEY_BULLET, this)).launch();
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SLIME_WALK2, 2, 2);
     }
 
     private static class GooeyProjectile extends LivingProjectile<Slime> {
 
-        public GooeyProjectile(Ability ability, Section config) {
-            super(ability, config);
+        public GooeyProjectile(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override

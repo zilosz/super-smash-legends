@@ -1,9 +1,11 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
+import com.github.zilosz.ssl.attack.KnockBack;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
+import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
@@ -37,7 +39,8 @@ public class HungryFish extends RightClickAbility {
 
     @Override
     public void onClick(PlayerInteractEvent event) {
-        new BubbleProjectile(this, this.config.getSection("Projectile")).launch();
+        AttackInfo attackInfo = new AttackInfo(AttackType.HUNGRY_FISH, this);
+        new BubbleProjectile(this.config.getSection("Projectile"), attackInfo).launch();
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SPLASH, 0.5f, 1);
     }
 
@@ -48,8 +51,8 @@ public class HungryFish extends RightClickAbility {
         private FloatingEntity<Item> fish;
         private BukkitTask fishMoveTask;
 
-        public BubbleProjectile(Ability ability, Section config) {
-            super(ability, config);
+        public BubbleProjectile(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override
@@ -114,10 +117,11 @@ public class HungryFish extends RightClickAbility {
                 }
 
                 @EventHandler
-                public void onEntityVelocity(AttributeKbEvent event) {
+                public void onEntityVelocity(AttackEvent event) {
                     if (event.getVictim() == target && !(target instanceof Player)) {
-                        event.getKb().setKb(event.getKb().getKb() * multiplier);
-                        event.getKb().setKbY(event.getKb().getKbY() * multiplier);
+                        KnockBack knockBack = event.getAttack().getKb();
+                        knockBack.setKb(knockBack.getKb() * multiplier);
+                        knockBack.setKbY(knockBack.getKbY() * multiplier);
                         noise.playForAll(target.getLocation());
                     }
                 }

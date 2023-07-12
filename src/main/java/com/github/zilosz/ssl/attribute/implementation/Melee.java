@@ -1,9 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.Attribute;
-import com.github.zilosz.ssl.attribute.Nameable;
-import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.team.Team;
 import com.github.zilosz.ssl.team.TeamPreference;
 import com.github.zilosz.ssl.utils.file.YamlReader;
@@ -13,12 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-public class Melee extends Attribute implements Nameable {
-
-    @Override
-    public String getDisplayName() {
-        return "&cMelee";
-    }
+public class Melee extends Attribute {
 
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent event) {
@@ -32,7 +28,8 @@ public class Melee extends Attribute implements Nameable {
             Team team = SSL.getInstance().getTeamManager().getPlayerTeam(this.player);
 
             if (TeamPreference.ENEMY.validate(team, victim)) {
-                SSL.getInstance().getDamageManager().attack(victim, this, this.createAttack(this.player));
+                AttackInfo attackInfo = new AttackInfo(AttackType.MELEE, this);
+                SSL.getInstance().getDamageManager().attack(victim, this.createAttack(this.player), attackInfo);
 
             }
         }

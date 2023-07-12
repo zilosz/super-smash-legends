@@ -1,8 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.Attack;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
@@ -46,9 +48,9 @@ public class ArcticBreath extends RightClickAbility {
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
         new EntityFinder(selector).findAll(this.player, center).forEach(target -> {
-            Attack attack = YamlReader.attack(this.config, step);
-            attack.getDamage().setDamage(damage);
-            SSL.getInstance().getDamageManager().attack(target, this, attack);
+            Attack attack = YamlReader.attack(this.config, step, this.getDisplayName());
+            AttackInfo attackInfo = new AttackInfo(AttackType.ARCTIC_BREATH, this);
+            SSL.getInstance().getDamageManager().attack(target, attack, attackInfo);
         });
 
         Location next = center.add(step);

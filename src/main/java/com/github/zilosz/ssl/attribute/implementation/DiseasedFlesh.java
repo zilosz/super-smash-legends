@@ -1,6 +1,7 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
@@ -44,7 +45,7 @@ public class DiseasedFlesh extends RightClickAbility {
     }
 
     private void launch(boolean first) {
-        FleshProjectile projectile = new FleshProjectile(this, this.config);
+        FleshProjectile projectile = new FleshProjectile(this.config, new AttackInfo(AttackType.DISEASED_FLESH, this));
         projectile.setItemStack(this.items.next());
 
         if (first) {
@@ -56,8 +57,8 @@ public class DiseasedFlesh extends RightClickAbility {
 
     private static class FleshProjectile extends ItemProjectile {
 
-        public FleshProjectile(Ability ability, Section config) {
-            super(ability, config);
+        public FleshProjectile(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override

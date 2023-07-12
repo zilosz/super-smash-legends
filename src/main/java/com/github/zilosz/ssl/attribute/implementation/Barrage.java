@@ -1,7 +1,8 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.Bow;
 import com.github.zilosz.ssl.projectile.ArrowProjectile;
 import com.github.zilosz.ssl.utils.RunnableUtils;
@@ -54,7 +55,7 @@ public class Barrage extends Bow {
     }
 
     private void launch(double force, boolean first) {
-        BarrageArrow arrow = new BarrageArrow(this, this.config);
+        BarrageArrow arrow = new BarrageArrow(this.config, new AttackInfo(AttackType.BARRAGE, this));
         arrow.setSpeed(force * this.config.getDouble("MaxSpeed"));
 
         if (first) {
@@ -82,8 +83,8 @@ public class Barrage extends Bow {
 
     private static class BarrageArrow extends ArrowProjectile {
 
-        public BarrageArrow(Ability ability, Section config) {
-            super(ability, config);
+        public BarrageArrow(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override

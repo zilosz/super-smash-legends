@@ -1,7 +1,8 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.ChargedRightClickBlockAbility;
 import com.github.zilosz.ssl.projectile.BlockProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
@@ -139,7 +140,8 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
     }
 
     private void launch(boolean particles, double damage, double kb, double speed, FallingBlock block) {
-        GaiaTossProjectile projectile = new GaiaTossProjectile(this, this.config, particles);
+        AttackInfo attackInfo = new AttackInfo(AttackType.GAIA_TOSS, this);
+        GaiaTossProjectile projectile = new GaiaTossProjectile(this.config, attackInfo, particles);
         projectile.setMaterial(block.getMaterial());
         projectile.setData(block.getBlockData());
         projectile.setOverrideLocation(block.getLocation().setDirection(this.player.getEyeLocation().getDirection()));
@@ -176,8 +178,8 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
     private static class GaiaTossProjectile extends BlockProjectile {
         private final boolean createParticles;
 
-        public GaiaTossProjectile(Ability ability, Section config, boolean createParticles) {
-            super(ability, config);
+        public GaiaTossProjectile(Section config, AttackInfo attackInfo, boolean createParticles) {
+            super(config, attackInfo);
             this.createParticles = createParticles;
         }
 

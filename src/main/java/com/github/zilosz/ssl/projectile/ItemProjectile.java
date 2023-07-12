@@ -1,6 +1,6 @@
 package com.github.zilosz.ssl.projectile;
 
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
@@ -12,8 +12,8 @@ import org.bukkit.inventory.ItemStack;
 public class ItemProjectile extends EmulatedProjectile<Item> {
     @Getter @Setter private ItemStack itemStack;
 
-    public ItemProjectile(Ability ability, Section config) {
-        super(ability, config);
+    public ItemProjectile(Section config, AttackInfo attackInfo) {
+        super(config, attackInfo);
         this.config.getOptionalSection("Item").ifPresent(section -> this.itemStack = YamlReader.stack(section));
     }
 

@@ -1,8 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.ChargedRightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
@@ -29,9 +31,10 @@ public class FrostedTwirl extends ChargedRightClickAbility {
         EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
         new EntityFinder(selector).findAll(this.player).forEach(target -> {
-            Attack attack = YamlReader.attack(this.config, this.player.getVelocity());
+            Attack attack = YamlReader.attack(this.config, this.player.getVelocity(), this.getDisplayName());
+            AttackInfo attackInfo = new AttackInfo(AttackType.FROSTED_TWIRL, this);
 
-            if (SSL.getInstance().getDamageManager().attack(target, this, attack)) {
+            if (SSL.getInstance().getDamageManager().attack(target, attack, attackInfo)) {
                 this.player.getWorld().playSound(this.player.getLocation(), Sound.GLASS, 2, 1);
             }
         });

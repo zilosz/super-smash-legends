@@ -1,8 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.utils.effects.Effects;
 import com.github.zilosz.ssl.utils.entity.DisguiseUtils;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
@@ -57,13 +59,15 @@ public class IncarnationSlam extends RightClickAbility {
             EntitySelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
             new EntityFinder(selector).findAll(this.player).forEach(target -> {
-                Attack settings = YamlReader.attack(this.config, this.player.getVelocity());
-                SSL.getInstance().getDamageManager().attack(target, this, settings);
+                Attack attack = YamlReader.attack(this.config, this.player.getVelocity(), this.getDisplayName());
+                AttackInfo attackInfo = new AttackInfo(AttackType.INCARNATION_SLAM, this);
 
-                target.getWorld().playSound(target.getLocation(), Sound.SLIME_ATTACK, 2, 2);
+                if ( SSL.getInstance().getDamageManager().attack(target, attack, attackInfo)) {
+                    target.getWorld().playSound(target.getLocation(), Sound.SLIME_ATTACK, 2, 2);
 
-                ItemStack stack = new ItemStack(Material.SLIME_BALL);
-                Effects.itemBoom(SSL.getInstance(), target.getLocation(), stack, 4, 0.3, 5);
+                    ItemStack stack = new ItemStack(Material.SLIME_BALL);
+                    Effects.itemBoom(SSL.getInstance(), target.getLocation(), stack, 4, 0.3, 5);
+                }
             });
         }, 4, 0);
     }

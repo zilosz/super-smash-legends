@@ -1,9 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
+import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
@@ -52,7 +53,8 @@ public class WebbedSnare extends RightClickAbility {
     }
 
     private void launch(Location source, boolean first) {
-        SnareProjectile projectile = new SnareProjectile(this, this.config.getSection("Projectile"));
+        AttackInfo attackInfo = new AttackInfo(AttackType.WEBBED_SNARE, this);
+        SnareProjectile projectile = new SnareProjectile(this.config.getSection("Projectile"), attackInfo);
         projectile.setOverrideLocation(source);
 
         if (first) {
@@ -63,8 +65,8 @@ public class WebbedSnare extends RightClickAbility {
     }
 
     @EventHandler
-    public void onHitEntity(AttributeDamageEvent event) {
-        if (event.getAttribute() != this) return;
+    public void onHitEntity(AttackEvent event) {
+        if (event.getAttackInfo().getAttribute() != this) return;
 
         if (this.hitEntities.contains(event.getVictim())) {
             event.setCancelled(true);
@@ -76,8 +78,8 @@ public class WebbedSnare extends RightClickAbility {
     private static class SnareProjectile extends ItemProjectile {
         private Block webBlock;
 
-        public SnareProjectile(Ability ability, Section config) {
-            super(ability, config);
+        public SnareProjectile(Section config, AttackInfo attackInfo) {
+            super(config, attackInfo);
         }
 
         @Override

@@ -15,7 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class Ability extends Attribute implements Nameable {
+public abstract class Ability extends Attribute {
     protected YamlDocument config;
     @Getter protected AbilityType type;
     protected int slot;
@@ -84,7 +84,6 @@ public abstract class Ability extends Attribute implements Nameable {
         return MessageUtils.color(this.kit.getColor().getChatSymbol() + "&l" + this.config.getString("Name"));
     }
 
-    @Override
     public String getDisplayName() {
         return MessageUtils.color(this.kit.getColor().getChatSymbol() + this.config.getString("Name"));
     }

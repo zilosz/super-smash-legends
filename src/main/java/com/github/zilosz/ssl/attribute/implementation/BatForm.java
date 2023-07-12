@@ -1,10 +1,11 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.attribute.ClickableAbility;
 import com.github.zilosz.ssl.attribute.PassiveAbility;
-import com.github.zilosz.ssl.event.attack.AttributeDamageEvent;
+import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
 import com.github.zilosz.ssl.event.attribute.RegenEvent;
@@ -34,9 +35,9 @@ public class BatForm extends PassiveAbility {
     private boolean isBat = false;
 
     @EventHandler
-    public void onAttributeDamage(AttributeDamageEvent event) {
-        if (!(event.getAttribute().getPlayer() == this.player)) return;
-        if (!(event.getAttribute() instanceof Melee)) return;
+    public void onAttributeDamage(AttackEvent event) {
+        if (event.getAttackInfo().getAttribute().getPlayer() != this.player) return;
+        if (event.getAttackInfo().getType() != AttackType.MELEE) return;
         if (!this.isBat) return;
         if (!RegenEvent.attempt(this.player, this.config.getDouble("Regen"))) return;
 

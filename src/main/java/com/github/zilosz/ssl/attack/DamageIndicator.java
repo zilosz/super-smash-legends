@@ -1,4 +1,4 @@
-package com.github.zilosz.ssl.damage;
+package com.github.zilosz.ssl.attack;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
@@ -28,17 +28,17 @@ public class DamageIndicator extends BukkitRunnable {
         this.height = height;
     }
 
-    public static DamageIndicator create(SSL plugin, LivingEntity entity, double damage) {
-        Section heightConfig = plugin.getResources().getConfig().getSection("Damage.Indicator.Height");
+    public static DamageIndicator create(LivingEntity entity, double damage) {
+        Section heightConfig = SSL.getInstance().getResources().getConfig().getSection("Damage.Indicator.Height");
         double height = heightConfig.getDouble(entity instanceof Player ? "Player" : "Entity");
 
         Location loc = relativePosition(entity, height);
 
-        Hologram hologram = HolographicDisplaysAPI.get(plugin).createHologram(loc);
+        Hologram hologram = HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(loc);
         TextHologramLine line = hologram.getLines().appendText(damageFormat(entity, damage));
 
         DamageIndicator indicator = new DamageIndicator(hologram, line, entity, height);
-        indicator.runTaskTimer(plugin, 0, 0);
+        indicator.runTaskTimer(SSL.getInstance(), 0, 0);
 
         if (entity instanceof Player) {
             VisibilitySettings.Visibility hidden = VisibilitySettings.Visibility.HIDDEN;

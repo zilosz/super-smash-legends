@@ -1,9 +1,11 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
-import com.github.zilosz.ssl.event.attack.AttributeKbEvent;
+import com.github.zilosz.ssl.attack.Attack;
+import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.utils.NmsUtils;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.file.YamlReader;
@@ -18,12 +20,13 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerVelocityEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.particle.ParticleBuilder;
 import xyz.xenondevs.particle.ParticleEffect;
 
 public class SuperhumanPunch extends RightClickAbility {
     private boolean hit = false;
-    private BukkitTask particleTask;
+    @Nullable private BukkitTask particleTask;
     private LivingEntity victim;
 
     @Override
@@ -47,6 +50,7 @@ public class SuperhumanPunch extends RightClickAbility {
 
         if (this.particleTask != null) {
             this.particleTask.cancel();
+            this.particleTask = null;
         }
     }
 
@@ -62,7 +66,8 @@ public class SuperhumanPunch extends RightClickAbility {
 
         Vector direction = this.player.getEyeLocation().getDirection();
         Attack settings = YamlReader.attack(this.config, direction);
-        SSL.getInstance().getDamageManager().attack(this.victim, this, settings);
+        AttackInfo attackInfo = new AttackInfo(AttackType.MELEE, this);
+        SSL.getInstance().getDamageManager().attack(this.victim, settings, attackInfo);
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.SPIDER_DEATH, 2, 2);
         this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_WOODBREAK, 0.5f, 2);
@@ -75,6 +80,7 @@ public class SuperhumanPunch extends RightClickAbility {
 
             if (this.victim.isOnGround()) {
                 this.particleTask.cancel();
+                this.particleTask = null;
 
             } else {
                 ParticleBuilder particle = new ParticleBuilder(ParticleEffect.SMOKE_LARGE).setSpeed(0);
@@ -91,7 +97,7 @@ public class SuperhumanPunch extends RightClickAbility {
     }
 
     @EventHandler
-    public void onKb(AttributeKbEvent event) {
+    public void onAttack(AttackEvent event) {
         if (event.getVictim() == this.victim && this.particleTask != null) {
             this.particleTask.cancel();
         }

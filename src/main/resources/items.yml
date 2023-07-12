@@ -6,7 +6,7 @@ KitSelector:
     - "&7Click to open the kit selector."
 ArenaVoter:
   Slot: 7
-  Material: PAPER
+  Material: BOOK
   Name: "&2&lArena Voter"
   Lore:
     - "&7Click to open the arena voter."

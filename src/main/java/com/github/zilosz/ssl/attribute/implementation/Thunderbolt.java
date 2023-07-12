@@ -1,8 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.ChargedRightClickAbility;
-import com.github.zilosz.ssl.damage.Attack;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
@@ -62,7 +64,9 @@ public class Thunderbolt extends ChargedRightClickAbility {
                 attack.getDamage().setDamage(damage);
                 attack.getKb().setKb(kb);
 
-                if (SSL.getInstance().getDamageManager().attack(target, this, attack)) {
+                AttackInfo attackInfo = new AttackInfo(AttackType.THUNDERBOLT, this);
+
+                if (SSL.getInstance().getDamageManager().attack(target, attack, attackInfo)) {
                     found = true;
                     break;
                 }
