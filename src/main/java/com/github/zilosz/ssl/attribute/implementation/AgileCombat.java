@@ -15,6 +15,7 @@ import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxS
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Bukkit;
+import org.bukkit.FireworkEffect;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -47,7 +48,13 @@ public class AgileCombat extends RightClickAbility {
 
     private void onFirstClick() {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_PIG_ANGRY, 1, 2);
-        Effects.launchFirework(EntityUtils.top(this.player), this.kit.getColor().getColor(), 1);
+
+        FireworkEffect.Builder settings = FireworkEffect.builder()
+                .withColor(this.kit.getColor().getBukkitColor())
+                .with(FireworkEffect.Type.BURST)
+                .trail(true);
+
+        Effects.launchFirework(EntityUtils.top(this.player), settings, 1);
 
         this.player.setVelocity(new Vector(0, -this.config.getDouble("DropVelocity"), 0));
         this.player.setWalkSpeed(this.config.getFloat("WalkSpeed"));

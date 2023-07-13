@@ -2,7 +2,6 @@ package com.github.zilosz.ssl.utils.effects;
 
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
@@ -14,13 +13,12 @@ import org.bukkit.plugin.Plugin;
 
 public class Effects {
 
-    public static Firework launchFirework(Location location, Color color, int power) {
+    public static Firework launchFirework(Location location, FireworkEffect.Builder settings, int power) {
         Firework firework = location.getWorld().spawn(location, Firework.class);
-        FireworkMeta fireworkMeta = firework.getFireworkMeta();
-        FireworkEffect.Builder builder = FireworkEffect.builder();
-        fireworkMeta.addEffect(builder.flicker(true).withColor(color).build());
-        fireworkMeta.setPower(power);
-        firework.setFireworkMeta(fireworkMeta);
+        FireworkMeta meta = firework.getFireworkMeta();
+        meta.addEffect(settings.build());
+        meta.setPower(power);
+        firework.setFireworkMeta(meta);
         return firework;
     }
 

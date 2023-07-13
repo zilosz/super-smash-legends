@@ -5,21 +5,20 @@ import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.attack.AttackInfo;
 import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.ChargedRightClickAbility;
-import com.github.zilosz.ssl.utils.block.BlockHitResult;
-import com.github.zilosz.ssl.utils.block.BlockUtils;
+import com.github.zilosz.ssl.utils.effects.Effects;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
 import com.github.zilosz.ssl.utils.file.YamlReader;
+import org.bukkit.Bukkit;
+import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 import xyz.xenondevs.particle.ParticleBuilder;
 import xyz.xenondevs.particle.ParticleEffect;
-
-import java.awt.Color;
 
 public class Thunderbolt extends ChargedRightClickAbility {
 
@@ -72,7 +71,8 @@ public class Thunderbolt extends ChargedRightClickAbility {
                 }
             }
 
-            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(255, 255, 0));
+            ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE)
+                    .setColor(this.kit.getColor().getAwtColor());
             new ParticleMaker(particle).show(location);
 
             stepped += 0.25;
@@ -84,10 +84,12 @@ public class Thunderbolt extends ChargedRightClickAbility {
         location.getWorld().strikeLightningEffect(location);
         location.getWorld().playSound(location, Sound.AMBIENCE_THUNDER, 4, 0.5f);
 
-        BlockHitResult result = BlockUtils.findBlockHitByBox(location, 1, 1, 1, 0.25);
-        BlockFace face = result == null ? null : result.getFace();
+        FireworkEffect.Builder settings = FireworkEffect.builder()
+                .withColor(this.kit.getColor().getBukkitColor())
+                .with(FireworkEffect.Type.BALL)
+                .withTrail();
 
-        ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(255, 255, 0));
-        new ParticleMaker(particle).setFace(face).boom(SSL.getInstance(), location, 5, 0.5, 18);
+        Firework firework = Effects.launchFirework(location, settings, 1);
+        Bukkit.getScheduler().runTaskLater(SSL.getInstance(), firework::detonate, 5);
     }
 }

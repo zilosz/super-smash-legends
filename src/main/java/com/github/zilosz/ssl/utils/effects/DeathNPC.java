@@ -14,7 +14,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import xyz.xenondevs.particle.ParticleBuilder;
@@ -65,12 +64,10 @@ public class DeathNPC extends BukkitRunnable implements Listener {
     }
 
     public void destroy() {
-        if (!this.npc.isSpawned()) return;
-
         this.player.getWorld().playSound(this.npc.getStoredLocation(), Sound.WITHER_DEATH, 3, 1.5f);
 
         KitManager kitManager = SSL.getInstance().getKitManager();
-        Color color = kitManager.getSelectedKit(this.player).getColor().getParticleColor();
+        Color color = kitManager.getSelectedKit(this.player).getColor().getAwtColor();
 
         ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(color);
         new ParticleMaker(particle).boom(SSL.getInstance(), EntityUtils.center(this.npc.getEntity()), 5, 0.25, 50);
@@ -83,14 +80,7 @@ public class DeathNPC extends BukkitRunnable implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onNormalDamage(EntityDamageEvent event) {
-        if (event.getEntity() == this.npc.getEntity()) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onCustomDamage(DamageEvent event) {
+    public void onDamage(DamageEvent event) {
         if (event.getVictim() == this.npc.getEntity()) {
             event.setCancelled(true);
         }

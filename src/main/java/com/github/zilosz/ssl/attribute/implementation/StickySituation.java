@@ -7,6 +7,7 @@ import com.github.zilosz.ssl.event.attribute.EnergyEvent;
 import com.github.zilosz.ssl.event.attribute.RegenEvent;
 import com.github.zilosz.ssl.utils.effects.Effects;
 import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -44,7 +45,12 @@ public class StickySituation extends PassiveAbility {
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_PIG_ANGRY, 1, 1);
 
-        Effects.launchFirework(this.player.getEyeLocation(), Color.fromRGB(0, 255, 0), 1);
+        FireworkEffect.Builder settings = FireworkEffect.builder()
+                .withColor(Color.fromRGB(0, 255, 0))
+                .with(FireworkEffect.Type.BALL)
+                .trail(true);
+
+        Effects.launchFirework(this.player.getEyeLocation(), settings, 1);
     }
 
     @EventHandler
@@ -56,7 +62,13 @@ public class StickySituation extends PassiveAbility {
         this.reset();
 
         this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_PIG_DEATH, 1, 1);
-        Effects.launchFirework(this.player.getEyeLocation(), Color.fromRGB(0, 102, 0), 1);
+
+        FireworkEffect.Builder settings = FireworkEffect.builder()
+                .withColor(Color.fromRGB(0, 120, 0))
+                .with(FireworkEffect.Type.BURST)
+                .trail(true);
+
+        Effects.launchFirework(this.player.getEyeLocation(), settings, 1);
     }
 
     @EventHandler

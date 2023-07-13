@@ -35,21 +35,21 @@ public enum ColorType {
     @Getter private final String name;
     @Getter private final DyeColor dyeColor;
     @Getter private final String chatSymbol;
-    private final Color color;
+    private final Color bukkitColor;
 
-    ColorType(@NotNull String name, @NotNull DyeColor dyeColor, @NotNull String chatSymbol, Color color) {
+    ColorType(@NotNull String name, @NotNull DyeColor dyeColor, @NotNull String chatSymbol, Color bukkitColor) {
         this.name = name;
         this.dyeColor = dyeColor;
         this.chatSymbol = chatSymbol;
-        this.color = color;
+        this.bukkitColor = bukkitColor;
     }
 
-    public java.awt.Color getParticleColor() {
-        Color realColor = this.getColor();
+    public java.awt.Color getAwtColor() {
+        Color realColor = this.getBukkitColor();
         return new java.awt.Color(realColor.getRed(), realColor.getGreen(), realColor.getBlue());
     }
 
-    public Color getColor() {
-        return this.color == null ? this.dyeColor.getColor() : this.color;
+    public Color getBukkitColor() {
+        return this.bukkitColor == null ? this.dyeColor.getColor() : this.bukkitColor;
     }
 }
