@@ -28,7 +28,6 @@ DeathSound:
   Volume: 3
   Pitch: 1
 Abilities:
-  0: SUPERHUMAN_PUNCH
-  1: WEB_GRAPPLE
-  2: WEBBED_SNARE
-  3: BLINDING_FISTS
+  0: WEB_GRAPPLE
+  1: WEBBED_SNARE
+  2: BLINDING_FISTS

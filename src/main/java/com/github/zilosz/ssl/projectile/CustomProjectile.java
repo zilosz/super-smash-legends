@@ -1,8 +1,9 @@
 package com.github.zilosz.ssl.projectile;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attack.AttackInfo;
 import com.github.zilosz.ssl.attack.Attack;
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.event.projectile.ProjectileHitBlockEvent;
 import com.github.zilosz.ssl.game.state.GameStateType;
 import com.github.zilosz.ssl.utils.NmsUtils;
@@ -48,6 +49,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     protected boolean invisible;
     protected boolean recreateOnBounce = false;
     protected boolean useCustomHitBox = true;
+    protected boolean removeOnFailedHit = false;
     protected int ticksAlive = 0;
     protected Vector launchVelocity;
     protected int timesBounced = 0;
@@ -57,9 +59,13 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     public CustomProjectile(Section config, AttackInfo attackInfo) {
         this.config = config;
         this.attackInfo = attackInfo;
-
         this.launcher = this.attackInfo.getAttribute().getPlayer();
-        this.attack = YamlReader.attack(this.config, null);
+
+        this.attack = YamlReader.attack(this.config, null, "");
+
+        if (this.attackInfo.getAttribute() instanceof Ability) {
+            this.attack.setName(((Ability) this.attackInfo.getAttribute()).getDisplayName());
+        }
 
         Section defaults = SSL.getInstance().getResources().getConfig().getSection("Projectile");
 
@@ -238,6 +244,9 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
             if (this.removeOnEntityHit) {
                 this.remove(ProjectileRemoveReason.HIT_ENTITY);
             }
+
+        } else if (this.removeOnFailedHit) {
+            this.remove(ProjectileRemoveReason.HIT_ENTITY);
         }
     }
 

@@ -103,10 +103,6 @@ public class YamlReader {
         return new PotionEffect(type, duration, amplifier);
     }
 
-    public static Attack attack(Section config, Vector direction) {
-        return attack(config, direction, "");
-    }
-
     public static Attack attack(Section config, Vector direction, String name) {
         Resources resources = SSL.getInstance().getResources();
         int defaultImmunity = resources.getConfig().getInt("Damage.DefaultImmunityTicks");

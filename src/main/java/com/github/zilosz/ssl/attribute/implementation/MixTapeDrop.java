@@ -1,10 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.attack.AttackInfo;
 import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.projectile.ItemProjectile;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
@@ -48,7 +48,8 @@ public class MixTapeDrop extends RightClickAbility {
 
             finder.findAll(this.launcher, this.entity.getLocation()).forEach(target -> {
                 Vector direction = VectorUtils.fromTo(this.entity, target);
-                Attack attack = YamlReader.attack(this.config.getSection("Ground"), direction);
+                String name = ((MixTapeDrop) this.attackInfo.getAttribute()).getDisplayName();
+                Attack attack = YamlReader.attack(this.config.getSection("Ground"), direction, name);
 
                 if (SSL.getInstance().getDamageManager().attack(target, attack, this.attackInfo)) {
                     this.launcher.playSound(this.launcher.getLocation(), Sound.NOTE_PLING, 2, 2);

@@ -1,10 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.attack.AttackInfo;
 import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.team.TeamPreference;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
@@ -136,7 +136,8 @@ public class OlympicDive extends RightClickAbility {
             double damage = YamlReader.decreasingValue(this.config, "DiveDamage", distance, radius);
             double kb = YamlReader.decreasingValue(this.config, "DiveKb", distance, radius);
 
-            Attack attack = YamlReader.attack(this.config, VectorUtils.fromTo(this.player, target));
+            Vector direction = VectorUtils.fromTo(this.player, target);
+            Attack attack = YamlReader.attack(this.config, direction, this.getDisplayName());
             attack.getDamage().setDamage(damage);
             attack.getKb().setKb(kb);
 
@@ -152,7 +153,7 @@ public class OlympicDive extends RightClickAbility {
     }
 
     @EventHandler
-    public void onKb(AttackEvent event) {
+    public void onAttack(AttackEvent event) {
         if (event.getAttackInfo().getAttribute().getPlayer() == this.player && this.diveState != State.INACTIVE) {
             event.getAttack().getKb().setDirection(null);
         }

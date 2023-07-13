@@ -18,7 +18,7 @@ public class BlockProjectile extends EmulatedProjectile<FallingBlock> {
     public BlockProjectile(Section config, AttackInfo attackInfo) {
         super(config, attackInfo);
         this.material = Material.valueOf(config.getOptionalString("Block.Material").orElse("DIRT"));
-        this.data = config.getOptionalByte("Block.Data").orElse((byte) 0);
+        this.data = config.getByte("Block.Data");
         this.defaultHitBox = 1;
     }
 

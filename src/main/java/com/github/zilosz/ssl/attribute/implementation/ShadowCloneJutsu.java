@@ -1,12 +1,12 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.attack.AttackInfo;
 import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.AbilityType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.utils.NmsUtils;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;

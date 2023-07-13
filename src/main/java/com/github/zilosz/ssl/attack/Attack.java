@@ -5,9 +5,9 @@ import lombok.Setter;
 
 @Getter
 public class Attack {
-    @Setter private String name;
     private final Damage damage;
     private final KnockBack kb;
+    @Setter private String name;
     @Setter private int immunityTicks;
 
     public Attack(String name, Damage damage, KnockBack kb, int immunityTicks) {

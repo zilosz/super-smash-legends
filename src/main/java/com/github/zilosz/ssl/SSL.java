@@ -1,6 +1,7 @@
 package com.github.zilosz.ssl;
 
 import com.github.zilosz.ssl.arena.ArenaManager;
+import com.github.zilosz.ssl.attack.AttackManager;
 import com.github.zilosz.ssl.command.DamageCommand;
 import com.github.zilosz.ssl.command.DummyCommand;
 import com.github.zilosz.ssl.command.EndCommand;
@@ -12,7 +13,6 @@ import com.github.zilosz.ssl.command.ReloadConfigCommand;
 import com.github.zilosz.ssl.command.SkipCommand;
 import com.github.zilosz.ssl.command.SpecCommand;
 import com.github.zilosz.ssl.command.StartCommand;
-import com.github.zilosz.ssl.attack.AttackManager;
 import com.github.zilosz.ssl.database.PlayerDatabase;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.GameScoreboard;

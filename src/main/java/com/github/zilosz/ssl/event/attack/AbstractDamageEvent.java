@@ -16,8 +16,6 @@ public abstract class AbstractDamageEvent extends CustomEvent implements Cancell
         this.victim = victim;
     }
 
-    public abstract Damage getDamage();
-
     public boolean willDie() {
         return this.getNewHealth() <= 0;
     }
@@ -29,4 +27,6 @@ public abstract class AbstractDamageEvent extends CustomEvent implements Cancell
     public double getFinalDamage() {
         return this.getDamage().getFinalDamage(this.victim);
     }
+
+    public abstract Damage getDamage();
 }

@@ -9,8 +9,8 @@ import org.bukkit.entity.LivingEntity;
 @Getter
 public class DamageEvent extends AbstractDamageEvent {
     private final Damage damage;
-    @Setter private boolean isVoid;
     private final AttackSource attackSource;
+    @Setter private boolean isVoid;
 
     public DamageEvent(LivingEntity victim, Damage damage, boolean isVoid, AttackSource attackSource) {
         super(victim);

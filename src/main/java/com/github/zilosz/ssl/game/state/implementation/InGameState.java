@@ -4,9 +4,9 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import com.connorlinfoot.titleapi.TitleAPI;
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.AttackManager;
 import com.github.zilosz.ssl.attack.AttackSource;
 import com.github.zilosz.ssl.attack.Damage;
-import com.github.zilosz.ssl.attack.AttackManager;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.InGameProfile;
@@ -506,10 +506,10 @@ public class InGameState extends GameState {
             died.playSound(died.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
         }
 
-        attackManager.destroyIndicator(died);
-        attackManager.removeDamageSource(died);
+        attackManager.clearIndicator(died);
+        attackManager.clearDamageSource(died);
         attackManager.clearImmunities(died);
-        attackManager.removeComboIndicator(died);
+        attackManager.clearPlayerCombo(died);
 
         died.setGameMode(GameMode.SPECTATOR);
 

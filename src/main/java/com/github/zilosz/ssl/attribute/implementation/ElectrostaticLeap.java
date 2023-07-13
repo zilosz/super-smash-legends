@@ -1,10 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.attack.AttackInfo;
 import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.HitBoxSelector;
@@ -45,7 +45,7 @@ public class ElectrostaticLeap extends RightClickAbility {
             HitBoxSelector selector = new HitBoxSelector(this.config.getDouble("HitBox"));
 
             new EntityFinder(selector).findAll(this.player).forEach(target -> {
-                Vector direction =  this.player.getLocation().getDirection();
+                Vector direction = this.player.getLocation().getDirection();
                 Attack attack = YamlReader.attack(this.config, direction, this.getDisplayName());
                 AttackInfo attackInfo = new AttackInfo(AttackType.ELECTROSTATIC_LEAP, this);
 

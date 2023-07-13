@@ -26,5 +26,5 @@ Projectile:
     Damage: 7
     Kb: 2.2
     KbY: 0.8
-  Item:
+  Block:
     Material: SOUL_SAND

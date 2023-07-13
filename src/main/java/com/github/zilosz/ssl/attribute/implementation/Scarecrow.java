@@ -2,9 +2,9 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attack.AttackType;
-import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.attack.Damage;
 import com.github.zilosz.ssl.attack.KnockBack;
+import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
@@ -190,10 +190,6 @@ public class Scarecrow extends RightClickAbility {
         return MessageUtils.color(this.config.getString("Hologram.TpHint." + (canTp ? "Yes" : "No")));
     }
 
-    private double getEffectRange() {
-        return this.config.getDouble("EffectRange");
-    }
-
     private Location getHologramLocation() {
         return EntityUtils.top(this.scarecrow.getEntity()).add(0, this.config.getDouble("Hologram.HeightAboveHead"), 0);
     }
@@ -222,6 +218,10 @@ public class Scarecrow extends RightClickAbility {
         this.scarecrow.destroy();
         SSL.getInstance().getNpcStorage().removeNpc(this.scarecrow);
         CollectionUtils.removeWhileIterating(this.affectedTargets, this::removeEffect);
+    }
+
+    private double getEffectRange() {
+        return this.config.getDouble("EffectRange");
     }
 
     private void removeEffect(LivingEntity entity) {

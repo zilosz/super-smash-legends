@@ -1,10 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.attack.AttackInfo;
 import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.Attribute;
-import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.team.Team;
 import com.github.zilosz.ssl.team.TeamPreference;
 import com.github.zilosz.ssl.utils.file.YamlReader;
@@ -39,7 +39,7 @@ public class Melee extends Attribute {
         Section config = SSL.getInstance().getResources().getConfig().getSection("Damage.Melee");
         double damage = SSL.getInstance().getKitManager().getSelectedKit(this.player).getDamage();
 
-        Attack attack = YamlReader.attack(config, user.getEyeLocation().getDirection());
+        Attack attack = YamlReader.attack(config, user.getEyeLocation().getDirection(), "");
         attack.getDamage().setDamage(damage);
 
         return attack;

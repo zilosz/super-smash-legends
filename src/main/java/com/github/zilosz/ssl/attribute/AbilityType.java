@@ -48,7 +48,6 @@ import com.github.zilosz.ssl.attribute.implementation.SpookyScream;
 import com.github.zilosz.ssl.attribute.implementation.SpringTrap;
 import com.github.zilosz.ssl.attribute.implementation.SquidDash;
 import com.github.zilosz.ssl.attribute.implementation.StickySituation;
-import com.github.zilosz.ssl.attribute.implementation.SuperhumanPunch;
 import com.github.zilosz.ssl.attribute.implementation.Teleport;
 import com.github.zilosz.ssl.attribute.implementation.Thunderbolt;
 import com.github.zilosz.ssl.attribute.implementation.VoltTackle;
@@ -108,7 +107,6 @@ public enum AbilityType implements Supplier<Ability> {
     SPRING_TRAP("spring-trap", SpringTrap::new),
     SQUID_DASH("squid-dash", SquidDash::new),
     STICKY_SITUATION("sticky-situation", StickySituation::new),
-    SUPERHUMAN_PUNCH("superhuman-punch", SuperhumanPunch::new),
     TELEPORT("teleport", Teleport::new),
     THUNDERBOLT("thunderbolt", Thunderbolt::new),
     VOLT_TACKLE("volt-tackle", VoltTackle::new),

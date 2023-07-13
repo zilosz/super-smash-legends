@@ -1,10 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.attack.AttackInfo;
 import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
 import com.github.zilosz.ssl.utils.block.MaterialInfo;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
@@ -101,13 +101,11 @@ public class Earthquake extends RightClickAbility {
         this.player.getWorld().playSound(loc, Sound.DIG_GRASS, 1, 1);
 
         Block groundBlock = loc.clone().subtract(0, 0.5, 0).getBlock();
+        MaterialInfo airInfo = MaterialInfo.fromBlock(loc.getBlock());
         BlockUtils.setBlockFast(loc, MaterialInfo.fromBlock(groundBlock));
 
-        MaterialInfo airInfo = MaterialInfo.fromBlock(loc.getBlock());
         int duration = this.config.getInt("UprootDuration");
-
-        Bukkit.getScheduler()
-                .runTaskLater(SSL.getInstance(), () -> BlockUtils.setBlockFast(loc, airInfo), duration);
+        Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> BlockUtils.setBlockFast(loc, airInfo), duration);
     }
 
     private void reset() {

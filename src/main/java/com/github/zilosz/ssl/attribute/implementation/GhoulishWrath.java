@@ -22,7 +22,6 @@ import xyz.xenondevs.particle.ParticleBuilder;
 import xyz.xenondevs.particle.ParticleEffect;
 
 public class GhoulishWrath extends ChargedRightClickAbility {
-    private Material material;
     private FloatingEntity<FallingBlock> floatingBlock;
     private float pitch;
 
@@ -46,16 +45,13 @@ public class GhoulishWrath extends ChargedRightClickAbility {
         int ticksCharged = this.ticksCharging;
 
         AttackInfo attackInfo = new AttackInfo(AttackType.GHOULISH_WRATH, this);
+        double speed = YamlReader.increasingValue(this.config, "Velocity", ticksCharged, this.getMaxChargeTicks());
 
         RunnableUtils.runTaskWithIntervals(SSL.getInstance(), count, interval, () -> {
             this.player.getWorld().playSound(this.player.getLocation(), Sound.WITHER_SHOOT, 0.5f, 2);
 
             SoulProjectile projectile = new SoulProjectile(this.config.getSection("Projectile"), attackInfo);
-            projectile.setMaterial(this.material);
-
-            projectile.setSpeed(YamlReader.increasingValue(
-                    this.config, "Velocity", ticksCharged, this.getMaxChargeTicks()));
-
+            projectile.setSpeed(speed);
             projectile.launch();
         });
 
@@ -64,14 +60,14 @@ public class GhoulishWrath extends ChargedRightClickAbility {
 
     @Override
     public void onInitialClick(PlayerInteractEvent event) {
-        this.material = Material.valueOf(this.config.getString("Material"));
+        Material material = Material.valueOf(this.config.getString("Projectile.Block.Material"));
         this.pitch = 0.5f;
 
         this.floatingBlock = new FloatingEntity<>() {
 
             @Override
             public FallingBlock createEntity(Location location) {
-                return BlockUtils.spawnFallingBlock(location, GhoulishWrath.this.material);
+                return BlockUtils.spawnFallingBlock(location, material);
             }
         };
 

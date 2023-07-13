@@ -11,4 +11,4 @@ MaxStreamSpread: 0.4
 StreamSpreadStep: 0.009
 StreamStep: 0.1
 ParticlesPerSpread: 3
-EnergyPerTick: 0.05
+EnergyPerTick: 0.06

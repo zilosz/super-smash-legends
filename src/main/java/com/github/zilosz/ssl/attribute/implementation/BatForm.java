@@ -56,30 +56,30 @@ public class BatForm extends PassiveAbility {
             return;
         }
 
-        if (event.willDie() || event.getNewHealth() > this.config.getDouble("HealthThreshold")) return;
+        if (event.getNewHealth() <= this.config.getDouble("HealthThreshold")) {
+            this.isBat = true;
 
-        this.isBat = true;
-
-        this.player.getWorld().playSound(this.player.getLocation(), Sound.BAT_HURT, 1, 0.5f);
-
-        for (int i = 0; i < 3; i++) {
+            this.player.getWorld().playSound(this.player.getLocation(), Sound.BAT_HURT, 1, 0.5f);
             ParticleBuilder particle = new ParticleBuilder(ParticleEffect.SMOKE_LARGE).setSpeed(0);
-            new ParticleMaker(particle).setSpread(0.5).show(this.player.getLocation());
+
+            for (int i = 0; i < 3; i++) {
+                new ParticleMaker(particle).setSpread(0.5).show(this.player.getLocation());
+            }
+
+            Disguise disguise = DisguiseUtils.applyDisguiseParams(this.player, new MobDisguise(DisguiseType.BAT));
+            DisguiseAPI.disguiseToAll(this.player, disguise);
+
+            this.oldJumpLimit = this.kit.getJump().getMaxCount();
+            this.kit.getJump().setMaxCount(this.config.getInt("ExtraJumps"));
+            this.kit.getJump().replenish();
+
+            this.removedAttributes = this.kit.getAttributes().stream()
+                    .filter(ClickableAbility.class::isInstance)
+                    .collect(Collectors.toSet());
+
+            this.removedAttributes.forEach(Attribute::destroy);
+            this.player.getInventory().setItem(0, new ItemBuilder<>(Material.GOLD_SWORD).get());
         }
-
-        Disguise disguise = DisguiseUtils.applyDisguiseParams(this.player, new MobDisguise(DisguiseType.BAT));
-        DisguiseAPI.disguiseToAll(this.player, disguise);
-
-        this.oldJumpLimit = this.kit.getJump().getMaxCount();
-        this.kit.getJump().setMaxCount(this.config.getInt("ExtraJumps"));
-
-        this.removedAttributes = this.kit.getAttributes().stream()
-                .filter(ClickableAbility.class::isInstance)
-                .collect(Collectors.toSet());
-
-        this.removedAttributes.forEach(Attribute::destroy);
-
-        this.player.getInventory().setItem(0, new ItemBuilder<>(Material.GOLD_SWORD).get());
     }
 
     @Override

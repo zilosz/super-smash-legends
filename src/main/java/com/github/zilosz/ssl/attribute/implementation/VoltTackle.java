@@ -1,10 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.attack.AttackInfo;
 import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
@@ -67,12 +67,11 @@ public class VoltTackle extends RightClickAbility {
                 Item gold = this.player.getWorld().dropItem(center, new ItemStack(Material.GOLD_INGOT));
                 gold.setPickupDelay(Integer.MAX_VALUE);
                 gold.setVelocity(VectorUtils.randomVector(null).multiply(this.config.getDouble("ParticleSpeed")));
+
                 int particleDuration = this.config.getInt("ParticleDuration");
 
-                this.particles.put(
-                        gold,
-                        Bukkit.getScheduler().runTaskLater(SSL.getInstance(), gold::remove, particleDuration)
-                );
+                this.particles.put(gold, Bukkit.getScheduler()
+                        .runTaskLater(SSL.getInstance(), gold::remove, particleDuration));
             }
 
             float pitch = (float) MathUtils.increasingValue(0.5, 2, duration, this.ticksMoving);
@@ -82,7 +81,7 @@ public class VoltTackle extends RightClickAbility {
                 double damage = YamlReader.increasingValue(this.config, "Damage", this.ticksMoving, duration);
                 double kb = YamlReader.increasingValue(this.config, "Kb", this.ticksMoving, duration);
 
-                Attack attack = YamlReader.attack(this.config, velocity);
+                Attack attack = YamlReader.attack(this.config, velocity, this.getDisplayName());
                 attack.getDamage().setDamage(damage);
                 attack.getKb().setKb(kb);
 
@@ -92,22 +91,16 @@ public class VoltTackle extends RightClickAbility {
                     this.player.getWorld().playSound(this.player.getLocation(), Sound.FALL_BIG, 1, 2);
                     this.player.getWorld().strikeLightningEffect(target.getLocation());
 
-                    Section recoilConfig = this.config.getSection("Recoil");
+                    Section settings = this.config.getSection("Recoil");
+                    double recoilDamage = YamlReader.increasingValue(settings, "Damage", this.ticksMoving, duration);
+                    double recoilKb = YamlReader.increasingValue(settings, "Kb", this.ticksMoving, duration);
 
-                    double recoilDamage = YamlReader.increasingValue(
-                            recoilConfig, "Damage", this.ticksMoving, duration
-                    );
-
-                    double recoilKb = YamlReader.increasingValue(
-                            recoilConfig, "Kb", this.ticksMoving, duration
-                    );
-
-                    Attack recoil = YamlReader.attack(recoilConfig, velocity.multiply(-1));
+                    Attack recoil = YamlReader.attack(settings, velocity.multiply(-1), this.getDisplayName());
                     recoil.getDamage().setDamage(recoilDamage);
                     recoil.getKb().setKb(recoilKb);
 
                     AttackInfo info = new AttackInfo(AttackType.VOLT_TACKLE_RECOIL, this);
-                    SSL.getInstance().getDamageManager().attack(target, recoil, info);
+                    SSL.getInstance().getDamageManager().attack(this.player, recoil, info);
                 }
 
                 this.reset(true, false);

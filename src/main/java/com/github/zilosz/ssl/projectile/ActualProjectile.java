@@ -19,6 +19,7 @@ public abstract class ActualProjectile<T extends Projectile> extends CustomProje
         this.removeOnBlockHit = true;
         this.recreateOnBounce = true;
         this.useCustomHitBox = false;
+        this.removeOnFailedHit = true;
     }
 
     @Override

@@ -1,10 +1,10 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.attack.AttackInfo;
 import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.ChargedRightClickAbility;
-import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.block.BlockUtils;
 import com.github.zilosz.ssl.utils.effects.ParticleMaker;
@@ -60,7 +60,7 @@ public class Thunderbolt extends ChargedRightClickAbility {
             }
 
             for (LivingEntity target : finder.findAll(this.player, location)) {
-                Attack attack = YamlReader.attack(this.config, step);
+                Attack attack = YamlReader.attack(this.config, step, this.getDisplayName());
                 attack.getDamage().setDamage(damage);
                 attack.getKb().setKb(kb);
 
