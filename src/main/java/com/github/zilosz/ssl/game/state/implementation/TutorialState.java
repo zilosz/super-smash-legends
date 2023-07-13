@@ -88,7 +88,6 @@ public class TutorialState extends GameState {
     @Override
     public void start() {
         GameManager gameManager = SSL.getInstance().getGameManager();
-
         int specCount = 0;
 
         for (Player player : Bukkit.getOnlinePlayers()) {

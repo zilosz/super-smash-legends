@@ -22,12 +22,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Getter
 public class Skin {
     private static final String PROFILE_API_URL = "https://api.mojang.com/users/profiles/minecraft/";
     private static final String UUID_API_URL = "https://sessionserver.mojang.com/session/minecraft/profile/";
+    private static final Skin FALLBACK_SKIN = Skin.fromMojang("Notch");
 
     private final String texture;
     private final String signature;
@@ -38,8 +40,14 @@ public class Skin {
     }
 
     public static Skin fromPlayer(Player player) {
-        Property property = NmsUtils.getPlayer(player).getProfile().getProperties().get("textures").iterator().next();
-        return new Skin(property.getValue(), property.getSignature());
+        try {
+            GameProfile profile = NmsUtils.getPlayer(player).getProfile();
+            Property property = profile.getProperties().get("textures").iterator().next();
+            return new Skin(property.getValue(), property.getSignature());
+
+        } catch (NoSuchElementException ignored) {
+            return FALLBACK_SKIN;
+        }
     }
 
     public static Skin fromMojang(String playerName) {
@@ -59,7 +67,7 @@ public class Skin {
             return new Skin(texture, signature);
 
         } catch (IOException e) {
-            return fromMojang("Notch");
+            return FALLBACK_SKIN;
         }
     }
 

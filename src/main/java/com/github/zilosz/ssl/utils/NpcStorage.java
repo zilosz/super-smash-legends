@@ -1,22 +1,19 @@
 package com.github.zilosz.ssl.utils;
 
+import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.npc.MemoryNPCDataStore;
 import net.citizensnpcs.api.npc.NPC;
-
-import java.util.HashSet;
-import java.util.Set;
+import net.citizensnpcs.api.npc.NPCRegistry;
+import org.bukkit.entity.EntityType;
 
 public class NpcStorage {
-    private final Set<NPC> npcs = new HashSet<>();
+    private final NPCRegistry registry = CitizensAPI.createNamedNPCRegistry("my-registry", new MemoryNPCDataStore());
 
-    public void addNpc(NPC npc) {
-        this.npcs.add(npc);
+    public NPC createPlayer(String name) {
+        return this.registry.createNPC(EntityType.PLAYER, name);
     }
 
-    public void removeNpc(NPC npc) {
-        this.npcs.remove(npc);
-    }
-
-    public void destroyNpcs() {
-        this.npcs.forEach(NPC::destroy);
+    public void deregisterNpc(NPC npc) {
+        this.registry.deregister(npc);
     }
 }

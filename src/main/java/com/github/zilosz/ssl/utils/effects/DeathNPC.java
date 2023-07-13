@@ -5,12 +5,10 @@ import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.kit.KitManager;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -41,8 +39,7 @@ public class DeathNPC extends BukkitRunnable implements Listener {
     public static DeathNPC spawn(SSL plugin, Player player) {
         Section death = plugin.getResources().getConfig().getSection("Death");
 
-        NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, player.getDisplayName());
-        SSL.getInstance().getNpcStorage().addNpc(npc);
+        NPC npc = SSL.getInstance().getNpcStorage().createPlayer(player.getDisplayName());
         SSL.getInstance().getKitManager().getSelectedKit(player).getSkin().applyToNpc(npc);
         npc.spawn(player.getLocation());
 
@@ -79,7 +76,7 @@ public class DeathNPC extends BukkitRunnable implements Listener {
         new ParticleMaker(particle).boom(SSL.getInstance(), EntityUtils.center(this.npc.getEntity()), 5, 0.25, 50);
 
         this.npc.destroy();
-        SSL.getInstance().getNpcStorage().removeNpc(this.npc);
+        SSL.getInstance().getNpcStorage().deregisterNpc(this.npc);
 
         HandlerList.unregisterAll(this);
         this.cancel();

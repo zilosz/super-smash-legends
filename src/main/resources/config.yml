@@ -74,7 +74,10 @@ Damage:
     FactorsHealth: false
   MinKbHealthMultiplier: 1
   MaxKbHealthMultiplier: 2
-JumpGroundBooster: 0.2
 Projectile:
   Lifespan: 200
   HitBox: 0.8
+JumpGroundBooster: 0.2
+WorldTimeUpdater:
+  Frequency: 5
+  Time: 6000

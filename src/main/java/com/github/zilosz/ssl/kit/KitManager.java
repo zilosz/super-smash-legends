@@ -14,14 +14,12 @@ import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
 import me.filoghost.holographicdisplays.api.hologram.HologramLines;
 import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
-import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.NPCLeftClickEvent;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.LookClose;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -60,8 +58,7 @@ public class KitManager implements Listener {
         Kit kit = this.createKit(kitType);
         this.kits.add(kit);
 
-        NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, kit.getBoldedDisplayName());
-        SSL.getInstance().getNpcStorage().addNpc(npc);
+        NPC npc = SSL.getInstance().getNpcStorage().createPlayer(kit.getBoldedDisplayName());
         this.kitsPerNpc.put(npc, kitType);
 
         kit.getSkin().applyToNpc(npc);

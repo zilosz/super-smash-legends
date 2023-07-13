@@ -34,7 +34,7 @@ public class Barrage extends Bow {
             this.player.playSound(this.player.getLocation(), Sound.ITEM_PICKUP, 2, pitch);
 
             if (this.stage == this.getStages()) {
-                this.player.playSound(this.player.getLocation(), Sound.ZOMBIE_PIG_DEATH, 3, 2);
+                this.player.playSound(this.player.getLocation(), Sound.ORB_PICKUP, 0.7f, 0.5f);
             }
 
             this.stage++;

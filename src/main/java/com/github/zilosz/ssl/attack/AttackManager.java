@@ -110,14 +110,16 @@ public class AttackManager {
 
         Player damager = attribute.getPlayer();
 
-        double newCombo = this.playerComboDamages.getOrDefault(damager, 0.0) + finalDamage;
-        damager.setLevel((int) newCombo);
-        this.playerComboDamages.put(damager, newCombo);
-        this.cancelComboRemover(damager);
+        if (damager != victim) {
+            double newCombo = this.playerComboDamages.getOrDefault(damager, 0.0) + finalDamage;
+            damager.setLevel((int) newCombo);
+            this.playerComboDamages.put(damager, newCombo);
+            this.cancelComboRemover(damager);
 
-        this.comboDamageRemovers.put(damager, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
-            this.clearPlayerCombo(damager);
-        }, this.getComboDuration()));
+            this.comboDamageRemovers.put(damager, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
+                this.clearPlayerCombo(damager);
+            }, this.getComboDuration()));
+        }
 
         this.clearDamageSource(victim);
         this.lastDamageSources.put(victim, attackSource);

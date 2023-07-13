@@ -6,17 +6,13 @@ api-version: 1.8.8
 
 depend:
   - FastAsyncWorldEdit
-
-softdepend:
+  - Citizens
+  - ProtocolLib
+  - LibsDisguises
   - HolographicDisplays
   - TitleAPI
   - NametagEdit
-  - LibsDisguises
   - ActionBarAPI
-  - ProtocolLib
-
-loadbefore:
-  - Citizens
 
 commands:
   play:

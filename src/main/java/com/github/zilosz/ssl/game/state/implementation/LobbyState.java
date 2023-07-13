@@ -164,13 +164,8 @@ public class LobbyState extends GameState {
                     "&7----------------"
             )).forEach(line -> lastGameHolo.getLines().appendText(line));
 
-            for (Player other : Bukkit.getOnlinePlayers()) {
-
-                if (!other.equals(player)) {
-                    lastGameHolo.getVisibilitySettings()
-                            .setIndividualVisibility(other, VisibilitySettings.Visibility.HIDDEN);
-                }
-            }
+            lastGameHolo.getVisibilitySettings().setGlobalVisibility(VisibilitySettings.Visibility.HIDDEN);
+            lastGameHolo.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.VISIBLE);
         }
 
         SSL.getInstance().getArenaManager().setupArenas();

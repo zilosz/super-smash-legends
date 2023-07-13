@@ -102,7 +102,6 @@ public class InGameState extends GameState {
         ));
 
         int playerIndex = scoreboard.size();
-
         Replacers replacers = new Replacers().add("MIN_LEFT", MessageUtils.secToMin(this.secLeft));
 
         if (SSL.getInstance().getGameManager().isPlayerAlive(player)) {
@@ -112,8 +111,7 @@ public class InGameState extends GameState {
 
             try {
                 replacers.add("KIT", SSL.getInstance().getKitManager().getSelectedKit(player).getDisplayName());
-            } catch (NullPointerException ignored) {
-            }
+            } catch (NullPointerException ignored) {}
         }
 
         scoreboard.add(this.getScoreboardLine());
@@ -485,13 +483,14 @@ public class InGameState extends GameState {
 
             String killerName = SSL.getInstance().getTeamManager().getPlayerColor(killer) + killer.getName();
             String attackName = realAttackSource.getAttack().getName();
-            deathMessage = String.format("%s &7killed by %s &7with %s&7.", diedName, killerName, attackName);
 
-            if (killer == died) {
+            if (killer.equals(died)) {
                 tpLocation = waitLocation;
+                deathMessage = String.format("%s &7killed themselves with %s&7.", diedName, attackName);
 
             } else {
                 tpLocation = killer.getLocation();
+                deathMessage = String.format("%s &7killed by %s &7with %s&7.", diedName, killerName, attackName);
 
                 InGameProfile killerProfile = gameManager.getProfile(killer);
                 killerProfile.setKills(killerProfile.getKills() + 1);

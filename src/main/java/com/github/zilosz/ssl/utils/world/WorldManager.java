@@ -1,43 +1,71 @@
 package com.github.zilosz.ssl.utils.world;
 
 import com.boydti.fawe.object.schematic.Schematic;
+import com.github.zilosz.ssl.SSL;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 
 public class WorldManager {
-    private final Map<String, EditSession> worlds = new HashMap<>();
+    private final Map<StaticWorldType, WorldInfo> worlds = new EnumMap<>(StaticWorldType.class);
 
-    public void createWorld(StaticWorldType worldType, File schematic, Vector paste) {
+    public void createWorld(StaticWorldType type, File schematic, Vector pastePoint) {
 
-        WorldCreator config = WorldCreator.name(worldType.getWorldName())
-                .type(WorldType.FLAT)
-                .generateStructures(false)
-                .generatorSettings("3;minecraft:air;2");
+        WorldCreator worldCreator = WorldCreator.name(type.getWorldName())
+                .type(WorldType.FLAT).generateStructures(false).generatorSettings("3;minecraft:air;2");
 
-        com.sk89q.worldedit.Vector weVector = new com.sk89q.worldedit.Vector(paste.getX(), paste.getY(), paste.getZ());
+        com.sk89q.worldedit.Vector worldEditPastePoint = new com.sk89q.worldedit.Vector(
+                pastePoint.getX(), pastePoint.getY(), pastePoint.getZ());
+
+        Schematic schem;
 
         try {
-            Schematic schem = ClipboardFormat.SCHEMATIC.load(schematic);
-            EditSession editSession = schem.paste(new BukkitWorld(Bukkit.createWorld(config)), weVector);
-            this.worlds.put(worldType.getWorldName(), editSession);
+            schem = ClipboardFormat.SCHEMATIC.load(schematic);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            String message = "Could not find the following schematic: '%s'";
+            throw new RuntimeException(String.format(message, schematic.getName()));
         }
+
+        World world = Bukkit.createWorld(worldCreator);
+        EditSession editSession = schem.paste(new BukkitWorld(world), worldEditPastePoint);
+
+        Section timeConfig = SSL.getInstance().getResources().getConfig().getSection("WorldTimeUpdater");
+
+        BukkitTask timeUpdater = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
+            world.setTime(timeConfig.getInt("Time"));
+        }, 0, timeConfig.getInt("Frequency"));
+
+        this.worlds.put(type, new WorldInfo(editSession, timeUpdater));
     }
 
     public void resetWorld(StaticWorldType worldType) {
-        Optional.ofNullable(this.worlds.remove(worldType.getWorldName())).ifPresent(session -> session.undo(session));
+        Optional.ofNullable(this.worlds.remove(worldType)).ifPresent(worldInfo -> {
+            worldInfo.editSession.undo(worldInfo.editSession);
+            worldInfo.timeUpdater.cancel();
+        });
+    }
+
+    private static class WorldInfo {
+        private final EditSession editSession;
+        private final BukkitTask timeUpdater;
+
+        public WorldInfo(EditSession editSession, BukkitTask timeUpdater) {
+            this.editSession = editSession;
+            this.timeUpdater = timeUpdater;
+        }
     }
 }

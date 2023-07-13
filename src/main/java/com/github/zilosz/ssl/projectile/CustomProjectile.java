@@ -49,7 +49,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
     protected boolean invisible;
     protected boolean recreateOnBounce = false;
     protected boolean useCustomHitBox = true;
-    protected boolean removeOnFailedHit = false;
+    protected boolean removeOnFailedHit;
     protected int ticksAlive = 0;
     protected Vector launchVelocity;
     protected int timesBounced = 0;
@@ -86,6 +86,7 @@ public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable 
         this.hitsMultiple = config.getBoolean("HitsMultiple");
         this.removeOnEntityHit = config.getOptionalBoolean("RemoveOnEntityHit").orElse(true);
         this.removeOnBlockHit = config.getOptionalBoolean("RemoveOnBlockHit").orElse(true);
+        this.removeOnFailedHit = config.getBoolean("RemoveOnFailedHit");
         this.distanceFromEye = config.getOptionalDouble("DistanceFromEye").orElse(1.0);
         this.invisible = config.getBoolean("Invisible");
 

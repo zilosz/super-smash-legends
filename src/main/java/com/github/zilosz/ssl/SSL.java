@@ -27,13 +27,9 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import fr.minuskube.inv.InventoryManager;
 import io.github.thatkawaiisam.assemble.Assemble;
 import lombok.Getter;
-import net.citizensnpcs.api.CitizensPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.event.server.PluginEnableEvent;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
@@ -41,7 +37,7 @@ import java.io.File;
 
 @Getter
 @SuppressWarnings("OverlyCoupledClass")
-public class SSL extends JavaPlugin implements Listener {
+public class SSL extends JavaPlugin {
     @Getter private static SSL instance;
 
     private Resources resources;
@@ -85,20 +81,21 @@ public class SSL extends JavaPlugin implements Listener {
 
         Section dbConfig = this.resources.getConfig().getSection("Database");
 
-        if (dbConfig.getBoolean("Enabled")) {
+        if (dbConfig.getBoolean("Enabled") && Bukkit.getServer().getOnlineMode()) {
             String uri = dbConfig.getString("Uri");
             String db = dbConfig.getString("Database");
             String collection = dbConfig.getString("Collection");
             this.playerDatabase.init(uri, db, collection);
         }
 
-        Bukkit.getPluginManager().registerEvents(this.kitManager, this);
-        Bukkit.getPluginManager().registerEvents(this, this);
+        PluginManager pluginManager = Bukkit.getPluginManager();
+        pluginManager.registerEvents(this.kitManager, this);
 
         Vector pasteVector = YamlReader.vector(this.resources.getLobby().getString("PasteVector"));
         File schematic = FileUtility.loadSchematic(this, "lobby");
         this.worldManager.createWorld(StaticWorldType.LOBBY, schematic, pasteVector);
 
+        this.kitManager.setupKits();
         this.inventoryManager.init();
         this.gameManager.activateState();
 
@@ -118,20 +115,6 @@ public class SSL extends JavaPlugin implements Listener {
 
         DummyCommand dummyCommand = new DummyCommand();
         this.getCommand("dummy").setExecutor(dummyCommand);
-        Bukkit.getPluginManager().registerEvents(dummyCommand, this);
-    }
-
-    @EventHandler
-    public void onPluginEnable(PluginEnableEvent event) {
-        if (event.getPlugin() instanceof CitizensPlugin) {
-            this.kitManager.setupKits();
-        }
-    }
-
-    @EventHandler
-    public void onPluginDisable(PluginDisableEvent event) {
-        if (event.getPlugin() instanceof CitizensPlugin) {
-            this.npcStorage.destroyNpcs();
-        }
+        pluginManager.registerEvents(dummyCommand, this);
     }
 }
