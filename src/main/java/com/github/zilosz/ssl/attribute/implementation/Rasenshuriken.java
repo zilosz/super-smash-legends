@@ -190,7 +190,7 @@ public class Rasenshuriken extends RightClickAbility {
                 double kb = YamlReader.decreasingValue(this.config, "Kb", distanceSq, radius * radius);
 
                 Vector direction = VectorUtils.fromTo(this.entity, target);
-                String name = ((Rasenshuriken) this.attackInfo.getAttribute()).getDisplayName();
+                String name = ((Ability) this.attackInfo.getAttribute()).getDisplayName();
                 Attack attack = YamlReader.attack(this.config, direction, name);
                 attack.getDamage().setDamage(damage);
                 attack.getKb().setKb(kb);
