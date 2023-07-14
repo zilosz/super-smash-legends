@@ -7,7 +7,6 @@ import com.github.zilosz.ssl.arena.Arena;
 import com.github.zilosz.ssl.arena.ArenaVoter;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.Attribute;
-import com.github.zilosz.ssl.database.PlayerDatabase;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.InGameProfile;
 import com.github.zilosz.ssl.game.state.GameState;
@@ -380,9 +379,6 @@ public class LobbyState extends GameState {
         kitManager.createHolograms(player);
         kitManager.pullUserKit(player);
         kitManager.updateHolograms(player);
-
-        PlayerDatabase database = SSL.getInstance().getPlayerDatabase();
-        database.set(player.getUniqueId(), "name", player.getName());
 
         if (!this.isCounting && this.hasEnoughPlayersToStart()) {
             this.startCountdown();

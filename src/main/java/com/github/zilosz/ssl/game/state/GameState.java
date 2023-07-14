@@ -2,6 +2,7 @@ package com.github.zilosz.ssl.game.state;
 
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.database.PlayerDatabase;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
@@ -64,6 +65,9 @@ public abstract class GameState implements Listener {
     @EventHandler(priority = EventPriority.LOW)
     public void onGeneralJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+
+        PlayerDatabase database = SSL.getInstance().getPlayerDatabase();
+        database.set(player.getUniqueId(), "name", player.getName());
 
         player.getInventory().clear();
         player.setHealth(20);
