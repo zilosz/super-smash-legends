@@ -7,6 +7,7 @@ import com.github.zilosz.ssl.arena.Arena;
 import com.github.zilosz.ssl.arena.ArenaVoter;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.Attribute;
+import com.github.zilosz.ssl.database.PlayerDatabase;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.InGameProfile;
 import com.github.zilosz.ssl.game.state.GameState;
@@ -175,8 +176,9 @@ public class LobbyState extends GameState {
 
         gameManager.reset();
 
-        this.isCounting = false;
-        this.tryCountdownStart();
+        if (this.hasEnoughPlayersToStart()) {
+            this.startCountdown();
+        }
     }
 
     private void initializePlayer(Player player) {
@@ -222,32 +224,30 @@ public class LobbyState extends GameState {
             String name = doc.getString("name");
             int stat = (int) doc.getOrDefault(statName, 0);
 
-            if (stat == 0) {
-                continue;
-            }
+            if (stat > 0) {
+                boolean added = false;
+                int i;
 
-            boolean added = false;
-            int i;
+                for (i = 0; i < players.size(); i++) {
 
-            for (i = 0; i < players.size(); i++) {
+                    if (stat > stats.get(i)) {
+                        players.add(i, name);
+                        stats.add(i, stat);
 
-                if (stat > stats.get(i)) {
-                    players.add(i, name);
-                    stats.add(i, stat);
+                        if (players.size() > size) {
+                            players.remove(players.size() - 1);
+                            stats.remove(stats.size() - 1);
+                        }
 
-                    if (players.size() > size) {
-                        players.remove(players.size() - 1);
-                        stats.remove(stats.size() - 1);
+                        added = true;
+                        break;
                     }
-
-                    added = true;
-                    break;
                 }
-            }
 
-            if (!added && i < size) {
-                players.add(name);
-                stats.add(stat);
+                if (!added && i < size) {
+                    players.add(name);
+                    stats.add(stat);
+                }
             }
         }
 
@@ -265,13 +265,16 @@ public class LobbyState extends GameState {
         lines.appendText(MessageUtils.color("&7------------------"));
     }
 
-    private void tryCountdownStart() {
-        Section config = SSL.getInstance().getResources().getConfig();
-        int minPlayersNeeded = config.getInt("Game.MinPlayersToStart");
+    private Section getGameConfig() {
+        return SSL.getInstance().getResources().getConfig().getSection("Game");
+    }
 
-        if (this.isCounting || this.getParticipantCount() < minPlayersNeeded) return;
+    private boolean hasEnoughPlayersToStart() {
+        return this.getParticipantCount() >= this.getGameConfig().getInt("MinPlayersToStart");
+    }
 
-        Section countdownConfig = config.getSection("Game.LobbyCountdown");
+    private void startCountdown() {
+        Section countdownConfig = this.getGameConfig().getSection("LobbyCountdown");
         int notifyInterval = countdownConfig.getInt("NotifyInterval");
         int totalSec = countdownConfig.getInt("Seconds");
         int notifyThreshold = countdownConfig.getInt("NotifyThreshold");
@@ -315,7 +318,9 @@ public class LobbyState extends GameState {
         CollectionUtils.removeWhileIterating(this.holograms, Hologram::delete);
         CollectionUtils.removeWhileIterating(this.hotbarItems, HotbarItem::destroy);
 
-        this.stopCountdownTask(false);
+        if (this.isCounting) {
+            this.stopCountdownTask();
+        }
 
         Chat.GAME.broadcast("&7The game is starting...");
 
@@ -361,15 +366,9 @@ public class LobbyState extends GameState {
         return false;
     }
 
-    private void stopCountdownTask(boolean abrupt) {
-        if (!this.isCounting) return;
-
+    private void stopCountdownTask() {
         this.isCounting = false;
         this.countdownTask.cancel();
-
-        if (abrupt) {
-            Chat.GAME.broadcast("&7Not enough players to start.");
-        }
     }
 
     @EventHandler
@@ -382,9 +381,12 @@ public class LobbyState extends GameState {
         kitManager.pullUserKit(player);
         kitManager.updateHolograms(player);
 
-        SSL.getInstance().getPlayerDatabase().set(player.getUniqueId(), "name", player.getName());
+        PlayerDatabase database = SSL.getInstance().getPlayerDatabase();
+        database.set(player.getUniqueId(), "name", player.getName());
 
-        this.tryCountdownStart();
+        if (!this.isCounting && this.hasEnoughPlayersToStart()) {
+            this.startCountdown();
+        }
     }
 
     @EventHandler
@@ -394,7 +396,10 @@ public class LobbyState extends GameState {
         SSL.getInstance().getArenaManager().wipePlayer(player);
         SSL.getInstance().getTeamManager().wipePlayer(player);
 
-        this.stopCountdownTask(true);
+        if (this.isCounting && !this.hasEnoughPlayersToStart()) {
+            this.stopCountdownTask();
+            Chat.GAME.broadcast("&7Not enough players to start.");
+        }
     }
 
     @EventHandler
