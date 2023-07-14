@@ -116,16 +116,17 @@ public class InGameState extends GameState {
         scoreboard.add(this.getScoreboardLine());
 
         TeamManager teamManager = SSL.getInstance().getTeamManager();
-        int lifeCap = SSL.getInstance().getResources().getConfig().getInt("Game.Lives");
         Set<Player> alivePlayers = SSL.getInstance().getGameManager().getAlivePlayers();
+
+        boolean spaceForAllPlayers = scoreboard.size() + alivePlayers.size() <= MAX_SCOREBOARD_SIZE;
 
         if (teamManager.getTeamSize() == 1) {
             scoreboard.add(playerIndex, "&f&lPlayers");
 
-            if (scoreboard.size() + alivePlayers.size() <= MAX_SCOREBOARD_SIZE) {
+            if (spaceForAllPlayers) {
 
                 for (Player alivePlayer : alivePlayers) {
-                    scoreboard.add(playerIndex + 1, this.getPlayerLivesText(alivePlayer, lifeCap, "&7"));
+                    scoreboard.add(playerIndex + 1, this.getPlayerLivesText(alivePlayer, "&7"));
                 }
 
             } else {
@@ -136,7 +137,7 @@ public class InGameState extends GameState {
             scoreboard.add(playerIndex, "&f&lTeams");
             List<Team> aliveTeams = teamManager.getAliveTeams();
 
-            if (scoreboard.size() + alivePlayers.size() <= MAX_SCOREBOARD_SIZE) {
+            if (spaceForAllPlayers) {
 
                 for (Team team : aliveTeams) {
 
@@ -144,7 +145,7 @@ public class InGameState extends GameState {
 
                         if (SSL.getInstance().getGameManager().isPlayerAlive(teamPlayer)) {
                             String chatSymbol = team.getColorType().getChatSymbol();
-                            String text = this.getPlayerLivesText(teamPlayer, lifeCap, chatSymbol);
+                            String text = this.getPlayerLivesText(teamPlayer, chatSymbol);
                             scoreboard.add(playerIndex + 1, text);
                         }
                     }
@@ -155,29 +156,38 @@ public class InGameState extends GameState {
             }
         }
 
+        if (!spaceForAllPlayers) {
+            scoreboard.addAll(Arrays.asList("", "&f&lLives:", this.getLivesText(player)));
+        }
+
         return replacers.replaceLines(scoreboard);
     }
 
-    private String getPlayerLivesText(Player player, int lifeCap, String nameColor) {
+    private String getLivesText(Player player) {
         int lives = SSL.getInstance().getGameManager().getProfile(player).getLives();
+        int lifeCap = SSL.getInstance().getResources().getConfig().getInt("Game.Lives");
         double lifePercentage = (double) lives / lifeCap;
 
-        String lifeColor;
+        String color;
 
         if (lifePercentage <= 0.25) {
-            lifeColor = "&c";
+            color = "&c";
 
         } else if (lifePercentage <= 0.5) {
-            lifeColor = "&6";
+            color = "&6";
 
         } else if (lifePercentage <= 0.75) {
-            lifeColor = "&e";
+            color = "&e";
 
         } else {
-            lifeColor = "&a";
+            color = "&a";
         }
 
-        return MessageUtils.color(String.format("%s%s: %s%s", nameColor, player.getName(), lifeColor, lives));
+        return color + lives;
+    }
+
+    private String getPlayerLivesText(Player player, String nameColor) {
+        return MessageUtils.color(String.format("%s%s: %s", nameColor, player.getName(), this.getLivesText(player)));
     }
 
     @Override
