@@ -140,10 +140,11 @@ public class InGameState extends GameState {
 
                 for (Team team : aliveTeams) {
 
-                    for (Player p : team.getSortedPlayers()) {
+                    for (Player teamPlayer : team.getSortedPlayers()) {
 
-                        if (SSL.getInstance().getGameManager().isPlayerAlive(p)) {
-                            String text = this.getPlayerLivesText(p, lifeCap, team.getColorType().getChatSymbol());
+                        if (SSL.getInstance().getGameManager().isPlayerAlive(teamPlayer)) {
+                            String chatSymbol = team.getColorType().getChatSymbol();
+                            String text = this.getPlayerLivesText(teamPlayer, lifeCap, chatSymbol);
                             scoreboard.add(playerIndex + 1, text);
                         }
                     }
@@ -284,7 +285,10 @@ public class InGameState extends GameState {
                 player.setCompassTarget(closest.getLocation());
             }
 
-            if (player.getInventory().getHeldItemSlot() == this.trackerItems.get(player).getSlot()) {
+            boolean holding = player.getInventory().getHeldItemSlot() == this.trackerItems.get(player).getSlot();
+            boolean playing = player.getGameMode() != GameMode.SPECTATOR;
+
+            if (holding && playing) {
                 ActionBarAPI.sendActionBar(player, MessageUtils.color(actionBar));
             }
         }, 0, 5));
@@ -401,10 +405,12 @@ public class InGameState extends GameState {
             Player player = (Player) event.getVictim();
             GameManager gameManager = SSL.getInstance().getGameManager();
 
+            boolean isVoid = event.isVoid();
+
             if (gameManager.isSpectator(player) || player.getGameMode() == GameMode.SPECTATOR) {
                 event.setCancelled(true);
 
-                if (event.isVoid()) {
+                if (isVoid) {
                     player.teleport(SSL.getInstance().getArenaManager().getArena().getWaitLocation());
                     player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
                 }
@@ -412,21 +418,11 @@ public class InGameState extends GameState {
             } else {
                 double damageTaken;
 
-                if (event.isVoid()) {
+                if (event.willDie() || isVoid) {
                     damageTaken = player.getHealth();
 
-                    this.handleDeath(player, false, true, null);
                     event.setCancelled(true);
-
-                } else if (event.willDie()) {
-                    damageTaken = player.getHealth();
-
-                    Optional.ofNullable(event.getAttackSource()).ifPresentOrElse(source -> {
-                        this.handleDeath(player, true, false, source);
-                    }, () -> {
-                        this.handleDeath(player, true, false, null);
-                        event.setCancelled(true);
-                    });
+                    this.handleDeath(player, !isVoid, isVoid, event.getAttackSource());
 
                 } else {
                     damageTaken = finalDamage;
@@ -509,8 +505,6 @@ public class InGameState extends GameState {
         attackManager.clearImmunities(died);
         attackManager.clearPlayerCombo(died);
 
-        died.setGameMode(GameMode.SPECTATOR);
-
         if (diedProfile.getLives() <= 0) {
             died.playSound(died.getLocation(), Sound.WITHER_DEATH, 2, 1);
             String title = MessageUtils.color("&7You have been");
@@ -520,18 +514,19 @@ public class InGameState extends GameState {
             TeamManager teamManager = SSL.getInstance().getTeamManager();
             Team diedTeam = teamManager.getPlayerTeam(died);
 
+            gameManager.addSpectator(died);
+
             if (!diedTeam.isAlive()) {
                 diedTeam.setLifespan(gameManager.getTicksActive());
 
                 if (teamManager.isGameTieOrWin()) {
                     gameManager.advanceState();
-
-                } else {
-                    gameManager.addSpectator(died);
                 }
             }
 
         } else {
+            died.setGameMode(GameMode.SPECTATOR);
+
             String title = MessageUtils.color("&7You &cdied!");
             TitleAPI.sendTitle(died, title, MessageUtils.color("&7Respawning soon..."), 7, 25, 7);
             died.playSound(died.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 1);

@@ -6,6 +6,7 @@ import com.github.zilosz.ssl.game.state.GameStateType;
 import com.github.zilosz.ssl.kit.Kit;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.scheduler.BukkitTask;
@@ -135,6 +136,7 @@ public class GameManager {
 
     public void addSpectator(Player player) {
         this.spectators.add(player);
+        player.setGameMode(GameMode.SURVIVAL);
         player.setAllowFlight(true);
         player.setFlySpeed(0.2f);
         Bukkit.getOnlinePlayers().forEach(other -> other.hidePlayer(player));

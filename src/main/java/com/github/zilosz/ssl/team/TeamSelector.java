@@ -32,9 +32,9 @@ public class TeamSelector extends CustomInventory<Team> implements HasRandomOpti
     public ItemStack getItemStack(Player player, Team team) {
         String players = team.getPlayers().stream().map(Player::getName).collect(Collectors.joining(", "));
 
-        Replacers replacers = new Replacers().add("SIZE", team.getSize())
+        Replacers replacers = new Replacers().add("SIZE", team.getPlayerCount())
                 .add("CAP", SSL.getInstance().getTeamManager().getTeamSize())
-                .add("PLAYERS", team.getSize() > 0 ? players : "&7&oNone");
+                .add("PLAYERS", team.getPlayerCount() > 0 ? players : "&7&oNone");
 
         List<String> lore = replacers.replaceLines(Arrays.asList(
                 "&3&lCapacity: &5{SIZE}&7/&f{CAP}",
@@ -49,7 +49,7 @@ public class TeamSelector extends CustomInventory<Team> implements HasRandomOpti
     public void onItemClick(Player player, Team team, InventoryClickEvent event) {
         TeamManager teamManager = SSL.getInstance().getTeamManager();
 
-        if (team.getSize() == teamManager.getTeamSize()) {
+        if (team.getPlayerCount() == teamManager.getTeamSize()) {
             Chat.TEAM.send(player, "&7This team is full!");
             return;
         }

@@ -10,6 +10,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -58,12 +59,12 @@ public class Team {
         return this.players.contains(player);
     }
 
-    public boolean isEmpty() {
+    public boolean hasNoPlayers() {
         return this.players.isEmpty();
     }
 
     public Set<Player> getPlayers() {
-        return new HashSet<>(this.players);
+        return Collections.unmodifiableSet(this.players);
     }
 
     public List<Player> getSortedPlayers() {
@@ -75,10 +76,10 @@ public class Team {
     }
 
     public boolean canJoin(Player player) {
-        return !this.hasPlayer(player) && this.getSize() < SSL.getInstance().getTeamManager().getTeamSize();
+        return !this.hasPlayer(player) && this.getPlayerCount() < SSL.getInstance().getTeamManager().getTeamSize();
     }
 
-    public int getSize() {
+    public int getPlayerCount() {
         return this.players.size();
     }
 }

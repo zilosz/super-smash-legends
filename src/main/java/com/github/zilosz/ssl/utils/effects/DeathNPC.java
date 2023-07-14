@@ -65,6 +65,8 @@ public class DeathNPC extends BukkitRunnable implements Listener {
     }
 
     public void destroy() {
+        if (!this.npc.isSpawned()) return;
+
         this.player.getWorld().playSound(this.npc.getStoredLocation(), Sound.WITHER_DEATH, 3, 1.5f);
 
         KitManager kitManager = SSL.getInstance().getKitManager();

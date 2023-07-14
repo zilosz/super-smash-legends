@@ -78,7 +78,7 @@ public class TeamManager {
     }
 
     public void removeEmptyTeams() {
-        this.teamList.removeIf(Team::isEmpty);
+        this.teamList.removeIf(Team::hasNoPlayers);
     }
 
     public List<Team> getAliveTeams() {
