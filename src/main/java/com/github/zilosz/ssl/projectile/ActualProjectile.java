@@ -43,7 +43,7 @@ public abstract class ActualProjectile<T extends Projectile> extends CustomProje
     }
 
     @EventHandler
-    public void handleBlockHit(ProjectileHitEvent event) {
+    public void onBlockHit(ProjectileHitEvent event) {
         if (event.getEntity() != this.entity) return;
 
         this.onGeneralHit();

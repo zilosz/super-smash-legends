@@ -225,6 +225,7 @@ public class Boombox extends RightClickAbility {
         if (!this.isPlaced) return;
         if (event.getClickedBlock() == null) return;
         if (!event.getClickedBlock().equals(this.block)) return;
+        if (SSL.getInstance().getGameManager().isSpectator(event.getPlayer())) return;
 
         if (event.getPlayer() != this.player) {
             Kit enemyKit = SSL.getInstance().getKitManager().getSelectedKit(event.getPlayer());

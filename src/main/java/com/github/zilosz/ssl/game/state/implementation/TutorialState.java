@@ -168,7 +168,6 @@ public class TutorialState extends GameState {
         CollectionUtils.removeWhileIteratingOverValues(this.tutorialSchedulers, BukkitTask::cancel);
         CollectionUtils.removeWhileIteratingOverValues(this.moveDelayers, BukkitTask::cancel);
         CollectionUtils.removeWhileIteratingOverValues(this.skinChangers, BukkitTask::cancel);
-
         new HashSet<>(this.playersInTutorial).forEach(this::stopPlayerAfterCompletion);
 
         if (this.skipTask != null) {
@@ -207,37 +206,27 @@ public class TutorialState extends GameState {
                 SSL.getInstance().getGameManager().advanceState();
             }
 
-            return;
+        } else {
+            Vector velocity = VectorUtils.fromTo(points.get(from), points.get(to)).normalize().multiply(speed);
+
+            BukkitTask moveTask = Bukkit.getScheduler()
+                    .runTaskTimer(SSL.getInstance(), () -> player.setVelocity(velocity), 0, 0);
+
+            this.movers.put(player, moveTask);
+
+            int stepDuration = (int) ((points.get(from).distance(points.get(to))) / speed);
+
+            this.moveDelayers.put(player, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
+                moveTask.cancel();
+                this.startTutorialMovement(player, points, speed, from + 1, (to + 1) % points.size());
+            }, stepDuration));
         }
-
-        Vector velocity = VectorUtils.fromTo(points.get(from), points.get(to)).normalize().multiply(speed);
-
-        BukkitTask moveTask = Bukkit.getScheduler()
-                .runTaskTimer(SSL.getInstance(), () -> player.setVelocity(velocity), 0, 0);
-
-        this.movers.put(player, moveTask);
-
-        int stepDuration = (int) ((points.get(from).distance(points.get(to))) / speed);
-
-        this.moveDelayers.put(player, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
-            moveTask.cancel();
-            this.startTutorialMovement(player, points, speed, from + 1, (to + 1) % points.size());
-        }, stepDuration));
     }
 
     @EventHandler
     public void onTutorialQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-
-        if (this.playersInTutorial.contains(player)) {
-            this.playersInTutorial.remove(player);
-            this.stopPlayerDuringMovement(player);
-        }
-    }
-
-    private void stopPlayerDuringMovement(Player player) {
         this.stopPlayerAfterCompletion(player);
-
         Optional.ofNullable(this.movers.remove(player)).ifPresent(BukkitTask::cancel);
         Optional.ofNullable(this.moveDelayers.remove(player)).ifPresent(BukkitTask::cancel);
         Optional.ofNullable(this.tutorialSchedulers.remove(player)).ifPresent(BukkitTask::cancel);

@@ -6,9 +6,8 @@ Description:
   - "&7component. Musician places down a"
   - "&7boombox that, when clicked, spews"
   - "&7out a rapid stream of music discs."
-  - "&7As you click the boombox more, the"
-  - "&7projectile accuracy rises while the"
-  - "&7damage and knock-back fall."
+  - "&7Allows for a maximum of 4 clicks."
+  - "&7Can be damaged by opposing attacks."
 Cooldown: 40
 AutoStartCooldown: false
 MaxDuration: 200

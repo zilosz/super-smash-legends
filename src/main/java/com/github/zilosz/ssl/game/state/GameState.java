@@ -66,21 +66,22 @@ public abstract class GameState implements Listener {
     public void onGeneralJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        PlayerDatabase database = SSL.getInstance().getPlayerDatabase();
-        database.set(player.getUniqueId(), "name", player.getName());
-
         player.getInventory().clear();
         player.setHealth(20);
         player.setLevel(0);
 
+        PlayerDatabase database = SSL.getInstance().getPlayerDatabase();
+        database.set(player.getUniqueId(), "name", player.getName());
+
         if (this.isInArena()) {
             event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined mid-game.", player.getName())));
             Chat.GAME.send(player, "&7The game you joined is in progress.");
+
             player.teleport(SSL.getInstance().getArenaManager().getArena().getWaitLocation());
 
             GameManager gameManager = SSL.getInstance().getGameManager();
-            gameManager.addSpectator(player);
             gameManager.getSpectators().forEach(player::hidePlayer);
+            gameManager.addSpectator(player);
 
         } else {
             event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined the game.", player.getName())));

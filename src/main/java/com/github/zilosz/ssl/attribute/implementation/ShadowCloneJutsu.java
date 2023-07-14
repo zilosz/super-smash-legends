@@ -34,7 +34,7 @@ import xyz.xenondevs.particle.ParticleBuilder;
 import xyz.xenondevs.particle.ParticleEffect;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -125,7 +125,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
     @Override
     public void deactivate() {
         super.deactivate();
-        new LinkedHashMap<>(this.clones).keySet().forEach(this::destroyClone);
+        new HashSet<>(this.clones.keySet()).forEach(this::destroyClone);
     }
 
     @EventHandler
