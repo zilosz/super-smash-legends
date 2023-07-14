@@ -347,7 +347,7 @@ public class Boombox extends RightClickAbility {
 
         private void showEffect() {
             new ParticleMaker(new ParticleBuilder(ParticleEffect.EXPLOSION_LARGE)).show(this.entity.getLocation());
-            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.NOTE_PLING, 3, 2);
+            this.entity.getWorld().playSound(this.entity.getLocation(), Sound.NOTE_PLING, 2, 2);
         }
     }
 }

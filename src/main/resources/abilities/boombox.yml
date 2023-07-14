@@ -14,12 +14,12 @@ MaxDuration: 200
 PlaceReach: 2
 Health: 10
 MaxPunches: 4
-ConicAngle: 4.5
-Count: 10
+ConicAngle: 3.5
+Count: 9
 ClickDelay: 10
 Projectile:
   Speed: 2
-  Spread: 2
+  Spread: 1.5
   Damage: 6
   Kb: 1.85
   KbY: 0.7

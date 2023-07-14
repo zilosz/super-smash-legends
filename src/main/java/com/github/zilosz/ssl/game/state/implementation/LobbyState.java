@@ -175,7 +175,7 @@ public class LobbyState extends GameState {
 
         gameManager.reset();
 
-        if (this.hasEnoughPlayersToStart()) {
+        if (this.hasEnoughPlayersToStart(this.getParticipantCount())) {
             this.startCountdown();
         }
     }
@@ -268,8 +268,8 @@ public class LobbyState extends GameState {
         return SSL.getInstance().getResources().getConfig().getSection("Game");
     }
 
-    private boolean hasEnoughPlayersToStart() {
-        return this.getParticipantCount() >= this.getGameConfig().getInt("MinPlayersToStart");
+    private boolean hasEnoughPlayersToStart(int participantCount) {
+        return participantCount >= this.getGameConfig().getInt("MinPlayersToStart");
     }
 
     private void startCountdown() {
@@ -380,7 +380,7 @@ public class LobbyState extends GameState {
         kitManager.pullUserKit(player);
         kitManager.updateHolograms(player);
 
-        if (!this.isCounting && this.hasEnoughPlayersToStart()) {
+        if (!this.isCounting && this.hasEnoughPlayersToStart(this.getParticipantCount())) {
             this.startCountdown();
         }
     }
@@ -392,7 +392,7 @@ public class LobbyState extends GameState {
         SSL.getInstance().getArenaManager().wipePlayer(player);
         SSL.getInstance().getTeamManager().wipePlayer(player);
 
-        if (this.isCounting && !this.hasEnoughPlayersToStart()) {
+        if (this.isCounting && !this.hasEnoughPlayersToStart(this.getParticipantCount() - 1)) {
             this.stopCountdownTask();
             Chat.GAME.broadcast("&7Not enough players to start.");
         }
