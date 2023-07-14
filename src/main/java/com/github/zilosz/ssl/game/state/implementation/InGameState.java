@@ -28,7 +28,6 @@ import com.github.zilosz.ssl.utils.world.StaticWorldType;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.nametagedit.plugin.NametagEdit;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
-import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -398,7 +397,7 @@ public class InGameState extends GameState {
         double finalDamage = event.getFinalDamage();
         SSL.getInstance().getDamageManager().updateIndicator(event.getVictim(), finalDamage);
 
-        if (event.getVictim() instanceof Player && !CitizensAPI.getNPCRegistry().isNPC(event.getVictim())) {
+        if (event.getVictim() instanceof Player && !SSL.getInstance().getNpcStorage().isNpc(event.getVictim())) {
             Player player = (Player) event.getVictim();
             GameManager gameManager = SSL.getInstance().getGameManager();
 

@@ -5,6 +5,7 @@ import com.github.zilosz.ssl.attack.Attack;
 import com.github.zilosz.ssl.attack.AttackInfo;
 import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
+import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.entity.EntityUtils;
 import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
@@ -48,7 +49,9 @@ public class VoltTackle extends RightClickAbility {
         this.moveTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
 
             if (++this.ticksMoving >= duration) {
-                this.reset(true, true);
+                this.reset();
+                this.startCooldown();
+                this.playEndSound();
                 return;
             }
 
@@ -103,43 +106,37 @@ public class VoltTackle extends RightClickAbility {
                     SSL.getInstance().getDamageManager().attack(this.player, recoil, info);
                 }
 
-                this.reset(true, false);
+                this.reset();
+                this.startCooldown();
             });
         }, 0, 0);
     }
 
-    private void reset(boolean cooldown, boolean sound) {
+    private void reset() {
         if (this.ticksMoving == -1) return;
 
         this.moveTask.cancel();
         this.ticksMoving = -1;
 
-        this.particles.forEach((item, task) -> {
-            item.remove();
-            task.cancel();
-        });
+        CollectionUtils.removeWhileIteratingOverEntry(this.particles, Item::remove, BukkitTask::cancel);
+    }
 
-        this.particles.clear();
-
-        if (cooldown) {
-            this.startCooldown();
-        }
-
-        if (sound) {
-            this.player.playSound(this.player.getLocation(), Sound.WOLF_DEATH, 1, 0.5f);
-        }
+    private void playEndSound() {
+        this.player.playSound(this.player.getLocation(), Sound.WOLF_DEATH, 1, 0.5f);
     }
 
     @Override
     public void deactivate() {
-        this.reset(false, false);
         super.deactivate();
+        this.reset();
     }
 
     @EventHandler
     public void onSneak(PlayerToggleSneakEvent event) {
         if (event.getPlayer() == this.player && !this.player.isSneaking()) {
-            this.reset(true, true);
+            this.reset();
+            this.startCooldown();
+            this.playEndSound();
         }
     }
 }

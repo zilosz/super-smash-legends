@@ -78,7 +78,7 @@ public class EntityFinder {
     }
 
     private boolean isValidPlayer(LivingEntity entity) {
-        if (!(entity instanceof Player) || CitizensAPI.getNPCRegistry().isNPC(entity)) return true;
+        if (!(entity instanceof Player) || SSL.getInstance().getNpcStorage().isNpc(entity)) return true;
         Player player = (Player) entity;
         return SSL.getInstance().getGameManager().isPlayerAlive(player) && player.getGameMode() == GameMode.SURVIVAL;
     }

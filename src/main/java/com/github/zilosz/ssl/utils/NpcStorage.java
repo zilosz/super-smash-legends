@@ -4,6 +4,7 @@ import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.MemoryNPCDataStore;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.npc.NPCRegistry;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
 public class NpcStorage {
@@ -15,5 +16,9 @@ public class NpcStorage {
 
     public void deregisterNpc(NPC npc) {
         this.registry.deregister(npc);
+    }
+
+    public boolean isNpc(Entity entity) {
+        return this.registry.isNPC(entity);
     }
 }
