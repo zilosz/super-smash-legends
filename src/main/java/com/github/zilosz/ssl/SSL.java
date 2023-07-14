@@ -18,7 +18,6 @@ import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.GameScoreboard;
 import com.github.zilosz.ssl.kit.KitManager;
 import com.github.zilosz.ssl.team.TeamManager;
-import com.github.zilosz.ssl.utils.NpcStorage;
 import com.github.zilosz.ssl.utils.file.FileUtility;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.world.StaticWorldType;
@@ -27,6 +26,9 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import fr.minuskube.inv.InventoryManager;
 import io.github.thatkawaiisam.assemble.Assemble;
 import lombok.Getter;
+import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.npc.MemoryNPCDataStore;
+import net.citizensnpcs.api.npc.NPCRegistry;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -49,7 +51,7 @@ public class SSL extends JavaPlugin {
     private TeamManager teamManager;
     private WorldManager worldManager;
     private AttackManager damageManager;
-    private NpcStorage npcStorage;
+    private NPCRegistry npcRegistry;
 
     @Override
     public void onLoad() {
@@ -77,7 +79,7 @@ public class SSL extends JavaPlugin {
         this.playerDatabase = new PlayerDatabase();
         this.kitManager = new KitManager();
         this.gameManager = new GameManager();
-        this.npcStorage = new NpcStorage();
+        this.npcRegistry = CitizensAPI.createNamedNPCRegistry("ssl-registry", new MemoryNPCDataStore());
 
         Section dbConfig = this.resources.getConfig().getSection("Database");
 

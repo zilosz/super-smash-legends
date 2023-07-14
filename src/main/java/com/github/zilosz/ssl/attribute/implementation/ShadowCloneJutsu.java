@@ -21,6 +21,7 @@ import net.minecraft.server.v1_8_R3.PacketPlayOutAnimation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -55,7 +56,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
             this.destroyClone(this.lastSpawnedClone);
         }
 
-        NPC npc = SSL.getInstance().getNpcStorage().createPlayer(this.player.getDisplayName());
+        NPC npc = SSL.getInstance().getNpcRegistry().createNPC(EntityType.PLAYER, this.player.getDisplayName());
         npc.setProtected(false);
 
         this.kit.getSkin().applyToNpc(npc);
@@ -109,7 +110,6 @@ public class ShadowCloneJutsu extends RightClickAbility {
         this.player.playSound(this.player.getLocation(), Sound.ZOMBIE_PIG_HURT, 1, 1.5f);
 
         SSL.getInstance().getTeamManager().getPlayerTeam(this.player).removeEntity(this.getNpcPlayer(npc));
-        SSL.getInstance().getNpcStorage().deregisterNpc(npc);
         npc.destroy();
 
         CloneData clone = this.clones.get(npc);

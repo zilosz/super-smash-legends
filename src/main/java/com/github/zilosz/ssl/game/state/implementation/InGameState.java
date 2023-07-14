@@ -397,7 +397,7 @@ public class InGameState extends GameState {
         double finalDamage = event.getFinalDamage();
         SSL.getInstance().getDamageManager().updateIndicator(event.getVictim(), finalDamage);
 
-        if (event.getVictim() instanceof Player && !SSL.getInstance().getNpcStorage().isNpc(event.getVictim())) {
+        if (event.getVictim() instanceof Player && !SSL.getInstance().getNpcRegistry().isNPC(event.getVictim())) {
             Player player = (Player) event.getVictim();
             GameManager gameManager = SSL.getInstance().getGameManager();
 

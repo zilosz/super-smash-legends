@@ -25,12 +25,14 @@ import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
 import me.filoghost.holographicdisplays.api.hologram.line.TextHologramLine;
 import net.citizensnpcs.api.event.NPCDeathEvent;
 import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.api.npc.NPCRegistry;
 import net.citizensnpcs.trait.LookClose;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -89,7 +91,8 @@ public class Scarecrow extends RightClickAbility {
             this.player.getWorld().playSound(this.player.getLocation(), Sound.WITHER_SPAWN, 0.5f, 2);
             this.player.getWorld().playSound(this.player.getLocation(), Sound.DIG_GRAVEL, 1, 0.5f);
 
-            this.scarecrow = SSL.getInstance().getNpcStorage().createPlayer(this.player.getDisplayName());
+            NPCRegistry registry = SSL.getInstance().getNpcRegistry();
+            this.scarecrow = registry.createNPC(EntityType.PLAYER, this.player.getDisplayName());
             this.scarecrow.setProtected(false);
 
             this.kit.getSkin().applyToNpc(this.scarecrow);
@@ -211,9 +214,7 @@ public class Scarecrow extends RightClickAbility {
         });
 
         this.npcHologram.delete();
-
         this.scarecrow.destroy();
-        SSL.getInstance().getNpcStorage().deregisterNpc(this.scarecrow);
 
         CollectionUtils.removeWhileIterating(this.affectedTargets, this::removeEffect);
     }

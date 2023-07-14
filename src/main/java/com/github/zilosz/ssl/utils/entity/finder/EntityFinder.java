@@ -4,10 +4,8 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.team.Team;
 import com.github.zilosz.ssl.team.TeamPreference;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
-import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -22,10 +20,9 @@ import java.util.stream.Stream;
 
 public class EntityFinder {
     private final EntitySelector rangeSelector;
-    private final Set<LivingEntity> toAvoid = new HashSet<>();
+    private final Set<LivingEntity> entitiesToAvoid = new HashSet<>();
     private TeamPreference teamPreference = TeamPreference.ENEMY;
     private boolean avoidsUser = true;
-    private EntityType entityType;
 
     public EntityFinder(EntitySelector rangeSelector) {
         this.rangeSelector = rangeSelector;
@@ -42,17 +39,12 @@ public class EntityFinder {
     }
 
     public EntityFinder avoid(LivingEntity target) {
-        this.toAvoid.add(target);
+        this.entitiesToAvoid.add(target);
         return this;
     }
 
     public EntityFinder avoidAll(Collection<LivingEntity> targets) {
-        this.toAvoid.addAll(targets);
-        return this;
-    }
-
-    public EntityFinder setEntityType(EntityType entityType) {
-        this.entityType = entityType;
+        this.entitiesToAvoid.addAll(targets);
         return this;
     }
 
@@ -67,18 +59,17 @@ public class EntityFinder {
 
     private Stream<LivingEntity> getFilteredStream(LivingEntity user, Location location) {
         return this.rangeSelector.getEntityStream(location)
-                .filter(entity -> this.entityType == null || this.entityType == entity.getType())
-                .filter(entity -> !(entity instanceof ArmorStand))
+                .filter(entity -> entity.getType() != EntityType.ARMOR_STAND)
                 .filter(LivingEntity.class::isInstance)
                 .map(LivingEntity.class::cast)
                 .filter(this::isValidPlayer)
                 .filter(entity -> !this.avoidsUser || entity != user)
-                .filter(entity -> !this.toAvoid.contains(entity))
+                .filter(entity -> !this.entitiesToAvoid.contains(entity))
                 .filter(entity -> this.isCorrectTeam(user, entity));
     }
 
     private boolean isValidPlayer(LivingEntity entity) {
-        if (!(entity instanceof Player) || SSL.getInstance().getNpcStorage().isNpc(entity)) return true;
+        if (!(entity instanceof Player) || SSL.getInstance().getNpcRegistry().isNPC(entity)) return true;
         Player player = (Player) entity;
         return SSL.getInstance().getGameManager().isPlayerAlive(player) && player.getGameMode() == GameMode.SURVIVAL;
     }

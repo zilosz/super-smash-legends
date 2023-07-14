@@ -20,6 +20,7 @@ import net.citizensnpcs.trait.LookClose;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -58,7 +59,7 @@ public class KitManager implements Listener {
         Kit kit = this.createKit(kitType);
         this.kits.add(kit);
 
-        NPC npc = SSL.getInstance().getNpcStorage().createPlayer(kit.getBoldedDisplayName());
+        NPC npc = SSL.getInstance().getNpcRegistry().createNPC(EntityType.PLAYER, kit.getBoldedDisplayName());
         this.kitsPerNpc.put(npc, kitType);
 
         kit.getSkin().applyToNpc(npc);
