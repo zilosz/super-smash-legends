@@ -130,7 +130,7 @@ public class TutorialState extends GameState {
             Kit kit = SSL.getInstance().getKitManager().getSelectedKit(player);
             player.setGameMode(GameMode.SPECTATOR);
 
-            this.skinChangers.put(player, kit.getSkin().applyAcrossTp(SSL.getInstance(), player, () -> {
+            this.skinChangers.put(player, kit.getSkin().applyAcrossTeleport(SSL.getInstance(), player, () -> {
                 player.teleport(tutorialLocations.get(0));
                 player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 2, 1);
                 player.setFlySpeed(0);

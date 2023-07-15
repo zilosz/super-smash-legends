@@ -5,14 +5,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 
 @Getter
-public enum StaticWorldType {
-    WORLD("world"),
+public enum CustomWorldType {
     LOBBY("lobby"),
     ARENA("arena");
 
     private final String worldName;
 
-    StaticWorldType(String worldName) {
+    CustomWorldType(String worldName) {
         this.worldName = worldName;
     }
 

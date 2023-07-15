@@ -24,7 +24,7 @@ import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
-import com.github.zilosz.ssl.utils.world.StaticWorldType;
+import com.github.zilosz.ssl.utils.world.CustomWorldType;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.nametagedit.plugin.NametagEdit;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -163,6 +163,10 @@ public class InGameState extends GameState {
         return replacers.replaceLines(scoreboard);
     }
 
+    private String getPlayerLivesText(Player player, String nameColor) {
+        return MessageUtils.color(String.format("%s%s: %s", nameColor, player.getName(), this.getLivesText(player)));
+    }
+
     private String getLivesText(Player player) {
         int lives = SSL.getInstance().getGameManager().getProfile(player).getLives();
         int lifeCap = SSL.getInstance().getResources().getConfig().getInt("Game.Lives");
@@ -184,10 +188,6 @@ public class InGameState extends GameState {
         }
 
         return color + lives;
-    }
-
-    private String getPlayerLivesText(Player player, String nameColor) {
-        return MessageUtils.color(String.format("%s%s: %s", nameColor, player.getName(), this.getLivesText(player)));
     }
 
     @Override
@@ -266,7 +266,7 @@ public class InGameState extends GameState {
         }));
 
         this.trackerTasks.put(player, Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
-            String arena = StaticWorldType.ARENA.getWorldName();
+            String arena = CustomWorldType.ARENA.getWorldName();
 
             if (!player.getWorld().getName().equals(arena)) return;
 

@@ -1,6 +1,5 @@
 package com.github.zilosz.ssl.utils;
 
-import com.github.zilosz.ssl.utils.world.StaticWorldType;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
@@ -22,14 +21,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Getter
 public class Skin {
     private static final String PROFILE_API_URL = "https://api.mojang.com/users/profiles/minecraft/";
     private static final String UUID_API_URL = "https://sessionserver.mojang.com/session/minecraft/profile/";
-    private static final Skin FALLBACK_SKIN = Skin.fromMojang("Notch");
 
     private final String texture;
     private final String signature;
@@ -40,14 +37,9 @@ public class Skin {
     }
 
     public static Skin fromPlayer(Player player) {
-        try {
-            GameProfile profile = NmsUtils.getPlayer(player).getProfile();
-            Property property = profile.getProperties().get("textures").iterator().next();
-            return new Skin(property.getValue(), property.getSignature());
-
-        } catch (NoSuchElementException ignored) {
-            return FALLBACK_SKIN;
-        }
+        GameProfile profile = NmsUtils.getPlayer(player).getProfile();
+        Property property = profile.getProperties().get("textures").iterator().next();
+        return new Skin(property.getValue(), property.getSignature());
     }
 
     public static Skin fromMojang(String playerName) {
@@ -67,14 +59,14 @@ public class Skin {
             return new Skin(texture, signature);
 
         } catch (IOException e) {
-            return FALLBACK_SKIN;
+            return Skin.fromMojang("Notch");
         }
     }
 
     public void apply(Plugin plugin, Player player) {
         this.showToOthers(player);
         Location oldLoc = player.getLocation();
-        player.teleport(new Location(StaticWorldType.WORLD.getWorld(), 0, 120, 0));
+        player.teleport(new Location(Bukkit.getWorld("world"), 0, 120, 0));
         showToPlayer(plugin, player, () -> player.teleport(oldLoc));
     }
 
@@ -88,16 +80,6 @@ public class Skin {
     }
 
     private static BukkitTask showToPlayer(Plugin plugin, Player player, Runnable onTp) {
-        sendAddRemovePackets(player);
-        return fakeRespawnAfterDelay(plugin, player, onTp);
-    }
-
-    private void updateProfile(GameProfile gameProfile) {
-        gameProfile.getProperties().removeAll("textures");
-        gameProfile.getProperties().put("textures", new Property("textures", this.texture, this.signature));
-    }
-
-    private static void sendAddRemovePackets(Player player) {
         EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
 
         NmsUtils.sendPacket(
@@ -109,10 +91,6 @@ public class Skin {
                 player,
                 new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, nmsPlayer)
         );
-    }
-
-    private static BukkitTask fakeRespawnAfterDelay(Plugin plugin, Player player, Runnable onTp) {
-        EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
 
         return Bukkit.getScheduler().runTaskLater(plugin, () -> {
             onTp.run();
@@ -124,6 +102,11 @@ public class Skin {
                     nmsPlayer.playerInteractManager.getGameMode()
             ));
         }, 2);
+    }
+
+    private void updateProfile(GameProfile gameProfile) {
+        gameProfile.getProperties().removeAll("textures");
+        gameProfile.getProperties().put("textures", new Property("textures", this.texture, this.signature));
     }
 
     public void applyToSkull(SkullMeta meta) {
@@ -140,7 +123,7 @@ public class Skin {
         }
     }
 
-    public BukkitTask applyAcrossTp(Plugin plugin, Player player, Runnable onTp) {
+    public BukkitTask applyAcrossTeleport(Plugin plugin, Player player, Runnable onTp) {
         this.showToOthers(player);
         return showToPlayer(plugin, player, onTp);
     }

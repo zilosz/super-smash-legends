@@ -9,8 +9,8 @@ public class Replacers {
     private final Map<String, String> singles = new HashMap<>();
     private final Map<String, List<String>> multiples = new HashMap<>();
 
-    public Replacers add(String placeholder, int replacement) {
-        return this.add(placeholder, String.valueOf(replacement));
+    public static String wrap(String placeholder) {
+        return "{" + placeholder + "}";
     }
 
     public Replacers add(String placeholder, String replacement) {
@@ -18,15 +18,7 @@ public class Replacers {
         return this;
     }
 
-    public static String wrap(String placeholder) {
-        return "{" + placeholder + "}";
-    }
-
-    public Replacers add(String placeholder, double replacement) {
-        return this.add(placeholder, String.valueOf(replacement));
-    }
-
-    public Replacers add(String placeholder, float replacement) {
+    public Replacers add(String placeholder, Number replacement) {
         return this.add(placeholder, String.valueOf(replacement));
     }
 

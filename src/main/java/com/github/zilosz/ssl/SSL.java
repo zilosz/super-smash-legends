@@ -20,7 +20,7 @@ import com.github.zilosz.ssl.kit.KitManager;
 import com.github.zilosz.ssl.team.TeamManager;
 import com.github.zilosz.ssl.utils.file.FileUtility;
 import com.github.zilosz.ssl.utils.file.YamlReader;
-import com.github.zilosz.ssl.utils.world.StaticWorldType;
+import com.github.zilosz.ssl.utils.world.CustomWorldType;
 import com.github.zilosz.ssl.utils.world.WorldManager;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import fr.minuskube.inv.InventoryManager;
@@ -55,8 +55,8 @@ public class SSL extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        FileUtility.deleteWorld(StaticWorldType.LOBBY.getWorldName());
-        FileUtility.deleteWorld(StaticWorldType.ARENA.getWorldName());
+        FileUtility.deleteWorld(CustomWorldType.LOBBY.getWorldName());
+        FileUtility.deleteWorld(CustomWorldType.ARENA.getWorldName());
     }
 
     @Override
@@ -95,7 +95,7 @@ public class SSL extends JavaPlugin {
 
         Vector pasteVector = YamlReader.vector(this.resources.getLobby().getString("PasteVector"));
         File schematic = FileUtility.loadSchematic(this, "lobby");
-        this.worldManager.createWorld(StaticWorldType.LOBBY, schematic, pasteVector);
+        this.worldManager.createWorld(CustomWorldType.LOBBY, schematic, pasteVector);
 
         this.kitManager.setupKits();
         this.inventoryManager.init();

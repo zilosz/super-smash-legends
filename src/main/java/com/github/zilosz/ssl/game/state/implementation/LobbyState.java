@@ -21,7 +21,7 @@ import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
-import com.github.zilosz.ssl.utils.world.StaticWorldType;
+import com.github.zilosz.ssl.utils.world.CustomWorldType;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
@@ -135,7 +135,7 @@ public class LobbyState extends GameState {
             }
 
             Skin realSkin = kitManager.getRealSkin(player);
-            realSkin.applyAcrossTp(SSL.getInstance(), player, () -> this.initializePlayer(player));
+            realSkin.applyAcrossTeleport(SSL.getInstance(), player, () -> this.initializePlayer(player));
 
             InGameProfile profile = gameManager.getProfile(player);
             DecimalFormat format = new DecimalFormat("#.#");
@@ -148,7 +148,7 @@ public class LobbyState extends GameState {
                     .add("DAMAGE_DEALT", format.format(profile.getDamageDealt()));
 
             String lastGameLoc = SSL.getInstance().getResources().getLobby().getString("LastGame");
-            Location lastGameLocation = YamlReader.location(StaticWorldType.LOBBY.getWorldName(), lastGameLoc);
+            Location lastGameLocation = YamlReader.location(CustomWorldType.LOBBY.getWorldName(), lastGameLoc);
             Hologram lastGameHolo = HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(lastGameLocation);
             this.holograms.add(lastGameHolo);
 
@@ -204,7 +204,7 @@ public class LobbyState extends GameState {
 
     private void createLeaderboard(String titleName, String statName, String configName) {
         Resources resources = SSL.getInstance().getResources();
-        String worldName = StaticWorldType.LOBBY.getWorldName();
+        String worldName = CustomWorldType.LOBBY.getWorldName();
         Location location = YamlReader.location(worldName, resources.getLobby().getString(configName));
 
         Hologram hologram = HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(location);
@@ -264,10 +264,6 @@ public class LobbyState extends GameState {
         lines.appendText(MessageUtils.color("&7------------------"));
     }
 
-    private Section getGameConfig() {
-        return SSL.getInstance().getResources().getConfig().getSection("Game");
-    }
-
     private boolean hasEnoughPlayersToStart(int participantCount) {
         return participantCount >= this.getGameConfig().getInt("MinPlayersToStart");
     }
@@ -309,7 +305,11 @@ public class LobbyState extends GameState {
 
     private Location getSpawn() {
         String spawnString = SSL.getInstance().getResources().getLobby().getString("Spawn");
-        return YamlReader.location(StaticWorldType.LOBBY.getWorldName(), spawnString);
+        return YamlReader.location(CustomWorldType.LOBBY.getWorldName(), spawnString);
+    }
+
+    private Section getGameConfig() {
+        return SSL.getInstance().getResources().getConfig().getSection("Game");
     }
 
     @Override

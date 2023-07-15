@@ -20,9 +20,9 @@ import java.util.Map;
 import java.util.Optional;
 
 public class WorldManager {
-    private final Map<StaticWorldType, WorldInfo> worlds = new EnumMap<>(StaticWorldType.class);
+    private final Map<CustomWorldType, WorldInfo> worlds = new EnumMap<>(CustomWorldType.class);
 
-    public void createWorld(StaticWorldType type, File schematic, Vector pastePoint) {
+    public void createWorld(CustomWorldType type, File schematic, Vector pastePoint) {
 
         WorldCreator worldCreator = WorldCreator.name(type.getWorldName())
                 .type(WorldType.FLAT).generateStructures(false).generatorSettings("3;minecraft:air;2");
@@ -52,7 +52,7 @@ public class WorldManager {
         this.worlds.put(type, new WorldInfo(editSession, timeUpdater));
     }
 
-    public void resetWorld(StaticWorldType worldType) {
+    public void resetWorld(CustomWorldType worldType) {
         Optional.ofNullable(this.worlds.remove(worldType)).ifPresent(worldInfo -> {
             worldInfo.editSession.undo(worldInfo.editSession);
             worldInfo.timeUpdater.cancel();

@@ -4,7 +4,7 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.utils.file.FileUtility;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
-import com.github.zilosz.ssl.utils.world.StaticWorldType;
+import com.github.zilosz.ssl.utils.world.CustomWorldType;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -56,11 +56,11 @@ public class Arena {
         Vector pasteVector = YamlReader.vector(this.config.getString("PasteVector"));
         String path = FileUtility.buildPath("arenas", this.config.getString("SchematicName"));
         File schematic = FileUtility.loadSchematic(SSL.getInstance(), path);
-        SSL.getInstance().getWorldManager().createWorld(StaticWorldType.ARENA, schematic, pasteVector);
+        SSL.getInstance().getWorldManager().createWorld(CustomWorldType.ARENA, schematic, pasteVector);
     }
 
     public Location getWaitLocation() {
-        return YamlReader.location(StaticWorldType.ARENA.getWorldName(), this.config.getString("WaitLocation"));
+        return YamlReader.location(CustomWorldType.ARENA.getWorldName(), this.config.getString("WaitLocation"));
     }
 
     public List<Location> getTutorialLocations() {
@@ -68,7 +68,7 @@ public class Arena {
     }
 
     private List<Location> getLocations(String path) {
-        return YamlReader.locations(StaticWorldType.ARENA.getWorldName(), this.config.getStringList(path));
+        return YamlReader.locations(CustomWorldType.ARENA.getWorldName(), this.config.getStringList(path));
     }
 
     public List<Location> getSpawnLocations() {

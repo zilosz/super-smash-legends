@@ -59,12 +59,10 @@ public class HotbarItem implements Listener {
         long tick = event.getPlayer().getWorld().getFullTime();
         Action action = event.getAction();
 
-        if (this.lastTick != null && this.lastTick == tick) {
-            boolean lastIsLeft = this.lastAction != null && this.lastAction.name().contains("LEFT");
-            boolean currIsLeft = action.name().contains("LEFT");
+        boolean sameTick = this.lastTick != null && this.lastTick == tick;
+        boolean lastIsLeft = this.lastAction != null && this.lastAction.name().contains("LEFT");
 
-            if (lastIsLeft == currIsLeft) return;
-        }
+        if (sameTick && lastIsLeft == action.name().contains("LEFT")) return;
 
         this.lastTick = tick;
         this.lastAction = action;
