@@ -1,6 +1,7 @@
 package com.github.zilosz.ssl.command;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.kit.KitManager;
 import com.github.zilosz.ssl.kit.KitSelector;
 import com.github.zilosz.ssl.kit.KitType;
@@ -19,42 +20,42 @@ public class KitCommand implements CommandExecutor {
         if (!(commandSender instanceof Player)) return false;
 
         Player player = (Player) commandSender;
+        GameManager gameManager = SSL.getInstance().getGameManager();
 
-        if (SSL.getInstance().getGameManager().isSpectator(player)) {
+        if (gameManager.isSpectator(player)) {
             Chat.GAME.send(player, "&7You can't use this command in spectator mode.");
             return true;
         }
 
-        if (SSL.getInstance().getGameManager().getState().allowsKitSelection()) {
+        if (!gameManager.getState().allowsKitSelection()) {
+            Chat.KIT.send(player, "&7You cannot change your kit at this time.");
+            return true;
+        }
 
-            if (strings.length > 1) {
-                return false;
-            }
+        if (strings.length == 0) {
+            new KitSelector().build().open(player);
+            return true;
+        }
 
-            if (strings.length == 0) {
-                new KitSelector().build().open(player);
+        if (strings.length > 1) {
+            return false;
+        }
 
-            } else {
-                KitManager kitManager = SSL.getInstance().getKitManager();
-                String name = StringUtils.capitalize(strings[0].toLowerCase());
+        KitManager kitManager = SSL.getInstance().getKitManager();
+        String name = StringUtils.capitalize(strings[0].toLowerCase());
 
-                if (name.equalsIgnoreCase("random")) {
-                    Chat.KIT.send(player, "&7Selecting a random kit...");
-                    kitManager.setKit(player, CollectionUtils.selectRandom(KitType.values()));
-
-                } else {
-
-                    try {
-                        kitManager.setKit(player, KitType.valueOf(name));
-
-                    } catch (IllegalArgumentException e) {
-                        Chat.KIT.send(player, String.format("&7\"%s\" &7is not a valid kit.", name));
-                    }
-                }
-            }
+        if (name.equalsIgnoreCase("random")) {
+            Chat.KIT.send(player, "&7Selecting a random kit...");
+            kitManager.setKit(player, CollectionUtils.selectRandom(KitType.values()));
 
         } else {
-            Chat.KIT.send(player, "&7You cannot change your kit at this time.");
+
+            try {
+                kitManager.setKit(player, KitType.valueOf(name.toUpperCase()));
+
+            } catch (IllegalArgumentException e) {
+                Chat.KIT.send(player, String.format("&7\"%s\" &7is not a valid kit.", name));
+            }
         }
 
         return true;

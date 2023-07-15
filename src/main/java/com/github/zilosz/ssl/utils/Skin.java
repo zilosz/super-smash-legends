@@ -63,11 +63,11 @@ public class Skin {
         }
     }
 
-    public void apply(Plugin plugin, Player player) {
+    public SelfSkinShower apply(Plugin plugin, Player player) {
         this.showToOthers(player);
         Location oldLoc = player.getLocation();
         player.teleport(new Location(Bukkit.getWorld("world"), 0, 120, 0));
-        showToPlayer(plugin, player, () -> player.teleport(oldLoc));
+        return showToPlayer(plugin, player, () -> player.teleport(oldLoc));
     }
 
     private void showToOthers(Player player) {
@@ -79,7 +79,7 @@ public class Skin {
         }
     }
 
-    private static BukkitTask showToPlayer(Plugin plugin, Player player, Runnable onTp) {
+    private static SelfSkinShower showToPlayer(Plugin plugin, Player player, Runnable onTp) {
         EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
 
         NmsUtils.sendPacket(
@@ -92,16 +92,14 @@ public class Skin {
                 new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, nmsPlayer)
         );
 
-        return Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            onTp.run();
+        Runnable skinRunnable = () -> NmsUtils.sendPacket(player, new PacketPlayOutRespawn(
+                nmsPlayer.dimension,
+                nmsPlayer.getWorld().getDifficulty(),
+                nmsPlayer.getWorld().getWorldData().getType(),
+                nmsPlayer.playerInteractManager.getGameMode()
+        ));
 
-            NmsUtils.sendPacket(player, new PacketPlayOutRespawn(
-                    nmsPlayer.dimension,
-                    nmsPlayer.getWorld().getDifficulty(),
-                    nmsPlayer.getWorld().getWorldData().getType(),
-                    nmsPlayer.playerInteractManager.getGameMode()
-            ));
-        }, 2);
+        return new SelfSkinShower(skinRunnable, onTp).runLater(plugin);
     }
 
     private void updateProfile(GameProfile gameProfile) {
@@ -123,12 +121,38 @@ public class Skin {
         }
     }
 
-    public BukkitTask applyAcrossTeleport(Plugin plugin, Player player, Runnable onTp) {
+    public SelfSkinShower applyAcrossTeleport(Plugin plugin, Player player, Runnable onTp) {
         this.showToOthers(player);
         return showToPlayer(plugin, player, onTp);
     }
 
     public void applyToNpc(NPC npc) {
         npc.getOrAddTrait(SkinTrait.class).setSkinPersistent("", this.signature, this.texture);
+    }
+
+    public static class SelfSkinShower {
+        private BukkitTask showDelayer;
+        private final Runnable skinRunnable;
+        private final Runnable teleportRunnable;
+
+        private SelfSkinShower(Runnable skinRunnable, Runnable teleportRunnable) {
+            this.skinRunnable = skinRunnable;
+            this.teleportRunnable = teleportRunnable;
+        }
+
+        private SelfSkinShower runLater(Plugin plugin) {
+            this.showDelayer = Bukkit.getScheduler().runTaskLater(plugin, this::show, 2);
+            return this;
+        }
+
+        public void show() {
+            this.showWithoutTpAction();
+            this.teleportRunnable.run();
+        }
+
+        public void showWithoutTpAction() {
+            this.showDelayer.cancel();
+            this.skinRunnable.run();
+        }
     }
 }

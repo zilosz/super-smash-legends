@@ -39,6 +39,7 @@ public class KitManager implements Listener {
     private final Map<Player, Skin> realSkins = new HashMap<>();
     private final Map<NPC, KitType> kitsPerNpc = new HashMap<>();
     private final Map<Player, Map<KitType, Hologram>> kitHolograms = new HashMap<>();
+    private final Map<Player, Skin.SelfSkinShower> selfSkinShowers = new HashMap<>();
 
     public Skin getRealSkin(Player player) {
         return this.realSkins.get(player);
@@ -177,7 +178,8 @@ public class KitManager implements Listener {
         }
 
         if (state.updatesKitSkins()) {
-            newKit.getSkin().apply(SSL.getInstance(), player);
+            Optional.ofNullable(this.selfSkinShowers.remove(player)).ifPresent(Skin.SelfSkinShower::show);
+            this.selfSkinShowers.put(player, newKit.getSkin().apply(SSL.getInstance(), player));
         }
 
         Optional.ofNullable(this.selectedKits.put(player, newKit)).ifPresentOrElse(oldKit -> {

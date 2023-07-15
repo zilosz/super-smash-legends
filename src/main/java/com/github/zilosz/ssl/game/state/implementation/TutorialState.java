@@ -6,6 +6,7 @@ import com.github.zilosz.ssl.arena.Arena;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.state.GameState;
 import com.github.zilosz.ssl.kit.Kit;
+import com.github.zilosz.ssl.utils.Skin;
 import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.math.VectorUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
@@ -37,7 +38,7 @@ public class TutorialState extends GameState {
     private final Map<Player, BukkitTask> moveDelayers = new HashMap<>();
     private final Map<Player, BukkitTask> tutorialSchedulers = new HashMap<>();
     private final Map<Player, BukkitTask> ruleDisplayers = new HashMap<>();
-    private final Map<Player, BukkitTask> skinChangers = new HashMap<>();
+    private final Map<Player, Skin.SelfSkinShower> skinChangers = new HashMap<>();
 
     private BukkitTask skipTask;
 
@@ -167,7 +168,7 @@ public class TutorialState extends GameState {
         CollectionUtils.removeWhileIteratingOverValues(this.ruleDisplayers, BukkitTask::cancel);
         CollectionUtils.removeWhileIteratingOverValues(this.tutorialSchedulers, BukkitTask::cancel);
         CollectionUtils.removeWhileIteratingOverValues(this.moveDelayers, BukkitTask::cancel);
-        CollectionUtils.removeWhileIteratingOverValues(this.skinChangers, BukkitTask::cancel);
+        CollectionUtils.removeWhileIteratingOverValues(this.skinChangers, Skin.SelfSkinShower::showWithoutTpAction);
         new HashSet<>(this.playersInTutorial).forEach(this::stopPlayerAfterCompletion);
 
         if (this.skipTask != null) {
