@@ -37,7 +37,7 @@ public class PlayerViewerInventory extends CustomInventory<Player> {
         int lives = SSL.getInstance().getGameManager().getProfile(other).getLives();
 
         ItemBuilder<SkullMeta> itemBuilder = new ItemBuilder<SkullMeta>(Material.SKULL_ITEM)
-                .setData(3)
+                .setData((byte) 3)
                 .setName(this.getPlayerName(other))
                 .setCount(Math.max(1, lives));
 

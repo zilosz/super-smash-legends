@@ -17,12 +17,12 @@ public abstract class LivingProjectile<T extends LivingEntity> extends EmulatedP
 
     @Override
     public void onLaunch() {
-        SSL.getInstance().getTeamManager().getPlayerTeam(this.launcher).addEntity(this.entity);
+        SSL.getInstance().getTeamManager().addEntityToTeam(this.entity, this.launcher);
     }
 
     @Override
     public void onRemove(ProjectileRemoveReason reason) {
-        SSL.getInstance().getTeamManager().getPlayerTeam(this.launcher).removeEntity(this.entity);
+        SSL.getInstance().getTeamManager().removeEntityFromTeam(this.entity);
     }
 
     @EventHandler

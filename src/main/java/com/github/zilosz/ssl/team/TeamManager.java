@@ -2,6 +2,7 @@ package com.github.zilosz.ssl.team;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.utils.effects.ColorType;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
@@ -11,96 +12,83 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class TeamManager {
-    private final List<Team> teamList = new ArrayList<>();
-    private final Map<UUID, Team> teamsByEntity = new HashMap<>();
+    private List<Team> teamList;
+    private Map<LivingEntity, Team> teamsByEntity;
 
-    public TeamManager() {
-        this.loadTeams();
+    public void setupTeams() {
+        this.teamList = new ArrayList<>();
+
+        for (ColorType colorType : ColorType.values()) {
+            this.teamList.add(new Team(colorType, this.getDefaultTeamSize()));
+        }
+
+        this.teamsByEntity = new HashMap<>();
     }
 
-    private void loadTeams() {
-        for (ColorType colorType : ColorType.values()) {
-            this.teamList.add(new Team(colorType));
-        }
+    private Section getConfig() {
+        return SSL.getInstance().getResources().getConfig().getSection("Game.Teams");
+    }
+
+    public boolean isTeamsModeEnabled() {
+        return this.getConfig().getBoolean("Enabled");
+    }
+
+    public int getDefaultTeamSize() {
+        return this.getConfig().getInt("Size");
     }
 
     public int getAbsolutePlayerCap() {
-        return ColorType.values().length * this.getTeamSize();
-    }
-
-    public int getTeamSize() {
-        return SSL.getInstance().getResources().getConfig().getInt("Game.TeamSize");
+        return this.teamList.stream().mapToInt(Team::getPlayerCap).sum();
     }
 
     public List<Team> getTeamList() {
         return Collections.unmodifiableList(this.teamList);
     }
 
-    public Optional<Team> findChosenTeam(Player player) {
-        return this.teamList.stream().filter(team -> team.hasPlayer(player)).findAny();
-    }
-
     public String getPlayerColor(Player player) {
-        if (this.getTeamSize() == 1) {
-            return SSL.getInstance().getGameManager().getProfile(player).getKit().getColor().getChatSymbol();
+        if (this.isTeamsModeEnabled()) {
+            return this.getEntityTeam(player).getColorType().getChatSymbol();
         }
-        return this.getPlayerTeam(player).getColorType().getChatSymbol();
+        return SSL.getInstance().getGameManager().getProfile(player).getKit().getColor().getChatSymbol();
     }
 
-    public Team getPlayerTeam(Player player) {
-        return this.teamsByEntity.get(player.getUniqueId());
+    public Team getEntityTeam(LivingEntity entity) {
+        return this.teamsByEntity.get(entity);
+    }
+
+    public void removeEntityFromTeam(LivingEntity entity) {
+        Optional.ofNullable(this.teamsByEntity.remove(entity)).ifPresent(previous -> previous.removeEntity(entity));
+    }
+
+    public void addEntityToTeam(LivingEntity entity, Team team) {
+        this.teamsByEntity.put(entity, team);
+        team.addEntity(entity);
+    }
+
+    public void addEntityToTeam(LivingEntity entity, LivingEntity entityWithTeam) {
+        this.addEntityToTeam(entity, this.getEntityTeam(entityWithTeam));
     }
 
     public void assignPlayer(Player player) {
-        boolean assigned = false;
+        if (this.getEntityTeam(player) != null) return;
 
-        for (Team team : this.teamList) {
-
-            if (team.hasPlayer(player) || team.canJoin(player)) {
-                this.teamsByEntity.put(player.getUniqueId(), team);
-                assigned = true;
-
-                if (team.canJoin(player)) {
-                    team.addPlayer(player);
-                }
-
-                break;
-            }
-        }
-
-        if (!assigned) {
-            this.teamList.get(0).addPlayer(player);
-        }
+        this.teamList.stream()
+                .filter(team -> team.getPlayerCount() < team.getPlayerCap())
+                .findAny().ifPresent(team -> this.addEntityToTeam(player, team));
     }
 
     public void removeEmptyTeams() {
-        this.teamList.removeIf(Team::hasNoPlayers);
+        this.teamList.removeIf(team -> team.getPlayerCount() == 0);
     }
 
     public List<Team> getAliveTeams() {
         return this.teamList.stream().filter(Team::isAlive).collect(Collectors.toList());
     }
 
-    public boolean isGameTieOrWin() {
+    public boolean hasGameEnded() {
         return this.teamList.stream().filter(Team::isAlive).count() <= 1;
-    }
-
-    public void wipePlayer(Player player) {
-        Optional.ofNullable(this.teamsByEntity.remove(player.getUniqueId()))
-                .ifPresent(team -> team.removePlayer(player));
-    }
-
-    public Optional<Team> findEntityTeam(LivingEntity entity) {
-        return Optional.ofNullable(this.teamsByEntity.getOrDefault(entity.getUniqueId(), null));
-    }
-
-    public void reset() {
-        this.teamsByEntity.clear();
-        this.teamList.clear();
-        this.loadTeams();
     }
 }

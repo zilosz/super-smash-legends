@@ -6,6 +6,7 @@ import com.github.zilosz.ssl.utils.inventory.CustomInventory;
 import com.github.zilosz.ssl.utils.inventory.HasRandomOption;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.Replacers;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -13,7 +14,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class TeamSelector extends CustomInventory<Team> implements HasRandomOption {
@@ -33,7 +33,7 @@ public class TeamSelector extends CustomInventory<Team> implements HasRandomOpti
         String players = team.getPlayers().stream().map(Player::getName).collect(Collectors.joining(", "));
 
         Replacers replacers = new Replacers().add("SIZE", team.getPlayerCount())
-                .add("CAP", SSL.getInstance().getTeamManager().getTeamSize())
+                .add("CAP", team.getPlayerCap())
                 .add("PLAYERS", team.getPlayerCount() > 0 ? players : "&7&oNone");
 
         List<String> lore = replacers.replaceLines(Arrays.asList(
@@ -41,41 +41,40 @@ public class TeamSelector extends CustomInventory<Team> implements HasRandomOpti
                 "&3&lPlayers: &7{PLAYERS}"
         ));
 
-        return new ItemBuilder<>(team.getItemStack()).setName(team.getName()).setEnchanted(team.hasPlayer(player))
-                .setLore(lore).get();
+        return new ItemBuilder<>(Material.WOOL)
+                .setData(team.getColorType().getDyeColor().getWoolData())
+                .setName(team.getName())
+                .setLore(lore)
+                .get();
     }
 
     @Override
     public void onItemClick(Player player, Team team, InventoryClickEvent event) {
         TeamManager teamManager = SSL.getInstance().getTeamManager();
 
-        if (team.getPlayerCount() == teamManager.getTeamSize()) {
-            Chat.TEAM.send(player, "&7This team is full!");
+        if (team.equals(teamManager.getEntityTeam(player))) {
+            teamManager.removeEntityFromTeam(player);
+            Chat.TEAM.send(player, String.format("&7You left the %s &7team.", team.getName()));
+            player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 2);
             return;
         }
 
-        AtomicReference<Team> chosenAtomic = new AtomicReference<>();
-
-        teamManager.findChosenTeam(player).ifPresent(chosen -> {
-            chosen.removePlayer(player);
-            chosenAtomic.set(chosen);
-        });
-
-        player.closeInventory();
-        player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 0.5f);
-
-        if (chosenAtomic.get() == team) {
-            Chat.TEAM.send(player, "&7You are no longer on a team.");
-
-        } else {
-            team.addPlayer(player);
-            Chat.TEAM.send(player, String.format("&7You are now on the %s &7team.", team.getName()));
+        if (team.getPlayerCap() == team.getPlayerCount()) {
+            Chat.TEAM.send(player, String.format("%s &7is already full!", team.getName()));
+            player.playSound(player.getLocation(), Sound.ENDERDRAGON_HIT, 1, 1);
+            return;
         }
+
+        teamManager.removeEntityFromTeam(player);
+        teamManager.addEntityToTeam(player, team);
+
+        Chat.TEAM.send(player, String.format("&7You joined the %s &7team.", team.getName()));
+        player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 1);
     }
 
     @Override
     public boolean updatesItems() {
-        return false;
+        return true;
     }
 
     @Override

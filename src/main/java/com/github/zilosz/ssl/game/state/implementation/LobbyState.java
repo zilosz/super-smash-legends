@@ -170,6 +170,7 @@ public class LobbyState extends GameState {
         }
 
         SSL.getInstance().getArenaManager().setupArenas();
+        SSL.getInstance().getTeamManager().setupTeams();
 
         this.createLeaderboard("Win", "wins", "Wins");
         this.createLeaderboard("Kill", "kills", "Kills");
@@ -197,7 +198,7 @@ public class LobbyState extends GameState {
         Consumer<PlayerInteractEvent> arenaAction = e -> new ArenaVoter().build().open(player);
         this.hotbarItems.add(YamlReader.giveHotbarItem("ArenaVoter", player, arenaAction));
 
-        if (SSL.getInstance().getTeamManager().getTeamSize() > 1) {
+        if (SSL.getInstance().getTeamManager().isTeamsModeEnabled()) {
             Consumer<PlayerInteractEvent> teamAction = e -> new TeamSelector().build().open(player);
             this.hotbarItems.add(YamlReader.giveHotbarItem("TeamSelector", player, teamAction));
         }
@@ -391,7 +392,7 @@ public class LobbyState extends GameState {
         Player player = event.getPlayer();
 
         SSL.getInstance().getArenaManager().wipePlayer(player);
-        SSL.getInstance().getTeamManager().wipePlayer(player);
+        SSL.getInstance().getTeamManager().removeEntityFromTeam(player);
 
         if (this.isCounting && !this.hasEnoughPlayersToStart(this.getParticipantCount() - 1)) {
             this.stopCountdownTask();

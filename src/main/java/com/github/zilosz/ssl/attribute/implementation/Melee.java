@@ -25,7 +25,7 @@ public class Melee extends Attribute {
 
         if (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
             LivingEntity victim = (LivingEntity) event.getEntity();
-            Team team = SSL.getInstance().getTeamManager().getPlayerTeam(this.player);
+            Team team = SSL.getInstance().getTeamManager().getEntityTeam(this.player);
 
             if (TeamPreference.ENEMY.validate(team, victim)) {
                 AttackInfo attackInfo = new AttackInfo(AttackType.MELEE, this);

@@ -118,31 +118,18 @@ public class InGameState extends GameState {
 
         TeamManager teamManager = SSL.getInstance().getTeamManager();
         Set<Player> alivePlayers = SSL.getInstance().getGameManager().getAlivePlayers();
-
         boolean spaceForAllPlayers = scoreboard.size() + alivePlayers.size() <= MAX_SCOREBOARD_SIZE;
 
-        if (teamManager.getTeamSize() == 1) {
-            scoreboard.add(playerIndex, "&f&lPlayers");
-
-            if (spaceForAllPlayers) {
-
-                for (Player alivePlayer : alivePlayers) {
-                    scoreboard.add(playerIndex + 1, this.getPlayerLivesText(alivePlayer, "&7"));
-                }
-
-            } else {
-                scoreboard.add(playerIndex + 1, "&e&l" + alivePlayers.size() + " &7players alive.");
-            }
-
-        } else {
+        if (teamManager.isTeamsModeEnabled()) {
             scoreboard.add(playerIndex, "&f&lTeams");
             List<Team> aliveTeams = teamManager.getAliveTeams();
 
             if (spaceForAllPlayers) {
 
                 for (Team team : aliveTeams) {
+                    Set<Player> players = team.getPlayers();
 
-                    for (Player teamPlayer : team.getSortedPlayers()) {
+                    for (Player teamPlayer : players) {
 
                         if (SSL.getInstance().getGameManager().isPlayerAlive(teamPlayer)) {
                             String chatSymbol = team.getColorType().getChatSymbol();
@@ -155,6 +142,20 @@ public class InGameState extends GameState {
             } else {
                 scoreboard.add(playerIndex + 1, "&e&l" + aliveTeams.size() + " &7teams alive.");
             }
+
+        } else {
+            scoreboard.add(playerIndex, "&f&lPlayers");
+
+            if (spaceForAllPlayers) {
+
+                for (Player alivePlayer : alivePlayers) {
+                    scoreboard.add(playerIndex + 1, this.getPlayerLivesText(alivePlayer, "&7"));
+                }
+
+            } else {
+                scoreboard.add(playerIndex + 1, "&e&l" + alivePlayers.size() + " &7players alive.");
+            }
+
         }
 
         if (!spaceForAllPlayers) {
@@ -224,7 +225,7 @@ public class InGameState extends GameState {
 
                 SSL.getInstance().getGameManager().getProfile(player).getKit().activate();
 
-                if (SSL.getInstance().getTeamManager().getTeamSize() > 1) {
+                if (SSL.getInstance().getTeamManager().isTeamsModeEnabled()) {
                     String color = SSL.getInstance().getTeamManager().getPlayerColor(player);
                     NametagEdit.getApi().setPrefix(player, MessageUtils.color(color));
                 }
@@ -523,14 +524,14 @@ public class InGameState extends GameState {
             Chat.DEATH.broadcast(MessageUtils.color(String.format("%s &7has been &celiminated!", diedName)));
 
             TeamManager teamManager = SSL.getInstance().getTeamManager();
-            Team diedTeam = teamManager.getPlayerTeam(died);
+            Team diedTeam = teamManager.getEntityTeam(died);
 
             gameManager.addSpectator(died);
 
             if (!diedTeam.isAlive()) {
                 diedTeam.setLifespan(gameManager.getTicksActive());
 
-                if (teamManager.isGameTieOrWin()) {
+                if (teamManager.hasGameEnded()) {
                     gameManager.advanceState();
                 }
             }

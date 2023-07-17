@@ -3,7 +3,7 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.attack.AttackInfo;
 import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.projectile.EmulatedProjectile;
+import com.github.zilosz.ssl.projectile.LivingProjectile;
 import com.github.zilosz.ssl.projectile.ProjectileRemoveReason;
 import com.github.zilosz.ssl.utils.block.BlockHitResult;
 import com.github.zilosz.ssl.utils.file.YamlReader;
@@ -39,7 +39,7 @@ public class HatThrow extends RightClickAbility {
         MOUNTED
     }
 
-    private static final class HatProjectile extends EmulatedProjectile<ArmorStand> {
+    private static final class HatProjectile extends LivingProjectile<ArmorStand> {
         private State state = State.INACTIVE;
 
         public HatProjectile(Section config, AttackInfo attackInfo) {

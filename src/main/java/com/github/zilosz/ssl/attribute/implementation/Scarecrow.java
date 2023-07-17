@@ -106,7 +106,7 @@ public class Scarecrow extends RightClickAbility {
             this.scarecrow.spawn(spawnLoc);
 
             Player scarecrowPlayer = (Player) this.scarecrow.getEntity();
-            SSL.getInstance().getTeamManager().getPlayerTeam(this.player).addEntity(scarecrowPlayer);
+            SSL.getInstance().getTeamManager().addEntityToTeam(scarecrowPlayer, this.player);
 
             double health = this.config.getDouble("Health");
             scarecrowPlayer.setMaxHealth(health);
@@ -210,7 +210,7 @@ public class Scarecrow extends RightClickAbility {
             new ParticleMaker(particle).solidSphere(entity.getLocation(), 0.75, 15, 0.25);
             entity.getWorld().playSound(entity.getLocation(), Sound.WITHER_HURT, 1, 0.5f);
 
-            SSL.getInstance().getTeamManager().getPlayerTeam(this.player).removeEntity((Player) entity);
+            SSL.getInstance().getTeamManager().removeEntityFromTeam((Player) entity);
         });
 
         this.npcHologram.delete();

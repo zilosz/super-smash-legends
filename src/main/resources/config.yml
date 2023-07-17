@@ -42,7 +42,9 @@ Game:
     Title: "&f&lSUPER &lSMASH &5&lLEGENDS"
     Width: 17
   Lives: 4
-  TeamSize: 1
+  Teams:
+    Size: 1
+    Enabled: false
   MinPlayersToStart: 2
   Tutorial:
     DurationTicks: 140

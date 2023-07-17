@@ -69,7 +69,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
         npc.spawn(eyeLoc);
         this.lastSpawnedClone = npc;
 
-        SSL.getInstance().getTeamManager().getPlayerTeam(this.player).addEntity(this.getNpcPlayer(npc));
+        SSL.getInstance().getTeamManager().addEntityToTeam(this.getNpcPlayer(npc), this.player);
 
         Player npcPlayer = this.getNpcPlayer(npc);
         double health = this.config.getDouble("Health");
@@ -109,7 +109,7 @@ public class ShadowCloneJutsu extends RightClickAbility {
         this.player.getWorld().playSound(npc.getStoredLocation(), Sound.ZOMBIE_PIG_HURT, 1, 1.5f);
         this.player.playSound(this.player.getLocation(), Sound.ZOMBIE_PIG_HURT, 1, 1.5f);
 
-        SSL.getInstance().getTeamManager().getPlayerTeam(this.player).removeEntity(this.getNpcPlayer(npc));
+        SSL.getInstance().getTeamManager().removeEntityFromTeam(this.getNpcPlayer(npc));
         npc.destroy();
 
         CloneData clone = this.clones.get(npc);

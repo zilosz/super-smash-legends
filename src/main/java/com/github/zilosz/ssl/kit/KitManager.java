@@ -178,7 +178,7 @@ public class KitManager implements Listener {
         }
 
         if (state.updatesKitSkins()) {
-            Optional.ofNullable(this.selfSkinShowers.remove(player)).ifPresent(Skin.SelfSkinShower::show);
+            Optional.ofNullable(this.selfSkinShowers.remove(player)).ifPresent(Skin.SelfSkinShower::cancel);
             this.selfSkinShowers.put(player, newKit.getSkin().apply(SSL.getInstance(), player));
         }
 

@@ -101,7 +101,7 @@ public abstract class GameState implements Listener {
             gameManager.getProfile(player).setLives(0);
 
             if (this.isPlaying()) {
-                SSL.getInstance().getTeamManager().getPlayerTeam(player).setLifespan(gameManager.getTicksActive());
+                SSL.getInstance().getTeamManager().getEntityTeam(player).setLifespan(gameManager.getTicksActive());
 
                 if (gameManager.getAlivePlayers().size() <= 1) {
                     gameManager.skipToState(GameStateType.END);

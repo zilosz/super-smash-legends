@@ -156,18 +156,19 @@ public class EndState extends GameState {
             Team winningTeam = rankedTeams.get(0).get(0);
             Set<Player> winningSet = winningTeam.getPlayers();
 
-            if (teamManager.getTeamSize() == 1) {
+            if (teamManager.isTeamsModeEnabled()) {
+                this.winnerString = winningTeam.getName();
+
+            } else {
                 Player winner = winningSet.iterator().next();
                 Kit winnerKit = SSL.getInstance().getKitManager().getSelectedKit(winner);
                 this.winnerString = winnerKit.getColor().getChatSymbol() + winner.getName();
-
-            } else {
-                this.winnerString = winningTeam.getName();
             }
 
             for (Team team : teams) {
+                Set<Player> players = team.getPlayers();
 
-                for (Player player : team.getPlayers()) {
+                for (Player player : players) {
 
                     if (winningSet.contains(player)) {
                         gameManager.getProfile(player).setGameResult(GameResult.WIN);
@@ -187,8 +188,9 @@ public class EndState extends GameState {
                     .collect(Collectors.toSet());
 
             for (Team team : teams) {
+                Set<Player> players = team.getPlayers();
 
-                for (Player player : team.getPlayers()) {
+                for (Player player : players) {
                     String tieString;
                     GameResult result;
 
@@ -199,11 +201,11 @@ public class EndState extends GameState {
                     } else {
                         result = GameResult.LOSE;
 
-                        if (teamManager.getTeamSize() == 1) {
-                            tieString = "&7There has been a &etie.";
+                        if (teamManager.isTeamsModeEnabled()) {
+                            tieString = "&7There has been a &etie &7between teams.";
 
                         } else {
-                            tieString = "&7There has been a &etie &7between teams.";
+                            tieString = "&7There has been a &etie.";
                         }
                     }
 
@@ -270,7 +272,6 @@ public class EndState extends GameState {
         this.winnerString = null;
         this.endCountdown.cancel();
 
-        SSL.getInstance().getTeamManager().reset();
         SSL.getInstance().getWorldManager().resetWorld(CustomWorldType.ARENA);
 
         for (Player player : Bukkit.getOnlinePlayers()) {

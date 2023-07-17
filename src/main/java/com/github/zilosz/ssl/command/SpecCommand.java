@@ -30,7 +30,7 @@ public class SpecCommand implements CommandExecutor {
         } else {
             gameManager.addFutureSpectator(player);
             SSL.getInstance().getArenaManager().wipePlayer(player);
-            SSL.getInstance().getTeamManager().wipePlayer(player);
+            SSL.getInstance().getTeamManager().removeEntityFromTeam(player);
             Chat.GAME.send(player, "&7You will &5spectate &7next game.");
         }
 

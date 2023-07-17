@@ -1,7 +1,6 @@
 package com.github.zilosz.ssl.utils.entity.finder;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.team.Team;
 import com.github.zilosz.ssl.team.TeamPreference;
 import com.github.zilosz.ssl.utils.entity.finder.selector.EntitySelector;
 import org.bukkit.GameMode;
@@ -48,16 +47,16 @@ public class EntityFinder {
         return this;
     }
 
-    public Optional<LivingEntity> findClosest(LivingEntity user) {
+    public Optional<LivingEntity> findClosest(Player user) {
         return this.findClosest(user, user.getLocation());
     }
 
-    public Optional<LivingEntity> findClosest(LivingEntity user, Location location) {
+    public Optional<LivingEntity> findClosest(Player user, Location location) {
         return this.getFilteredStream(user, location)
                 .min(Comparator.comparingDouble(entity -> location.distanceSquared(entity.getLocation())));
     }
 
-    private Stream<LivingEntity> getFilteredStream(LivingEntity user, Location location) {
+    private Stream<LivingEntity> getFilteredStream(Player user, Location location) {
         return this.rangeSelector.getEntityStream(location)
                 .filter(entity -> entity.getType() != EntityType.ARMOR_STAND)
                 .filter(LivingEntity.class::isInstance)
@@ -74,16 +73,15 @@ public class EntityFinder {
         return SSL.getInstance().getGameManager().isPlayerAlive(player) && player.getGameMode() == GameMode.SURVIVAL;
     }
 
-    private boolean isCorrectTeam(LivingEntity user, LivingEntity entity) {
-        Optional<Team> optionalTeam = SSL.getInstance().getTeamManager().findEntityTeam(user);
-        return optionalTeam.map(team -> this.teamPreference.validate(team, entity)).orElse(true);
+    private boolean isCorrectTeam(Player user, LivingEntity entity) {
+        return this.teamPreference.validate(SSL.getInstance().getTeamManager().getEntityTeam(user), entity);
     }
 
-    public Set<LivingEntity> findAll(LivingEntity user) {
+    public Set<LivingEntity> findAll(Player user) {
         return this.findAll(user, user.getLocation());
     }
 
-    public Set<LivingEntity> findAll(LivingEntity user, Location location) {
+    public Set<LivingEntity> findAll(Player user, Location location) {
         return this.getFilteredStream(user, location).collect(Collectors.toSet());
     }
 }

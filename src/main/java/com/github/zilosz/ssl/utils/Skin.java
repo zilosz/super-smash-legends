@@ -151,8 +151,12 @@ public class Skin {
         }
 
         public void showWithoutTpAction() {
-            this.showDelayer.cancel();
+            this.cancel();
             this.skinRunnable.run();
+        }
+
+        public void cancel() {
+            this.showDelayer.cancel();
         }
     }
 }
