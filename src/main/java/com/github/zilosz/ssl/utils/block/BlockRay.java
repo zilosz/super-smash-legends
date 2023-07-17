@@ -25,7 +25,6 @@ public class BlockRay {
     public void cast(int range) {
         World world = this.location.getWorld();
         BlockIterator iterator = new BlockIterator(world, this.location.toVector(), this.direction, 0, range);
-
         this.emptyDestination = this.location.clone();
 
         while (iterator.hasNext()) {

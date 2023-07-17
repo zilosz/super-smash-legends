@@ -1,7 +1,6 @@
 package com.github.zilosz.ssl.kit;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.AbilityType;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.attribute.implementation.Energy;
@@ -21,12 +20,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 public class Kit {
     private final YamlDocument config;
     @Getter private final KitType type;
     @Getter private final Jump jump;
+    @Getter private final Regeneration regeneration;
     @Getter private final Melee melee;
+    @Getter private final Energy energy;
     @Getter private final Skin skin;
     private final List<Attribute> attributes = new ArrayList<>();
     @Getter private Player player;
@@ -36,33 +38,21 @@ public class Kit {
         this.type = type;
 
         this.skin = Skin.fromMojang(this.getSkinName());
-
-        this.jump = new Jump();
-        this.addAttribute(this.jump);
-
-        this.addAttribute(new Regeneration());
-
-        this.melee = new Melee();
-        this.addAttribute(this.melee);
-
-        if (config.isNumber("Energy")) {
-            this.addAttribute(new Energy());
-        }
+        this.jump = this.addAttribute(new Jump());
+        this.regeneration = this.addAttribute(new Regeneration());
+        this.melee = this.addAttribute(new Melee());
+        this.energy = this.addAttribute(new Energy());
 
         Optional.ofNullable(config.getSection("Abilities")).ifPresent(abilities -> {
 
-            for (int i = 0; i < 6; i++) {
-                int finalI = i;
+            IntStream.range(0, 6).forEach(slot -> {
 
-                Optional.ofNullable(abilities.getString(String.valueOf(i))).ifPresent(abilityName -> {
+                Optional.ofNullable(abilities.getString(String.valueOf(slot))).ifPresent(abilityName -> {
                     AbilityType abilityType = AbilityType.valueOf(abilityName);
                     YamlDocument abilityConfig = SSL.getInstance().getResources().getAbilityConfig(abilityType);
-
-                    Ability ability = abilityType.get();
-                    this.addAttribute(ability);
-                    ability.initAbility(abilityConfig, abilityType, finalI);
+                    this.addAttribute(abilityType.get()).initAbility(abilityConfig, abilityType, slot);
                 });
-            }
+            });
         });
     }
 
@@ -70,9 +60,10 @@ public class Kit {
         return this.config.getString("Skin");
     }
 
-    private void addAttribute(Attribute attribute) {
+    private <T extends Attribute> T addAttribute(T attribute) {
         this.attributes.add(attribute);
         attribute.initAttribute(this);
+        return attribute;
     }
 
     public List<String> getDescription() {
@@ -131,7 +122,7 @@ public class Kit {
         return YamlReader.noise(this.config.getSection("DeathSound"));
     }
 
-    public float getEnergy() {
+    public float getEnergyValue() {
         return this.config.getFloat("Energy");
     }
 

@@ -12,7 +12,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public class HotbarItem implements Listener {
@@ -33,7 +32,7 @@ public class HotbarItem implements Listener {
         this.slot = slot;
     }
 
-    public void register(Plugin plugin) {
+    public void registerAndShow(Plugin plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         this.show();
     }
@@ -55,34 +54,33 @@ public class HotbarItem implements Listener {
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getPlayer() != this.player) return;
         if (event.getPlayer().getInventory().getHeldItemSlot() != this.slot) return;
+        if (!this.itemStack.equals(event.getItem())) return;
 
         long tick = event.getPlayer().getWorld().getFullTime();
         Action action = event.getAction();
 
         boolean sameTick = this.lastTick != null && this.lastTick == tick;
         boolean lastIsLeft = this.lastAction != null && this.lastAction.name().contains("LEFT");
+        boolean currIsLeft = action.name().contains("LEFT");
 
-        if (sameTick && lastIsLeft == action.name().contains("LEFT")) return;
+        if (sameTick && lastIsLeft == currIsLeft) return;
 
         this.lastTick = tick;
         this.lastAction = action;
 
-        Optional.ofNullable(event.getItem()).ifPresent(item -> {
+        if (this.action != null) {
+            this.action.accept(event);
+        }
 
-            if (this.action != null) {
-                this.action.accept(event);
+        String name = event.getItem().getType().name();
+
+        for (String keyword : ARMOR_KEYWORDS) {
+
+            if (name.contains(keyword)) {
+                event.setCancelled(true);
+                event.getPlayer().updateInventory();
+                break;
             }
-
-            String name = item.getType().name();
-
-            for (String keyword : ARMOR_KEYWORDS) {
-
-                if (name.contains(keyword)) {
-                    event.setCancelled(true);
-                    event.getPlayer().updateInventory();
-                    break;
-                }
-            }
-        });
+        }
     }
 }

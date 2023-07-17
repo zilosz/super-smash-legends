@@ -6,6 +6,7 @@ import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.database.PlayerDatabase;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.GameResult;
+import com.github.zilosz.ssl.game.GameScoreboard;
 import com.github.zilosz.ssl.game.InGameProfile;
 import com.github.zilosz.ssl.game.state.GameState;
 import com.github.zilosz.ssl.kit.Kit;
@@ -59,7 +60,7 @@ public class EndState extends GameState {
     public List<String> getScoreboard(Player player) {
 
         List<String> lines = new ArrayList<>(Arrays.asList(
-                this.getScoreboardLine(),
+                GameScoreboard.getLine(),
                 "&f&lStatus",
                 "&7Ending the game",
                 ""
@@ -84,7 +85,7 @@ public class EndState extends GameState {
             replacers.add("KIT", profile.getKit().getDisplayName());
         });
 
-        lines.add(this.getScoreboardLine());
+        lines.add(GameScoreboard.getLine());
         return replacers.replaceLines(lines);
     }
 

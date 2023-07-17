@@ -9,6 +9,7 @@ import org.bson.conversions.Bson;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -25,15 +26,13 @@ public class PlayerDatabase {
         if (this.mongoCollection == null) return ifDisabled;
 
         CompletableFuture<T> future = new CompletableFuture<>();
-        Document doc = this.mongoCollection.find(new Document("uuid", uuid.toString())).first();
-        future.complete(doc == null || doc.get(key) == null ? null : (T) doc.get(key));
+        Optional.ofNullable(this.getUserDocument(uuid).get(key)).ifPresent(value -> future.complete((T) value));
 
         try {
-            T result = future.get();
-            return result == null ? ifNull : result;
+            return Optional.ofNullable(future.get()).orElse(ifNull);
 
         } catch (InterruptedException | ExecutionException e) {
-            return ifNull;
+            throw new RuntimeException(e);
         }
     }
 
@@ -42,17 +41,10 @@ public class PlayerDatabase {
     }
 
     public <T> void set(UUID uuid, String key, T value, Bson update) {
-        if (this.mongoCollection == null) return;
-
-        Document document = new Document("uuid", uuid.toString());
-        Document existing = this.mongoCollection.find(document).first();
-
-        if (existing == null) {
+        if (this.mongoCollection != null) {
+            Document document = this.getUserDocument(uuid);
             document.put(key, value);
-            this.mongoCollection.insertOne(document);
-
-        } else {
-            this.mongoCollection.updateOne(existing, update);
+            this.mongoCollection.updateOne(this.getUserDocument(uuid), update);
         }
     }
 
@@ -63,5 +55,14 @@ public class PlayerDatabase {
     public List<Document> getDocuments() {
         if (this.mongoCollection == null) return Collections.emptyList();
         return Lists.newArrayList(this.mongoCollection.find().iterator());
+    }
+
+    private Document getUserDocument(UUID uuid) {
+        Document document = new Document("uuid", uuid.toString());
+
+        return Optional.ofNullable(this.mongoCollection.find(document).first()).orElseGet(() -> {
+            this.mongoCollection.insertOne(document);
+            return document;
+        });
     }
 }

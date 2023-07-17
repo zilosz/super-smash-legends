@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 public class GameManager {
     private final List<GameStateType> states = new ArrayList<>();
-
     private final Map<Player, InGameProfile> profiles = new HashMap<>();
 
     private final Set<Player> willSpectate = new HashSet<>();

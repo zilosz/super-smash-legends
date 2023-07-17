@@ -8,7 +8,6 @@ import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
@@ -45,11 +44,6 @@ public abstract class GameState implements Listener {
     public abstract boolean updatesKitSkins();
 
     public abstract List<String> getScoreboard(Player player);
-
-    protected String getScoreboardLine() {
-        int width = SSL.getInstance().getResources().getConfig().getInt("Scoreboard.Width");
-        return "&5&l" + StringUtils.repeat("-", width);
-    }
 
     public abstract void start();
 

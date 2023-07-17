@@ -4,6 +4,7 @@ import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.arena.Arena;
 import com.github.zilosz.ssl.game.GameManager;
+import com.github.zilosz.ssl.game.GameScoreboard;
 import com.github.zilosz.ssl.game.state.GameState;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.utils.Skin;
@@ -61,7 +62,7 @@ public class TutorialState extends GameState {
     public List<String> getScoreboard(Player player) {
 
         List<String> lines = new ArrayList<>(Arrays.asList(
-                this.getScoreboardLine(),
+                GameScoreboard.getLine(),
                 "&f&lStatus",
                 "&7Enjoy the tutorial!",
                 "",
@@ -82,7 +83,7 @@ public class TutorialState extends GameState {
             replacers.add("KIT", SSL.getInstance().getKitManager().getSelectedKit(player).getDisplayName());
         }
 
-        lines.add(this.getScoreboardLine());
+        lines.add(GameScoreboard.getLine());
         return replacers.replaceLines(lines);
     }
 

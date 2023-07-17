@@ -54,7 +54,7 @@ public class YamlReader {
         Section config = SSL.getInstance().getResources().getItems().getSection(path);
         HotbarItem hotbarItem = new HotbarItem(player, stack(config), config.getInt("Slot"));
         hotbarItem.setAction(action);
-        hotbarItem.register(SSL.getInstance());
+        hotbarItem.registerAndShow(SSL.getInstance());
         return hotbarItem;
     }
 
@@ -64,7 +64,7 @@ public class YamlReader {
         section.getOptionalString("Name").ifPresent(builder::setName);
         section.getOptionalStringList("Lore").ifPresent(builder::setLore);
         section.getOptionalInt("Amount").ifPresent(builder::setCount);
-        section.getOptionalInt("Data").ifPresent(builder::setData);
+        section.getOptionalByte("Data").ifPresent(builder::setData);
         return builder.get();
     }
 
@@ -109,9 +109,7 @@ public class YamlReader {
         int immunityTicks = config.getOptionalInt("ImmunityTicks").orElse(defaultImmunity);
 
         Damage damage = new Damage(
-                config.getDouble("Damage"),
-                config.getOptionalBoolean("FactorsArmor").orElse(true)
-        );
+                config.getDouble("Damage"), config.getOptionalBoolean("FactorsArmor").orElse(true));
 
         Section generalAttackSettings = SSL.getInstance().getResources().getConfig().getSection("Damage");
 

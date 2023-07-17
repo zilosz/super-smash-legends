@@ -1,7 +1,6 @@
-package com.github.zilosz.ssl.attribute.implementation;
+package com.github.zilosz.ssl.attribute;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.attribute.PassiveAbility;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
@@ -13,7 +12,6 @@ public class ItemGiver extends PassiveAbility {
     @Override
     public void activate() {
         super.activate();
-
         int ticksPerItem = this.config.getInt("TicksPerItem");
 
         this.giveTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {

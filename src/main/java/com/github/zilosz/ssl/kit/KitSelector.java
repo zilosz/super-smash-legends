@@ -80,16 +80,16 @@ public class KitSelector extends CustomInventory<Kit> implements HasRandomOption
                 ""
         ));
 
-        if (kit.getEnergy() > 0) {
+        if (kit.getEnergyValue() > 0) {
             lore.add(10, "&7Energy: {COLOR}{ENERGY}");
-            replacers.add("ENERGY", kit.getEnergy());
+            replacers.add("ENERGY", kit.getEnergyValue());
         }
 
         return new ItemBuilder<SkullMeta>(Material.SKULL_ITEM)
-                .setData(3)
+                .setData((byte) 3)
                 .applyMeta(meta -> kit.getSkin().applyToSkull(meta))
                 .setEnchanted(accessType == KitAccessType.SELECTED)
-                .setName("&l" + kit.getBoldedDisplayName())
+                .setName(kit.getBoldedDisplayName())
                 .setLore(replacers.replaceLines(lore))
                 .get();
     }

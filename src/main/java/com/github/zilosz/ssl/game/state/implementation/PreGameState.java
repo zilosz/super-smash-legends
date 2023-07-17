@@ -3,6 +3,7 @@ package com.github.zilosz.ssl.game.state.implementation;
 import com.connorlinfoot.titleapi.TitleAPI;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.arena.Arena;
+import com.github.zilosz.ssl.game.GameScoreboard;
 import com.github.zilosz.ssl.game.state.GameState;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
@@ -40,7 +41,7 @@ public class PreGameState extends GameState {
     public List<String> getScoreboard(Player player) {
 
         List<String> lines = new ArrayList<>(Arrays.asList(
-                this.getScoreboardLine(),
+                GameScoreboard.getLine(),
                 "&f&lStatus",
                 "&7The game is starting",
                 "",
@@ -61,7 +62,7 @@ public class PreGameState extends GameState {
             replacers.add("KIT", SSL.getInstance().getKitManager().getSelectedKit(player).getDisplayName());
         }
 
-        lines.add(this.getScoreboardLine());
+        lines.add(GameScoreboard.getLine());
         return replacers.replaceLines(lines);
     }
 

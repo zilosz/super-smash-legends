@@ -6,7 +6,7 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 
-public abstract class Bow extends PassiveAbility {
+public class Bow extends PassiveAbility {
     protected int ticksCharging = 0;
     private int bowSlot;
 

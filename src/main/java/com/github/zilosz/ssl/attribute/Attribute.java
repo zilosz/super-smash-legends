@@ -14,14 +14,12 @@ public class Attribute implements Listener {
     @Getter protected Player player;
     protected int period;
     private BukkitTask task;
-    private boolean activated = false;
 
     public void initAttribute(Kit kit) {
         this.kit = kit;
     }
 
     public void activate() {
-        this.activated = true;
         Bukkit.getPluginManager().registerEvents(this, SSL.getInstance());
         this.task = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), this::run, 0, this.period);
     }
@@ -34,16 +32,12 @@ public class Attribute implements Listener {
 
     public void destroy() {
         this.unequip();
-
-        if (this.activated) {
-            this.deactivate();
-        }
+        this.deactivate();
     }
 
     public void unequip() {}
 
     public void deactivate() {
-        this.activated = false;
         HandlerList.unregisterAll(this);
 
         if (this.task != null) {

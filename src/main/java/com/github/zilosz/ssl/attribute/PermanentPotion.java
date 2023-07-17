@@ -1,6 +1,5 @@
-package com.github.zilosz.ssl.attribute.implementation;
+package com.github.zilosz.ssl.attribute;
 
-import com.github.zilosz.ssl.attribute.PassiveAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import org.bukkit.potion.PotionEffect;

@@ -9,6 +9,7 @@ import com.github.zilosz.ssl.attack.AttackSource;
 import com.github.zilosz.ssl.attack.Damage;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.game.GameManager;
+import com.github.zilosz.ssl.game.GameScoreboard;
 import com.github.zilosz.ssl.game.InGameProfile;
 import com.github.zilosz.ssl.game.PlayerViewerInventory;
 import com.github.zilosz.ssl.game.state.GameState;
@@ -94,7 +95,7 @@ public class InGameState extends GameState {
     public List<String> getScoreboard(Player player) {
 
         List<String> scoreboard = new ArrayList<>(Arrays.asList(
-                this.getScoreboardLine(),
+                GameScoreboard.getLine(),
                 "&f&lMinutes Left",
                 "&e{MIN_LEFT}",
                 ""
@@ -113,7 +114,7 @@ public class InGameState extends GameState {
             } catch (NullPointerException ignored) {}
         }
 
-        scoreboard.add(this.getScoreboardLine());
+        scoreboard.add(GameScoreboard.getLine());
 
         TeamManager teamManager = SSL.getInstance().getTeamManager();
         Set<Player> alivePlayers = SSL.getInstance().getGameManager().getAlivePlayers();

@@ -1,7 +1,6 @@
 package com.github.zilosz.ssl.utils.block;
 
 import com.github.zilosz.ssl.utils.NmsUtils;
-import com.github.zilosz.ssl.utils.math.MathUtils;
 import net.minecraft.server.v1_8_R3.AxisAlignedBB;
 import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.Chunk;
@@ -96,13 +95,6 @@ public class BlockUtils {
         IBlockData ibd = net.minecraft.server.v1_8_R3.Block.getByCombinedId(blockId + (info.getData() << 12));
         nmsChunk.a(new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), ibd);
         loc.getWorld().refreshChunk(nmsChunk.bukkitChunk.getX(), nmsChunk.bukkitChunk.getZ());
-    }
-
-    public static boolean isLocationInsideBox(Location location, AxisAlignedBB box) {
-        boolean betweenX = MathUtils.isBetween(location.getX(), box.a, box.d);
-        boolean betweenY = MathUtils.isBetween(location.getY(), box.b, box.e);
-        boolean betweenZ = MathUtils.isBetween(location.getZ(), box.c, box.f);
-        return betweenX && betweenY && betweenZ;
     }
 
     public static FallingBlock spawnFallingBlock(Location location, Material material) {

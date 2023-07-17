@@ -17,7 +17,7 @@ public class ItemBuilder<T extends ItemMeta> implements Supplier<ItemStack> {
     private boolean isEnchanted = false;
     private int count;
     private byte data;
-    private Consumer<T> meta = ($) -> {};
+    private Consumer<T> meta = (meta) -> {};
 
     public ItemBuilder(Material material) {
         this.material = material;
@@ -52,8 +52,8 @@ public class ItemBuilder<T extends ItemMeta> implements Supplier<ItemStack> {
         return this;
     }
 
-    public ItemBuilder<T> setData(int data) {
-        this.data = (byte) data;
+    public ItemBuilder<T> setData(byte data) {
+        this.data = data;
         return this;
     }
 
@@ -66,12 +66,17 @@ public class ItemBuilder<T extends ItemMeta> implements Supplier<ItemStack> {
     @SuppressWarnings("unchecked")
     public ItemStack get() {
         ItemStack itemStack = new ItemStack(this.material, this.count, this.data);
-        if (this.isEnchanted) itemStack.addUnsafeEnchantment(Enchantment.KNOCKBACK, 1);
-        ItemMeta meta = itemStack.getItemMeta();
+
+        if (this.isEnchanted) {
+            itemStack.addUnsafeEnchantment(Enchantment.KNOCKBACK, 1);
+        }
+
+        T meta = (T) itemStack.getItemMeta();
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
         meta.spigot().setUnbreakable(true);
-        this.meta.accept((T) meta);
+        this.meta.accept(meta);
         itemStack.setItemMeta(meta);
+
         return itemStack;
     }
 }

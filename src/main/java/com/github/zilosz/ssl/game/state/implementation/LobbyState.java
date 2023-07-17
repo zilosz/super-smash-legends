@@ -8,6 +8,7 @@ import com.github.zilosz.ssl.arena.ArenaVoter;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.game.GameManager;
+import com.github.zilosz.ssl.game.GameScoreboard;
 import com.github.zilosz.ssl.game.InGameProfile;
 import com.github.zilosz.ssl.game.state.GameState;
 import com.github.zilosz.ssl.kit.Kit;
@@ -86,7 +87,7 @@ public class LobbyState extends GameState {
             replacers.add("KIT", SSL.getInstance().getKitManager().getSelectedKit(player).getDisplayName());
         } catch (NullPointerException ignored) {}
 
-        List<String> lines = new ArrayList<>(Arrays.asList(this.getScoreboardLine(), "&f&lStatus"));
+        List<String> lines = new ArrayList<>(Arrays.asList(GameScoreboard.getLine(), "&f&lStatus"));
 
         if (this.isCounting) {
             lines.add(String.format("&7Starting in &e&l%d &7sec", this.secUntilStart));
@@ -102,7 +103,7 @@ public class LobbyState extends GameState {
                 "",
                 "&f&lKit",
                 "{KIT}",
-                this.getScoreboardLine()
+                GameScoreboard.getLine()
         ));
 
         return replacers.replaceLines(lines);
@@ -409,9 +410,10 @@ public class LobbyState extends GameState {
             if (attribute instanceof Ability) {
                 Ability ability = (Ability) attribute;
 
-                if (ability.getMaterial() == Material.ARROW) {
+                if (ability.getHotbarItem().getItemStack().getType() == Material.ARROW) {
                     event.setCancelled(true);
                     ability.getHotbarItem().show();
+                    break;
                 }
             }
         }

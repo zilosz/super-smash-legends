@@ -8,7 +8,6 @@ import com.github.zilosz.ssl.utils.message.MessageUtils;
 import com.github.zilosz.ssl.utils.message.Replacers;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import lombok.Getter;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 
@@ -27,16 +26,18 @@ public abstract class Ability extends Attribute {
         this.slot = slot;
     }
 
-    public Material getMaterial() {
-        return Material.valueOf(this.config.getString("Item.Material"));
-    }
-
     @Override
     public void equip() {
         super.equip();
-        this.hotbarItem = new HotbarItem(this.player, this.buildItem(), this.slot);
+
+        Replacers replacers = new Replacers().add("DESCRIPTION", this.getDescription());
+        List<String> lore = replacers.replaceLines(Arrays.asList("&3&lDescription", "{DESCRIPTION}"));
+        ItemStack baseStack = YamlReader.stack(this.config.getSection("Item"));
+        ItemStack stack = new ItemBuilder<>(baseStack).setName(this.getBoldedDisplayName()).setLore(lore).get();
+
+        this.hotbarItem = new HotbarItem(this.player, stack, this.slot);
         this.hotbarItem.setAction(e -> this.sendDescription());
-        this.hotbarItem.register(SSL.getInstance());
+        this.hotbarItem.registerAndShow(SSL.getInstance());
     }
 
     @Override
@@ -50,16 +51,6 @@ public abstract class Ability extends Attribute {
         this.hotbarItem.setAction(null);
     }
 
-    public ItemStack buildItem() {
-        Replacers replacers = new Replacers().add("DESCRIPTION", this.getDescription());
-        List<String> lore = replacers.replaceLines(Arrays.asList("&3&lDescription", "{DESCRIPTION}"));
-
-        return new ItemBuilder<>(YamlReader.stack(this.config.getSection("Item")))
-                .setName(this.getBoldedDisplayName())
-                .setLore(lore)
-                .get();
-    }
-
     public void sendDescription() {
         this.player.playSound(this.player.getLocation(), Sound.ORB_PICKUP, 1, 1);
 
@@ -68,15 +59,19 @@ public abstract class Ability extends Attribute {
                 .add("USE_TYPE", this.getUseType())
                 .add("DESCRIPTION", this.getDescription());
 
-        replacers.replaceLines(Arrays.asList(
+        List<String> lines = Arrays.asList(
                 "{COLOR}-------------------------------------",
                 "&l{DISPLAY_NAME} &7- &6{USE_TYPE}",
                 "{DESCRIPTION}",
                 "{COLOR}-------------------------------------"
-        )).forEach(this.player::sendMessage);
+        );
+
+        for (String line : replacers.replaceLines(lines)) {
+            this.player.sendMessage(line);
+        }
     }
 
-    public List<String> getDescription() {
+    private List<String> getDescription() {
         return this.config.getStringList("Description");
     }
 
