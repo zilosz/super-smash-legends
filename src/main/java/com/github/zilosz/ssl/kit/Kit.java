@@ -13,6 +13,7 @@ import com.github.zilosz.ssl.utils.effects.ColorType;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.MessageUtils;
 import dev.dejvokep.boostedyaml.YamlDocument;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 
@@ -22,9 +23,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Kit {
     private final YamlDocument config;
-    @Getter private final KitType type;
+    @Getter @EqualsAndHashCode.Include private final KitType type;
     @Getter private final Jump jump;
     @Getter private final Regeneration regeneration;
     @Getter private final Melee melee;

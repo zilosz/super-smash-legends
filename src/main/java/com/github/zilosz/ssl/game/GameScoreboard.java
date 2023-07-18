@@ -11,6 +11,10 @@ import java.util.List;
 
 public class GameScoreboard implements AssembleAdapter {
 
+    public static String getLine() {
+        return "&5&l" + StringUtils.repeat("-", getConfig().getInt("Width"));
+    }
+
     private static Section getConfig() {
         return SSL.getInstance().getResources().getConfig().getSection("Game.Scoreboard");
     }
@@ -23,9 +27,5 @@ public class GameScoreboard implements AssembleAdapter {
     @Override
     public List<String> getLines(Player player) {
         return SSL.getInstance().getGameManager().getState().getScoreboard(player);
-    }
-
-    public static String getLine() {
-        return "&5&l" + StringUtils.repeat("-", getConfig().getInt("Width"));
     }
 }

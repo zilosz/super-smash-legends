@@ -9,12 +9,15 @@ import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ArenaManager {
     private List<Arena> arenas;
+    private Map<Player, Arena> playerVotes;
     @Getter private Arena arena;
 
     public void setupArenas() {
@@ -24,14 +27,12 @@ public class ArenaManager {
                 .map(Arena::new)
                 .sorted(Comparator.comparing(Arena::getName))
                 .collect(Collectors.toList());
+
+        this.playerVotes = new HashMap<>();
     }
 
     public List<Arena> getArenas() {
         return Collections.unmodifiableList(this.arenas);
-    }
-
-    public Optional<Arena> getChosenArena(Player player) {
-        return this.arenas.stream().filter(arena -> arena.isVotedBy(player)).findAny();
     }
 
     public void setupArena() {
@@ -40,7 +41,16 @@ public class ArenaManager {
         this.arena.create();
     }
 
-    public void wipePlayer(Player player) {
-        this.arenas.forEach(arena -> arena.wipeVote(player));
+    public void addVote(Player player, Arena arena) {
+        arena.addVote(player);
+        this.playerVotes.put(player, arena);
+    }
+
+    public void removeVote(Player player) {
+        Optional.ofNullable(this.playerVotes.remove(player)).ifPresent(arena -> arena.wipeVote(player));
+    }
+
+    public Arena getChosenArena(Player player) {
+        return this.playerVotes.get(player);
     }
 }

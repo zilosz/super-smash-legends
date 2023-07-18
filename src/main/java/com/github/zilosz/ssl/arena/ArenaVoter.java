@@ -2,10 +2,12 @@ package com.github.zilosz.ssl.arena;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.utils.ItemBuilder;
+import com.github.zilosz.ssl.utils.inventory.AutoUpdatesSoft;
 import com.github.zilosz.ssl.utils.inventory.CustomInventory;
 import com.github.zilosz.ssl.utils.inventory.HasRandomOption;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.Replacers;
+import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -13,9 +15,8 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
-public class ArenaVoter extends CustomInventory<Arena> implements HasRandomOption {
+public class ArenaVoter extends CustomInventory<Arena> implements HasRandomOption, AutoUpdatesSoft {
 
     @Override
     public String getTitle() {
@@ -45,31 +46,23 @@ public class ArenaVoter extends CustomInventory<Arena> implements HasRandomOptio
     }
 
     @Override
-    public void onItemClick(Player player, Arena arena, InventoryClickEvent event) {
-        AtomicReference<Arena> chosenAtomic = new AtomicReference<>();
+    public void onItemClick(InventoryContents contents, Player player, Arena arena, InventoryClickEvent event) {
+        ArenaManager arenaManager = SSL.getInstance().getArenaManager();
+        Arena chosenArena = arenaManager.getChosenArena(player);
 
-        SSL.getInstance().getArenaManager().getChosenArena(player).ifPresent(chosen -> {
-            chosen.wipeVote(player);
-            chosenAtomic.set(chosen);
-        });
+        if (arena.equals(chosenArena)) {
+            arenaManager.removeVote(player);
 
-        player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 0.5F);
-
-        if (chosenAtomic.get() == arena) {
-            Chat.ARENA.send(player, "&7Your arena vote has been wiped.");
+            Chat.ARENA.send(player, "&7Your arena vote was wiped.");
+            player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 2);
 
         } else {
-            arena.addVote(player);
-            Chat.ARENA.send(player, String.format("&7You have voted for the %s &7arena.", arena.getName()));
+            arenaManager.removeVote(player);
+            arenaManager.addVote(player, arena);
+
+            Chat.ARENA.send(player, String.format("&7You voted for %s&7.", arena.getName()));
+            player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 1);
         }
-
-        player.closeInventory();
-        this.build().open(player);
-    }
-
-    @Override
-    public boolean updatesItems() {
-        return false;
     }
 
     @Override

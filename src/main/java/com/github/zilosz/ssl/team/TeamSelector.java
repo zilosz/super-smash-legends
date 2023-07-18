@@ -2,10 +2,12 @@ package com.github.zilosz.ssl.team;
 
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.utils.ItemBuilder;
+import com.github.zilosz.ssl.utils.inventory.AutoUpdatesSoft;
 import com.github.zilosz.ssl.utils.inventory.CustomInventory;
 import com.github.zilosz.ssl.utils.inventory.HasRandomOption;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.Replacers;
+import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -16,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TeamSelector extends CustomInventory<Team> implements HasRandomOption {
+public class TeamSelector extends CustomInventory<Team> implements HasRandomOption, AutoUpdatesSoft {
 
     @Override
     public String getTitle() {
@@ -49,7 +51,7 @@ public class TeamSelector extends CustomInventory<Team> implements HasRandomOpti
     }
 
     @Override
-    public void onItemClick(Player player, Team team, InventoryClickEvent event) {
+    public void onItemClick(InventoryContents contents, Player player, Team team, InventoryClickEvent event) {
         TeamManager teamManager = SSL.getInstance().getTeamManager();
 
         if (team.equals(teamManager.getEntityTeam(player))) {
@@ -70,11 +72,6 @@ public class TeamSelector extends CustomInventory<Team> implements HasRandomOpti
 
         Chat.TEAM.send(player, String.format("&7You joined the %s &7team.", team.getName()));
         player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1, 1);
-    }
-
-    @Override
-    public boolean updatesItems() {
-        return true;
     }
 
     @Override

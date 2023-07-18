@@ -22,10 +22,6 @@ Description:
 Kit:
   HologramHeight: 2.7
   Default: BARBARIAN
-  LookClose:
-    Enabled: true
-    RandomLookDelay: 60
-    Range: 6
 Death:
   Velocity: 0.3
   Duration: 70

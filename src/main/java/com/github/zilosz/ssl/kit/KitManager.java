@@ -9,14 +9,12 @@ import com.github.zilosz.ssl.utils.Skin;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.world.CustomWorldType;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
 import me.filoghost.holographicdisplays.api.hologram.HologramLines;
 import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
 import net.citizensnpcs.api.event.NPCLeftClickEvent;
 import net.citizensnpcs.api.npc.NPC;
-import net.citizensnpcs.trait.LookClose;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -62,14 +60,7 @@ public class KitManager implements Listener {
 
         NPC npc = SSL.getInstance().getNpcRegistry().createNPC(EntityType.PLAYER, kit.getBoldedDisplayName());
         this.kitsPerNpc.put(npc, kitType);
-
         kit.getSkin().applyToNpc(npc);
-
-        Section lookConfig = SSL.getInstance().getResources().getConfig().getSection("Kit.LookClose");
-        LookClose lookClose = npc.getOrAddTrait(LookClose.class);
-        lookClose.setRandomLook(lookConfig.getBoolean("Enabled"));
-        lookClose.setRange(lookConfig.getDouble("Range"));
-        lookClose.setRandomLookDelay(lookConfig.getInt("RandomLookDelay"));
 
         String locString = SSL.getInstance().getResources().getLobby().getString("KitNpcs." + kitType.getConfigName());
         Location location = YamlReader.location(CustomWorldType.LOBBY.getWorldName(), locString);
@@ -167,7 +158,7 @@ public class KitManager implements Listener {
         this.setKit(player, kitType);
     }
 
-    public void setKit(Player player, KitType kitType) {
+    public Kit setKit(Player player, KitType kitType) {
         GameManager gameManager = SSL.getInstance().getGameManager();
         GameState state = gameManager.getState();
 
@@ -199,6 +190,8 @@ public class KitManager implements Listener {
 
         Chat.KIT.send(player, String.format("&7You have selected the %s &7kit.", newKit.getDisplayName()));
         newKit.getHurtNoise().playForPlayer(player);
+
+        return newKit;
     }
 
     public void wipePlayer(Player player) {

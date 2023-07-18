@@ -3,9 +3,12 @@ package com.github.zilosz.ssl.game;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.utils.ItemBuilder;
 import com.github.zilosz.ssl.utils.Skin;
+import com.github.zilosz.ssl.utils.inventory.AutoUpdatesHard;
+import com.github.zilosz.ssl.utils.inventory.AutoUpdatesSoft;
 import com.github.zilosz.ssl.utils.inventory.CustomInventory;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.Replacers;
+import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -18,7 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class PlayerViewerInventory extends CustomInventory<Player> {
+public class PlayerViewerInventory extends CustomInventory<Player> implements AutoUpdatesSoft, AutoUpdatesHard {
 
     @Override
     public String getTitle() {
@@ -57,7 +60,7 @@ public class PlayerViewerInventory extends CustomInventory<Player> {
     }
 
     @Override
-    public void onItemClick(Player clicker, Player other, InventoryClickEvent event) {
+    public void onItemClick(InventoryContents contents, Player clicker, Player other, InventoryClickEvent event) {
 
         if (other.getGameMode() == GameMode.SPECTATOR) {
             Chat.TRACKER.send(clicker, this.getPlayerName(other) + " &7is respawning...");
@@ -67,10 +70,5 @@ public class PlayerViewerInventory extends CustomInventory<Player> {
             clicker.playSound(clicker.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
             Chat.TRACKER.send(clicker, "&7You teleported to " + this.getPlayerName(other) + "&7.");
         }
-    }
-
-    @Override
-    public boolean updatesItems() {
-        return true;
     }
 }

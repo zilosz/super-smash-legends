@@ -24,7 +24,7 @@ public abstract class CustomInventory<T> implements InventoryProvider {
     private static final int MAX_ROWS = 5;
     private static final int MAX_COLUMNS = 7;
 
-    private final Map<InventoryCoordinate, T> itemsByCoordinate = new HashMap<>();
+    private final Map<T, InventoryCoordinate> coordinatesByItem = new HashMap<>();
 
     public SmartInventory build() {
         return SmartInventory.builder()
@@ -65,9 +65,8 @@ public abstract class CustomInventory<T> implements InventoryProvider {
                 }
 
                 T item = items.get(index);
-                this.setItem(contents, clicker, items.get(index), r, c);
-                this.itemsByCoordinate.put(new InventoryCoordinate(r, c), item);
-
+                this.coordinatesByItem.put(item, new InventoryCoordinate(r, c));
+                this.setItem(contents, clicker, item);
                 index++;
             }
 
@@ -77,60 +76,51 @@ public abstract class CustomInventory<T> implements InventoryProvider {
         }
     }
 
-
-    private void setItem(InventoryContents contents, Player clicker, T item, int row, int column) {
-        ItemStack itemStack = this.getItemStack(clicker, item);
-        Consumer<InventoryClickEvent> action = e -> this.onItemClick(clicker, item, e);
-        contents.set(row, column, ClickableItem.of(itemStack, action));
-    }
-
-
-    public abstract ItemStack getItemStack(Player player, T item);
-
-    public abstract void onItemClick(Player player, T item, InventoryClickEvent event);
-
     @Override
     public void update(Player player, InventoryContents contents) {
         int state = contents.property("state", 0);
         contents.setProperty("state", state + 1);
 
-        if (this.updatesItems()) {
+        if (this instanceof AutoUpdatesHard && state % ((AutoUpdatesHard) this).getHardResetTicks() == 0) {
 
-            if (state % 10 == 0) {
+            CollectionUtils.removeWhileIteratingOverValues(this.coordinatesByItem, (item, coordinate) -> {
+                ClickableItem empty = ClickableItem.empty(new ItemStack(Material.AIR));
+                contents.set(coordinate.getRow(), coordinate.getColumn(), empty);
+            });
 
-                this.itemsByCoordinate.forEach((coordinate, item) -> {
-                    this.setItem(contents, player, item, coordinate.getRow(), coordinate.getColumn());
-                });
-            }
+            this.init(player, contents);
 
-            if (state % 40 == 0) {
-
-                CollectionUtils.removeWhileIteratingOverValues(this.itemsByCoordinate, (coordinate, item) -> {
-                    ClickableItem empty = ClickableItem.empty(new ItemStack(Material.AIR));
-                    contents.set(coordinate.getRow(), coordinate.getColumn(), empty);
-                });
-
-                this.init(player, contents);
-            }
+        } else if (this instanceof AutoUpdatesSoft && state % ((AutoUpdatesSoft) this).getSoftUpdateTicks() == 0) {
+            this.coordinatesByItem.keySet().forEach(item -> this.setItem(contents, player, item));
         }
 
-        if (this instanceof HasRandomOption && state % 10 == 0) {
+        if (this instanceof HasRandomOption) {
             HasRandomOption randomOption = (HasRandomOption) this;
 
-            ItemStack stack = new ItemBuilder<>(Material.WOOL)
-                    .setData(CollectionUtils.selectRandom(ColorType.values()).getDyeColor().getWoolData())
-                    .setName("&cR&6A&eN&aD&bO&dM")
-                    .setLore(List.of("&7Pick a random option!"))
-                    .get();
+            if (state % randomOption.getTicksPerColorChange() == 0) {
 
-            contents.set(0, this.getColumnCount() - 1, ClickableItem.of(stack, e -> {
-                randomOption.getChatType().send(player, randomOption.getMessage());
-                this.onItemClick(player, CollectionUtils.selectRandom(this.getItems()), e);
-            }));
+                ItemStack stack = new ItemBuilder<>(Material.WOOL)
+                        .setData(CollectionUtils.selectRandom(ColorType.values()).getDyeColor().getWoolData())
+                        .setName("&cR&6A&eN&aD&bO&dM")
+                        .setLore(List.of("&7Pick a random option!"))
+                        .get();
+
+                contents.set(0, this.getColumnCount() - 1, ClickableItem.of(stack, e -> {
+                    randomOption.getChatType().send(player, randomOption.getMessage());
+                    this.onItemClick(contents, player, CollectionUtils.selectRandom(this.getItems()), e);
+                }));
+            }
         }
     }
 
-    public abstract boolean updatesItems();
+    protected void setItem(InventoryContents contents, Player clicker, T item) {
+        ItemStack itemStack = this.getItemStack(clicker, item);
+        Consumer<InventoryClickEvent> action = e -> this.onItemClick(contents, clicker, item, e);
+        InventoryCoordinate coordinate = this.coordinatesByItem.get(item);
+        contents.set(coordinate.getRow(), coordinate.getColumn(), ClickableItem.of(itemStack, action));
+    }
 
+    public abstract ItemStack getItemStack(Player player, T item);
 
+    public abstract void onItemClick(InventoryContents contents, Player player, T item, InventoryClickEvent event);
 }

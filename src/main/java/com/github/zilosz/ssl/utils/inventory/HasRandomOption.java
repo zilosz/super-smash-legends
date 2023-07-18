@@ -7,4 +7,8 @@ public interface HasRandomOption {
     Chat getChatType();
 
     String getMessage();
+
+    default int getTicksPerColorChange() {
+        return 10;
+    }
 }

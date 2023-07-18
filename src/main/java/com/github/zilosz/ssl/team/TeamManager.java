@@ -28,16 +28,12 @@ public class TeamManager {
         this.teamsByEntity = new HashMap<>();
     }
 
-    private Section getConfig() {
-        return SSL.getInstance().getResources().getConfig().getSection("Game.Teams");
-    }
-
-    public boolean isTeamsModeEnabled() {
-        return this.getConfig().getBoolean("Enabled");
-    }
-
     public int getDefaultTeamSize() {
         return this.getConfig().getInt("Size");
+    }
+
+    private Section getConfig() {
+        return SSL.getInstance().getResources().getConfig().getSection("Game.Teams");
     }
 
     public int getAbsolutePlayerCap() {
@@ -55,6 +51,10 @@ public class TeamManager {
         return SSL.getInstance().getGameManager().getProfile(player).getKit().getColor().getChatSymbol();
     }
 
+    public boolean isTeamsModeEnabled() {
+        return this.getConfig().getBoolean("Enabled");
+    }
+
     public Team getEntityTeam(LivingEntity entity) {
         return this.teamsByEntity.get(entity);
     }
@@ -63,13 +63,13 @@ public class TeamManager {
         Optional.ofNullable(this.teamsByEntity.remove(entity)).ifPresent(previous -> previous.removeEntity(entity));
     }
 
+    public void addEntityToTeam(LivingEntity entity, LivingEntity entityWithTeam) {
+        this.addEntityToTeam(entity, this.getEntityTeam(entityWithTeam));
+    }
+
     public void addEntityToTeam(LivingEntity entity, Team team) {
         this.teamsByEntity.put(entity, team);
         team.addEntity(entity);
-    }
-
-    public void addEntityToTeam(LivingEntity entity, LivingEntity entityWithTeam) {
-        this.addEntityToTeam(entity, this.getEntityTeam(entityWithTeam));
     }
 
     public void assignPlayer(Player player) {

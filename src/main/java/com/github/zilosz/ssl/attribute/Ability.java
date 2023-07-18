@@ -51,6 +51,14 @@ public abstract class Ability extends Attribute {
         this.hotbarItem.setAction(null);
     }
 
+    private List<String> getDescription() {
+        return this.config.getStringList("Description");
+    }
+
+    public String getBoldedDisplayName() {
+        return MessageUtils.color(this.kit.getColor().getChatSymbol() + "&l" + this.config.getString("Name"));
+    }
+
     public void sendDescription() {
         this.player.playSound(this.player.getLocation(), Sound.ORB_PICKUP, 1, 1);
 
@@ -69,14 +77,6 @@ public abstract class Ability extends Attribute {
         for (String line : replacers.replaceLines(lines)) {
             this.player.sendMessage(line);
         }
-    }
-
-    private List<String> getDescription() {
-        return this.config.getStringList("Description");
-    }
-
-    public String getBoldedDisplayName() {
-        return MessageUtils.color(this.kit.getColor().getChatSymbol() + "&l" + this.config.getString("Name"));
     }
 
     public String getDisplayName() {

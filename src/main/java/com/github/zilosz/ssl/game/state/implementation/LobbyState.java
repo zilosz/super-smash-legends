@@ -391,7 +391,7 @@ public class LobbyState extends GameState {
     public void onLobbyQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
 
-        SSL.getInstance().getArenaManager().wipePlayer(player);
+        SSL.getInstance().getArenaManager().removeVote(player);
         SSL.getInstance().getTeamManager().removeEntityFromTeam(player);
 
         if (this.isCounting && !this.hasEnoughPlayersToStart(this.getParticipantCount() - 1)) {

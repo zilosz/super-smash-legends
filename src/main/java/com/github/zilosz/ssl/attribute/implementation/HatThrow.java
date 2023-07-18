@@ -58,19 +58,8 @@ public class HatThrow extends RightClickAbility {
         }
 
         @Override
-        public void onLaunch() {
-            this.state = State.DISMOUNTED;
-        }
-
-        @Override
         public void onBlockHit(BlockHitResult result) {
             this.entity.getWorld().playSound(this.entity.getLocation(), Sound.ZOMBIE_WOODBREAK, 2, 2);
-        }
-
-        @Override
-        public void onRemove(ProjectileRemoveReason reason) {
-            this.state = State.INACTIVE;
-            ((HatThrow) this.attackInfo.getAttribute()).startCooldown();
         }
 
         @Override
@@ -84,6 +73,17 @@ public class HatThrow extends RightClickAbility {
 
         private double speedFunction(int ticks) {
             return -2 * ticks * this.speed / this.lifespan + this.speed;
+        }
+
+        @Override
+        public void onLaunch() {
+            this.state = State.DISMOUNTED;
+        }
+
+        @Override
+        public void onRemove(ProjectileRemoveReason reason) {
+            this.state = State.INACTIVE;
+            ((HatThrow) this.attackInfo.getAttribute()).startCooldown();
         }
 
         public void mount(Entity passenger) {

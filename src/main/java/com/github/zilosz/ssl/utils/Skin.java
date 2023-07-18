@@ -131,9 +131,9 @@ public class Skin {
     }
 
     public static class SelfSkinShower {
-        private BukkitTask showDelayer;
         private final Runnable skinRunnable;
         private final Runnable teleportRunnable;
+        private BukkitTask showDelayer;
 
         private SelfSkinShower(Runnable skinRunnable, Runnable teleportRunnable) {
             this.skinRunnable = skinRunnable;

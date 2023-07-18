@@ -8,6 +8,7 @@ import com.github.zilosz.ssl.utils.inventory.CustomInventory;
 import com.github.zilosz.ssl.utils.inventory.HasRandomOption;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.message.Replacers;
+import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -95,14 +96,12 @@ public class KitSelector extends CustomInventory<Kit> implements HasRandomOption
     }
 
     @Override
-    public void onItemClick(Player player, Kit kit, InventoryClickEvent event) {
-        SSL.getInstance().getKitManager().setKit(player, kit.getType());
-        player.closeInventory();
-    }
-
-    @Override
-    public boolean updatesItems() {
-        return false;
+    public void onItemClick(InventoryContents contents, Player player, Kit kit, InventoryClickEvent event) {
+        KitManager kitManager = SSL.getInstance().getKitManager();
+        Kit lastKit = kitManager.getSelectedKit(player);
+        Kit newKit = kitManager.setKit(player, kit.getType());
+        this.setItem(contents, player, lastKit);
+        this.setItem(contents, player, newKit);
     }
 
     @Override

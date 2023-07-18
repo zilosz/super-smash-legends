@@ -36,11 +36,11 @@ public class Arena {
         return YamlReader.stack(this.config.getSection("Item"));
     }
 
-    public void addVote(Player player) {
+    void addVote(Player player) {
         this.playersWithVotes.add(player);
     }
 
-    public void wipeVote(Player player) {
+    void wipeVote(Player player) {
         this.playersWithVotes.remove(player);
     }
 
