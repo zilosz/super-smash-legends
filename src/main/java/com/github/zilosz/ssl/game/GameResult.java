@@ -4,15 +4,13 @@ import lombok.Getter;
 
 @Getter
 public enum GameResult {
-    WIN("&a&lVictory!", "wins"),
-    LOSE("&c&lLoss", "losses"),
-    TIE("&e&lTie", "ties");
+    WIN("&a&lVictory!"),
+    LOSE("&c&lLoss"),
+    TIE("&e&lTie");
 
     private final String hologramString;
-    private final String dbString;
 
-    GameResult(String hologramString, String dbString) {
+    GameResult(String hologramString) {
         this.hologramString = hologramString;
-        this.dbString = dbString;
     }
 }

@@ -7,6 +7,7 @@ import com.github.zilosz.ssl.arena.Arena;
 import com.github.zilosz.ssl.arena.ArenaVoter;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.Attribute;
+import com.github.zilosz.ssl.database.PlayerData;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.GameScoreboard;
 import com.github.zilosz.ssl.game.InGameProfile;
@@ -28,7 +29,6 @@ import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
 import me.filoghost.holographicdisplays.api.hologram.HologramLines;
 import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
-import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -46,11 +46,14 @@ import org.bukkit.scheduler.BukkitTask;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class LobbyState extends GameState {
     private final Set<HotbarItem> hotbarItems = new HashSet<>();
@@ -125,7 +128,7 @@ public class LobbyState extends GameState {
                 kit.equip(player);
             }, () -> {
                 kitManager.createHolograms(player);
-                kitManager.pullUserKit(player);
+                kitManager.loadAndSetUserKit(player);
             });
 
             kitManager.updateHolograms(player);
@@ -143,10 +146,10 @@ public class LobbyState extends GameState {
 
             Replacers replacers = new Replacers().add("KIT", profile.getKit().getBoldedDisplayName())
                     .add("RESULT", profile.getGameResult().getHologramString())
-                    .add("KILLS", profile.getKills())
-                    .add("DEATHS", profile.getDeaths())
-                    .add("DAMAGE_TAKEN", format.format(profile.getDamageTaken()))
-                    .add("DAMAGE_DEALT", format.format(profile.getDamageDealt()));
+                    .add("KILLS", profile.getStats().getKills())
+                    .add("DEATHS", profile.getStats().getDeaths())
+                    .add("DAMAGE_TAKEN", format.format(profile.getStats().getDamageTaken()))
+                    .add("DAMAGE_DEALT", format.format(profile.getStats().getDamageDealt()));
 
             String lastGameLoc = SSL.getInstance().getResources().getLobby().getString("LastGame");
             Location lastGameLocation = YamlReader.location(CustomWorldType.LOBBY.getWorldName(), lastGameLoc);
@@ -172,8 +175,8 @@ public class LobbyState extends GameState {
         SSL.getInstance().getArenaManager().setupArenas();
         SSL.getInstance().getTeamManager().setupTeams();
 
-        this.createLeaderboard("Win", "wins", "Wins");
-        this.createLeaderboard("Kill", "kills", "Kills");
+        this.createLeaderboard("Win", "Wins", playerData -> playerData.getGameResultStats().getWins());
+        this.createLeaderboard("Kill", "Kills", playerData -> playerData.getInGameStats().getKills());
 
         gameManager.reset();
 
@@ -204,61 +207,34 @@ public class LobbyState extends GameState {
         }
     }
 
-    private void createLeaderboard(String titleName, String statName, String configName) {
+    private void createLeaderboard(String title, String configPath, Function<PlayerData, Integer> statProvider) {
         Resources resources = SSL.getInstance().getResources();
         String worldName = CustomWorldType.LOBBY.getWorldName();
-        Location location = YamlReader.location(worldName, resources.getLobby().getString(configName));
+        Location location = YamlReader.location(worldName, resources.getLobby().getString(configPath));
 
         Hologram hologram = HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(location);
         this.holograms.add(hologram);
         HologramLines lines = hologram.getLines();
 
-        lines.appendText(MessageUtils.color(String.format("&5&l%s Leaderboard", titleName)));
+        lines.appendText(MessageUtils.color(String.format("&5&l%s Leaderboard", title)));
         lines.appendText(MessageUtils.color("&7------------------"));
 
-        int size = SSL.getInstance().getResources().getConfig().getInt("LeaderboardSizes." + configName);
+        List<PlayerData> allPlayerData = SSL.getInstance().getPlayerDatabase().findAllPlayerData()
+                .filter(playerData -> statProvider.apply(playerData) > 0)
+                .limit(SSL.getInstance().getResources().getConfig().getInt("LeaderboardSizes." + configPath))
+                .sorted(Comparator.comparingInt(statProvider::apply))
+                .collect(Collectors.toList());
 
-        List<String> players = new ArrayList<>();
-        List<Integer> stats = new ArrayList<>();
-
-        for (Document doc : SSL.getInstance().getPlayerDatabase().getDocuments()) {
-            String name = doc.getString("name");
-            int stat = (int) doc.getOrDefault(statName, 0);
-
-            if (stat > 0) {
-                boolean added = false;
-                int i;
-
-                for (i = 0; i < players.size(); i++) {
-
-                    if (stat > stats.get(i)) {
-                        players.add(i, name);
-                        stats.add(i, stat);
-
-                        if (players.size() > size) {
-                            players.remove(players.size() - 1);
-                            stats.remove(stats.size() - 1);
-                        }
-
-                        added = true;
-                        break;
-                    }
-                }
-
-                if (!added && i < size) {
-                    players.add(name);
-                    stats.add(stat);
-                }
-            }
-        }
-
-        if (players.isEmpty()) {
+        if (allPlayerData.isEmpty()) {
             lines.appendText(MessageUtils.color("&fNo data to display..."));
 
         } else {
+            int size = allPlayerData.size();
 
-            for (int i = 0; i < players.size(); i++) {
-                String line = String.format("&5&l%d. &f%s: &e%d", i + 1, players.get(i), stats.get(i));
+            for (int i = 0; i < size; i++) {
+                String name = allPlayerData.get(i).getName();
+                int stat = statProvider.apply(allPlayerData.get(i));
+                String line = String.format("&5&l%d. &f%s: &e%d", i + 1, name, stat);
                 lines.appendText(MessageUtils.color(line));
             }
         }
@@ -379,7 +355,7 @@ public class LobbyState extends GameState {
 
         KitManager kitManager = SSL.getInstance().getKitManager();
         kitManager.createHolograms(player);
-        kitManager.pullUserKit(player);
+        kitManager.loadAndSetUserKit(player);
         kitManager.updateHolograms(player);
 
         if (!this.isCounting && this.hasEnoughPlayersToStart(this.getParticipantCount())) {

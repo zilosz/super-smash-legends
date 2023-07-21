@@ -129,8 +129,8 @@
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>3.12.12</version>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>4.10.1</version>
         </dependency>
         <dependency>
             <groupId>com.github.libraryaddict</groupId>

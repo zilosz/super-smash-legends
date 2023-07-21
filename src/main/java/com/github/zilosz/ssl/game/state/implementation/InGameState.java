@@ -444,7 +444,7 @@ public class InGameState extends GameState {
                 }
 
                 InGameProfile profile = SSL.getInstance().getGameManager().getProfile(player);
-                profile.setDamageTaken(profile.getDamageTaken() + damageTaken);
+                profile.getStats().setDamageTaken(profile.getStats().getDamageTaken() + damageTaken);
             }
         }
     }
@@ -459,7 +459,7 @@ public class InGameState extends GameState {
         InGameProfile diedProfile = gameManager.getProfile(died);
 
         diedProfile.setLives(diedProfile.getLives() - 1);
-        diedProfile.setDeaths(diedProfile.getDeaths() + 1);
+        diedProfile.getStats().setDeaths(diedProfile.getStats().getDeaths() + 1);
 
         Kit diedKit = diedProfile.getKit();
         diedKit.destroy();
@@ -500,7 +500,7 @@ public class InGameState extends GameState {
                 deathMessage = String.format("%s &7killed by %s &7with %s&7.", diedName, killerName, attackName);
 
                 InGameProfile killerProfile = gameManager.getProfile(killer);
-                killerProfile.setKills(killerProfile.getKills() + 1);
+                killerProfile.getStats().setKills(killerProfile.getStats().getKills() + 1);
             }
         }
 
@@ -516,6 +516,8 @@ public class InGameState extends GameState {
         attackManager.clearDamageSource(died);
         attackManager.clearImmunities(died);
         attackManager.clearPlayerCombo(died);
+
+        died.setGameMode(GameMode.SPECTATOR);
 
         if (diedProfile.getLives() <= 0) {
             died.playSound(died.getLocation(), Sound.WITHER_DEATH, 2, 1);
@@ -537,8 +539,6 @@ public class InGameState extends GameState {
             }
 
         } else {
-            died.setGameMode(GameMode.SPECTATOR);
-
             String title = MessageUtils.color("&7You &cdied!");
             TitleAPI.sendTitle(died, title, MessageUtils.color("&7Respawning soon..."), 7, 25, 7);
             died.playSound(died.getLocation(), Sound.ENDERMAN_TELEPORT, 3, 1);

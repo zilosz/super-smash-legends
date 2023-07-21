@@ -92,7 +92,7 @@ public class GameManager {
     public void setupProfile(Player player) {
         int lives = SSL.getInstance().getResources().getConfig().getInt("Game.Lives");
         Kit kit = SSL.getInstance().getKitManager().getSelectedKit(player);
-        this.profiles.put(player, new InGameProfile(lives, kit));
+        this.profiles.put(player, new InGameProfile(kit, lives));
     }
 
     public Set<Player> getAlivePlayers() {

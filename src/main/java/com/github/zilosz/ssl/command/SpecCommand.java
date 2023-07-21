@@ -25,13 +25,13 @@ public class SpecCommand implements CommandExecutor {
 
         if (gameManager.willSpectate(player)) {
             gameManager.removeFutureSpectator(player);
-            Chat.GAME.send(player, "&7You will &5participate &7next game.");
+            Chat.GAME.send(player, "&7You will &aparticipate &7next game.");
 
         } else {
             gameManager.addFutureSpectator(player);
-            SSL.getInstance().getArenaManager().wipePlayer(player);
+            SSL.getInstance().getArenaManager().removeVote(player);
             SSL.getInstance().getTeamManager().removeEntityFromTeam(player);
-            Chat.GAME.send(player, "&7You will &5spectate &7next game.");
+            Chat.GAME.send(player, "&7You will &cspectate &7next game.");
         }
 
         return true;

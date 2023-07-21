@@ -105,7 +105,7 @@ public class AttackManager {
 
         if (victim != attribute.getPlayer()) {
             InGameProfile damagerProfile = SSL.getInstance().getGameManager().getProfile(attribute.getPlayer());
-            damagerProfile.setDamageDealt(damagerProfile.getDamageDealt() + finalDamage);
+            damagerProfile.getStats().setDamageDealt(damagerProfile.getStats().getDamageDealt() + finalDamage);
         }
 
         Player damager = attribute.getPlayer();
@@ -128,8 +128,9 @@ public class AttackManager {
             this.clearDamageSource(victim);
         }, SSL.getInstance().getResources().getConfig().getInt("Damage.Lifetime")));
 
-        this.immunities.putIfAbsent(victim, new HashMap<>());
-        Optional.ofNullable(this.immunities.get(victim).remove(attackInfo)).ifPresent(BukkitTask::cancel);
+        Optional.ofNullable(this.immunities.putIfAbsent(victim, new HashMap<>()))
+                .flatMap(immunities -> Optional.ofNullable(immunities.remove(attackInfo)))
+                .ifPresent(BukkitTask::cancel);
 
         this.immunities.get(victim).put(attackInfo, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
             this.immunities.get(victim).remove(attackInfo).cancel();

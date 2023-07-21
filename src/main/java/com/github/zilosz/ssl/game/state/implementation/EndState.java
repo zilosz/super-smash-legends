@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class EndState extends GameState {
@@ -215,24 +214,13 @@ public class EndState extends GameState {
             }
         }
 
-        Set<String> altNames = Set.of("AGentleAura", "EzRizzz", "TheBellahante");
-        long altsUsed = playerRanks.keySet().stream().filter(p -> altNames.contains(p.getName())).count();
-
         for (Player player : playerRanks.keySet()) {
-            gameManager.getProfile(player).getKit().destroy();
-
-            UUID uuid = player.getUniqueId();
             InGameProfile profile = gameManager.getProfile(player);
-            PlayerDatabase db = SSL.getInstance().getPlayerDatabase();
+            profile.getKit().destroy();
 
-            if (playerRanks.size() > 1 && altsUsed < 2) {
-                db.increment(uuid, profile.getGameResult().getDbString(), 1);
-                db.increment(uuid, "result." + playerRanks.get(player), 1);
-                db.increment(uuid, "kills", profile.getKills());
-                db.increment(uuid, "deaths", profile.getDeaths());
-                db.increment(uuid, "damageDealt", profile.getDamageDealt());
-                db.increment(uuid, "damageTaken", profile.getDamageTaken());
-            }
+            PlayerDatabase playerDatabase = SSL.getInstance().getPlayerDatabase();
+            profile.updatePlayerData(playerDatabase.getPlayerData(player));
+            playerDatabase.savePlayerData(player);
         }
 
         for (Player player : Bukkit.getOnlinePlayers()) {

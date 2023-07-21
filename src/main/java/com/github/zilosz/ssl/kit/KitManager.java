@@ -1,7 +1,6 @@
 package com.github.zilosz.ssl.kit;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.database.PlayerDatabase;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.state.GameState;
 import com.github.zilosz.ssl.game.state.GameStateType;
@@ -9,6 +8,7 @@ import com.github.zilosz.ssl.utils.Skin;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.world.CustomWorldType;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
 import me.filoghost.holographicdisplays.api.hologram.HologramLines;
@@ -98,11 +98,14 @@ public class KitManager implements Listener {
 
         this.kitsPerNpc.forEach((npc, kitType) -> {
             Location location = npc.getStoredLocation();
-            location.add(0, SSL.getInstance().getResources().getConfig().getDouble("Kit.HologramHeight"), 0);
-
+            location.add(0, this.getConfig().getDouble("HologramHeight"), 0);
             Hologram hologram = HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(location);
             this.kitHolograms.get(player).put(kitType, hologram);
         });
+    }
+
+    private Section getConfig() {
+        return SSL.getInstance().getResources().getConfig().getSection("Kit");
     }
 
     public void updateHolograms(Player player) {
@@ -141,18 +144,14 @@ public class KitManager implements Listener {
         return this.selectedKits.get(player);
     }
 
-    public void pullUserKit(Player player) {
-        PlayerDatabase db = SSL.getInstance().getPlayerDatabase();
-        String defaultName = SSL.getInstance().getResources().getConfig().getString("Kit.Default");
-        String kitName = db.getOrDefault(player.getUniqueId(), "kit", defaultName, defaultName);
-
+    public void loadAndSetUserKit(Player player) {
         KitType kitType;
 
         try {
-            kitType = KitType.valueOf(kitName);
+            kitType = KitType.valueOf(SSL.getInstance().getPlayerDatabase().getPlayerData(player).getKit());
 
-        } catch (IllegalArgumentException e) {
-            kitType = KitType.valueOf(defaultName);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            kitType = KitType.valueOf(this.getConfig().getString("Default"));
         }
 
         this.setKit(player, kitType);
@@ -200,7 +199,7 @@ public class KitManager implements Listener {
 
         Optional.ofNullable(this.selectedKits.remove(player)).ifPresent(kit -> {
             kit.destroy();
-            SSL.getInstance().getPlayerDatabase().set(player.getUniqueId(), "kit", kit.getType().name());
+            SSL.getInstance().getPlayerDatabase().getPlayerData(player).setKit(kit.getType().name());
         });
     }
 

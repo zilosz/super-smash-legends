@@ -33,7 +33,7 @@ public class TeamManager {
     }
 
     private Section getConfig() {
-        return SSL.getInstance().getResources().getConfig().getSection("Game.Teams");
+        return SSL.getInstance().getResources().getConfig().getSection("Teams");
     }
 
     public int getAbsolutePlayerCap() {

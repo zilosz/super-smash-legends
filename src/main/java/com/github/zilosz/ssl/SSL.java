@@ -22,7 +22,6 @@ import com.github.zilosz.ssl.utils.file.FileUtility;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.world.CustomWorldType;
 import com.github.zilosz.ssl.utils.world.WorldManager;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import fr.minuskube.inv.InventoryManager;
 import io.github.thatkawaiisam.assemble.Assemble;
 import lombok.Getter;
@@ -31,7 +30,6 @@ import net.citizensnpcs.api.npc.MemoryNPCDataStore;
 import net.citizensnpcs.api.npc.NPCRegistry;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
@@ -63,6 +61,8 @@ public class SSL extends JavaPlugin {
     public void onDisable() {
         for (Player player : Bukkit.getOnlinePlayers()) {
             this.kitManager.wipePlayer(player);
+            this.playerDatabase.savePlayerData(player);
+            this.playerDatabase.removePlayerData(player);
         }
     }
 
@@ -72,37 +72,28 @@ public class SSL extends JavaPlugin {
 
         this.resources = new Resources();
         this.damageManager = new AttackManager();
-        this.worldManager = new WorldManager();
-        this.inventoryManager = new InventoryManager(this);
         this.teamManager = new TeamManager();
         this.arenaManager = new ArenaManager();
-        this.playerDatabase = new PlayerDatabase();
-        this.kitManager = new KitManager();
-        this.gameManager = new GameManager();
         this.npcRegistry = CitizensAPI.createNamedNPCRegistry("ssl-registry", new MemoryNPCDataStore());
 
-        Section dbConfig = this.resources.getConfig().getSection("Database");
+        this.playerDatabase = new PlayerDatabase();
+        this.playerDatabase.connect();
 
-        if (dbConfig.getBoolean("Enabled") && Bukkit.getServer().getOnlineMode()) {
-            String uri = dbConfig.getString("Uri");
-            String db = dbConfig.getString("Database");
-            String collection = dbConfig.getString("Collection");
-            this.playerDatabase.init(uri, db, collection);
-        }
-
-        PluginManager pluginManager = Bukkit.getPluginManager();
-        pluginManager.registerEvents(this.kitManager, this);
-
+        this.worldManager = new WorldManager();
         Vector pasteVector = YamlReader.vector(this.resources.getLobby().getString("PasteVector"));
         File schematic = FileUtility.loadSchematic(this, "lobby");
         this.worldManager.createWorld(CustomWorldType.LOBBY, schematic, pasteVector);
 
+        this.kitManager = new KitManager();
         this.kitManager.setupKits();
+
+        this.inventoryManager = new InventoryManager(this);
         this.inventoryManager.init();
+
+        this.gameManager = new GameManager();
         this.gameManager.activateState();
 
-        Assemble scoreboard = new Assemble(this, new GameScoreboard());
-        scoreboard.setTicks(5);
+        new Assemble(this, new GameScoreboard()).setTicks(5);
 
         this.getCommand("kit").setExecutor(new KitCommand());
         this.getCommand("reloadconfig").setExecutor(new ReloadConfigCommand());
@@ -117,6 +108,6 @@ public class SSL extends JavaPlugin {
 
         DummyCommand dummyCommand = new DummyCommand();
         this.getCommand("dummy").setExecutor(dummyCommand);
-        pluginManager.registerEvents(dummyCommand, this);
+        Bukkit.getPluginManager().registerEvents(dummyCommand, this);
     }
 }
