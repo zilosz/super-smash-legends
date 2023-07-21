@@ -115,6 +115,7 @@ public class PlayerDatabase {
     }
 
     public Stream<PlayerData> findAllPlayerData() {
+        if (this.mongoCollection == null) return Stream.empty();
         return StreamSupport.stream(this.mongoCollection.find().spliterator(), true);
     }
 }

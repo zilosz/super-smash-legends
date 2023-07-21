@@ -108,10 +108,6 @@ public class CollectionUtils {
         }
     }
 
-    public static <K, V> void removeWhileIteratingOverKeys(Map<K, V> map, Consumer<K> keyAction) {
-        removeWhileIteratingOverEntry(map, keyAction, value -> {});
-    }
-
     public static <K, V> void removeWhileIteratingOverValues(Map<K, V> map, BiConsumer<K, V> dualAction) {
         removeWhileIterating(map.entrySet(), entry -> dualAction.accept(entry.getKey(), entry.getValue()));
     }
