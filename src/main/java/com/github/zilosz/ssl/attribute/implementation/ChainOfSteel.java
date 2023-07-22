@@ -63,16 +63,8 @@ public class ChainOfSteel extends RightClickAbility {
             }
 
             if (this.chainTicks % 2 == 0) {
-                FloatingEntity<FallingBlock> entity = new FloatingEntity<>() {
-
-                    @Override
-                    public FallingBlock createEntity(Location location) {
-                        return BlockUtils.spawnFallingBlock(location, Material.IRON_FENCE);
-                    }
-                };
-
-                entity.spawn(currLocation);
-                this.entities.add(entity);
+                FallingBlock block = BlockUtils.spawnFallingBlock(currLocation, Material.IRON_FENCE);
+                this.entities.add(FloatingEntity.fromEntity(block));
             }
 
             this.player.getWorld().playSound(this.player.getLocation(), Sound.ZOMBIE_METAL, 1, 2);

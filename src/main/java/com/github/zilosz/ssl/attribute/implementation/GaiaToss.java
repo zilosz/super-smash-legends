@@ -100,24 +100,15 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
                     type = Material.IRON_BLOCK;
                 }
 
-                Material finalType = type;
-
-                FloatingEntity<FallingBlock> blockEntity = new FloatingEntity<>() {
-
-                    @Override
-                    public FallingBlock createEntity(Location location) {
-                        return BlockUtils.spawnFallingBlock(location, finalType, block.getData());
-                    }
-                };
-
                 Location carryLoc = location.add(relative);
-                blockEntity.spawn(carryLoc);
-                this.blocks.add(blockEntity);
+
+                FallingBlock entity = BlockUtils.spawnFallingBlock(carryLoc, type, block.getData());
+                this.blocks.add(FloatingEntity.fromEntity(entity));
 
                 Vector relativeToLoc = VectorUtils.fromTo(this.player.getLocation(), carryLoc);
 
                 this.positionUpdaters.add(Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
-                    blockEntity.teleport(this.player.getLocation().add(relativeToLoc));
+                    entity.teleport(this.player.getLocation().add(relativeToLoc));
                 }, 2, 2));
             }
         }, 0, (long) (this.getMaxChargeTicks() / (this.config.getDouble("IncrementCount") + 1)));

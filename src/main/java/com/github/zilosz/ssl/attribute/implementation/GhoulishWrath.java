@@ -61,17 +61,10 @@ public class GhoulishWrath extends ChargedRightClickAbility {
     @Override
     public void onInitialClick(PlayerInteractEvent event) {
         Material material = Material.valueOf(this.config.getString("Projectile.Block.Material"));
+        FallingBlock block = BlockUtils.spawnFallingBlock(this.getFloatingLocation(), material);
+        this.floatingBlock = FloatingEntity.fromEntity(block);
+
         this.pitch = 0.5f;
-
-        this.floatingBlock = new FloatingEntity<>() {
-
-            @Override
-            public FallingBlock createEntity(Location location) {
-                return BlockUtils.spawnFallingBlock(location, material);
-            }
-        };
-
-        this.floatingBlock.spawn(this.getFloatingLocation());
     }
 
     @Override

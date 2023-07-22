@@ -5,22 +5,14 @@ import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 
-public abstract class FloatingEntity<T extends Entity> {
-    @Getter private T entity;
-    private ArmorStand armorStand;
+public class FloatingEntity<T extends Entity> {
+    @Getter private final T entity;
+    private final ArmorStand armorStand;
 
-    public void spawn(Location location) {
-        this.armorStand = location.getWorld().spawn(location, ArmorStand.class);
-        this.armorStand.setGravity(false);
-        this.armorStand.setMarker(true);
-        this.armorStand.setVisible(false);
-        this.armorStand.setBasePlate(false);
-
-        this.entity = this.createEntity(location);
-        this.armorStand.setPassenger(this.entity);
+    private FloatingEntity(T entity, ArmorStand armorStand) {
+        this.entity = entity;
+        this.armorStand = armorStand;
     }
-
-    public abstract T createEntity(Location location);
 
     public void destroy() {
         this.armorStand.remove();
@@ -31,5 +23,14 @@ public abstract class FloatingEntity<T extends Entity> {
         this.armorStand.eject();
         this.armorStand.teleport(location);
         this.armorStand.setPassenger(this.entity);
+    }
+
+    public static <T extends Entity> FloatingEntity<T> fromEntity(T entity) {
+        ArmorStand armorStand = entity.getWorld().spawn(entity.getLocation(), ArmorStand.class);
+        armorStand.setGravity(false);
+        armorStand.setMarker(true);
+        armorStand.setVisible(false);
+        armorStand.setPassenger(entity);
+        return new FloatingEntity<>(entity, armorStand);
     }
 }

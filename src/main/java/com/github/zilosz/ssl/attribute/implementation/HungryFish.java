@@ -136,20 +136,12 @@ public class HungryFish extends RightClickAbility {
 
             Bukkit.getPluginManager().registerEvents(this.soakListener, SSL.getInstance());
 
-            this.fish = new FloatingEntity<>() {
+            ItemStack stack = new ItemStack(Material.RAW_FISH);
+            Item fishItem = this.entity.getWorld().dropItem(this.entity.getLocation(), stack);
+            fishItem.setPickupDelay(Integer.MAX_VALUE);
+            this.fish = FloatingEntity.fromEntity(fishItem);
 
-                @Override
-                public Item createEntity(Location location) {
-                    Item fish = location.getWorld().dropItem(location, new ItemStack(Material.RAW_FISH));
-                    fish.setPickupDelay(Integer.MAX_VALUE);
-                    return fish;
-                }
-            };
-
-            Location location = this.entity.getLocation();
-            this.fish.spawn(location);
-
-            Vector relativeToLoc = VectorUtils.fromTo(target.getLocation(), location);
+            Vector relativeToLoc = VectorUtils.fromTo(target.getLocation(), this.entity.getLocation());
 
             this.fishMoveTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
                 this.fish.teleport(target.getLocation().add(relativeToLoc));
