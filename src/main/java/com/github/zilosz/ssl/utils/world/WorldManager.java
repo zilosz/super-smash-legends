@@ -25,10 +25,15 @@ public class WorldManager {
     public void createWorld(CustomWorldType type, File schematic, Vector pastePoint) {
 
         WorldCreator worldCreator = WorldCreator.name(type.getWorldName())
-                .type(WorldType.FLAT).generateStructures(false).generatorSettings("3;minecraft:air;2");
+                .type(WorldType.FLAT)
+                .generateStructures(false)
+                .generatorSettings("3;minecraft:air;2");
 
         com.sk89q.worldedit.Vector worldEditPastePoint = new com.sk89q.worldedit.Vector(
-                pastePoint.getX(), pastePoint.getY(), pastePoint.getZ());
+                pastePoint.getX(),
+                pastePoint.getY(),
+                pastePoint.getZ()
+        );
 
         Schematic schem;
 

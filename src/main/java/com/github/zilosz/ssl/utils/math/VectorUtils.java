@@ -75,7 +75,14 @@ public class VectorUtils {
     }
 
     public static Vector randomVector(BlockFace face) {
-        double minX = -1, maxX = 1, minY = -1, maxY = 1, minZ = -1, maxZ = 1;
+        double minX = -1;
+        double maxX = 1;
+
+        double minY = -1;
+        double maxY = 1;
+
+        double minZ = -1;
+        double maxZ = 1;
 
         if (face != null) {
 

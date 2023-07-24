@@ -1,4 +1,4 @@
-package com.github.zilosz.ssl.command;
+package com.github.zilosz.ssl.command.implementation;
 
 import com.github.zilosz.ssl.utils.message.Chat;
 import org.apache.commons.lang.math.NumberUtils;

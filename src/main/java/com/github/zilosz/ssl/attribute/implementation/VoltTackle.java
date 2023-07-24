@@ -43,7 +43,6 @@ public class VoltTackle extends RightClickAbility {
     public void onClick(PlayerInteractEvent event) {
         this.player.getWorld().playSound(this.player.getLocation(), Sound.FIREWORK_TWINKLE, 1, 1.5f);
         EntitySelector selector = new HitBoxSelector(this.config.getInt("HitBox"));
-
         int duration = this.config.getInt("DurationTicks");
 
         this.moveTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {

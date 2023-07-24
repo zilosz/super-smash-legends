@@ -1,4 +1,4 @@
-package com.github.zilosz.ssl.command;
+package com.github.zilosz.ssl.command.implementation;
 
 import com.github.zilosz.ssl.utils.math.MathUtils;
 import org.bukkit.Bukkit;

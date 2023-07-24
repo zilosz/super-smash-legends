@@ -23,7 +23,7 @@ commands:
     usage: "/<command> [kit]"
   reloadconfig:
     description: Dynamically reloads configuration files.
-    aliases: [rc, reloadconfigs]
+    aliases: [rc, rcs, reloadconfigs]
     permission: op
     usage: "/<command>"
   start:
@@ -55,5 +55,5 @@ commands:
     usage: "/<command>"
   heal:
     description: Heals a specified amount.
-    usage: "/<heal> <amount> [player]"
+    usage: "/<command> <amount> [player]"
     permission: op

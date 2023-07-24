@@ -1,17 +1,16 @@
-package com.github.zilosz.ssl.command;
+package com.github.zilosz.ssl.command.implementation;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.utils.message.Chat;
+import com.github.zilosz.ssl.game.state.GameStateType;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-public class ReloadConfigCommand implements CommandExecutor {
+public class StartCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        SSL.getInstance().getResources().reload();
-        Chat.COMMAND.broadcast("&7Configuration has been reloaded.");
+        SSL.getInstance().getGameManager().skipToState(GameStateType.TUTORIAL);
         return true;
     }
 }
