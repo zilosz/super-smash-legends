@@ -1,10 +1,12 @@
 package com.github.zilosz.ssl.command.implementation;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.command.ArgumentValidator;
+import com.github.zilosz.ssl.command.CombinedArgument;
+import com.github.zilosz.ssl.command.CommandArgument;
 import com.github.zilosz.ssl.command.CommandProcessor;
-import com.github.zilosz.ssl.command.EnumValidator;
+import com.github.zilosz.ssl.command.EnumArgument;
 import com.github.zilosz.ssl.command.SenderRestriction;
+import com.github.zilosz.ssl.command.StringArgument;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.kit.KitSelector;
 import com.github.zilosz.ssl.kit.KitType;
@@ -20,13 +22,15 @@ public class KitCommand extends CommandProcessor {
     }
 
     @Override
-    public ArgumentValidator[] getRequiredValidators() {
-        return new ArgumentValidator[0];
+    public CommandArgument[] getRequiredArgs() {
+        return new CommandArgument[0];
     }
 
     @Override
-    public ArgumentValidator[] getOptionalValidators() {
-        return new ArgumentValidator[]{new EnumValidator<>("kit", KitType.class)};
+    public CommandArgument[] getOptionalArgs() {
+        return new CommandArgument[]{
+                new CombinedArgument(new EnumArgument<>("kit", KitType.class), new StringArgument("'random'")
+        )};
     }
 
     @Override

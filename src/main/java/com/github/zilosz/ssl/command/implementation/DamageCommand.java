@@ -1,10 +1,10 @@
 package com.github.zilosz.ssl.command.implementation;
 
 import com.github.zilosz.ssl.attack.Damage;
-import com.github.zilosz.ssl.command.ArgumentValidator;
+import com.github.zilosz.ssl.command.CommandArgument;
 import com.github.zilosz.ssl.command.CommandProcessor;
-import com.github.zilosz.ssl.command.NumberValidator;
-import com.github.zilosz.ssl.command.PlayerValidator;
+import com.github.zilosz.ssl.command.NumberArgument;
+import com.github.zilosz.ssl.command.PlayerArgument;
 import com.github.zilosz.ssl.command.SenderRestriction;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.utils.message.Chat;
@@ -20,13 +20,13 @@ public class DamageCommand extends CommandProcessor {
     }
 
     @Override
-    public ArgumentValidator[] getRequiredValidators() {
-        return new ArgumentValidator[]{new NumberValidator("damage")};
+    public CommandArgument[] getRequiredArgs() {
+        return new CommandArgument[]{new NumberArgument("damage")};
     }
 
     @Override
-    public ArgumentValidator[] getOptionalValidators() {
-        return new ArgumentValidator[]{new PlayerValidator("player")};
+    public CommandArgument[] getOptionalArgs() {
+        return new CommandArgument[]{new PlayerArgument("player")};
     }
 
     @Override

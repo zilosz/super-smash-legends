@@ -1,8 +1,8 @@
 package com.github.zilosz.ssl.command;
 
-public class StringValidator extends ArgumentValidator {
+public class StringArgument extends SimpleCommandArgument {
 
-    public StringValidator(String usageName) {
+    public StringArgument(String usageName) {
         super(usageName);
     }
 

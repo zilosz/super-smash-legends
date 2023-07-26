@@ -2,9 +2,9 @@ package com.github.zilosz.ssl.command;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
-public class NumberValidator extends ArgumentValidator {
+public class NumberArgument extends SimpleCommandArgument {
 
-    public NumberValidator(String usageName) {
+    public NumberArgument(String usageName) {
         super(usageName);
     }
 

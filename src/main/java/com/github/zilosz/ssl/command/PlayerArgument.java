@@ -2,9 +2,9 @@ package com.github.zilosz.ssl.command;
 
 import org.bukkit.Bukkit;
 
-public class PlayerValidator extends ArgumentValidator {
+public class PlayerArgument extends SimpleCommandArgument {
 
-    public PlayerValidator(String usageName) {
+    public PlayerArgument(String usageName) {
         super(usageName);
     }
 

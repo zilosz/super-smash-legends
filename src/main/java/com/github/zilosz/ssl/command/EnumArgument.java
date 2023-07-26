@@ -2,10 +2,10 @@ package com.github.zilosz.ssl.command;
 
 import org.apache.commons.lang3.EnumUtils;
 
-public class EnumValidator<E extends Enum<E>> extends ArgumentValidator {
+public class EnumArgument<E extends Enum<E>> extends SimpleCommandArgument {
     private final Class<E> enumClass;
 
-    public EnumValidator(String usageName, Class<E> enumClass) {
+    public EnumArgument(String usageName, Class<E> enumClass) {
         super(usageName);
         this.enumClass = enumClass;
     }
