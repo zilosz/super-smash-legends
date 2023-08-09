@@ -26,7 +26,7 @@ public class HotbarItem implements Listener {
     private Long lastTick;
     private Action lastAction;
 
-    private HotbarItem(Player player, ItemStack itemStack, int slot) {
+    public HotbarItem(Player player, ItemStack itemStack, int slot) {
         this.player = player;
         this.itemStack = itemStack;
         this.slot = slot;

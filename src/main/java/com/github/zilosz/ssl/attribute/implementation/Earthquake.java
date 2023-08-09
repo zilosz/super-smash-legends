@@ -20,6 +20,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
@@ -79,8 +80,8 @@ public class Earthquake extends RightClickAbility {
 
             EntitySelector selector = new HitBoxSelector(horizontal, vertical, horizontal);
 
-            new EntityFinder(selector).findAll(this.player).forEach(target -> {
-                if (!target.isOnGround()) return;
+            for (LivingEntity target : new EntityFinder(selector).findAll(this.player)) {
+                if (!target.isOnGround()) continue;
 
                 Vector direction = VectorUtils.fromTo(this.player, target);
                 Attack attack = YamlReader.attack(this.config, direction, this.getDisplayName());
@@ -90,7 +91,7 @@ public class Earthquake extends RightClickAbility {
                     this.player.getWorld().playSound(target.getLocation(), Sound.ANVIL_LAND, 1, 1);
                     this.uproot(target.getLocation());
                 }
-            });
+            }
         }, 0, this.config.getInt("UprootInterval"));
 
         this.stopTask = Bukkit.getScheduler()

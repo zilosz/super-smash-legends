@@ -221,17 +221,15 @@ public class LobbyState extends GameState {
 
         List<PlayerData> allPlayerData = SSL.getInstance().getPlayerDatabase().findAllPlayerData()
                 .filter(playerData -> statProvider.apply(playerData) > 0)
+                .sorted(Comparator.comparingInt(data -> -statProvider.apply(data)))
                 .limit(SSL.getInstance().getResources().getConfig().getInt("LeaderboardSizes." + configPath))
-                .sorted(Comparator.comparingInt(statProvider::apply))
                 .collect(Collectors.toList());
 
         if (allPlayerData.isEmpty()) {
             lines.appendText(MessageUtils.color("&fNo data to display..."));
 
         } else {
-            int size = allPlayerData.size();
-
-            for (int i = 0; i < size; i++) {
+            for (int i = 0; i < allPlayerData.size(); i++) {
                 String name = allPlayerData.get(i).getName();
                 int stat = statProvider.apply(allPlayerData.get(i));
                 String line = String.format("&5&l%d. &f%s: &e%d", i + 1, name, stat);

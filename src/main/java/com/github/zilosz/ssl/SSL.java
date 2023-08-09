@@ -30,6 +30,7 @@ import net.citizensnpcs.api.npc.MemoryNPCDataStore;
 import net.citizensnpcs.api.npc.NPCRegistry;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
@@ -59,6 +60,8 @@ public class SSL extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        this.kitManager.destroyPodiums();
+
         for (Player player : Bukkit.getOnlinePlayers()) {
             this.kitManager.wipePlayer(player);
             this.playerDatabase.savePlayerData(player);
@@ -84,8 +87,11 @@ public class SSL extends JavaPlugin {
         File schematic = FileUtility.loadSchematic(this, "lobby");
         this.worldManager.createWorld(CustomWorldType.LOBBY, schematic, pasteVector);
 
+        PluginManager pluginManager = Bukkit.getPluginManager();
+
         this.kitManager = new KitManager();
         this.kitManager.setupKits();
+        pluginManager.registerEvents(this.kitManager, this);
 
         this.inventoryManager = new InventoryManager(this);
         this.inventoryManager.init();
@@ -108,6 +114,6 @@ public class SSL extends JavaPlugin {
 
         DummyCommand dummyCommand = new DummyCommand();
         this.getCommand("dummy").setExecutor(dummyCommand);
-        Bukkit.getPluginManager().registerEvents(dummyCommand, this);
+        pluginManager.registerEvents(dummyCommand, this);
     }
 }

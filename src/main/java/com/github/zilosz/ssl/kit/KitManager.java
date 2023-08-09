@@ -5,6 +5,7 @@ import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.state.GameState;
 import com.github.zilosz.ssl.game.state.GameStateType;
 import com.github.zilosz.ssl.utils.Skin;
+import com.github.zilosz.ssl.utils.collection.CollectionUtils;
 import com.github.zilosz.ssl.utils.file.YamlReader;
 import com.github.zilosz.ssl.utils.message.Chat;
 import com.github.zilosz.ssl.utils.world.CustomWorldType;
@@ -27,9 +28,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class KitManager implements Listener {
     private final List<Kit> kits = new ArrayList<>();
@@ -38,6 +41,11 @@ public class KitManager implements Listener {
     private final Map<NPC, KitType> kitsPerNpc = new HashMap<>();
     private final Map<Player, Map<KitType, Hologram>> kitHolograms = new HashMap<>();
     private final Map<Player, Skin.SelfSkinShower> selfSkinShowers = new HashMap<>();
+    private final Set<Block> podiumBlocks = new HashSet<>();
+
+    public void destroyPodiums() {
+        CollectionUtils.removeWhileIterating(this.podiumBlocks, block -> block.setType(Material.AIR));
+    }
 
     public Skin getRealSkin(Player player) {
         return this.realSkins.get(player);
@@ -48,35 +56,35 @@ public class KitManager implements Listener {
     }
 
     public void setupKits() {
+
         for (KitType type : KitType.values()) {
-            this.setupKit(type);
+            Kit kit = this.createKit(type);
+            this.kits.add(kit);
+
+            NPC npc = SSL.getInstance().getNpcRegistry().createNPC(EntityType.PLAYER, kit.getBoldedDisplayName());
+            this.kitsPerNpc.put(npc, type);
+            kit.getSkin().applyToNpc(npc);
+
+            String locString = SSL.getInstance().getResources().getLobby().getString("KitNpcs." + type.getConfigName());
+            Location location = YamlReader.location(CustomWorldType.LOBBY.getWorldName(), locString);
+            npc.spawn(location);
+
+            Block beacon = location.subtract(0, 1, 0).getBlock();
+            beacon.setType(Material.BEACON);
+            this.podiumBlocks.add(beacon);
+
+            this.setPodiumSlab(location, 1, 0);
+            this.setPodiumSlab(location, 0, 1);
+            this.setPodiumSlab(location, -1, 0);
+            this.setPodiumSlab(location, 0, -1);
+
+            this.setPodiumWool(location, 1, 0, kit);
+            this.setPodiumWool(location, -1, 0, kit);
+            this.setPodiumWool(location, 0, 1, kit);
+            this.setPodiumWool(location, 0, -1, kit);
         }
-        this.kits.sort(Comparator.comparing(kit -> kit.getType().name()));
-    }
 
-    private void setupKit(KitType kitType) {
-        Kit kit = this.createKit(kitType);
-        this.kits.add(kit);
-
-        NPC npc = SSL.getInstance().getNpcRegistry().createNPC(EntityType.PLAYER, kit.getBoldedDisplayName());
-        this.kitsPerNpc.put(npc, kitType);
-        kit.getSkin().applyToNpc(npc);
-
-        String locString = SSL.getInstance().getResources().getLobby().getString("KitNpcs." + kitType.getConfigName());
-        Location location = YamlReader.location(CustomWorldType.LOBBY.getWorldName(), locString);
-        npc.spawn(location);
-
-        location.subtract(0, 1, 0).getBlock().setType(Material.BEACON);
-
-        this.setPodiumSlab(location, 1, 0);
-        this.setPodiumSlab(location, 0, 1);
-        this.setPodiumSlab(location, -1, 0);
-        this.setPodiumSlab(location, 0, -1);
-
-        this.setPodiumWool(location, 1, 0, kit);
-        this.setPodiumWool(location, -1, 0, kit);
-        this.setPodiumWool(location, 0, 1, kit);
-        this.setPodiumWool(location, 0, -1, kit);
+        this.kits.sort(Comparator.comparing(Kit::getType));
     }
 
     public Kit createKit(KitType kitType) {
@@ -84,13 +92,16 @@ public class KitManager implements Listener {
     }
 
     private void setPodiumSlab(Location beacon, int x, int z) {
-        beacon.clone().add(x, 0, z).getBlock().setType(Material.STEP);
+        Block block = beacon.clone().add(x, 0, z).getBlock();
+        block.setType(Material.STEP);
+        this.podiumBlocks.add(block);
     }
 
     private void setPodiumWool(Location beacon, int x, int z, Kit kit) {
         Block block = beacon.clone().add(x, -1, z).getBlock();
         block.setType(Material.WOOL);
         block.setData(kit.getColor().getDyeColor().getWoolData());
+        this.podiumBlocks.add(block);
     }
 
     public void createHolograms(Player player) {
@@ -175,9 +186,7 @@ public class KitManager implements Listener {
         Optional.ofNullable(this.selectedKits.put(player, newKit)).ifPresentOrElse(oldKit -> {
             oldKit.destroy();
             this.updateAccessHologram(player, KitAccessType.ACCESSIBLE, oldKit.getType());
-        }, () -> {
-            this.realSkins.put(player, Skin.fromPlayer(player));
-        });
+        }, () -> this.realSkins.put(player, Skin.fromPlayer(player)));
 
         newKit.equip(player);
 

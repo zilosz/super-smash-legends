@@ -218,9 +218,11 @@ public class EndState extends GameState {
             InGameProfile profile = gameManager.getProfile(player);
             profile.getKit().destroy();
 
-            PlayerDatabase playerDatabase = SSL.getInstance().getPlayerDatabase();
-            profile.updatePlayerData(playerDatabase.getPlayerData(player));
-            playerDatabase.savePlayerData(player);
+            if (playerRanks.size() > 1) {
+                PlayerDatabase playerDatabase = SSL.getInstance().getPlayerDatabase();
+                profile.updatePlayerData(playerDatabase.getPlayerData(player));
+                playerDatabase.savePlayerData(player);
+            }
         }
 
         for (Player player : Bukkit.getOnlinePlayers()) {
