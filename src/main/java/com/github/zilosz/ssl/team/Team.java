@@ -1,8 +1,8 @@
 package com.github.zilosz.ssl.team;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.utils.effects.ColorType;
-import com.github.zilosz.ssl.utils.message.MessageUtils;
+import com.github.zilosz.ssl.util.effects.ColorType;
+import com.github.zilosz.ssl.util.message.MessageUtils;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.LivingEntity;

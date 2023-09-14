@@ -1,7 +1,7 @@
 package com.github.zilosz.ssl.event.attribute;
 
 import com.github.zilosz.ssl.event.CustomEvent;
-import com.github.zilosz.ssl.utils.Noise;
+import com.github.zilosz.ssl.util.Noise;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.Player;

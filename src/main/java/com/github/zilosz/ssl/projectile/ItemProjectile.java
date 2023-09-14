@@ -1,7 +1,7 @@
 package com.github.zilosz.ssl.projectile;
 
 import com.github.zilosz.ssl.attack.AttackInfo;
-import com.github.zilosz.ssl.utils.file.YamlReader;
+import com.github.zilosz.ssl.util.file.YamlReader;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
 import lombok.Setter;

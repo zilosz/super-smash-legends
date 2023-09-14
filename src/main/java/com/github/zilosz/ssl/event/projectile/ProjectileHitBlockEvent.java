@@ -1,7 +1,7 @@
 package com.github.zilosz.ssl.event.projectile;
 
 import com.github.zilosz.ssl.projectile.CustomProjectile;
-import com.github.zilosz.ssl.utils.block.BlockHitResult;
+import com.github.zilosz.ssl.util.block.BlockHitResult;
 import lombok.Getter;
 
 @Getter

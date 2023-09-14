@@ -1,8 +1,8 @@
 package com.github.zilosz.ssl.arena;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.utils.collection.CollectionUtils;
-import com.github.zilosz.ssl.utils.file.YamlReader;
+import com.github.zilosz.ssl.util.collection.CollectionUtils;
+import com.github.zilosz.ssl.util.file.YamlReader;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
 import org.bukkit.entity.Player;

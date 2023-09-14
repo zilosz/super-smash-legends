@@ -5,7 +5,7 @@ import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.event.attack.DamageEvent;
 import com.github.zilosz.ssl.game.InGameProfile;
-import com.github.zilosz.ssl.utils.collection.CollectionUtils;
+import com.github.zilosz.ssl.util.collection.CollectionUtils;
 import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;

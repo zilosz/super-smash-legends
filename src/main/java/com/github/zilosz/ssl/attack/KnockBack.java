@@ -3,7 +3,7 @@ package com.github.zilosz.ssl.attack;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.kit.KitManager;
-import com.github.zilosz.ssl.utils.math.MathUtils;
+import com.github.zilosz.ssl.util.math.MathUtils;
 import com.google.common.util.concurrent.AtomicDouble;
 import lombok.Getter;
 import lombok.Setter;

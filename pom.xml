@@ -157,6 +157,7 @@
             <groupId>com.github.ConnorLinfoot</groupId>
             <artifactId>TitleAPI</artifactId>
             <version>1.8.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>me.filoghost.holographicdisplays</groupId>
@@ -175,6 +176,7 @@
             <groupId>com.nametagedit</groupId>
             <artifactId>nametagedit</artifactId>
             <version>4.4.16</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>xyz.xenondevs</groupId>

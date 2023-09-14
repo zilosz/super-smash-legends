@@ -13,15 +13,16 @@ import com.github.zilosz.ssl.command.ReloadConfigCommand;
 import com.github.zilosz.ssl.command.SkipCommand;
 import com.github.zilosz.ssl.command.SpecCommand;
 import com.github.zilosz.ssl.command.StartCommand;
+import com.github.zilosz.ssl.config.Resources;
 import com.github.zilosz.ssl.database.PlayerDatabase;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.GameScoreboard;
 import com.github.zilosz.ssl.kit.KitManager;
 import com.github.zilosz.ssl.team.TeamManager;
-import com.github.zilosz.ssl.utils.file.FileUtility;
-import com.github.zilosz.ssl.utils.file.YamlReader;
-import com.github.zilosz.ssl.utils.world.CustomWorldType;
-import com.github.zilosz.ssl.utils.world.WorldManager;
+import com.github.zilosz.ssl.util.file.FileUtility;
+import com.github.zilosz.ssl.util.file.YamlReader;
+import com.github.zilosz.ssl.util.world.CustomWorldType;
+import com.github.zilosz.ssl.util.world.WorldManager;
 import fr.minuskube.inv.InventoryManager;
 import io.github.thatkawaiisam.assemble.Assemble;
 import lombok.Getter;
@@ -54,8 +55,8 @@ public class SSL extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        FileUtility.deleteWorld(CustomWorldType.LOBBY.getWorldName());
-        FileUtility.deleteWorld(CustomWorldType.ARENA.getWorldName());
+        FileUtility.deleteWorld(this.getLogger(), CustomWorldType.LOBBY.getWorldName());
+        FileUtility.deleteWorld(this.getLogger(), CustomWorldType.ARENA.getWorldName());
     }
 
     @Override

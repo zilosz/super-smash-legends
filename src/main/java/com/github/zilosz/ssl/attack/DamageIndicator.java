@@ -1,8 +1,8 @@
 package com.github.zilosz.ssl.attack;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.utils.entity.EntityUtils;
-import com.github.zilosz.ssl.utils.message.MessageUtils;
+import com.github.zilosz.ssl.util.entity.EntityUtils;
+import com.github.zilosz.ssl.util.message.MessageUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;

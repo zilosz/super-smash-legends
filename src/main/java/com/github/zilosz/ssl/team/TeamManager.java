@@ -1,7 +1,7 @@
 package com.github.zilosz.ssl.team;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.utils.effects.ColorType;
+import com.github.zilosz.ssl.util.effects.ColorType;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;

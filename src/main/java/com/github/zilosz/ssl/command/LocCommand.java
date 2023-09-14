@@ -1,6 +1,6 @@
 package com.github.zilosz.ssl.command;
 
-import com.github.zilosz.ssl.utils.math.MathUtils;
+import com.github.zilosz.ssl.util.math.MathUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;

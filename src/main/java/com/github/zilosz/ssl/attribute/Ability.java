@@ -1,11 +1,11 @@
 package com.github.zilosz.ssl.attribute;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.utils.HotbarItem;
-import com.github.zilosz.ssl.utils.ItemBuilder;
-import com.github.zilosz.ssl.utils.file.YamlReader;
-import com.github.zilosz.ssl.utils.message.MessageUtils;
-import com.github.zilosz.ssl.utils.message.Replacers;
+import com.github.zilosz.ssl.util.HotbarItem;
+import com.github.zilosz.ssl.util.ItemBuilder;
+import com.github.zilosz.ssl.util.file.YamlReader;
+import com.github.zilosz.ssl.util.message.MessageUtils;
+import com.github.zilosz.ssl.util.message.Replacers;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import lombok.Getter;
 import org.bukkit.Sound;

@@ -2,9 +2,9 @@ package com.github.zilosz.ssl.attribute;
 
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import com.github.zilosz.ssl.event.attribute.AbilityUseEvent;
-import com.github.zilosz.ssl.utils.entity.EntityUtils;
-import com.github.zilosz.ssl.utils.message.Chat;
-import com.github.zilosz.ssl.utils.message.MessageUtils;
+import com.github.zilosz.ssl.util.entity.EntityUtils;
+import com.github.zilosz.ssl.util.message.Chat;
+import com.github.zilosz.ssl.util.message.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.player.PlayerInteractEvent;
 

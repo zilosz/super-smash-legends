@@ -1,7 +1,7 @@
 package com.github.zilosz.ssl.game;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.utils.message.MessageUtils;
+import com.github.zilosz.ssl.util.message.MessageUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import io.github.thatkawaiisam.assemble.AssembleAdapter;
 import org.apache.commons.lang.StringUtils;

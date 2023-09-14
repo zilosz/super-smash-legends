@@ -1,7 +1,7 @@
 package com.github.zilosz.ssl.attribute;
 
 import com.github.zilosz.ssl.event.PotionEffectEvent;
-import com.github.zilosz.ssl.utils.file.YamlReader;
+import com.github.zilosz.ssl.util.file.YamlReader;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 

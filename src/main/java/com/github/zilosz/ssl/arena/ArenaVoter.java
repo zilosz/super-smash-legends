@@ -1,12 +1,12 @@
 package com.github.zilosz.ssl.arena;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.utils.ItemBuilder;
-import com.github.zilosz.ssl.utils.inventory.AutoUpdatesSoft;
-import com.github.zilosz.ssl.utils.inventory.CustomInventory;
-import com.github.zilosz.ssl.utils.inventory.HasRandomOption;
-import com.github.zilosz.ssl.utils.message.Chat;
-import com.github.zilosz.ssl.utils.message.Replacers;
+import com.github.zilosz.ssl.util.ItemBuilder;
+import com.github.zilosz.ssl.util.inventory.AutoUpdatesSoft;
+import com.github.zilosz.ssl.util.inventory.CustomInventory;
+import com.github.zilosz.ssl.util.inventory.HasRandomOption;
+import com.github.zilosz.ssl.util.message.Chat;
+import com.github.zilosz.ssl.util.message.Replacers;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;

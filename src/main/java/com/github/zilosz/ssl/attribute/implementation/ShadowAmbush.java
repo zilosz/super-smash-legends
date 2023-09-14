@@ -2,10 +2,10 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.attribute.RightClickAbility;
 import com.github.zilosz.ssl.event.PotionEffectEvent;
-import com.github.zilosz.ssl.utils.effects.ParticleMaker;
-import com.github.zilosz.ssl.utils.entity.EntityUtils;
-import com.github.zilosz.ssl.utils.entity.finder.EntityFinder;
-import com.github.zilosz.ssl.utils.entity.finder.selector.implementation.DistanceSelector;
+import com.github.zilosz.ssl.util.effects.ParticleMaker;
+import com.github.zilosz.ssl.util.entity.EntityUtils;
+import com.github.zilosz.ssl.util.entity.finder.EntityFinder;
+import com.github.zilosz.ssl.util.entity.finder.selector.implementation.DistanceSelector;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;

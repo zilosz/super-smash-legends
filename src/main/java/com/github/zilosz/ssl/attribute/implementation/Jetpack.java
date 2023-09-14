@@ -2,8 +2,8 @@ package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.attribute.PassiveAbility;
 import com.github.zilosz.ssl.event.attribute.EnergyEvent;
-import com.github.zilosz.ssl.utils.effects.ParticleMaker;
-import com.github.zilosz.ssl.utils.entity.EntityUtils;
+import com.github.zilosz.ssl.util.effects.ParticleMaker;
+import com.github.zilosz.ssl.util.entity.EntityUtils;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;

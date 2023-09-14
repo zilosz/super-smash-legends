@@ -1,6 +1,6 @@
 package com.github.zilosz.ssl.command;
 
-import com.github.zilosz.ssl.utils.message.Chat;
+import com.github.zilosz.ssl.util.message.Chat;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

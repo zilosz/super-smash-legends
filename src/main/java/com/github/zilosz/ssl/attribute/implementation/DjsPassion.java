@@ -1,7 +1,7 @@
 package com.github.zilosz.ssl.attribute.implementation;
 
 import com.github.zilosz.ssl.attribute.RightClickAbility;
-import com.github.zilosz.ssl.utils.message.Chat;
+import com.github.zilosz.ssl.util.message.Chat;
 import lombok.Setter;
 import org.bukkit.Sound;
 import org.bukkit.event.player.PlayerInteractEvent;

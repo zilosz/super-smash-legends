@@ -1,6 +1,6 @@
 package com.github.zilosz.ssl.kit;
 
-import com.github.zilosz.ssl.utils.message.MessageUtils;
+import com.github.zilosz.ssl.util.message.MessageUtils;
 
 public enum KitAccessType {
     ACCESSIBLE {

@@ -1,10 +1,10 @@
 package com.github.zilosz.ssl.arena;
 
 import com.github.zilosz.ssl.SSL;
-import com.github.zilosz.ssl.utils.file.FileUtility;
-import com.github.zilosz.ssl.utils.file.YamlReader;
-import com.github.zilosz.ssl.utils.message.MessageUtils;
-import com.github.zilosz.ssl.utils.world.CustomWorldType;
+import com.github.zilosz.ssl.util.file.FileUtility;
+import com.github.zilosz.ssl.util.file.YamlReader;
+import com.github.zilosz.ssl.util.message.MessageUtils;
+import com.github.zilosz.ssl.util.world.CustomWorldType;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

@@ -3,7 +3,7 @@ package com.github.zilosz.ssl.attribute.implementation;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.Attribute;
 import com.github.zilosz.ssl.event.attribute.DoubleJumpEvent;
-import com.github.zilosz.ssl.utils.entity.EntityUtils;
+import com.github.zilosz.ssl.util.entity.EntityUtils;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;

@@ -1,7 +1,7 @@
 package com.github.zilosz.ssl.projectile;
 
 import com.github.zilosz.ssl.attack.AttackInfo;
-import com.github.zilosz.ssl.utils.NmsUtils;
+import com.github.zilosz.ssl.util.NmsUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.Location;
 import org.bukkit.entity.Arrow;
