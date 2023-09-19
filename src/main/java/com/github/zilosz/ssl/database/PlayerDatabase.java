@@ -72,7 +72,7 @@ public class PlayerDatabase {
     }
 
     private Section getConfig() {
-        return SSL.getInstance().getResources().getConfig().getSection("Database");
+        return SSL.getInstance().getResources().getDatabase();
     }
 
     public void setupPlayerData(Player player) {

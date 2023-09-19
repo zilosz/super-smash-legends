@@ -110,3 +110,6 @@ buildNumber.properties
 
 # Common working directory
 run/
+
+# Sensitive information
+src/main/resources/database.yml

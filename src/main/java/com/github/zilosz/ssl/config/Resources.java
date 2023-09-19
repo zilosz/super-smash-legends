@@ -15,6 +15,7 @@ public class Resources {
     @Getter private final YamlDocument lobby;
     @Getter private final YamlDocument config;
     @Getter private final YamlDocument arenas;
+    @Getter private final YamlDocument database;
 
     private final Map<KitType, YamlDocument> kits = new HashMap<>();
     private final Map<AbilityType, YamlDocument> abilities = new HashMap<>();
@@ -24,6 +25,7 @@ public class Resources {
         this.items = FileUtility.loadYaml(SSL.getInstance(), "items");
         this.lobby = FileUtility.loadYaml(SSL.getInstance(), "lobby");
         this.arenas = FileUtility.loadYaml(SSL.getInstance(), "arenas");
+        this.database = FileUtility.loadYaml(SSL.getInstance(), "database");
 
         for (KitType kitType : KitType.values()) {
             String path = FileUtility.buildPath("kits", kitType.getFileName());

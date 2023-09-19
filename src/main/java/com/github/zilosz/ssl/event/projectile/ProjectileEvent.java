@@ -5,8 +5,9 @@ import com.github.zilosz.ssl.projectile.CustomProjectile;
 import lombok.Getter;
 import org.bukkit.entity.Entity;
 
+@Getter
 public class ProjectileEvent extends CustomEvent {
-    @Getter private final CustomProjectile<? extends Entity> projectile;
+    private final CustomProjectile<? extends Entity> projectile;
 
     public ProjectileEvent(CustomProjectile<? extends Entity> projectile) {
         this.projectile = projectile;

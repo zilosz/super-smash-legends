@@ -14,12 +14,6 @@ Description:
   - ""
   - "&2&lArena - {ARENA} &7by &f&l{AUTHORS}"
   - "&5&l------------------------------"
-Database:
-  Uri: "mongodb+srv://Owner:ezwinzjits@supersmashlegends.z6t50wq.mongodb.net/?retryWrites=true&w=majority"
-  Database: SuperSmash
-  Collection: Players
-  Enabled: true
-  SaveData: true
 Kit:
   HologramHeight: 2.7
   Default: BARBARIAN

@@ -1,0 +1,5 @@
+Uri: "mongodb+srv://Owner:ezwinzjits@supersmashlegends.z6t50wq.mongodb.net/?retryWrites=true&w=majority"
+Database: SuperSmash
+Collection: Players
+Enabled: true
+SaveData: true
