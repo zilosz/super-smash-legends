@@ -7,7 +7,7 @@ Description:
   - "&7paths with him when he's using this ability!"
 AutoStartCooldown: false
 Cooldown: 140
-Velocity: 1.25
+Velocity: 1.05
 HitBox: 1.75
 Damage: 5.5
 Kb: 2.4

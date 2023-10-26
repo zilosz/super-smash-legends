@@ -8,7 +8,7 @@ Description:
   - "&7weapon-wielding powers."
 Cooldown: 60
 Projectile:
-  Speed: 1.7
+  Speed: 1.6
   Damage: 5
   Kb: 1.4
   KbY: 0.5

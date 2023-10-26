@@ -62,7 +62,8 @@ public abstract class Ability extends Attribute {
     public void sendDescription() {
         this.player.playSound(this.player.getLocation(), Sound.ORB_PICKUP, 1, 1);
 
-        Replacers replacers = new Replacers().add("COLOR", this.kit.getColor().getChatSymbol())
+        Replacers replacers = new Replacers()
+                .add("COLOR", this.kit.getColor().getChatSymbol())
                 .add("DISPLAY_NAME", this.getDisplayName())
                 .add("USE_TYPE", this.getUseType())
                 .add("DESCRIPTION", this.getDescription());

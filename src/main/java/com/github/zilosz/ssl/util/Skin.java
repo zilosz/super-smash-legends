@@ -63,11 +63,15 @@ public class Skin {
         }
     }
 
-    public SelfSkinShower apply(Plugin plugin, Player player) {
+    public SelfSkinShower apply(Plugin plugin, Player player, Runnable callback) {
         this.showToOthers(player);
         Location oldLoc = player.getLocation();
         player.teleport(new Location(Bukkit.getWorld("world"), 0, 120, 0));
-        return showToPlayer(plugin, player, () -> player.teleport(oldLoc));
+
+        return showToPlayer(plugin, player, () -> {
+            player.teleport(oldLoc);
+            callback.run();
+        });
     }
 
     private void showToOthers(Player player) {

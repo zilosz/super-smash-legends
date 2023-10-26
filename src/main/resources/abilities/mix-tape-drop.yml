@@ -7,7 +7,7 @@ Description:
   - "&7small area of effect upon hitting blocks."
   - "&7The mixtape is so fire that it explodes"
   - "&7your boombox on contact. Gives recoil."
-Cooldown: 60
+Cooldown: 70
 Recoil: 1.3
 Projectile:
   Damage: 6

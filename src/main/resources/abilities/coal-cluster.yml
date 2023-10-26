@@ -8,7 +8,7 @@ Description:
   - "&7hot and may even burn the enemy."
 Cooldown: 120
 Cluster:
-  Speed: 1
+  Speed: 0.9
   BurnChance: 0.3
   BurnDuration: 50
   FragmentCount: 15
@@ -22,7 +22,7 @@ Cluster:
   Fragment:
     BurnChance: 0.1
     BurnDuration: 25
-    Speed: 0.8
+    Speed: 0.7
     Damage: 2.6
     Kb: 1.9
     Item:

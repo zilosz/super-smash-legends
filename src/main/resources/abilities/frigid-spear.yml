@@ -10,7 +10,7 @@ Cooldown: 100
 Projectile:
   Speed: 1.7
   FactorsArmor: false
-  Damage: 3
+  Damage: 4
   Kb: -1.2
   KbY: 0.5
   Item:

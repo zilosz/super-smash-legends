@@ -11,7 +11,7 @@ Description:
 Cooldown: 160
 AutoStartCooldown: false
 MinVelocity: 0.4
-MaxVelocity: 2.1
+MaxVelocity: 1.75
 MaxVelocityY: 0.275
 DurationTicks: 35
 MinDamage: 1

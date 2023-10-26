@@ -178,9 +178,14 @@ public class KitManager implements Listener {
             SSL.getInstance().getGameManager().getProfile(player).setKit(newKit);
         }
 
+        Runnable noiseRunner = () -> newKit.getHurtNoise().playForPlayer(player);
+
         if (state.updatesKitSkins()) {
             Optional.ofNullable(this.selfSkinShowers.remove(player)).ifPresent(Skin.SelfSkinShower::cancel);
-            this.selfSkinShowers.put(player, newKit.getSkin().apply(SSL.getInstance(), player));
+            this.selfSkinShowers.put(player, newKit.getSkin().apply(SSL.getInstance(), player, noiseRunner));
+
+        } else {
+            noiseRunner.run();
         }
 
         Optional.ofNullable(this.selectedKits.put(player, newKit)).ifPresentOrElse(oldKit -> {
@@ -197,7 +202,6 @@ public class KitManager implements Listener {
         this.updateAccessHologram(player, KitAccessType.SELECTED, kitType);
 
         Chat.KIT.send(player, String.format("&7You have selected the %s &7kit.", newKit.getDisplayName()));
-        newKit.getHurtNoise().playForPlayer(player);
 
         return newKit;
     }

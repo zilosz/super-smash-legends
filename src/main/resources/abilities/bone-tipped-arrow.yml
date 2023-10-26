@@ -7,4 +7,4 @@ Description:
   - "&7powerful, ranged weapons."
 AmountAtOnce: 1
 MaxAmount: 3
-TicksPerItem: 60
+TicksPerItem: 70
