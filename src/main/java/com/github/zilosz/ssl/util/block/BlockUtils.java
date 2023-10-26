@@ -88,6 +88,7 @@ public class BlockUtils {
         return findBlockHitByBox(location, box.d - box.a, box.e - box.b, box.f - box.c, accuracy);
     }
 
+    @SuppressWarnings("deprecation")
     public static void setBlockFast(Location loc, MaterialInfo info) {
         World nmsWorld = ((CraftWorld) loc.getWorld()).getHandle();
         Chunk nmsChunk = nmsWorld.getChunkAt(loc.getBlockX() >> 4, loc.getBlockZ() >> 4);
@@ -101,6 +102,7 @@ public class BlockUtils {
         return spawnFallingBlock(location, material, (byte) 0);
     }
 
+    @SuppressWarnings("deprecation")
     public static FallingBlock spawnFallingBlock(Location location, Material material, byte data) {
         FallingBlock block = location.getWorld().spawnFallingBlock(location, material, data);
         block.setHurtEntities(false);

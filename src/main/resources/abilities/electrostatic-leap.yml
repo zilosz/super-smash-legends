@@ -8,7 +8,7 @@ Description:
   - "&7hurting enemies within a nearby radius."
 Cooldown: 160
 Radius: 4
-Velocity: 1.5
+Velocity: 1.3
 HitBox: 1.3
 Damage: 6
 Kb: 1.6

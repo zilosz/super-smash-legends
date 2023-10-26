@@ -19,8 +19,8 @@ HitBox: 0.6
 Kb: 1.2
 KbY: 0.5
 Damage: 2.5
-Width: 4
-Height: 4
+Width: 4.5
+Height: 4.5
 Lifespan: 80
 HitsMultiple: true
 HasGravity: false

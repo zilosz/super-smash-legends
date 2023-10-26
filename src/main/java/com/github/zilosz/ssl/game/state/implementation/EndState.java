@@ -250,7 +250,7 @@ public class EndState extends GameState {
                     player.playSound(player.getLocation(), Sound.CLICK, 1, this.pitch);
                 }
 
-                this.pitch += 1.5 / this.secondsLeft;
+                this.pitch += 1.5f / this.secondsLeft;
                 this.secondsLeft--;
             }
 

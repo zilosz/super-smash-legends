@@ -12,7 +12,7 @@ KbY: 0.7
 MinDamage: 2
 MaxDamage: 6.5
 MinKb: 1
-MaxKb: 2.5
+MaxKb: 2.3
 MinRange: 5
-MaxRange: 45
+MaxRange: 40
 HitBox: 1

@@ -38,7 +38,6 @@ import org.bukkit.util.Vector;
 import java.io.File;
 
 @Getter
-@SuppressWarnings("OverlyCoupledClass")
 public class SSL extends JavaPlugin {
     @Getter private static SSL instance;
 

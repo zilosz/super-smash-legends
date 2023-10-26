@@ -9,10 +9,10 @@ Description:
   - "&7direction."
 Cooldown: 140
 ExtraWebCount: 15
-ConicAngle: 7
+ConicAngle: 6
 Velocity: 1.5
 Projectile:
-  Spread: 5
+  Spread: 4
   Speed: 1.8
   Damage: 5
   WebDuration: 40

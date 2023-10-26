@@ -10,6 +10,6 @@ Cooldown: 130
 AutoStartCooldown: false
 ChainSpeed: 1.2
 ChainTicks: 40
-PullSpeed: 1.3
+PullSpeed: 1.2
 Damage: 5.5
-HitBox: 1
+HitBox: 1.1

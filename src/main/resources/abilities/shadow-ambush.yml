@@ -6,5 +6,5 @@ Description:
   - "&7behind the nearest enemy, surprising"
   - "&7and blinding them."
 Cooldown: 140
-Range: 11
-BlindnessDuration: 45
+Range: 10
+BlindnessDuration: 40
