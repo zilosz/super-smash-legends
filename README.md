@@ -2,7 +2,7 @@
 
 ### What Is This? ###
 
-A Minecraft combat mini-game inspired by Nintendo's Super Smash Bros.
+A Minecraft combat mini-game built using the Spigot API. Inspired by Nintendo's Super Smash Bros.
 
 ### Features ###
 
