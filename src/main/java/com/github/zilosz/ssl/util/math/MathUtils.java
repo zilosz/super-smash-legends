@@ -24,10 +24,6 @@ public class MathUtils {
         return ((int) (2 * n + 0.5)) / 2.0;
     }
 
-    public static boolean isBetween(double value, double min, double max) {
-        return min <= value && value <= max;
-    }
-
     public static double increasingValue(double min, double max, double rangeAtMax, double x) {
         return x * (max - min) / rangeAtMax + min;
     }
@@ -46,6 +42,7 @@ public class MathUtils {
         displacement.setZ(Math.sin(radians) * radius);
         VectorUtils.aroundX(displacement, (pitch + 90) * Math.PI / 180);
         VectorUtils.aroundY(displacement, -yaw * Math.PI / 180);
+
         return center.clone().add(displacement);
     }
 

@@ -20,6 +20,7 @@ public class MessageUtils {
         int fullCount = (int) Math.ceil((charCount * full / total));
         String fullBars = fullColor + StringUtils.repeat(fullChar, fullCount);
         String emptyBars = emptyColor + StringUtils.repeat(emptyChar, charCount - fullCount);
+
         return color(fullBars + emptyBars);
     }
 

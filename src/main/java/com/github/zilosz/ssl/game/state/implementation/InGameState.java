@@ -109,9 +109,8 @@ public class InGameState extends GameState {
             scoreboard.add("&f&lKit");
             scoreboard.add("{KIT}");
 
-            try {
-                replacers.add("KIT", SSL.getInstance().getKitManager().getSelectedKit(player).getDisplayName());
-            } catch (NullPointerException ignored) {}
+            Optional.ofNullable(SSL.getInstance().getKitManager().getSelectedKit(player))
+                    .ifPresent(kit -> replacers.add("KIT", kit.getDisplayName()));
         }
 
         scoreboard.add(GameScoreboard.getLine());
@@ -217,6 +216,7 @@ public class InGameState extends GameState {
             if (SSL.getInstance().getGameManager().isPlayerAlive(player)) {
                 Location spawn = this.teleportToSpawnPoint(player, spawnsLeft::contains);
                 spawnsLeft.remove(spawn);
+
                 player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
 
                 if (spawnsLeft.isEmpty()) {
@@ -246,6 +246,7 @@ public class InGameState extends GameState {
         Location spawn = Collections.max(possibleSpawns, comparator);
 
         player.teleport(spawn);
+
         return spawn;
     }
 
@@ -256,15 +257,14 @@ public class InGameState extends GameState {
             if (SSL.getInstance().getGameManager().isSpectator(player)) {
                 new PlayerViewerInventory().build().open(player);
 
-            } else {
-                Optional.ofNullable(this.closestTargets.get(player)).ifPresentOrElse(target -> {
-                    String distance = FORMAT.format(EntityUtils.getDistance(player, target));
-                    String name = SSL.getInstance().getTeamManager().getPlayerColor(target) + target.getName();
-                    Chat.TRACKER.send(player, String.format("%s &7is &e%s &7blocks away.", name, distance));
-                }, () -> {
-                    Chat.TRACKER.send(player, "&7There are no players to track.");
-                });
+                return;
             }
+
+            Optional.ofNullable(this.closestTargets.get(player)).ifPresentOrElse(target -> {
+                String distance = FORMAT.format(EntityUtils.getDistance(player, target));
+                String name = SSL.getInstance().getTeamManager().getPlayerColor(target) + target.getName();
+                Chat.TRACKER.send(player, String.format("%s &7is &e%s &7blocks away.", name, distance));
+            }, () -> Chat.TRACKER.send(player, "&7There are no players to track."));
         }));
 
         this.trackerTasks.put(player, Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
@@ -384,16 +384,20 @@ public class InGameState extends GameState {
 
             if (damager instanceof Player && SSL.getInstance().getGameManager().isSpectator((Player) damager)) {
                 event.setCancelled(true);
+
                 return;
             }
         }
 
-        if (!(event.getEntity() instanceof LivingEntity)) return;
+        if (!(event.getEntity() instanceof LivingEntity)) {
+            return;
+        }
 
         LivingEntity victim = (LivingEntity) event.getEntity();
 
         if (event.getCause() == EntityDamageEvent.DamageCause.FALL || victim.getType() == EntityType.ARMOR_STAND) {
             event.setCancelled(true);
+
             return;
         }
 
@@ -413,39 +417,41 @@ public class InGameState extends GameState {
         double finalDamage = event.getFinalDamage();
         SSL.getInstance().getDamageManager().updateIndicator(event.getVictim(), finalDamage);
 
-        if (event.getVictim() instanceof Player && !SSL.getInstance().getNpcRegistry().isNPC(event.getVictim())) {
-            Player player = (Player) event.getVictim();
-            GameManager gameManager = SSL.getInstance().getGameManager();
+        if (!(event.getVictim() instanceof Player) || SSL.getInstance().getNpcRegistry().isNPC(event.getVictim())) {
+            return;
+        }
 
-            boolean isVoid = event.isVoid();
+        Player player = (Player) event.getVictim();
+        GameManager gameManager = SSL.getInstance().getGameManager();
 
-            if (gameManager.isSpectator(player) || player.getGameMode() == GameMode.SPECTATOR) {
+        boolean isVoid = event.isVoid();
+
+        if (gameManager.isSpectator(player) || player.getGameMode() == GameMode.SPECTATOR) {
+            event.setCancelled(true);
+
+            if (isVoid) {
+                player.teleport(SSL.getInstance().getArenaManager().getArena().getWaitLocation());
+                player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
+            }
+
+        } else {
+            double damageTaken;
+
+            if (event.willDie() || isVoid) {
+                damageTaken = player.getHealth();
+
                 event.setCancelled(true);
-
-                if (isVoid) {
-                    player.teleport(SSL.getInstance().getArenaManager().getArena().getWaitLocation());
-                    player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
-                }
+                this.handleDeath(player, !isVoid, isVoid, event.getAttackSource());
 
             } else {
-                double damageTaken;
+                damageTaken = finalDamage;
 
-                if (event.willDie() || isVoid) {
-                    damageTaken = player.getHealth();
-
-                    event.setCancelled(true);
-                    this.handleDeath(player, !isVoid, isVoid, event.getAttackSource());
-
-                } else {
-                    damageTaken = finalDamage;
-
-                    Kit kit = SSL.getInstance().getKitManager().getSelectedKit(player);
-                    kit.getHurtNoise().playForAll(player.getLocation());
-                }
-
-                InGameProfile profile = SSL.getInstance().getGameManager().getProfile(player);
-                profile.getStats().setDamageTaken(profile.getStats().getDamageTaken() + damageTaken);
+                Kit kit = SSL.getInstance().getKitManager().getSelectedKit(player);
+                kit.getHurtNoise().playForAll(player.getLocation());
             }
+
+            InGameProfile profile = SSL.getInstance().getGameManager().getProfile(player);
+            profile.getStats().setDamageTaken(profile.getStats().getDamageTaken() + damageTaken);
         }
     }
 

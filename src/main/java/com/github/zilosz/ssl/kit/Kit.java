@@ -26,14 +26,30 @@ import java.util.stream.IntStream;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Kit {
     private final YamlDocument config;
-    @Getter @EqualsAndHashCode.Include private final KitType type;
-    @Getter private final Jump jump;
-    @Getter private final Regeneration regeneration;
-    @Getter private final Melee melee;
-    @Getter private final Energy energy;
-    @Getter private final Skin skin;
+
+    @Getter
+    @EqualsAndHashCode.Include
+    private final KitType type;
+
+    @Getter
+    private final Jump jump;
+
+    @Getter
+    private final Regeneration regeneration;
+
+    @Getter
+    private final Melee melee;
+
+    @Getter
+    private final Energy energy;
+
+    @Getter
+    private final Skin skin;
+
     private final List<Attribute> attributes = new ArrayList<>();
-    @Getter private Player player;
+
+    @Getter
+    private Player player;
 
     public Kit(YamlDocument config, KitType type) {
         this.config = config;

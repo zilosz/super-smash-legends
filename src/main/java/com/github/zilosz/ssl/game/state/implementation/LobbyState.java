@@ -388,6 +388,7 @@ public class LobbyState extends GameState {
                 if (ability.getHotbarItem().getItemStack().getType() == Material.ARROW) {
                     event.setCancelled(true);
                     ability.getHotbarItem().show();
+
                     break;
                 }
             }

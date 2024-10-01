@@ -84,6 +84,7 @@ public class TutorialState extends GameState {
         }
 
         lines.add(GameScoreboard.getLine());
+
         return replacers.replaceLines(lines);
     }
 
@@ -102,6 +103,7 @@ public class TutorialState extends GameState {
 
         if (specCount == Bukkit.getOnlinePlayers().size()) {
             this.skipTask = Bukkit.getScheduler().runTaskLater(SSL.getInstance(), gameManager::advanceState, 5);
+
             return;
         }
 

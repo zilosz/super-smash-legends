@@ -107,6 +107,7 @@ public class Skin {
     }
 
     private void updateProfile(GameProfile gameProfile) {
+
         gameProfile.getProperties().removeAll("textures");
         gameProfile.getProperties().put("textures", new Property("textures", this.texture, this.signature));
     }
