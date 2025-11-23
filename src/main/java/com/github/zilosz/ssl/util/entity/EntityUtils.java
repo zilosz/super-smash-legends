@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 public class EntityUtils {
 
     public static boolean isPlayerGrounded(Player player) {
-        boolean isTripleGrounded = player.getLocation().subtract(0, 0.5, 0).getBlock().getType().isSolid();
+        boolean isTripleGrounded = player.getLocation().subtract(0, 0.75, 0).getBlock().getType().isSolid();
         return isTripleGrounded || ((Entity) player).isOnGround();
     }
 

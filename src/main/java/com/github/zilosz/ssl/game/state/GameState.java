@@ -4,6 +4,8 @@ import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.database.PlayerDatabase;
 import com.github.zilosz.ssl.game.GameManager;
+import com.github.zilosz.ssl.game.GameResult;
+import com.github.zilosz.ssl.game.InGameProfile;
 import com.github.zilosz.ssl.util.message.Chat;
 import com.github.zilosz.ssl.util.message.MessageUtils;
 import lombok.Getter;
@@ -94,12 +96,16 @@ public abstract class GameState implements Listener {
     public void onGeneralQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         GameManager gameManager = SSL.getInstance().getGameManager();
+        PlayerDatabase playerDb = SSL.getInstance().getPlayerDatabase();
 
         if (this.isInArena() && gameManager.isPlayerAlive(player)) {
             String color = SSL.getInstance().getTeamManager().getPlayerColor(player);
             event.setQuitMessage(Chat.QUIT.get(String.format("%s &7has quit mid-game.", color + player.getName())));
 
-            gameManager.getProfile(player).setLives(0);
+            InGameProfile profile = gameManager.getProfile(player);
+            profile.setLives(0);
+            profile.setGameResult(GameResult.LOSE);
+            profile.updatePlayerData(playerDb.getPlayerData(player));
 
             if (this.isPlaying()) {
                 SSL.getInstance().getTeamManager().getEntityTeam(player).setLifespan(gameManager.getTicksActive());
@@ -108,7 +114,6 @@ public abstract class GameState implements Listener {
                     gameManager.skipToState(GameStateType.END);
                 }
             }
-
         } else {
             event.setQuitMessage(Chat.QUIT.get(String.format("&5%s &7has quit the game.", player.getName())));
         }
@@ -118,9 +123,8 @@ public abstract class GameState implements Listener {
         gameManager.removeSpectator(player);
         gameManager.removeFutureSpectator(player);
 
-        PlayerDatabase playerDatabase = SSL.getInstance().getPlayerDatabase();
-        playerDatabase.savePlayerData(player);
-        playerDatabase.removePlayerData(player);
+        playerDb.savePlayerData(player);
+        playerDb.removePlayerData(player);
     }
 
     public abstract boolean isPlaying();

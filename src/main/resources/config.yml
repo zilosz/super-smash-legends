@@ -38,11 +38,11 @@ Game:
   Lives: 4
   MinPlayersToStart: 2
   Tutorial:
-    DurationTicks: 140
+    DurationTicks: 200
     DelayTicks: 40
   LobbyCountdown:
-    Seconds: 20
-    NotifyInterval: 5
+    Seconds: 60
+    NotifyInterval: 10
     NotifyThreshold: 5
   Timer:
     DefaultSeconds: 720

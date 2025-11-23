@@ -218,10 +218,10 @@ public class EndState extends GameState {
             InGameProfile profile = gameManager.getProfile(player);
             profile.getKit().destroy();
 
-            if (playerRanks.size() > 1) {
-                PlayerDatabase playerDatabase = SSL.getInstance().getPlayerDatabase();
-                profile.updatePlayerData(playerDatabase.getPlayerData(player));
-                playerDatabase.savePlayerData(player);
+            if (playerRanks.size() > 1 && player.isOnline()) {
+                PlayerDatabase playerDb = SSL.getInstance().getPlayerDatabase();
+                profile.updatePlayerData(playerDb.getPlayerData(player));
+                playerDb.savePlayerData(player);
             }
         }
 

@@ -66,7 +66,7 @@ public class IncarnationSlam extends RightClickAbility {
                     target.getWorld().playSound(target.getLocation(), Sound.SLIME_ATTACK, 2, 2);
 
                     ItemStack stack = new ItemStack(Material.SLIME_BALL);
-                    Effects.itemBoom(SSL.getInstance(), target.getLocation(), stack, 4, 0.3, 5);
+                    Effects.itemBoom(SSL.getInstance(), target.getLocation(), stack, 4, 0.3, 10);
                 }
             });
         }, 4, 0);

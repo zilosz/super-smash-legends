@@ -81,10 +81,6 @@
             <id>codemc-repo</id>
             <url>https://repo.codemc.io/repository/maven-public/</url>
         </repository>
-        <repository>
-            <id>upstream</id>
-            <url>https://ci.nametagedit.com/plugin/repository/everything/</url>
-        </repository>
     </repositories>
 
     <dependencies>
@@ -151,7 +147,7 @@
             <artifactId>ActionBarAPI</artifactId>
             <version>1.5.4</version>
             <scope>system</scope>
-            <systemPath>${basedir}/lib/ActionBarAPI-1.5.4.jar</systemPath>
+            <systemPath>${basedir}/lib/ActionBarAPI.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.github.ConnorLinfoot</groupId>
@@ -175,8 +171,9 @@
         <dependency>
             <groupId>com.nametagedit</groupId>
             <artifactId>nametagedit</artifactId>
-            <version>4.4.16</version>
-            <scope>provided</scope>
+            <version>4.0.2</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/NametagEdit.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>xyz.xenondevs</groupId>

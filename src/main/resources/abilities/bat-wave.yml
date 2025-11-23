@@ -6,7 +6,8 @@ Description:
   - "&7enemies from a distance and pull"
   - "&7yourself if needed. The bats are"
   - "&7stronger than you think! Press"
-  - "&7'q' to sling yourself forward once."
+  - "&7the drop button to sling yourself"
+  - "&7forward once."
 Cooldown: 80
 AutoStartCooldown: false
 AutoSendUseMessage: false

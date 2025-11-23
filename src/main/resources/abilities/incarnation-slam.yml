@@ -11,8 +11,8 @@ Description:
 Cooldown: 140
 AutoStartCooldown: false
 Velocity: 2
-SlimeSize: 2
-HitBox: 1.25
+SlimeSize: 3
+HitBox: 3
 Damage: 6
 Kb: 2.1
 KbY: 0.85

@@ -6,13 +6,13 @@ Description:
   - "&7strike. Hits foes in the direction you are"
   - "&7facing once you stop charging."
 Cooldown: 140
-MinChargeTicks: 10
-MaxChargeTicks: 40
+MinChargeTicks: 15
+MaxChargeTicks: 50
 KbY: 0.7
 MinDamage: 2
-MaxDamage: 6.5
+MaxDamage: 6
 MinKb: 1
-MaxKb: 2.3
+MaxKb: 2.1
 MinRange: 5
-MaxRange: 40
+MaxRange: 35
 HitBox: 1

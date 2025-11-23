@@ -11,6 +11,7 @@ public class DisguiseUtils {
         disguise.getWatcher().setCustomName(entity.getName());
         disguise.getWatcher().setCustomNameVisible(true);
         disguise.setHideHeldItemFromSelf(true);
+
         return disguise.setViewSelfDisguise(false);
     }
 }
