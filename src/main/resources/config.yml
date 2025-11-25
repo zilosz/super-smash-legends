@@ -61,8 +61,8 @@ Damage:
       Player: 1.5
   Melee:
     Name: "&cMelee"
-    Kb: 1.05
-    KbY: 0.6
+    Kb: 1.1
+    KbY: 0.65
     FactorsKit: false
     FactorsHealth: false
   MinKbHealthMultiplier: 1
@@ -70,7 +70,7 @@ Damage:
 Projectile:
   Lifespan: 200
   HitBox: 0.8
-JumpGroundBooster: 0.2
+JumpGroundBooster: 0.1
 WorldTimeUpdater:
   Frequency: 5
   Time: 6000

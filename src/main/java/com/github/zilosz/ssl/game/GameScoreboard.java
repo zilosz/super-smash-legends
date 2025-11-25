@@ -11,21 +11,21 @@ import java.util.List;
 
 public class GameScoreboard implements AssembleAdapter {
 
-    public static String getLine() {
-        return "&5&l" + StringUtils.repeat("-", getConfig().getInt("Width"));
-    }
+  public static String getLine() {
+    return "&5&l" + StringUtils.repeat("-", getConfig().getInt("Width"));
+  }
 
-    private static Section getConfig() {
-        return SSL.getInstance().getResources().getConfig().getSection("Game.Scoreboard");
-    }
+  private static Section getConfig() {
+    return SSL.getInstance().getResources().getConfig().getSection("Game.Scoreboard");
+  }
 
-    @Override
-    public String getTitle(Player player) {
-        return MessageUtils.color(getConfig().getString("Title"));
-    }
+  @Override
+  public String getTitle(Player player) {
+    return MessageUtils.color(getConfig().getString("Title"));
+  }
 
-    @Override
-    public List<String> getLines(Player player) {
-        return SSL.getInstance().getGameManager().getState().getScoreboard(player);
-    }
+  @Override
+  public List<String> getLines(Player player) {
+    return SSL.getInstance().getGameManager().getState().getScoreboard(player);
+  }
 }

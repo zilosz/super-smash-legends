@@ -1,14 +1,11 @@
 package com.github.zilosz.ssl.util.inventory;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor
 public class InventoryCoordinate {
-    private final int row;
-    private final int column;
-
-    public InventoryCoordinate(int row, int column) {
-        this.row = row;
-        this.column = column;
-    }
+  private final int row;
+  private final int column;
 }

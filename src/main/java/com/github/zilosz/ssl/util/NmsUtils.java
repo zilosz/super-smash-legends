@@ -17,31 +17,31 @@ import org.bukkit.entity.Player;
 
 public class NmsUtils {
 
-    public static net.minecraft.server.v1_8_R3.Entity getEntity(Entity entity) {
-        return ((CraftEntity) entity).getHandle();
-    }
+  public static net.minecraft.server.v1_8_R3.Entity getEntity(Entity entity) {
+    return ((CraftEntity) entity).getHandle();
+  }
 
-    public static EntityLiving getLiving(LivingEntity entity) {
-        return ((CraftLivingEntity) entity).getHandle();
-    }
+  public static EntityLiving getLiving(LivingEntity entity) {
+    return ((CraftLivingEntity) entity).getHandle();
+  }
 
-    public static net.minecraft.server.v1_8_R3.World getWorld(World world) {
-        return ((CraftWorld) world).getHandle();
-    }
+  public static net.minecraft.server.v1_8_R3.World getWorld(World world) {
+    return ((CraftWorld) world).getHandle();
+  }
 
-    public static void broadcastPacket(Packet<? extends PacketListener> packet) {
-        Bukkit.getOnlinePlayers().forEach(player -> sendPacket(player, packet));
-    }
+  public static void broadcastPacket(Packet<? extends PacketListener> packet) {
+    Bukkit.getOnlinePlayers().forEach(player -> sendPacket(player, packet));
+  }
 
-    public static void sendPacket(Player player, Packet<? extends PacketListener> packet) {
-        getConnection(player).sendPacket(packet);
-    }
+  public static void sendPacket(Player player, Packet<? extends PacketListener> packet) {
+    getConnection(player).sendPacket(packet);
+  }
 
-    public static PlayerConnection getConnection(Player player) {
-        return getPlayer(player).playerConnection;
-    }
+  public static PlayerConnection getConnection(Player player) {
+    return getPlayer(player).playerConnection;
+  }
 
-    public static EntityPlayer getPlayer(Player player) {
-        return ((CraftPlayer) player).getHandle();
-    }
+  public static EntityPlayer getPlayer(Player player) {
+    return ((CraftPlayer) player).getHandle();
+  }
 }

@@ -19,152 +19,163 @@ import java.util.Optional;
 import java.util.Set;
 
 public class AttackManager {
-    private final Map<LivingEntity, DamageIndicator> indicators = new HashMap<>();
-    private final Map<LivingEntity, BukkitTask> indicatorRemovers = new HashMap<>();
-    private final Set<LivingEntity> entitiesWithInvisibleIndicator = new HashSet<>();
+  private final Map<LivingEntity, DamageIndicator> indicators = new HashMap<>();
+  private final Map<LivingEntity, BukkitTask> indicatorRemovers = new HashMap<>();
+  private final Set<LivingEntity> entitiesWithInvisIndic = new HashSet<>();
 
-    private final Map<Player, Double> playerComboDamages = new HashMap<>();
-    private final Map<Player, BukkitTask> comboDamageRemovers = new HashMap<>();
+  private final Map<Player, Double> playerComboDamages = new HashMap<>();
+  private final Map<Player, BukkitTask> comboDamageRemovers = new HashMap<>();
 
-    private final Map<LivingEntity, AttackSource> lastDamageSources = new HashMap<>();
-    private final Map<LivingEntity, BukkitTask> lastDamageRemovers = new HashMap<>();
+  private final Map<LivingEntity, AttackSource> lastDamageSources = new HashMap<>();
+  private final Map<LivingEntity, BukkitTask> lastDamageRemovers = new HashMap<>();
 
-    private final Map<LivingEntity, Map<AttackInfo, BukkitTask>> immunities = new HashMap<>();
+  private final Map<LivingEntity, Map<AttackInfo, BukkitTask>> immunities = new HashMap<>();
 
-    public AttackSource getLastAttackSource(LivingEntity entity) {
-        return this.lastDamageSources.get(entity);
+  public AttackSource getLastAttackSource(LivingEntity entity) {
+    return lastDamageSources.get(entity);
+  }
+
+  public void updateIndicator(LivingEntity entity, double damage) {
+    DamageIndicator indicator;
+
+    if (indicators.containsKey(entity)) {
+      indicator = indicators.get(entity);
+      indicatorRemovers.remove(entity).cancel();
+      indicator.updateDamage(damage);
+    }
+    else {
+      indicator = DamageIndicator.create(entity, damage);
+      indicators.put(entity, indicator);
+
+      if (entitiesWithInvisIndic.contains(entity)) {
+        indicator.setVisibility(VisibilitySettings.Visibility.HIDDEN);
+      }
     }
 
-    public void updateIndicator(LivingEntity entity, double damage) {
-        DamageIndicator indicator;
+    indicatorRemovers.put(entity, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
+      clearIndicator(entity);
+    }, getComboDuration()));
+  }
 
-        if (this.indicators.containsKey(entity)) {
-            indicator = this.indicators.get(entity);
-            this.indicatorRemovers.remove(entity).cancel();
-            indicator.updateDamage(damage);
+  public void clearIndicator(LivingEntity entity) {
+    Optional.ofNullable(indicators.remove(entity)).ifPresent(DamageIndicator::destroy);
+    Optional.ofNullable(indicatorRemovers.remove(entity)).ifPresent(BukkitTask::cancel);
+  }
 
-        } else {
-            indicator = DamageIndicator.create(entity, damage);
-            this.indicators.put(entity, indicator);
+  private int getComboDuration() {
+    return SSL.getInstance().getResources().getConfig().getInt("Damage.Indicator.ComboDuration");
+  }
 
-            if (this.entitiesWithInvisibleIndicator.contains(entity)) {
-                indicator.setGlobalVisibility(VisibilitySettings.Visibility.HIDDEN);
-            }
-        }
+  public void hideEntityIndicator(LivingEntity entity) {
+    entitiesWithInvisIndic.add(entity);
 
-        this.indicatorRemovers.put(entity, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
-            this.clearIndicator(entity);
-        }, this.getComboDuration()));
+    Optional
+        .ofNullable(indicators.get(entity))
+        .ifPresent(ind -> ind.setVisibility(VisibilitySettings.Visibility.HIDDEN));
+  }
+
+  public void showEntityIndicator(LivingEntity entity) {
+    entitiesWithInvisIndic.remove(entity);
+
+    Optional
+        .ofNullable(indicators.get(entity))
+        .ifPresent(ind -> ind.setVisibility(VisibilitySettings.Visibility.VISIBLE));
+  }
+
+  public boolean attack(LivingEntity victim, Attack attack, AttackInfo attackInfo) {
+    if (immunities.containsKey(victim) && immunities.get(victim).containsKey(attackInfo)) {
+      return false;
     }
 
-    public void clearIndicator(LivingEntity entity) {
-        Optional.ofNullable(this.indicators.remove(entity)).ifPresent(DamageIndicator::destroy);
-        Optional.ofNullable(this.indicatorRemovers.remove(entity)).ifPresent(BukkitTask::cancel);
+    AttackEvent attackEvent = new AttackEvent(victim, attack, attackInfo);
+    Bukkit.getPluginManager().callEvent(attackEvent);
+
+    if (attackEvent.isCancelled()) {
+      return false;
     }
 
-    private int getComboDuration() {
-        return SSL.getInstance().getResources().getConfig().getInt("Damage.Indicator.ComboDuration");
+    Attribute attribute = attackInfo.getAttribute();
+    AttackSource attackSource = new AttackSource(attribute, attack);
+
+    DamageEvent damageEvent = new DamageEvent(victim, attack.getDamage(), false, attackSource);
+    Bukkit.getPluginManager().callEvent(damageEvent);
+
+    if (damageEvent.isCancelled()) {
+      return false;
     }
 
-    public void hideEntityIndicator(LivingEntity entity) {
-        this.entitiesWithInvisibleIndicator.add(entity);
+    attack.getKb().getFinalKbVector(victim).ifPresent(victim::setVelocity);
 
-        Optional.ofNullable(this.indicators.get(entity))
-                .ifPresent(indicator -> indicator.setGlobalVisibility(VisibilitySettings.Visibility.HIDDEN));
+    double finalDamage = damageEvent.getFinalDamage();
+    victim.setMaximumNoDamageTicks(0);
+    victim.setNoDamageTicks(0);
+    victim.damage(finalDamage);
+
+    if (victim != attribute.getPlayer()) {
+      InGameProfile prof = SSL.getInstance().getGameManager().getProfile(attribute.getPlayer());
+      prof.getStats().addDamageDealt(finalDamage);
     }
 
-    public void showEntityIndicator(LivingEntity entity) {
-        this.entitiesWithInvisibleIndicator.remove(entity);
+    Player damager = attribute.getPlayer();
 
-        Optional.ofNullable(this.indicators.get(entity))
-                .ifPresent(indicator -> indicator.setGlobalVisibility(VisibilitySettings.Visibility.VISIBLE));
+    if (damager != victim) {
+      double newCombo = playerComboDamages.getOrDefault(damager, 0.0) + finalDamage;
+      damager.setLevel((int) newCombo);
+      playerComboDamages.put(damager, newCombo);
+      cancelComboRemover(damager);
+
+      comboDamageRemovers.put(damager, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
+        clearPlayerCombo(damager);
+      }, getComboDuration()));
     }
 
-    public boolean attack(LivingEntity victim, Attack attack, AttackInfo attackInfo) {
-        if (this.immunities.containsKey(victim) && this.immunities.get(victim).containsKey(attackInfo)) return false;
+    clearDamageSource(victim);
+    lastDamageSources.put(victim, attackSource);
 
-        AttackEvent attackEvent = new AttackEvent(victim, attack, attackInfo);
-        Bukkit.getPluginManager().callEvent(attackEvent);
+    lastDamageRemovers.put(victim, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
+      clearDamageSource(victim);
+    }, SSL.getInstance().getResources().getConfig().getInt("Damage.Lifetime")));
 
-        if (attackEvent.isCancelled()) return false;
+    Optional
+        .ofNullable(immunities.putIfAbsent(victim, new HashMap<>()))
+        .flatMap(immunities -> Optional.ofNullable(immunities.remove(attackInfo)))
+        .ifPresent(BukkitTask::cancel);
 
-        Attribute attribute = attackInfo.getAttribute();
-        AttackSource attackSource = new AttackSource(attribute, attack);
-
-        DamageEvent damageEvent = new DamageEvent(victim, attack.getDamage(), false, attackSource);
-        Bukkit.getPluginManager().callEvent(damageEvent);
-
-        if (damageEvent.isCancelled()) return false;
-
-        attack.getKb().getFinalKbVector(victim).ifPresent(victim::setVelocity);
-
-        double finalDamage = damageEvent.getFinalDamage();
-        victim.setMaximumNoDamageTicks(0);
-        victim.setNoDamageTicks(0);
-        victim.damage(finalDamage);
-
-        if (victim != attribute.getPlayer()) {
-            InGameProfile damagerProfile = SSL.getInstance().getGameManager().getProfile(attribute.getPlayer());
-            damagerProfile.getStats().setDamageDealt(damagerProfile.getStats().getDamageDealt() + finalDamage);
-        }
-
-        Player damager = attribute.getPlayer();
-
-        if (damager != victim) {
-            double newCombo = this.playerComboDamages.getOrDefault(damager, 0.0) + finalDamage;
-            damager.setLevel((int) newCombo);
-            this.playerComboDamages.put(damager, newCombo);
-            this.cancelComboRemover(damager);
-
-            this.comboDamageRemovers.put(damager, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
-                this.clearPlayerCombo(damager);
-            }, this.getComboDuration()));
-        }
-
-        this.clearDamageSource(victim);
-        this.lastDamageSources.put(victim, attackSource);
-
-        this.lastDamageRemovers.put(victim, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
-            this.clearDamageSource(victim);
-        }, SSL.getInstance().getResources().getConfig().getInt("Damage.Lifetime")));
-
-        Optional.ofNullable(this.immunities.putIfAbsent(victim, new HashMap<>()))
-                .flatMap(immunities -> Optional.ofNullable(immunities.remove(attackInfo)))
-                .ifPresent(BukkitTask::cancel);
-
-        this.immunities.get(victim).put(attackInfo, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
-            this.immunities.get(victim).remove(attackInfo).cancel();
+    immunities
+        .get(victim)
+        .put(attackInfo, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
+          immunities.get(victim).remove(attackInfo).cancel();
         }, attack.getImmunityTicks()));
 
-        return true;
-    }
+    return true;
+  }
 
-    private void cancelComboRemover(Player player) {
-        Optional.ofNullable(this.comboDamageRemovers.remove(player)).ifPresent(BukkitTask::cancel);
-    }
+  private void cancelComboRemover(Player player) {
+    Optional.ofNullable(comboDamageRemovers.remove(player)).ifPresent(BukkitTask::cancel);
+  }
 
-    public void clearPlayerCombo(Player player) {
-        this.cancelComboRemover(player);
-        this.playerComboDamages.remove(player);
-        player.setLevel(0);
-    }
+  public void clearPlayerCombo(Player player) {
+    cancelComboRemover(player);
+    playerComboDamages.remove(player);
+    player.setLevel(0);
+  }
 
-    public void clearDamageSource(LivingEntity entity) {
-        this.lastDamageSources.remove(entity);
-        Optional.ofNullable(this.lastDamageRemovers.remove(entity)).ifPresent(BukkitTask::cancel);
-    }
+  public void clearDamageSource(LivingEntity entity) {
+    lastDamageSources.remove(entity);
+    Optional.ofNullable(lastDamageRemovers.remove(entity)).ifPresent(BukkitTask::cancel);
+  }
 
-    public void reset() {
-        new HashSet<>(this.indicators.keySet()).forEach(this::clearIndicator);
-        new HashSet<>(this.lastDamageSources.keySet()).forEach(this::clearDamageSource);
-        new HashSet<>(this.playerComboDamages.keySet()).forEach(this::clearPlayerCombo);
-        new HashSet<>(this.immunities.keySet()).forEach(this::clearImmunities);
-        this.entitiesWithInvisibleIndicator.clear();
-    }
+  public void reset() {
+    new HashSet<>(indicators.keySet()).forEach(this::clearIndicator);
+    new HashSet<>(lastDamageSources.keySet()).forEach(this::clearDamageSource);
+    new HashSet<>(playerComboDamages.keySet()).forEach(this::clearPlayerCombo);
+    new HashSet<>(immunities.keySet()).forEach(this::clearImmunities);
+    entitiesWithInvisIndic.clear();
+  }
 
-    public void clearImmunities(LivingEntity entity) {
-        Optional.ofNullable(this.immunities.remove(entity)).ifPresent(immunities -> {
-            CollectionUtils.removeWhileIteratingOverValues(immunities, BukkitTask::cancel);
-        });
-    }
+  public void clearImmunities(LivingEntity entity) {
+    Optional.ofNullable(immunities.remove(entity)).ifPresent(immunities -> {
+      CollectionUtils.removeWhileIteratingOverValues(immunities, BukkitTask::cancel);
+    });
+  }
 }

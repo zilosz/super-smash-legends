@@ -1,27 +1,40 @@
 package com.github.zilosz.ssl.event.attribute;
 
-import com.github.zilosz.ssl.event.CustomEvent;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
 
-public class RegenEvent extends CustomEvent {
-    @Getter private final Player player;
-    @Setter @Getter private double regen;
+@Getter
+public class RegenEvent extends Event {
+  private static final HandlerList HANDLERS = new HandlerList();
 
-    public RegenEvent(Player player, double regen) {
-        this.player = player;
-        this.regen = regen;
-    }
+  private final Player player;
+  @Setter private double regen;
 
-    public static boolean attempt(Player player, double regen) {
-        if (player.getHealth() == player.getMaxHealth()) return false;
+  public RegenEvent(Player player, double regen) {
+    this.player = player;
+    this.regen = regen;
+  }
 
-        RegenEvent event = new RegenEvent(player, regen);
-        Bukkit.getPluginManager().callEvent(event);
-        player.setHealth(Math.min(player.getMaxHealth(), player.getHealth() + event.regen));
+  public static boolean attempt(Player player, double regen) {
+    if (player.getHealth() == player.getMaxHealth()) return false;
 
-        return true;
-    }
+    RegenEvent event = new RegenEvent(player, regen);
+    Bukkit.getPluginManager().callEvent(event);
+    player.setHealth(Math.min(player.getMaxHealth(), player.getHealth() + event.regen));
+
+    return true;
+  }
+
+  public static HandlerList getHandlerList() {
+    return HANDLERS;
+  }
+
+  @Override
+  public HandlerList getHandlers() {
+    return HANDLERS;
+  }
 }

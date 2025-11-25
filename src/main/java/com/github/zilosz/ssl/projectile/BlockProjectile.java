@@ -12,25 +12,25 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 
 @Setter
 public class BlockProjectile extends EmulatedProjectile<FallingBlock> {
-    private Material material;
-    private byte data;
+  private Material material;
+  private byte data;
 
-    public BlockProjectile(Section config, AttackInfo attackInfo) {
-        super(config, attackInfo);
-        this.material = Material.valueOf(config.getOptionalString("Block.Material").orElse("DIRT"));
-        this.data = config.getByte("Block.Data");
-        this.defaultHitBox = 1;
-    }
+  public BlockProjectile(Section config, AttackInfo attackInfo) {
+    super(config, attackInfo);
+    material = Material.valueOf(config.getOptionalString("Block.Material").orElse("DIRT"));
+    data = config.getByte("Block.Data");
+    defaultHitBox = 1;
+  }
 
-    @Override
-    public FallingBlock createEntity(Location location) {
-        return BlockUtils.spawnFallingBlock(location, this.material, this.data);
-    }
+  @Override
+  public FallingBlock createEntity(Location location) {
+    return BlockUtils.spawnFallingBlock(location, material, data);
+  }
 
-    @EventHandler
-    public void onSolidify(EntityChangeBlockEvent event) {
-        if (event.getEntity() == this.entity) {
-            event.setCancelled(true);
-        }
+  @EventHandler
+  public void onSolidify(EntityChangeBlockEvent event) {
+    if (event.getEntity() == entity) {
+      event.setCancelled(true);
     }
+  }
 }

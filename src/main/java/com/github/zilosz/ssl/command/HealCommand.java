@@ -12,31 +12,34 @@ import java.util.Optional;
 
 public class HealCommand implements CommandExecutor {
 
-    @Override
-    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        if (strings.length == 0) return false;
-        if (!NumberUtils.isNumber(strings[0])) return false;
+  @Override
+  public boolean onCommand(
+      CommandSender commandSender, Command command, String s, String[] strings
+  ) {
+    if (strings.length == 0) return false;
+    if (!NumberUtils.isNumber(strings[0])) return false;
 
-        double amount = NumberUtils.createDouble(strings[0]);
+    double amount = NumberUtils.createDouble(strings[0]);
 
-        if (strings.length == 1) {
+    if (strings.length == 1) {
 
-            if (commandSender instanceof Player) {
-                this.heal((Player) commandSender, amount);
-            }
+      if (commandSender instanceof Player) {
+        heal((Player) commandSender, amount);
+      }
 
-            return true;
-
-        } else if (strings.length == 2) {
-            Optional.ofNullable(Bukkit.getPlayer(strings[1])).ifPresent(player -> this.heal(player, amount));
-            return true;
-        }
-
-        return false;
+      return true;
     }
 
-    private void heal(Player player, double amount) {
-        player.setHealth(Math.min(player.getMaxHealth(), player.getHealth() + amount));
-        Chat.COMMAND.send(player, "&7Healed for &e" + amount + " &7health.");
+    if (strings.length == 2) {
+      Optional.ofNullable(Bukkit.getPlayer(strings[1])).ifPresent(player -> heal(player, amount));
+      return true;
     }
+
+    return false;
+  }
+
+  private void heal(Player player, double amount) {
+    player.setHealth(Math.min(player.getMaxHealth(), player.getHealth() + amount));
+    Chat.COMMAND.send(player, "&7Healed for &e" + amount + " &7health.");
+  }
 }

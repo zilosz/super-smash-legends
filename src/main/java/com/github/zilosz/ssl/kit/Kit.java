@@ -3,10 +3,10 @@ package com.github.zilosz.ssl.kit;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.attribute.AbilityType;
 import com.github.zilosz.ssl.attribute.Attribute;
-import com.github.zilosz.ssl.attribute.implementation.Energy;
-import com.github.zilosz.ssl.attribute.implementation.Jump;
-import com.github.zilosz.ssl.attribute.implementation.Melee;
-import com.github.zilosz.ssl.attribute.implementation.Regeneration;
+import com.github.zilosz.ssl.attribute.impl.Energy;
+import com.github.zilosz.ssl.attribute.impl.Jump;
+import com.github.zilosz.ssl.attribute.impl.Melee;
+import com.github.zilosz.ssl.attribute.impl.Regeneration;
 import com.github.zilosz.ssl.util.Noise;
 import com.github.zilosz.ssl.util.Skin;
 import com.github.zilosz.ssl.util.effects.ColorType;
@@ -25,147 +25,132 @@ import java.util.stream.IntStream;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Kit {
-    private final YamlDocument config;
+  private final YamlDocument config;
+  @Getter @EqualsAndHashCode.Include private final KitType type;
+  @Getter private final Jump jump;
+  @Getter private final Regeneration regeneration;
+  @Getter private final Melee melee;
+  @Getter private final Energy energy;
+  @Getter private final Skin skin;
+  private final List<Attribute> attributes = new ArrayList<>();
+  @Getter private Player player;
 
-    @Getter
-    @EqualsAndHashCode.Include
-    private final KitType type;
+  public Kit(YamlDocument config, KitType type) {
+    this.config = config;
+    this.type = type;
 
-    @Getter
-    private final Jump jump;
+    skin = Skin.fromMojang(getSkinName());
+    jump = addAttribute(new Jump());
+    regeneration = addAttribute(new Regeneration());
+    melee = addAttribute(new Melee());
+    energy = addAttribute(new Energy());
 
-    @Getter
-    private final Regeneration regeneration;
+    Optional.ofNullable(config.getSection("Abilities")).ifPresent(abilities -> {
 
-    @Getter
-    private final Melee melee;
+      IntStream.range(0, 6).forEach(slot -> {
 
-    @Getter
-    private final Energy energy;
-
-    @Getter
-    private final Skin skin;
-
-    private final List<Attribute> attributes = new ArrayList<>();
-
-    @Getter
-    private Player player;
-
-    public Kit(YamlDocument config, KitType type) {
-        this.config = config;
-        this.type = type;
-
-        this.skin = Skin.fromMojang(this.getSkinName());
-        this.jump = this.addAttribute(new Jump());
-        this.regeneration = this.addAttribute(new Regeneration());
-        this.melee = this.addAttribute(new Melee());
-        this.energy = this.addAttribute(new Energy());
-
-        Optional.ofNullable(config.getSection("Abilities")).ifPresent(abilities -> {
-
-            IntStream.range(0, 6).forEach(slot -> {
-
-                Optional.ofNullable(abilities.getString(String.valueOf(slot))).ifPresent(abilityName -> {
-                    AbilityType abilityType = AbilityType.valueOf(abilityName);
-                    YamlDocument abilityConfig = SSL.getInstance().getResources().getAbilityConfig(abilityType);
-                    this.addAttribute(abilityType.get()).initAbility(abilityConfig, abilityType, slot);
-                });
-            });
+        Optional.ofNullable(abilities.getString(String.valueOf(slot))).ifPresent(abilityName -> {
+          AbilityType abilityType = AbilityType.valueOf(abilityName);
+          YamlDocument abilityConfig =
+              SSL.getInstance().getResources().getAbilityConfig(abilityType);
+          addAttribute(abilityType.get()).initAbility(abilityConfig, abilityType, slot);
         });
-    }
+      });
+    });
+  }
 
-    public String getSkinName() {
-        return this.config.getString("Skin");
-    }
+  public String getSkinName() {
+    return config.getString("Skin");
+  }
 
-    private <T extends Attribute> T addAttribute(T attribute) {
-        this.attributes.add(attribute);
-        attribute.initAttribute(this);
-        return attribute;
-    }
+  private <T extends Attribute> T addAttribute(T attribute) {
+    attributes.add(attribute);
+    attribute.initAttribute(this);
+    return attribute;
+  }
 
-    public List<String> getDescription() {
-        return this.config.getStringList("Description");
-    }
+  public List<String> getDescription() {
+    return config.getStringList("Description");
+  }
 
-    public String getDisplayName() {
-        return MessageUtils.color(this.getColor().getChatSymbol() + this.config.getString("Name"));
-    }
+  public String getDisplayName() {
+    return MessageUtils.color(getColor().getChatSymbol() + config.getString("Name"));
+  }
 
-    public ColorType getColor() {
-        return ColorType.valueOf(this.config.getString("Color"));
-    }
+  public ColorType getColor() {
+    return ColorType.valueOf(config.getString("Color"));
+  }
 
-    public String getBoldedDisplayName() {
-        return MessageUtils.color(this.getColor().getChatSymbol() + "&l" + this.config.getString("Name"));
-    }
+  public String getBoldedDisplayName() {
+    return MessageUtils.color(getColor().getChatSymbol() + "&l" + config.getString("Name"));
+  }
 
-    public double getRegen() {
-        return this.config.getDouble("Regen");
-    }
+  public double getRegen() {
+    return config.getDouble("Regen");
+  }
 
-    public double getArmor() {
-        return this.config.getDouble("Armor");
-    }
+  public double getArmor() {
+    return config.getDouble("Armor");
+  }
 
-    public double getDamage() {
-        return this.config.getDouble("Damage");
-    }
+  public double getDamage() {
+    return config.getDouble("Damage");
+  }
 
-    public double getKb() {
-        return this.config.getDouble("Kb");
-    }
+  public double getKb() {
+    return config.getDouble("Kb");
+  }
 
-    public double getJumpPower() {
-        return this.config.getDouble("Jump.Power");
-    }
+  public double getJumpPower() {
+    return config.getDouble("Jump.Power");
+  }
 
-    public double getJumpHeight() {
-        return this.config.getDouble("Jump.Height");
-    }
+  public double getJumpHeight() {
+    return config.getDouble("Jump.Height");
+  }
 
-    public int getJumpCount() {
-        return this.config.getOptionalInt("Jump.Count").orElse(1);
-    }
+  public int getJumpCount() {
+    return config.getOptionalInt("Jump.Count").orElse(1);
+  }
 
-    public Noise getJumpNoise() {
-        return YamlReader.noise(this.config.getSection("Jump.Sound"));
-    }
+  public Noise getJumpNoise() {
+    return YamlReader.noise(config.getSection("Jump.Sound"));
+  }
 
-    public Noise getHurtNoise() {
-        return YamlReader.noise(this.config.getSection("HurtSound"));
-    }
+  public Noise getHurtNoise() {
+    return YamlReader.noise(config.getSection("HurtSound"));
+  }
 
-    public Noise getDeathNoise() {
-        return YamlReader.noise(this.config.getSection("DeathSound"));
-    }
+  public Noise getDeathNoise() {
+    return YamlReader.noise(config.getSection("DeathSound"));
+  }
 
-    public float getEnergyValue() {
-        return this.config.getFloat("Energy");
-    }
+  public float getEnergyValue() {
+    return config.getFloat("Energy");
+  }
 
-    public List<Attribute> getAttributes() {
-        return Collections.unmodifiableList(this.attributes);
-    }
+  public List<Attribute> getAttributes() {
+    return Collections.unmodifiableList(attributes);
+  }
 
-    public void equip(Player player) {
-        this.player = player;
-        this.equip();
-    }
+  public void equip(Player player) {
+    this.player = player;
+    equip();
+  }
 
-    public void equip() {
-        this.attributes.forEach(Attribute::equip);
-    }
+  public void equip() {
+    attributes.forEach(Attribute::equip);
+  }
 
-    public void activate() {
-        this.attributes.forEach(Attribute::activate);
-    }
+  public void activate() {
+    attributes.forEach(Attribute::activate);
+  }
 
-    public void deactivate() {
-        this.attributes.forEach(Attribute::deactivate);
-    }
+  public void deactivate() {
+    attributes.forEach(Attribute::deactivate);
+  }
 
-    public void destroy() {
-        this.attributes.forEach(Attribute::destroy);
-    }
+  public void destroy() {
+    attributes.forEach(Attribute::destroy);
+  }
 }

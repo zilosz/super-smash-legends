@@ -25,200 +25,213 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 public class KitManager implements Listener {
-    private final List<Kit> kits = new ArrayList<>();
-    private final Map<Player, Kit> selectedKits = new HashMap<>();
-    private final Map<Player, Skin> realSkins = new HashMap<>();
-    private final Map<NPC, KitType> kitsPerNpc = new HashMap<>();
-    private final Map<Player, Map<KitType, Hologram>> kitHolograms = new HashMap<>();
-    private final Map<Player, Skin.SelfSkinShower> selfSkinShowers = new HashMap<>();
-    private final Set<Block> podiumBlocks = new HashSet<>();
+  private final List<Kit> kits = new ArrayList<>();
+  private final Map<Player, Kit> selectedKits = new HashMap<>();
+  private final Map<Player, Skin> realSkins = new HashMap<>();
+  private final Map<NPC, KitType> kitsPerNpc = new HashMap<>();
+  private final Map<Player, Map<KitType, Hologram>> kitHolograms = new HashMap<>();
+  private final Map<Player, Skin.SelfSkinShower> selfSkinShowers = new HashMap<>();
+  private final Collection<Block> podiumBlocks = new ArrayList<>();
 
-    public void destroyPodiums() {
-        CollectionUtils.removeWhileIterating(this.podiumBlocks, block -> block.setType(Material.AIR));
+  public void destroyPodiums() {
+    CollectionUtils.removeWhileIterating(podiumBlocks, block -> block.setType(Material.AIR));
+  }
+
+  public Skin getRealSkin(Player player) {
+    return realSkins.get(player);
+  }
+
+  public List<Kit> getKits() {
+    return Collections.unmodifiableList(kits);
+  }
+
+  public void setupKits() {
+
+    for (KitType type : KitType.values()) {
+      Kit kit = createKit(type);
+      kits.add(kit);
+
+      NPC npc = SSL
+          .getInstance()
+          .getNpcRegistry()
+          .createNPC(EntityType.PLAYER, kit.getBoldedDisplayName());
+      kitsPerNpc.put(npc, type);
+      kit.getSkin().applyToNpc(npc);
+
+      String locString =
+          SSL.getInstance().getResources().getLobby().getString("KitNpcs." + type.getConfigName());
+      Location location = YamlReader.location(CustomWorldType.LOBBY.getWorldName(), locString);
+      npc.spawn(location);
+
+      Block beacon = location.subtract(0, 1, 0).getBlock();
+      beacon.setType(Material.BEACON);
+      podiumBlocks.add(beacon);
+
+      setPodiumSlab(location, 1, 0);
+      setPodiumSlab(location, 0, 1);
+      setPodiumSlab(location, -1, 0);
+      setPodiumSlab(location, 0, -1);
+
+      setPodiumWool(location, 1, 0, kit);
+      setPodiumWool(location, -1, 0, kit);
+      setPodiumWool(location, 0, 1, kit);
+      setPodiumWool(location, 0, -1, kit);
     }
 
-    public Skin getRealSkin(Player player) {
-        return this.realSkins.get(player);
-    }
+    kits.sort(Comparator.comparing(Kit::getType));
+  }
 
-    public List<Kit> getKits() {
-        return Collections.unmodifiableList(this.kits);
-    }
+  public Kit createKit(KitType kitType) {
+    return new Kit(SSL.getInstance().getResources().getKitConfig(kitType), kitType);
+  }
 
-    public void setupKits() {
+  private void setPodiumSlab(Location beacon, int x, int z) {
+    Block block = beacon.clone().add(x, 0, z).getBlock();
+    block.setType(Material.STEP);
+    podiumBlocks.add(block);
+  }
 
-        for (KitType type : KitType.values()) {
-            Kit kit = this.createKit(type);
-            this.kits.add(kit);
+  private void setPodiumWool(Location beacon, int x, int z, Kit kit) {
+    Block block = beacon.clone().add(x, -1, z).getBlock();
+    block.setType(Material.WOOL);
+    block.setData(kit.getColor().getDyeColor().getWoolData());
+    podiumBlocks.add(block);
+  }
 
-            NPC npc = SSL.getInstance().getNpcRegistry().createNPC(EntityType.PLAYER, kit.getBoldedDisplayName());
-            this.kitsPerNpc.put(npc, type);
-            kit.getSkin().applyToNpc(npc);
+  public void createHolograms(Player player) {
+    kitHolograms.put(player, new HashMap<>());
 
-            String locString = SSL.getInstance().getResources().getLobby().getString("KitNpcs." + type.getConfigName());
-            Location location = YamlReader.location(CustomWorldType.LOBBY.getWorldName(), locString);
-            npc.spawn(location);
+    kitsPerNpc.forEach((npc, kitType) -> {
+      Location location = npc.getStoredLocation();
+      location.add(0, getConfig().getDouble("HologramHeight"), 0);
+      Hologram hologram = HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(location);
+      kitHolograms.get(player).put(kitType, hologram);
+    });
+  }
 
-            Block beacon = location.subtract(0, 1, 0).getBlock();
-            beacon.setType(Material.BEACON);
-            this.podiumBlocks.add(beacon);
+  private Section getConfig() {
+    return SSL.getInstance().getResources().getConfig().getSection("Kit");
+  }
 
-            this.setPodiumSlab(location, 1, 0);
-            this.setPodiumSlab(location, 0, 1);
-            this.setPodiumSlab(location, -1, 0);
-            this.setPodiumSlab(location, 0, -1);
+  public void updateHolograms(Player player) {
 
-            this.setPodiumWool(location, 1, 0, kit);
-            this.setPodiumWool(location, -1, 0, kit);
-            this.setPodiumWool(location, 0, 1, kit);
-            this.setPodiumWool(location, 0, -1, kit);
+    kitHolograms.get(player).forEach((kitType, hologram) -> {
+      updateAccessHologram(player, getKitAccess(player, kitType), kitType);
+    });
+
+    kitHolograms.forEach((other, holograms) -> {
+      if (other == player) return;
+
+      for (Hologram holo : holograms.values()) {
+        holo
+            .getVisibilitySettings()
+            .setIndividualVisibility(player, VisibilitySettings.Visibility.HIDDEN);
+      }
+
+      if (other.isOnline()) {
+
+        for (Hologram holo : kitHolograms.get(player).values()) {
+          holo
+              .getVisibilitySettings()
+              .setIndividualVisibility(other, VisibilitySettings.Visibility.HIDDEN);
         }
+      }
+    });
+  }
 
-        this.kits.sort(Comparator.comparing(Kit::getType));
+  private void updateAccessHologram(Player player, KitAccessType accessType, KitType kitType) {
+    HologramLines lines = kitHolograms.get(player).get(kitType).getLines();
+    lines.clear();
+    lines.appendText(accessType.getHologram());
+  }
+
+  public KitAccessType getKitAccess(Player player, KitType kitType) {
+    return getSelectedKit(player).getType() == kitType
+           ? KitAccessType.SELECTED
+           : KitAccessType.ACCESSIBLE;
+  }
+
+  public Kit getSelectedKit(Player player) {
+    return selectedKits.get(player);
+  }
+
+  public void loadAndSetUserKit(Player player) {
+    KitType kitType;
+
+    try {
+      String kit = SSL.getInstance().getPlayerDatabase().getPlayerData(player).getKit();
+      kitType = KitType.valueOf(kit);
+    }
+    catch (IllegalArgumentException | NullPointerException e) {
+      kitType = KitType.valueOf(getConfig().getString("Default"));
     }
 
-    public Kit createKit(KitType kitType) {
-        return new Kit(SSL.getInstance().getResources().getKitConfig(kitType), kitType);
+    setKit(player, kitType);
+  }
+
+  public Kit setKit(Player player, KitType kitType) {
+    GameManager gameManager = SSL.getInstance().getGameManager();
+    GameState state = gameManager.getState();
+
+    Kit newKit = createKit(kitType);
+
+    if (state.isPlaying()) {
+      SSL.getInstance().getGameManager().getProfile(player).setKit(newKit);
     }
 
-    private void setPodiumSlab(Location beacon, int x, int z) {
-        Block block = beacon.clone().add(x, 0, z).getBlock();
-        block.setType(Material.STEP);
-        this.podiumBlocks.add(block);
+    Runnable noiseRunner = () -> newKit.getHurtNoise().playForPlayer(player);
+
+    if (state.updatesKitSkins()) {
+      Optional.ofNullable(selfSkinShowers.remove(player)).ifPresent(Skin.SelfSkinShower::cancel);
+      selfSkinShowers.put(player, newKit.getSkin().apply(SSL.getInstance(), player, noiseRunner));
+    }
+    else {
+      noiseRunner.run();
     }
 
-    private void setPodiumWool(Location beacon, int x, int z, Kit kit) {
-        Block block = beacon.clone().add(x, -1, z).getBlock();
-        block.setType(Material.WOOL);
-        block.setData(kit.getColor().getDyeColor().getWoolData());
-        this.podiumBlocks.add(block);
+    Optional.ofNullable(selectedKits.put(player, newKit)).ifPresentOrElse(oldKit -> {
+      oldKit.destroy();
+      updateAccessHologram(player, KitAccessType.ACCESSIBLE, oldKit.getType());
+    }, () -> realSkins.put(player, Skin.fromPlayer(player)));
+
+    newKit.equip(player);
+
+    if (state.getType() == GameStateType.IN_GAME) {
+      newKit.activate();
     }
 
-    public void createHolograms(Player player) {
-        this.kitHolograms.put(player, new HashMap<>());
+    updateAccessHologram(player, KitAccessType.SELECTED, kitType);
 
-        this.kitsPerNpc.forEach((npc, kitType) -> {
-            Location location = npc.getStoredLocation();
-            location.add(0, this.getConfig().getDouble("HologramHeight"), 0);
-            Hologram hologram = HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(location);
-            this.kitHolograms.get(player).put(kitType, hologram);
-        });
-    }
+    Chat.KIT.send(player,
+        String.format("&7You have selected the %s &7kit.", newKit.getDisplayName())
+    );
 
-    private Section getConfig() {
-        return SSL.getInstance().getResources().getConfig().getSection("Kit");
-    }
+    return newKit;
+  }
 
-    public void updateHolograms(Player player) {
+  public void wipePlayer(Player player) {
+    Optional
+        .ofNullable(kitHolograms.remove(player))
+        .ifPresent(holograms -> holograms.values().forEach(Hologram::delete));
 
-        this.kitHolograms.get(player).forEach((kitType, hologram) -> {
-            this.updateAccessHologram(player, this.getKitAccess(player, kitType), kitType);
-        });
+    Optional.ofNullable(selectedKits.remove(player)).ifPresent(kit -> {
+      kit.destroy();
+      SSL.getInstance().getPlayerDatabase().getPlayerData(player).setKit(kit.getType().name());
+    });
+  }
 
-        this.kitHolograms.forEach((other, holograms) -> {
-            if (other == player) return;
-
-            for (Hologram holo : holograms.values()) {
-                holo.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.HIDDEN);
-            }
-
-            if (other.isOnline()) {
-
-                for (Hologram holo : this.kitHolograms.get(player).values()) {
-                    holo.getVisibilitySettings().setIndividualVisibility(other, VisibilitySettings.Visibility.HIDDEN);
-                }
-            }
-        });
-    }
-
-    private void updateAccessHologram(Player player, KitAccessType accessType, KitType kitType) {
-        HologramLines lines = this.kitHolograms.get(player).get(kitType).getLines();
-        lines.clear();
-        lines.appendText(accessType.getHologram());
-    }
-
-    public KitAccessType getKitAccess(Player player, KitType kitType) {
-        return this.getSelectedKit(player).getType() == kitType ? KitAccessType.SELECTED : KitAccessType.ACCESSIBLE;
-    }
-
-    public Kit getSelectedKit(Player player) {
-        return this.selectedKits.get(player);
-    }
-
-    public void loadAndSetUserKit(Player player) {
-        KitType kitType;
-
-        try {
-            kitType = KitType.valueOf(SSL.getInstance().getPlayerDatabase().getPlayerData(player).getKit());
-
-        } catch (IllegalArgumentException | NullPointerException e) {
-            kitType = KitType.valueOf(this.getConfig().getString("Default"));
-        }
-
-        this.setKit(player, kitType);
-    }
-
-    public Kit setKit(Player player, KitType kitType) {
-        GameManager gameManager = SSL.getInstance().getGameManager();
-        GameState state = gameManager.getState();
-
-        Kit newKit = this.createKit(kitType);
-
-        if (state.isPlaying()) {
-            SSL.getInstance().getGameManager().getProfile(player).setKit(newKit);
-        }
-
-        Runnable noiseRunner = () -> newKit.getHurtNoise().playForPlayer(player);
-
-        if (state.updatesKitSkins()) {
-            Optional.ofNullable(this.selfSkinShowers.remove(player)).ifPresent(Skin.SelfSkinShower::cancel);
-            this.selfSkinShowers.put(player, newKit.getSkin().apply(SSL.getInstance(), player, noiseRunner));
-
-        } else {
-            noiseRunner.run();
-        }
-
-        Optional.ofNullable(this.selectedKits.put(player, newKit)).ifPresentOrElse(oldKit -> {
-            oldKit.destroy();
-            this.updateAccessHologram(player, KitAccessType.ACCESSIBLE, oldKit.getType());
-        }, () -> this.realSkins.put(player, Skin.fromPlayer(player)));
-
-        newKit.equip(player);
-
-        if (state.getType() == GameStateType.IN_GAME) {
-            newKit.activate();
-        }
-
-        this.updateAccessHologram(player, KitAccessType.SELECTED, kitType);
-
-        Chat.KIT.send(player, String.format("&7You have selected the %s &7kit.", newKit.getDisplayName()));
-
-        return newKit;
-    }
-
-    public void wipePlayer(Player player) {
-        Optional.ofNullable(this.kitHolograms.remove(player))
-                .ifPresent(holograms -> holograms.values().forEach(Hologram::delete));
-
-        Optional.ofNullable(this.selectedKits.remove(player)).ifPresent(kit -> {
-            kit.destroy();
-            SSL.getInstance().getPlayerDatabase().getPlayerData(player).setKit(kit.getType().name());
-        });
-    }
-
-    @EventHandler
-    public void onNpcClick(NPCLeftClickEvent event) {
-        Optional<KitType> kitType = Optional.ofNullable(this.kitsPerNpc.get(event.getNPC()));
-        kitType.ifPresent(type -> this.setKit(event.getClicker(), type));
-    }
+  @EventHandler
+  public void onNpcClick(NPCLeftClickEvent event) {
+    Optional<KitType> kitType = Optional.ofNullable(kitsPerNpc.get(event.getNPC()));
+    kitType.ifPresent(type -> setKit(event.getClicker(), type));
+  }
 }

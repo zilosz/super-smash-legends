@@ -11,133 +11,131 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class GameManager {
-    private final List<GameStateType> states = new ArrayList<>();
-    private final Map<Player, InGameProfile> profiles = new HashMap<>();
+  private static final GameStateType[] STATES = {
+      GameStateType.LOBBY,
+      GameStateType.TUTORIAL,
+      GameStateType.PREGAME,
+      GameStateType.IN_GAME,
+      GameStateType.END
+  };
 
-    private final Set<Player> willSpectate = new HashSet<>();
-    private final Set<Player> spectators = new HashSet<>();
+  private final Map<Player, InGameProfile> profiles = new HashMap<>();
 
-    private int stateIdx = 0;
-    @Getter private GameState state;
+  private final Collection<Player> willSpectate = new HashSet<>();
+  private final Set<Player> spectators = new HashSet<>();
 
-    private BukkitTask tickTask;
-    @Getter private int ticksActive = 0;
+  private int stateIdx;
+  @Getter private GameState state;
 
-    public GameManager() {
-        this.states.add(GameStateType.LOBBY);
-        this.states.add(GameStateType.TUTORIAL);
-        this.states.add(GameStateType.PREGAME);
-        this.states.add(GameStateType.IN_GAME);
-        this.states.add(GameStateType.END);
+  private BukkitTask tickTask;
+  @Getter private int ticksActive;
 
-        this.updateState();
+  public GameManager() {
+    updateState();
+  }
+
+  private void updateState() {
+    GameStateType stateType = STATES[stateIdx];
+    state = stateType.get();
+    state.setType(stateType);
+  }
+
+  public void addFutureSpectator(Player player) {
+    willSpectate.add(player);
+  }
+
+  public void removeFutureSpectator(Player player) {
+    willSpectate.remove(player);
+  }
+
+  public boolean willSpectate(Player player) {
+    return willSpectate.contains(player);
+  }
+
+  public void skipToState(GameStateType type) {
+    while (state.getType() != type) {
+      advanceState();
     }
+  }
 
-    private void updateState() {
-        GameStateType type = this.states.get(this.stateIdx);
-        this.state = type.get();
-        this.state.setType(type);
+  public void advanceState() {
+    state.end();
+    HandlerList.unregisterAll(state);
+
+    stateIdx = (stateIdx + 1) % STATES.length;
+
+    updateState();
+    activateState();
+  }
+
+  public void activateState() {
+    state.start();
+    Bukkit.getPluginManager().registerEvents(state, SSL.getInstance());
+  }
+
+  public void startTicks() {
+    tickTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> ticksActive++, 0, 0);
+  }
+
+  public void setupProfile(Player player) {
+    int lives = SSL.getInstance().getResources().getConfig().getInt("Game.Lives");
+    Kit kit = SSL.getInstance().getKitManager().getSelectedKit(player);
+    profiles.put(player, new InGameProfile(kit, lives));
+  }
+
+  public Set<Player> getAlivePlayers() {
+    return profiles.keySet().stream().filter(this::isPlayerAlive).collect(Collectors.toSet());
+  }
+
+  public boolean isPlayerAlive(Player player) {
+    return Optional.ofNullable(getProfile(player)).map(prof -> prof.getLives() > 0).orElse(false);
+  }
+
+  public InGameProfile getProfile(Player player) {
+    return profiles.get(player);
+  }
+
+  public boolean isSpectator(Player player) {
+    return spectators.contains(player);
+  }
+
+  public Set<Player> getSpectators() {
+    return Collections.unmodifiableSet(spectators);
+  }
+
+  public void reset() {
+    new HashSet<>(spectators).forEach(this::removeSpectator);
+    profiles.clear();
+
+    ticksActive = 0;
+
+    if (tickTask != null) {
+      tickTask.cancel();
     }
+  }
 
-    public void addFutureSpectator(Player player) {
-        this.willSpectate.add(player);
-    }
+  public void removeSpectator(Player player) {
+    spectators.remove(player);
+    player.setAllowFlight(false);
+    player.setFlySpeed(0.1f);
+    Bukkit.getOnlinePlayers().forEach(other -> other.showPlayer(player));
+  }
 
-    public void removeFutureSpectator(Player player) {
-        this.willSpectate.remove(player);
-    }
-
-    public boolean willSpectate(Player player) {
-        return this.willSpectate.contains(player);
-    }
-
-    public void skipToState(GameStateType type) {
-        while (this.state.getType() != type) {
-            this.advanceState();
-        }
-    }
-
-    public void advanceState() {
-        this.endState();
-        this.stateIdx = (this.stateIdx + 1) % this.states.size();
-        this.updateState();
-        this.activateState();
-    }
-
-    public void endState() {
-        this.state.end();
-        HandlerList.unregisterAll(this.state);
-    }
-
-    public void activateState() {
-        this.state.start();
-        Bukkit.getPluginManager().registerEvents(this.state, SSL.getInstance());
-    }
-
-    public void startTicks() {
-        this.tickTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> this.ticksActive++, 0, 0);
-    }
-
-    public void setupProfile(Player player) {
-        int lives = SSL.getInstance().getResources().getConfig().getInt("Game.Lives");
-        Kit kit = SSL.getInstance().getKitManager().getSelectedKit(player);
-        this.profiles.put(player, new InGameProfile(kit, lives));
-    }
-
-    public Set<Player> getAlivePlayers() {
-        return this.profiles.keySet().stream().filter(this::isPlayerAlive).collect(Collectors.toSet());
-    }
-
-    public boolean isPlayerAlive(Player player) {
-        return Optional.ofNullable(this.getProfile(player)).map(profile -> profile.getLives() > 0).orElse(false);
-    }
-
-    public InGameProfile getProfile(Player player) {
-        return this.profiles.get(player);
-    }
-
-    public boolean isSpectator(Player player) {
-        return this.spectators.contains(player);
-    }
-
-    public Set<Player> getSpectators() {
-        return Collections.unmodifiableSet(this.spectators);
-    }
-
-    public void reset() {
-        new HashSet<>(this.spectators).forEach(this::removeSpectator);
-        this.profiles.clear();
-
-        this.ticksActive = 0;
-
-        if (this.tickTask != null) {
-            this.tickTask.cancel();
-        }
-    }
-
-    public void removeSpectator(Player player) {
-        this.spectators.remove(player);
-        player.setAllowFlight(false);
-        player.setFlySpeed(0.1f);
-        Bukkit.getOnlinePlayers().forEach(other -> other.showPlayer(player));
-    }
-
-    public void addSpectator(Player player) {
-        this.spectators.add(player);
-        player.setGameMode(GameMode.SURVIVAL);
-        player.setAllowFlight(true);
-        player.setFlySpeed(0.2f);
-        Bukkit.getOnlinePlayers().forEach(other -> other.hidePlayer(player));
-    }
+  public void addSpectator(Player player) {
+    spectators.add(player);
+    player.setGameMode(GameMode.SURVIVAL);
+    player.setAllowFlight(true);
+    player.setFlySpeed(0.2f);
+    Bukkit.getOnlinePlayers().forEach(other -> other.hidePlayer(player));
+  }
 }

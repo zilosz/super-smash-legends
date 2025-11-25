@@ -13,70 +13,71 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class ItemBuilder<T extends ItemMeta> implements Supplier<ItemStack> {
-    private final Material material;
-    private boolean isEnchanted = false;
-    private int count;
-    private byte data;
-    private Consumer<T> meta = (meta) -> {};
+  private final Material material;
+  private boolean isEnchanted;
+  private int count = 1;
+  private byte data;
+  private Consumer<T> meta = (meta) -> {};
 
-    public ItemBuilder(Material material) {
-        this.material = material;
-        this.count = 1;
-        this.data = 0;
+  public ItemBuilder(Material material) {
+    this.material = material;
+  }
+
+  public ItemBuilder(ItemStack itemStack) {
+    material = itemStack.getType();
+    count = itemStack.getAmount();
+    data = itemStack.getData().getData();
+
+    Optional.ofNullable(itemStack.getItemMeta().getDisplayName()).ifPresent(this::setName);
+    Optional.ofNullable(itemStack.getItemMeta().getLore()).ifPresent(this::setLore);
+  }
+
+  public ItemBuilder<T> setName(String name) {
+    return applyMeta(meta -> meta.setDisplayName(MessageUtils.color(name)));
+  }
+
+  public ItemBuilder<T> applyMeta(Consumer<T> meta) {
+    this.meta = this.meta.andThen(meta);
+    return this;
+  }
+
+  public ItemBuilder<T> setLore(List<String> lore) {
+    return applyMeta(meta -> meta.setLore(MessageUtils.color(lore)));
+  }
+
+  public ItemBuilder<T> setCount(int amount) {
+    count = amount;
+    return this;
+  }
+
+  public ItemBuilder<T> setData(byte data) {
+    this.data = data;
+    return this;
+  }
+
+  public ItemBuilder<T> setEnchanted(boolean isEnchanted) {
+    this.isEnchanted = isEnchanted;
+    return this;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public ItemStack get() {
+    ItemStack stack = new ItemStack(material, count, data);
+
+    if (isEnchanted) {
+      stack.addUnsafeEnchantment(Enchantment.KNOCKBACK, 1);
     }
 
-    public ItemBuilder(ItemStack itemStack) {
-        this.material = itemStack.getType();
-        this.count = itemStack.getAmount();
-        this.data = itemStack.getData().getData();
+    T stackMeta = (T) stack.getItemMeta();
+    stackMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS,
+        ItemFlag.HIDE_ATTRIBUTES,
+        ItemFlag.HIDE_UNBREAKABLE
+    );
+    stackMeta.spigot().setUnbreakable(true);
+    meta.accept(stackMeta);
+    stack.setItemMeta(stackMeta);
 
-        Optional.ofNullable(itemStack.getItemMeta().getDisplayName()).ifPresent(this::setName);
-        Optional.ofNullable(itemStack.getItemMeta().getLore()).ifPresent(this::setLore);
-    }
-
-    public ItemBuilder<T> setName(String name) {
-        return this.applyMeta(meta -> meta.setDisplayName(MessageUtils.color(name)));
-    }
-
-    public ItemBuilder<T> setLore(List<String> lore) {
-        return this.applyMeta(meta -> meta.setLore(MessageUtils.color(lore)));
-    }
-
-    public ItemBuilder<T> applyMeta(Consumer<T> meta) {
-        this.meta = this.meta.andThen(meta);
-        return this;
-    }
-
-    public ItemBuilder<T> setCount(int amount) {
-        this.count = amount;
-        return this;
-    }
-
-    public ItemBuilder<T> setData(byte data) {
-        this.data = data;
-        return this;
-    }
-
-    public ItemBuilder<T> setEnchanted(boolean isEnchanted) {
-        this.isEnchanted = isEnchanted;
-        return this;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public ItemStack get() {
-        ItemStack itemStack = new ItemStack(this.material, this.count, this.data);
-
-        if (this.isEnchanted) {
-            itemStack.addUnsafeEnchantment(Enchantment.KNOCKBACK, 1);
-        }
-
-        T meta = (T) itemStack.getItemMeta();
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
-        meta.spigot().setUnbreakable(true);
-        this.meta.accept(meta);
-        itemStack.setItemMeta(meta);
-
-        return itemStack;
-    }
+    return stack;
+  }
 }

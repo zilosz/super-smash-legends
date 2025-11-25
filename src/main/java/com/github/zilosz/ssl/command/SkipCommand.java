@@ -9,19 +9,21 @@ import org.bukkit.command.CommandSender;
 
 public class SkipCommand implements CommandExecutor {
 
-    @Override
-    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        if (strings.length != 1) return false;
+  @Override
+  public boolean onCommand(
+      CommandSender commandSender, Command command, String s, String[] strings
+  ) {
+    if (strings.length != 1) return false;
 
-        String name = strings[0].toUpperCase();
+    String name = strings[0].toUpperCase();
 
-        try {
-            SSL.getInstance().getGameManager().skipToState(GameStateType.valueOf(name));
-
-        } catch (IllegalArgumentException e) {
-            Chat.COMMAND.send(commandSender, String.format("&f%s &7is not a valid state.", name));
-        }
-
-        return true;
+    try {
+      SSL.getInstance().getGameManager().skipToState(GameStateType.valueOf(name));
     }
+    catch (IllegalArgumentException e) {
+      Chat.COMMAND.send(commandSender, String.format("&f%s &7is not a valid state.", name));
+    }
+
+    return true;
+  }
 }

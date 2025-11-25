@@ -6,58 +6,59 @@ import java.util.List;
 import java.util.Map;
 
 public class Replacers {
-    private final Map<String, String> singles = new HashMap<>();
-    private final Map<String, List<String>> multiples = new HashMap<>();
+  private final Map<String, String> singles = new HashMap<>();
+  private final Map<String, List<String>> multiples = new HashMap<>();
 
-    public Replacers add(String placeholder, Number replacement) {
-        return this.add(placeholder, String.valueOf(replacement));
-    }
+  public Replacers add(String placeholder, Number replacement) {
+    return add(placeholder, String.valueOf(replacement));
+  }
 
-    public Replacers add(String placeholder, String replacement) {
-        this.singles.put(wrap(placeholder), replacement);
-        return this;
-    }
+  public Replacers add(String placeholder, String replacement) {
+    singles.put(wrap(placeholder), replacement);
+    return this;
+  }
 
-    public static String wrap(String placeholder) {
-        return "{" + placeholder + "}";
-    }
+  public static String wrap(String placeholder) {
+    return "{" + placeholder + "}";
+  }
 
-    public Replacers add(String placeholder, List<String> replacements) {
-        this.multiples.put(wrap(placeholder), replacements);
-        return this;
-    }
+  public Replacers add(String placeholder, List<String> replacements) {
+    multiples.put(wrap(placeholder), replacements);
+    return this;
+  }
 
-    public List<String> replaceLines(List<String> lines) {
-        List<String> newLines = new ArrayList<>();
+  public List<String> replaceLines(List<String> lines) {
+    List<String> newLines = new ArrayList<>();
 
-        for (String line : lines) {
-            boolean found = false;
+    for (String line : lines) {
+      boolean useOriginal = true;
 
-            for (Map.Entry<String, List<String>> multiple : this.multiples.entrySet()) {
+      for (var multiple : multiples.entrySet()) {
 
-                if (line.contains(multiple.getKey())) {
-                    newLines.addAll(multiple.getValue());
-                    found = true;
-                    break;
-                }
-            }
+        if (line.contains(multiple.getKey())) {
+          newLines.addAll(multiple.getValue());
+          useOriginal = false;
 
-            if (!found) {
-                newLines.add(line);
-            }
+          break;
         }
+      }
 
-        newLines.replaceAll(this::replace);
-        return newLines;
+      if (useOriginal) {
+        newLines.add(line);
+      }
     }
 
-    public String replace(String line) {
-        String newLine = line;
+    newLines.replaceAll(this::replace);
+    return newLines;
+  }
 
-        for (Map.Entry<String, String> single : this.singles.entrySet()) {
-            newLine = newLine.replace(single.getKey(), single.getValue());
-        }
+  public String replace(String line) {
+    String newLine = line;
 
-        return MessageUtils.color(newLine);
+    for (var single : singles.entrySet()) {
+      newLine = newLine.replace(single.getKey(), single.getValue());
     }
+
+    return MessageUtils.color(newLine);
+  }
 }

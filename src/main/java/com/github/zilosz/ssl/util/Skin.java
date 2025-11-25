@@ -4,7 +4,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.SkinTrait;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
@@ -25,143 +27,146 @@ import java.util.UUID;
 
 @Getter
 public class Skin {
-    private static final String PROFILE_API_URL = "https://api.mojang.com/users/profiles/minecraft/";
-    private static final String UUID_API_URL = "https://sessionserver.mojang.com/session/minecraft/profile/";
+  private static final String PROFILE_API_URL = "https://api.mojang.com/users/profiles/minecraft/";
+  private static final String UUID_API_URL =
+      "https://sessionserver.mojang.com/session/minecraft/profile/";
 
-    private final String texture;
-    private final String signature;
+  private final String texture;
+  private final String signature;
 
-    public Skin(String texture, String signature) {
-        this.texture = texture;
-        this.signature = signature;
+  public Skin(String texture, String signature) {
+    this.texture = texture;
+    this.signature = signature;
+  }
+
+  public static Skin fromPlayer(Player player) {
+    GameProfile profile = NmsUtils.getPlayer(player).getProfile();
+    Property property = profile.getProperties().get("textures").iterator().next();
+    return new Skin(property.getValue(), property.getSignature());
+  }
+
+  public static Skin fromMojang(String playerName) {
+
+    try {
+      URL profileUrl = new URL(PROFILE_API_URL + playerName);
+      InputStreamReader profileReader = new InputStreamReader(profileUrl.openStream());
+      String uuid = new JsonParser().parse(profileReader).getAsJsonObject().get("id").getAsString();
+
+      URL uuidUrl = new URL(UUID_API_URL + uuid + "?unsigned=false");
+      JsonObject uuidJson =
+          new JsonParser().parse(new InputStreamReader(uuidUrl.openStream())).getAsJsonObject();
+      JsonObject textureProperty =
+          uuidJson.get("properties").getAsJsonArray().get(0).getAsJsonObject();
+
+      String texture = textureProperty.get("value").getAsString();
+      String signature = textureProperty.get("signature").getAsString();
+
+      return new Skin(texture, signature);
+
     }
-
-    public static Skin fromPlayer(Player player) {
-        GameProfile profile = NmsUtils.getPlayer(player).getProfile();
-        Property property = profile.getProperties().get("textures").iterator().next();
-        return new Skin(property.getValue(), property.getSignature());
+    catch (IOException e) {
+      return fromMojang("Notch");
     }
+  }
 
-    public static Skin fromMojang(String playerName) {
+  public SelfSkinShower apply(Plugin plugin, Player player, Runnable callback) {
+    showToOthers(player);
+    Location oldLoc = player.getLocation();
+    player.teleport(new Location(Bukkit.getWorld("world"), 0, 120, 0));
 
-        try {
-            URL profileUrl = new URL(PROFILE_API_URL + playerName);
-            InputStreamReader profileReader = new InputStreamReader(profileUrl.openStream());
-            String uuid = new JsonParser().parse(profileReader).getAsJsonObject().get("id").getAsString();
+    return showToPlayer(plugin, player, () -> {
+      player.teleport(oldLoc);
+      callback.run();
+    });
+  }
 
-            URL uuidUrl = new URL(UUID_API_URL + uuid + "?unsigned=false");
-            JsonObject uuidJson = new JsonParser().parse(new InputStreamReader(uuidUrl.openStream())).getAsJsonObject();
-            JsonObject textureProperty = uuidJson.get("properties").getAsJsonArray().get(0).getAsJsonObject();
+  private void showToOthers(Player player) {
+    updateProfile(NmsUtils.getPlayer(player).getProfile());
 
-            String texture = textureProperty.get("value").getAsString();
-            String signature = textureProperty.get("signature").getAsString();
-
-            return new Skin(texture, signature);
-
-        } catch (IOException e) {
-            return Skin.fromMojang("Notch");
-        }
+    for (Player other : Bukkit.getOnlinePlayers()) {
+      other.hidePlayer(player);
+      other.showPlayer(player);
     }
+  }
 
-    public SelfSkinShower apply(Plugin plugin, Player player, Runnable callback) {
-        this.showToOthers(player);
-        Location oldLoc = player.getLocation();
-        player.teleport(new Location(Bukkit.getWorld("world"), 0, 120, 0));
+  private void updateProfile(GameProfile gameProfile) {
 
-        return showToPlayer(plugin, player, () -> {
-            player.teleport(oldLoc);
-            callback.run();
-        });
-    }
+    gameProfile.getProperties().removeAll("textures");
+    gameProfile.getProperties().put("textures", new Property("textures", texture, signature));
+  }
 
-    private void showToOthers(Player player) {
-        this.updateProfile(NmsUtils.getPlayer(player).getProfile());
+  private static SelfSkinShower showToPlayer(Plugin plugin, Player player, Runnable onTp) {
+    EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
 
-        for (Player other : Bukkit.getOnlinePlayers()) {
-            other.hidePlayer(player);
-            other.showPlayer(player);
-        }
-    }
+    NmsUtils.sendPacket(player,
+        new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER,
+            nmsPlayer
+        )
+    );
 
-    private static SelfSkinShower showToPlayer(Plugin plugin, Player player, Runnable onTp) {
-        EntityPlayer nmsPlayer = NmsUtils.getPlayer(player);
+    NmsUtils.sendPacket(player,
+        new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER,
+            nmsPlayer
+        )
+    );
 
-        NmsUtils.sendPacket(
-                player,
-                new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, nmsPlayer)
-        );
-
-        NmsUtils.sendPacket(
-                player,
-                new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, nmsPlayer)
-        );
-
-        Runnable skinRunnable = () -> NmsUtils.sendPacket(player, new PacketPlayOutRespawn(
-                nmsPlayer.dimension,
-                nmsPlayer.getWorld().getDifficulty(),
-                nmsPlayer.getWorld().getWorldData().getType(),
-                nmsPlayer.playerInteractManager.getGameMode()
+    Runnable skinRunnable =
+        () -> NmsUtils.sendPacket(player, new PacketPlayOutRespawn(nmsPlayer.dimension,
+            nmsPlayer.getWorld().getDifficulty(),
+            nmsPlayer.getWorld().getWorldData().getType(),
+            nmsPlayer.playerInteractManager.getGameMode()
         ));
 
-        return new SelfSkinShower(skinRunnable, onTp).runLater(plugin);
+    return new SelfSkinShower(skinRunnable, onTp).runLater(plugin);
+  }
+
+  public void applyToSkull(SkullMeta meta) {
+    GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+    updateProfile(profile);
+
+    try {
+      Field profileField = meta.getClass().getDeclaredField("profile");
+      profileField.setAccessible(true);
+      profileField.set(meta, profile);
+
+    }
+    catch (IllegalAccessException | NoSuchFieldException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public SelfSkinShower applyAcrossTeleport(Plugin plugin, Player player, Runnable onTp) {
+    showToOthers(player);
+    return showToPlayer(plugin, player, onTp);
+  }
+
+  public void applyToNpc(NPC npc) {
+    npc.getOrAddTrait(SkinTrait.class).setSkinPersistent("", signature, texture);
+  }
+
+  @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+  public static final class SelfSkinShower {
+    private final Runnable skinRunnable;
+    private final Runnable teleportRunnable;
+    private BukkitTask showDelayer;
+
+    private SelfSkinShower runLater(Plugin plugin) {
+      showDelayer = Bukkit.getScheduler().runTaskLater(plugin, this::show, 2);
+      return this;
     }
 
-    private void updateProfile(GameProfile gameProfile) {
-
-        gameProfile.getProperties().removeAll("textures");
-        gameProfile.getProperties().put("textures", new Property("textures", this.texture, this.signature));
+    public void show() {
+      showWithoutTpAction();
+      teleportRunnable.run();
     }
 
-    public void applyToSkull(SkullMeta meta) {
-        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-        this.updateProfile(profile);
-
-        try {
-            Field profileField = meta.getClass().getDeclaredField("profile");
-            profileField.setAccessible(true);
-            profileField.set(meta, profile);
-
-        } catch (IllegalAccessException | NoSuchFieldException e) {
-            e.printStackTrace();
-        }
+    public void showWithoutTpAction() {
+      cancel();
+      skinRunnable.run();
     }
 
-    public SelfSkinShower applyAcrossTeleport(Plugin plugin, Player player, Runnable onTp) {
-        this.showToOthers(player);
-        return showToPlayer(plugin, player, onTp);
+    public void cancel() {
+      showDelayer.cancel();
     }
-
-    public void applyToNpc(NPC npc) {
-        npc.getOrAddTrait(SkinTrait.class).setSkinPersistent("", this.signature, this.texture);
-    }
-
-    public static class SelfSkinShower {
-        private final Runnable skinRunnable;
-        private final Runnable teleportRunnable;
-        private BukkitTask showDelayer;
-
-        private SelfSkinShower(Runnable skinRunnable, Runnable teleportRunnable) {
-            this.skinRunnable = skinRunnable;
-            this.teleportRunnable = teleportRunnable;
-        }
-
-        private SelfSkinShower runLater(Plugin plugin) {
-            this.showDelayer = Bukkit.getScheduler().runTaskLater(plugin, this::show, 2);
-            return this;
-        }
-
-        public void show() {
-            this.showWithoutTpAction();
-            this.teleportRunnable.run();
-        }
-
-        public void showWithoutTpAction() {
-            this.cancel();
-            this.skinRunnable.run();
-        }
-
-        public void cancel() {
-            this.showDelayer.cancel();
-        }
-    }
+  }
 }

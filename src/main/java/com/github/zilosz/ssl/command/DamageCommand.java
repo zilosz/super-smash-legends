@@ -14,40 +14,46 @@ import java.util.Optional;
 
 public class DamageCommand implements CommandExecutor {
 
-    @Override
-    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        if (strings.length == 0) return false;
-        if (!NumberUtils.isNumber(strings[0])) return false;
+  @Override
+  public boolean onCommand(
+      CommandSender commandSender, Command command, String s, String[] strings
+  ) {
+    if (strings.length == 0) return false;
+    if (!NumberUtils.isNumber(strings[0])) return false;
 
-        double damage = NumberUtils.createDouble(strings[0]);
+    double damage = NumberUtils.createDouble(strings[0]);
 
-        if (strings.length == 1) {
+    if (strings.length == 1) {
 
-            if (commandSender instanceof Player) {
-                damage(commandSender, (Player) commandSender, damage);
-            }
+      if (commandSender instanceof Player) {
+        damage(commandSender, (Player) commandSender, damage);
+      }
 
-            return true;
+      return true;
+    }
+    else if (strings.length == 2) {
 
-        } else if (strings.length == 2) {
+      Optional.ofNullable(Bukkit.getPlayer(strings[1])).ifPresent(player -> {
+        damage(commandSender, player, damage);
+      });
 
-            Optional.ofNullable(Bukkit.getPlayer(strings[1])).ifPresent(player -> {
-                damage(commandSender, player, damage);
-            });
-
-            return true;
-        }
-
-        return false;
+      return true;
     }
 
-    private static void damage(CommandSender sender, Player player, double damage) {
-        Damage settings = new Damage(damage, false);
-        DamageEvent event = new DamageEvent(player, settings, false, null);
-        Bukkit.getPluginManager().callEvent(event);
+    return false;
+  }
 
-        double finalDamage = event.getFinalDamage();
-        player.damage(finalDamage);
-        Chat.COMMAND.send(sender, String.format("&7Damaged &5%s &7for &e%f &7damage.", player.getName(), finalDamage));
-    }
+  private static void damage(CommandSender sender, Player player, double damage) {
+    Damage settings = new Damage(damage, false);
+    DamageEvent event = new DamageEvent(player, settings, false, null);
+    Bukkit.getPluginManager().callEvent(event);
+
+    double finalDamage = event.getFinalDamage();
+    player.damage(finalDamage);
+
+    Chat.COMMAND.send(
+        sender,
+        String.format("&7Damaged &5%s &7for &e%f &7damage.", player.getName(), finalDamage)
+    );
+  }
 }

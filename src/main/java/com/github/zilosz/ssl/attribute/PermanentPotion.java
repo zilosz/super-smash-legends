@@ -6,27 +6,27 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class PermanentPotion extends PassiveAbility {
-    private PotionEffectType type;
+  private PotionEffectType type;
 
-    @Override
-    public void activate() {
-        super.activate();
-        PotionEffect effect = YamlReader.potionEffect(this.config.getSection("Potion"));
-        this.type = effect.getType();
-        PotionEffectEvent.fromPotionEffect(this.player, effect).apply();
+  @Override
+  public void activate() {
+    super.activate();
+    PotionEffect effect = YamlReader.potionEffect(config.getSection("Potion"));
+    type = effect.getType();
+    new PotionEffectEvent(player, effect).apply();
+  }
+
+  @Override
+  public void deactivate() {
+    super.deactivate();
+
+    if (type != null) {
+      player.removePotionEffect(type);
     }
+  }
 
-    @Override
-    public void deactivate() {
-        super.deactivate();
-
-        if (this.type != null) {
-            this.player.removePotionEffect(this.type);
-        }
-    }
-
-    @Override
-    public String getUseType() {
-        return "&oPassive";
-    }
+  @Override
+  public String getUseType() {
+    return "&oPassive";
+  }
 }

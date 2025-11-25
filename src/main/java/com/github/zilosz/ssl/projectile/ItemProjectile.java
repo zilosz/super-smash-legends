@@ -10,17 +10,19 @@ import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 
 public class ItemProjectile extends EmulatedProjectile<Item> {
-    @Getter @Setter private ItemStack itemStack;
+  @Getter @Setter private ItemStack itemStack;
 
-    public ItemProjectile(Section config, AttackInfo attackInfo) {
-        super(config, attackInfo);
-        this.config.getOptionalSection("Item").ifPresent(section -> this.itemStack = YamlReader.stack(section));
-    }
+  public ItemProjectile(Section config, AttackInfo attackInfo) {
+    super(config, attackInfo);
+    this.config
+        .getOptionalSection("Item")
+        .ifPresent(section -> itemStack = YamlReader.stack(section));
+  }
 
-    @Override
-    public Item createEntity(Location location) {
-        Item item = location.getWorld().dropItem(location, this.itemStack);
-        item.setPickupDelay(Integer.MAX_VALUE);
-        return item;
-    }
+  @Override
+  public Item createEntity(Location location) {
+    Item item = location.getWorld().dropItem(location, itemStack);
+    item.setPickupDelay(Integer.MAX_VALUE);
+    return item;
+  }
 }

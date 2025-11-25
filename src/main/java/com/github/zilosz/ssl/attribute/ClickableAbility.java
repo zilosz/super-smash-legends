@@ -11,121 +11,122 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import java.text.DecimalFormat;
 
 public abstract class ClickableAbility extends Ability {
-    protected int cooldownLeft;
+  protected int cooldownLeft;
 
-    @Override
-    public void activate() {
-        super.activate();
-        this.cooldownLeft = 0;
-        this.hotbarItem.setAction(this::onClickAttempt);
+  @Override
+  public void activate() {
+    super.activate();
+    cooldownLeft = 0;
+    hotbarItem.setAction(this::onClickAttempt);
+  }
+
+  public void onClickAttempt(PlayerInteractEvent event) {
+    if (invalidate(event)) return;
+
+    AbilityUseEvent abilityUseEvent = new AbilityUseEvent(this);
+    Bukkit.getPluginManager().callEvent(abilityUseEvent);
+
+    if (abilityUseEvent.isCancelled()) return;
+
+    onClick(event);
+
+    if (sendsUseMessageInstantly()) {
+      sendUseMessage();
     }
 
-    public void onClickAttempt(PlayerInteractEvent event) {
-        if (this.invalidate(event)) return;
-
-        AbilityUseEvent abilityUseEvent = new AbilityUseEvent(this);
-        Bukkit.getPluginManager().callEvent(abilityUseEvent);
-
-        if (abilityUseEvent.isCancelled()) return;
-
-        this.onClick(event);
-
-        if (this.sendsUseMessageInstantly()) {
-            this.sendUseMessage();
-        }
-
-        if (this.startsCooldownInstantly()) {
-            this.startCooldown();
-        }
-
-        this.player.setExp(this.player.getExp() - this.getEnergyCost());
+    if (startsCooldownInstantly()) {
+      startCooldown();
     }
 
-    public boolean invalidate(PlayerInteractEvent event) {
-        if (this.player.getExp() < this.getEnergyCost() || this.cooldownLeft > 0) return true;
+    player.setExp(player.getExp() - getEnergyCost());
+  }
 
-        if (EntityUtils.isPlayerGrounded(this.player)) {
+  public boolean invalidate(PlayerInteractEvent event) {
+    if (player.getExp() < getEnergyCost() || cooldownLeft > 0) return true;
 
-            if (this.mustBeAirborne()) {
-                Chat.ABILITY.send(this.player, "&7You must be airborne to use this ability.");
-                return true;
-            }
+    if (EntityUtils.isPlayerGrounded(player)) {
 
-        } else if (this.mustBeGrounded()) {
-            Chat.ABILITY.send(this.player, "&7You must be grounded to use this ability.");
-            return true;
-        }
-
-        return false;
+      if (mustBeAirborne()) {
+        Chat.ABILITY.send(player, "&7You must be airborne to use this ability.");
+        return true;
+      }
+    }
+    else if (mustBeGrounded()) {
+      Chat.ABILITY.send(player, "&7You must be grounded to use this ability.");
+      return true;
     }
 
-    public abstract void onClick(PlayerInteractEvent event);
+    return false;
+  }
 
-    public boolean sendsUseMessageInstantly() {
-        return this.config.getOptionalBoolean("AutoSendUseMessage").orElse(true);
+  public float getEnergyCost() {
+    return config.getFloat("EnergyCost");
+  }
+
+  public boolean mustBeAirborne() {
+    return config.getBoolean("MustBeAirborne");
+  }
+
+  public boolean mustBeGrounded() {
+    return config.getBoolean("MustBeGrounded");
+  }
+
+  public abstract void onClick(PlayerInteractEvent event);
+
+  public boolean sendsUseMessageInstantly() {
+    return config.getOptionalBoolean("AutoSendUseMessage").orElse(true);
+  }
+
+  public void sendUseMessage() {
+    Chat.ABILITY.send(player, String.format("&7You used %s&7.", getDisplayName()));
+  }
+
+  public boolean startsCooldownInstantly() {
+    return config.getOptionalBoolean("AutoStartCooldown").orElse(true);
+  }
+
+  public void startCooldown() {
+    cooldownLeft = getCooldown();
+  }
+
+  public int getCooldown() {
+    return config.getInt("Cooldown");
+  }
+
+  @Override
+  public void run() {
+    onTick();
+
+    if (cooldownLeft > 0 && --cooldownLeft == 0) {
+      onCooldownEnd();
+      Chat.ABILITY.send(player, String.format("&7You can use %s&7.", getDisplayName()));
     }
 
-    public void sendUseMessage() {
-        Chat.ABILITY.send(this.player, String.format("&7You used %s&7.", this.getDisplayName()));
+    if (slot != player.getInventory().getHeldItemSlot()) return;
+
+    String message;
+
+    if (cooldownLeft == 0) {
+      message = String.format("%s &7- &6%s", getBoldedDisplayName(), "&l" + getUseType());
+    }
+    else {
+      String color = kit.getColor().getChatSymbol();
+      String emptyColor = color.equals("&7") ? "&8&l" : "&7&l";
+      int cooldownSoFar = getCooldown() - cooldownLeft;
+      String bar =
+          MessageUtils.progressBar("❚", "❚", color, emptyColor, cooldownSoFar, getCooldown(), 20);
+
+      DecimalFormat format = new DecimalFormat("#.#");
+      format.setMinimumFractionDigits(1);
+      String label = format.format(cooldownLeft / 20.0);
+
+      message = String.format("%s %s &f&l%s", getBoldedDisplayName(), bar, label);
     }
 
-    public boolean startsCooldownInstantly() {
-        return this.config.getOptionalBoolean("AutoStartCooldown").orElse(true);
-    }
+    ActionBarAPI.sendActionBar(player, MessageUtils.color(message));
+  }
 
-    public void startCooldown() {
-        this.cooldownLeft = this.getCooldown();
-    }
+  protected void onTick() {}
 
-    public float getEnergyCost() {
-        return this.config.getFloat("EnergyCost");
-    }
-
-    public boolean mustBeAirborne() {
-        return this.config.getBoolean("MustBeAirborne");
-    }
-
-    public boolean mustBeGrounded() {
-        return this.config.getBoolean("MustBeGrounded");
-    }
-
-    public int getCooldown() {
-        return this.config.getInt("Cooldown");
-    }
-
-    @Override
-    public void run() {
-        this.onTick();
-
-        if (this.cooldownLeft > 0 && --this.cooldownLeft == 0) {
-            this.onCooldownEnd();
-            Chat.ABILITY.send(this.player, String.format("&7You can use %s&7.", this.getDisplayName()));
-        }
-
-        if (this.slot != this.player.getInventory().getHeldItemSlot()) return;
-
-        String message;
-
-        if (this.cooldownLeft == 0) {
-            message = String.format("%s &7- &6%s", this.getBoldedDisplayName(), "&l" + this.getUseType());
-
-        } else {
-            String color = this.kit.getColor().getChatSymbol();
-            String emptyColor = color.equals("&7") ? "&8&l" : "&7&l";
-            int cooldownSoFar = this.getCooldown() - this.cooldownLeft;
-            String bar = MessageUtils.progressBar("❚", "❚", color, emptyColor, cooldownSoFar, this.getCooldown(), 20);
-
-            DecimalFormat format = new DecimalFormat("#.#");
-            format.setMinimumFractionDigits(1);
-            String label = format.format(this.cooldownLeft / 20.0);
-
-            message = String.format("%s %s &f&l%s", this.getBoldedDisplayName(), bar, label);
-        }
-
-        ActionBarAPI.sendActionBar(this.player, MessageUtils.color(message));
-    }
-
-    protected void onTick() {}
-
-    public void onCooldownEnd() {}
+  public void onCooldownEnd() {}
 }

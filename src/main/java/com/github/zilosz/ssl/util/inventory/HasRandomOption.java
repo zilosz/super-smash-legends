@@ -4,11 +4,11 @@ import com.github.zilosz.ssl.util.message.Chat;
 
 public interface HasRandomOption {
 
-    Chat getChatType();
+  Chat getChatType();
 
-    String getMessage();
+  String getMessage();
 
-    default int getTicksPerColorChange() {
-        return 10;
-    }
+  default int getTicksPerColorChange() {
+    return 10;
+  }
 }

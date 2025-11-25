@@ -5,11 +5,12 @@ import org.bukkit.entity.Entity;
 
 import java.util.stream.Stream;
 
+@FunctionalInterface
 public interface EntitySelector {
 
-    default boolean containsEntity(Location source, Entity entity) {
-        return this.getEntityStream(source).anyMatch(other -> other.equals(entity));
-    }
+  default boolean containsEntity(Location source, Entity entity) {
+    return getEntityStream(source).anyMatch(other -> other.equals(entity));
+  }
 
-    Stream<Entity> getEntityStream(Location source);
+  Stream<Entity> getEntityStream(Location source);
 }

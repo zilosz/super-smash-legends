@@ -10,19 +10,19 @@ import org.bukkit.entity.Player;
 
 public class ArrowProjectile extends ActualProjectile<Arrow> {
 
-    public ArrowProjectile(Section config, AttackInfo attackInfo) {
-        super(config, attackInfo);
-    }
+  public ArrowProjectile(Section config, AttackInfo attackInfo) {
+    super(config, attackInfo);
+  }
 
-    @Override
-    public Arrow createProjectile(Location location) {
-        return location.getWorld().spawn(location, Arrow.class);
-    }
+  @Override
+  public Arrow createProjectile(Location location) {
+    return location.getWorld().spawn(location, Arrow.class);
+  }
 
-    @Override
-    public void onTargetHit(LivingEntity target) {
-        if (target instanceof Player) {
-            NmsUtils.getPlayer((Player) target).getDataWatcher().watch(9, (byte) 0);
-        }
+  @Override
+  public void onTargetHit(LivingEntity target) {
+    if (target instanceof Player) {
+      NmsUtils.getPlayer((Player) target).getDataWatcher().watch(9, (byte) 0);
     }
+  }
 }

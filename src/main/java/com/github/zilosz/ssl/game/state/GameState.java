@@ -6,6 +6,7 @@ import com.github.zilosz.ssl.database.PlayerDatabase;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.GameResult;
 import com.github.zilosz.ssl.game.InGameProfile;
+import com.github.zilosz.ssl.team.TeamManager;
 import com.github.zilosz.ssl.util.message.Chat;
 import com.github.zilosz.ssl.util.message.MessageUtils;
 import lombok.Getter;
@@ -36,174 +37,192 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.List;
 
+@Setter
+@Getter
 public abstract class GameState implements Listener {
-    @Getter @Setter private GameStateType type;
+  private GameStateType type;
 
-    public abstract boolean allowsSpecCommand();
+  public abstract boolean allowsSpecCommand();
 
-    public abstract boolean allowsKitSelection();
+  public abstract boolean allowsKitSelection();
 
-    public abstract boolean updatesKitSkins();
+  public abstract boolean updatesKitSkins();
 
-    public abstract List<String> getScoreboard(Player player);
+  public abstract List<String> getScoreboard(Player player);
 
-    public abstract void start();
+  public abstract void start();
 
-    public abstract void end();
+  public abstract void end();
 
-    @EventHandler
-    public void onPreJoin(AsyncPlayerPreLoginEvent event) {
-        if (Bukkit.getOnlinePlayers().size() >= SSL.getInstance().getTeamManager().getAbsolutePlayerCap()) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_FULL, "The game is full!");
+  @EventHandler
+  public void onPreJoin(AsyncPlayerPreLoginEvent event) {
+    int cap = SSL.getInstance().getTeamManager().getAbsolutePlayerCap();
+    if (Bukkit.getOnlinePlayers().size() >= cap) {
+      event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_FULL, "The game is full!");
+    }
+  }
+
+  @EventHandler(priority = EventPriority.LOW)
+  public void onGeneralJoin(PlayerJoinEvent event) {
+    Player player = event.getPlayer();
+
+    player.getInventory().clear();
+    player.setHealth(20);
+    player.setLevel(0);
+
+    PlayerDatabase playerDb = SSL.getInstance().getPlayerDatabase();
+    playerDb.setupPlayerData(player);
+    playerDb.getPlayerData(player).setName(player.getName());
+
+    String joinMsg;
+
+    if (isInArena()) {
+      joinMsg = String.format("&5%s &7has joined mid-game.", player.getName());
+      Chat.GAME.send(player, "&7The game you joined is in progress.");
+
+      player.teleport(SSL.getInstance().getArenaManager().getArena().getWaitLocation());
+
+      GameManager gameManager = SSL.getInstance().getGameManager();
+      gameManager.getSpectators().forEach(player::hidePlayer);
+      gameManager.addSpectator(player);
+    }
+    else {
+      joinMsg = String.format("&5%s &7has joined the game.", player.getName());
+    }
+
+    event.setJoinMessage(Chat.JOIN.get(joinMsg));
+
+    Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
+      String msg = MessageUtils.color("&7Welcome to &5&lSuper Smash Legends!");
+      ActionBarAPI.sendActionBar(player, msg, 60);
+      player.playSound(player.getLocation(), Sound.LEVEL_UP, 2, 1);
+    }, 5);
+  }
+
+  public abstract boolean isInArena();
+
+  @EventHandler
+  public void onGeneralQuit(PlayerQuitEvent event) {
+    Player player = event.getPlayer();
+
+    GameManager gameManager = SSL.getInstance().getGameManager();
+    PlayerDatabase playerDb = SSL.getInstance().getPlayerDatabase();
+
+    String quitMsg;
+
+    if (isInArena() && gameManager.isPlayerAlive(player)) {
+      TeamManager teamManager = SSL.getInstance().getTeamManager();
+
+      String color = teamManager.getPlayerColor(player);
+      quitMsg = String.format("%s &7has quit mid-game.", color + player.getName());
+
+      InGameProfile profile = gameManager.getProfile(player);
+      profile.setLives(0);
+      profile.setGameResult(GameResult.LOSE);
+      profile.updatePlayerData(playerDb.getPlayerData(player));
+
+      if (isPlaying()) {
+        teamManager.getEntityTeam(player).setLifespan(gameManager.getTicksActive());
+
+        if (gameManager.getAlivePlayers().size() <= 1) {
+          gameManager.skipToState(GameStateType.END);
         }
+      }
+    }
+    else {
+      quitMsg = String.format("&5%s &7has quit the game.", player.getName());
     }
 
-    @EventHandler(priority = EventPriority.LOW)
-    public void onGeneralJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
+    event.setQuitMessage(Chat.QUIT.get(quitMsg));
 
-        player.getInventory().clear();
-        player.setHealth(20);
-        player.setLevel(0);
+    SSL.getInstance().getKitManager().wipePlayer(player);
 
-        PlayerDatabase playerDatabase = SSL.getInstance().getPlayerDatabase();
-        playerDatabase.setupPlayerData(player);
-        playerDatabase.getPlayerData(player).setName(player.getName());
+    gameManager.removeSpectator(player);
+    gameManager.removeFutureSpectator(player);
 
-        if (this.isInArena()) {
-            event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined mid-game.", player.getName())));
-            Chat.GAME.send(player, "&7The game you joined is in progress.");
+    playerDb.savePlayerData(player);
+    playerDb.removePlayerData(player);
+  }
 
-            player.teleport(SSL.getInstance().getArenaManager().getArena().getWaitLocation());
+  public abstract boolean isPlaying();
 
-            GameManager gameManager = SSL.getInstance().getGameManager();
-            gameManager.getSpectators().forEach(player::hidePlayer);
-            gameManager.addSpectator(player);
-
-        } else {
-            event.setJoinMessage(Chat.JOIN.get(String.format("&5%s &7has joined the game.", player.getName())));
-        }
-
-        Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
-            ActionBarAPI.sendActionBar(player, MessageUtils.color("&7Welcome to &5&lSuper Smash Legends!"), 60);
-            player.playSound(player.getLocation(), Sound.LEVEL_UP, 2, 1);
-        }, 5);
+  @EventHandler(
+      priority = EventPriority.LOW,
+      ignoreCancelled = true)
+  public void onGeneralEntityDamage(EntityDamageEvent event) {
+    if (!allowsDamage()) {
+      event.setCancelled(true);
     }
+  }
 
-    public abstract boolean isInArena();
+  public abstract boolean allowsDamage();
 
-    @EventHandler
-    public void onGeneralQuit(PlayerQuitEvent event) {
-        Player player = event.getPlayer();
-        GameManager gameManager = SSL.getInstance().getGameManager();
-        PlayerDatabase playerDb = SSL.getInstance().getPlayerDatabase();
+  @EventHandler
+  public void onChat(AsyncPlayerChatEvent event) {
+    event.setFormat(MessageUtils.color("&9%s" + "» &7%s"));
+  }
 
-        if (this.isInArena() && gameManager.isPlayerAlive(player)) {
-            String color = SSL.getInstance().getTeamManager().getPlayerColor(player);
-            event.setQuitMessage(Chat.QUIT.get(String.format("%s &7has quit mid-game.", color + player.getName())));
-
-            InGameProfile profile = gameManager.getProfile(player);
-            profile.setLives(0);
-            profile.setGameResult(GameResult.LOSE);
-            profile.updatePlayerData(playerDb.getPlayerData(player));
-
-            if (this.isPlaying()) {
-                SSL.getInstance().getTeamManager().getEntityTeam(player).setLifespan(gameManager.getTicksActive());
-
-                if (gameManager.getAlivePlayers().size() <= 1) {
-                    gameManager.skipToState(GameStateType.END);
-                }
-            }
-        } else {
-            event.setQuitMessage(Chat.QUIT.get(String.format("&5%s &7has quit the game.", player.getName())));
-        }
-
-        SSL.getInstance().getKitManager().wipePlayer(player);
-
-        gameManager.removeSpectator(player);
-        gameManager.removeFutureSpectator(player);
-
-        playerDb.savePlayerData(player);
-        playerDb.removePlayerData(player);
+  @EventHandler
+  public void onBlockBreak(BlockBreakEvent event) {
+    if (!event.getPlayer().isOp() || event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+      event.setCancelled(true);
     }
+  }
 
-    public abstract boolean isPlaying();
-
-    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-    public void onGeneralEntityDamage(EntityDamageEvent event) {
-        if (!this.allowsDamage()) {
-            event.setCancelled(true);
-        }
-    }
-
-    public abstract boolean allowsDamage();
-
-    @EventHandler
-    public void onChat(AsyncPlayerChatEvent event) {
-        event.setFormat(MessageUtils.color("&9%s" + "» &7%s"));
-    }
-
-    @EventHandler
-    public void onBlockBreak(BlockBreakEvent event) {
-        if (!event.getPlayer().isOp() || event.getPlayer().getGameMode() != GameMode.CREATIVE) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler
-    public void onEntitySpawn(CreatureSpawnEvent event) {
-        switch (event.getSpawnReason()) {
-            case NATURAL:
-            case EGG:
-                event.setCancelled(true);
-        }
-    }
-
-    @EventHandler
-    public void onEntityCombust(EntityCombustEvent event) {
+  @EventHandler
+  public void onEntitySpawn(CreatureSpawnEvent event) {
+    switch (event.getSpawnReason()) {
+      case NATURAL:
+      case EGG:
         event.setCancelled(true);
     }
+  }
 
-    @EventHandler
-    public void onBlockPlace(BlockPlaceEvent event) {
-        if (!event.getPlayer().isOp() || event.getPlayer().getGameMode() != GameMode.CREATIVE) {
-            event.setCancelled(true);
-        }
-    }
+  @EventHandler
+  public void onEntityCombust(EntityCombustEvent event) {
+    event.setCancelled(true);
+  }
 
-    @EventHandler
-    public void onBlockIgnite(BlockIgniteEvent event) {
-        event.setCancelled(true);
+  @EventHandler
+  public void onBlockPlace(BlockPlaceEvent event) {
+    if (!event.getPlayer().isOp() || event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+      event.setCancelled(true);
     }
+  }
 
-    @EventHandler
-    public void onBlockBurn(BlockBurnEvent event) {
-        event.setCancelled(true);
-    }
+  @EventHandler
+  public void onBlockIgnite(BlockIgniteEvent event) {
+    event.setCancelled(true);
+  }
 
-    @EventHandler
-    public void onRegainHealth(EntityRegainHealthEvent event) {
-        event.setCancelled(true);
-    }
+  @EventHandler
+  public void onBlockBurn(BlockBurnEvent event) {
+    event.setCancelled(true);
+  }
 
-    @EventHandler
-    public void onBlockExplode(BlockExplodeEvent event) {
-        event.setCancelled(true);
-    }
+  @EventHandler
+  public void onRegainHealth(EntityRegainHealthEvent event) {
+    event.setCancelled(true);
+  }
 
-    @EventHandler
-    public void onFoodLevelChange(FoodLevelChangeEvent event) {
-        event.setFoodLevel(20);
-    }
+  @EventHandler
+  public void onBlockExplode(BlockExplodeEvent event) {
+    event.setCancelled(true);
+  }
 
-    @EventHandler
-    public void onEntityDeath(EntityDeathEvent event) {
-        event.getDrops().clear();
-        event.setDroppedExp(0);
-    }
+  @EventHandler
+  public void onFoodLevelChange(FoodLevelChangeEvent event) {
+    event.setFoodLevel(20);
+  }
 
-    @EventHandler
-    public void onItemDrop(PlayerDropItemEvent event) {
-        event.setCancelled(true);
-    }
+  @EventHandler
+  public void onEntityDeath(EntityDeathEvent event) {
+    event.getDrops().clear();
+    event.setDroppedExp(0);
+  }
+
+  @EventHandler
+  public void onItemDrop(PlayerDropItemEvent event) {
+    event.setCancelled(true);
+  }
 }

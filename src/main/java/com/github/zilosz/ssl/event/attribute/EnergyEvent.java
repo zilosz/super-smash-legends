@@ -1,16 +1,29 @@
 package com.github.zilosz.ssl.event.attribute;
 
-import com.github.zilosz.ssl.event.CustomEvent;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
 
-public class EnergyEvent extends CustomEvent {
-    @Getter private final Player player;
-    @Getter @Setter private float energy;
+@Getter
+public class EnergyEvent extends Event {
+  private static final HandlerList HANDLERS = new HandlerList();
 
-    public EnergyEvent(Player player, float energyGained) {
-        this.player = player;
-        this.energy = energyGained;
-    }
+  private final Player player;
+  @Setter private float energy;
+
+  public EnergyEvent(Player player, float energy) {
+    this.player = player;
+    this.energy = energy;
+  }
+
+  public static HandlerList getHandlerList() {
+    return HANDLERS;
+  }
+
+  @Override
+  public HandlerList getHandlers() {
+    return HANDLERS;
+  }
 }

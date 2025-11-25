@@ -10,7 +10,7 @@ import com.github.zilosz.ssl.util.NmsUtils;
 import com.github.zilosz.ssl.util.block.BlockHitResult;
 import com.github.zilosz.ssl.util.entity.EntityUtils;
 import com.github.zilosz.ssl.util.entity.finder.EntityFinder;
-import com.github.zilosz.ssl.util.entity.finder.selector.implementation.HitBoxSelector;
+import com.github.zilosz.ssl.util.entity.finder.selector.impl.HitBoxSelector;
 import com.github.zilosz.ssl.util.file.YamlReader;
 import com.github.zilosz.ssl.util.math.VectorUtils;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -28,230 +28,233 @@ import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable implements Listener {
-    protected final Section config;
-    @Getter protected AttackInfo attackInfo;
+public abstract class CustomProjectile<T extends Entity> extends BukkitRunnable
+    implements Listener {
+  protected final Section config;
+  @Getter protected AttackInfo attackInfo;
+  @Getter protected Player launcher;
+  @Getter protected T entity;
+  @Getter protected Attack attack;
+  @Getter @Setter protected Double speed;
+  @Setter protected Location overrideLocation;
+  @Setter protected float spread;
+  @Setter protected int lifespan;
+  protected boolean hasGravity;
+  protected int maxBounces;
+  protected double hitBox;
+  protected boolean hitsMultiple;
+  protected boolean removeOnEntityHit;
+  protected double distanceFromEye;
+  protected boolean removeOnBlockHit;
+  protected boolean invisible;
+  protected boolean recreateOnBounce;
+  protected boolean useCustomHitBox = true;
+  protected boolean removeOnFailedHit;
+  protected int ticksAlive;
+  protected Vector launchVelocity;
+  protected int timesBounced;
+  protected double defaultHitBox;
+  protected EntityFinder entityFinder;
 
-    @Getter protected Player launcher;
-    @Getter protected T entity;
-    @Getter protected Attack attack;
-    @Getter @Setter protected Double speed;
-    @Setter protected Location overrideLocation;
-    @Setter protected float spread;
-    @Setter protected int lifespan;
-    protected boolean hasGravity;
-    protected int maxBounces;
-    protected double hitBox;
-    protected boolean hitsMultiple;
-    protected boolean removeOnEntityHit;
-    protected double distanceFromEye;
-    protected boolean removeOnBlockHit;
-    protected boolean invisible;
-    protected boolean recreateOnBounce = false;
-    protected boolean useCustomHitBox = true;
-    protected boolean removeOnFailedHit;
-    protected int ticksAlive = 0;
-    protected Vector launchVelocity;
-    protected int timesBounced = 0;
-    protected double defaultHitBox;
-    protected EntityFinder entityFinder;
+  public CustomProjectile(Section config, AttackInfo attackInfo) {
+    this.config = config;
+    this.attackInfo = attackInfo;
+    launcher = this.attackInfo.getAttribute().getPlayer();
 
-    public CustomProjectile(Section config, AttackInfo attackInfo) {
-        this.config = config;
-        this.attackInfo = attackInfo;
-        this.launcher = this.attackInfo.getAttribute().getPlayer();
+    attack = YamlReader.attack(this.config, null, "");
 
-        this.attack = YamlReader.attack(this.config, null, "");
-
-        if (this.attackInfo.getAttribute() instanceof Ability) {
-            this.attack.setName(((Ability) this.attackInfo.getAttribute()).getDisplayName());
-        }
-
-        Section defaults = SSL.getInstance().getResources().getConfig().getSection("Projectile");
-
-        if (this.config.isNumber("HitBox")) {
-            this.hitBox = this.config.getDouble("HitBox");
-
-        } else {
-            this.hitBox = defaults.getDouble("HitBox");
-        }
-
-        if (this.config.getOptionalBoolean("HasLifespan").orElse(true)) {
-            this.lifespan = config.getOptionalInt("Lifespan").orElse(defaults.getInt("Lifespan"));
-        }
-
-        this.spread = config.getFloat("Spread");
-        this.hasGravity = config.getOptionalBoolean("HasGravity").orElse(true);
-        this.maxBounces = config.getInt("MaxBounces");
-        this.hitsMultiple = config.getBoolean("HitsMultiple");
-        this.removeOnEntityHit = config.getOptionalBoolean("RemoveOnEntityHit").orElse(true);
-        this.removeOnBlockHit = config.getOptionalBoolean("RemoveOnBlockHit").orElse(true);
-        this.removeOnFailedHit = config.getBoolean("RemoveOnFailedHit");
-        this.distanceFromEye = config.getOptionalDouble("DistanceFromEye").orElse(1.0);
-        this.invisible = config.getBoolean("Invisible");
-
-        this.entityFinder = new EntityFinder(new HitBoxSelector(this.hitBox));
+    if (this.attackInfo.getAttribute() instanceof Ability) {
+      attack.setName(((Ability) this.attackInfo.getAttribute()).getDisplayName());
     }
 
-    public Vector getLaunchVelocity() {
-        return this.launchVelocity.clone();
+    Section defaults = SSL.getInstance().getResources().getConfig().getSection("Projectile");
+
+    if (this.config.isNumber("HitBox")) {
+      hitBox = this.config.getDouble("HitBox");
+    }
+    else {
+      hitBox = defaults.getDouble("HitBox");
     }
 
-    public void launch() {
-        this.speed = this.speed == null ? this.config.getDouble("Speed") : this.speed;
-
-        Location eyeLoc = this.launcher.getEyeLocation();
-        Location location = this.overrideLocation == null ? eyeLoc : this.overrideLocation.clone();
-        location.setDirection(VectorUtils.randomVectorInDirection(location, this.spread));
-        location.add(location.getDirection().multiply(this.distanceFromEye));
-
-        this.launchVelocity = location.getDirection().multiply(this.speed);
-
-        this.entity = this.createEntity(location);
-        this.applyEntityParams();
-        this.entity.setVelocity(this.launchVelocity);
-
-        this.runTaskTimer(SSL.getInstance(), 0, 0);
-        Bukkit.getPluginManager().registerEvents(this, SSL.getInstance());
-
-        this.onLaunch();
+    if (this.config.getOptionalBoolean("HasLifespan").orElse(true)) {
+      lifespan = config.getOptionalInt("Lifespan").orElse(defaults.getInt("Lifespan"));
     }
 
-    protected abstract T createEntity(Location location);
+    spread = config.getFloat("Spread");
+    hasGravity = config.getOptionalBoolean("HasGravity").orElse(true);
+    maxBounces = config.getInt("MaxBounces");
+    hitsMultiple = config.getBoolean("HitsMultiple");
+    removeOnEntityHit = config.getOptionalBoolean("RemoveOnEntityHit").orElse(true);
+    removeOnBlockHit = config.getOptionalBoolean("RemoveOnBlockHit").orElse(true);
+    removeOnFailedHit = config.getBoolean("RemoveOnFailedHit");
+    distanceFromEye = config.getOptionalDouble("DistanceFromEye").orElse(1.0);
+    invisible = config.getBoolean("Invisible");
 
-    private void applyEntityParams() {
-        if (this.invisible) {
-            NmsUtils.broadcastPacket(new PacketPlayOutEntityDestroy(1, this.entity.getEntityId()));
-        }
+    entityFinder = new EntityFinder(new HitBoxSelector(hitBox));
+  }
+
+  public Vector getLaunchVelocity() {
+    return launchVelocity.clone();
+  }
+
+  public void launch() {
+    speed = speed == null ? config.getDouble("Speed") : speed;
+
+    Location eyeLoc = launcher.getEyeLocation();
+    Location location = overrideLocation == null ? eyeLoc : overrideLocation.clone();
+    location.setDirection(VectorUtils.randomVectorInDirection(location, spread));
+    location.add(location.getDirection().multiply(distanceFromEye));
+
+    launchVelocity = location.getDirection().multiply(speed);
+
+    entity = createEntity(location);
+    applyEntityParams();
+    entity.setVelocity(launchVelocity);
+
+    runTaskTimer(SSL.getInstance(), 0, 0);
+    Bukkit.getPluginManager().registerEvents(this, SSL.getInstance());
+
+    onLaunch();
+  }
+
+  protected abstract T createEntity(Location location);
+
+  private void applyEntityParams() {
+    if (invisible) {
+      NmsUtils.broadcastPacket(new PacketPlayOutEntityDestroy(1, entity.getEntityId()));
+    }
+  }
+
+  protected void onLaunch() {}
+
+  protected void hitBlock(BlockHitResult result) {
+    if (result == null) return;
+
+    ProjectileHitBlockEvent event = new ProjectileHitBlockEvent(this, result);
+    Bukkit.getPluginManager().callEvent(event);
+
+    onBlockHit(result);
+
+    if (result.getFace() == null) return;
+
+    if (++timesBounced > maxBounces) {
+
+      if (removeOnBlockHit) {
+        remove(ProjectileRemoveReason.HIT_BLOCK);
+      }
+    }
+    else {
+      Vector velocity = hasGravity ? launchVelocity : entity.getVelocity();
+
+      switch (result.getFace()) {
+
+        case UP:
+        case DOWN:
+          velocity.setY(-velocity.getY());
+          break;
+
+        case NORTH:
+        case SOUTH:
+          velocity.setZ(-velocity.getZ());
+          break;
+
+        default:
+          velocity.setX(-velocity.getX());
+      }
+
+      if (recreateOnBounce) {
+        entity = createEntity(entity.getLocation());
+        applyEntityParams();
+      }
+
+      setVelocity(velocity);
+    }
+  }
+
+  protected void onBlockHit(BlockHitResult result) {}
+
+  public void remove(ProjectileRemoveReason reason) {
+    HandlerList.unregisterAll(this);
+    entity.remove();
+    cancel();
+    onRemove(reason);
+  }
+
+  protected void onRemove(ProjectileRemoveReason reason) {}
+
+  protected void setVelocity(Vector velocity) {
+    if (hasGravity) {
+      entity.setVelocity(velocity);
+    }
+    else {
+      launchVelocity = velocity;
+    }
+  }
+
+  @Override
+  public void run() {
+    ticksAlive++;
+    ProjectileRemoveReason reason = null;
+
+    if (!entity.isValid()) {
+      reason = ProjectileRemoveReason.ENTITY_DEATH;
+
+    }
+    else if (SSL.getInstance().getGameManager().getState().getType() != GameStateType.IN_GAME) {
+      reason = ProjectileRemoveReason.DEACTIVATION;
+
+    }
+    else if (ticksAlive >= lifespan) {
+      reason = ProjectileRemoveReason.LIFESPAN;
     }
 
-    protected void onLaunch() {}
-
-    protected void hitBlock(BlockHitResult result) {
-        if (result == null) return;
-
-        ProjectileHitBlockEvent event = new ProjectileHitBlockEvent(this, result);
-        Bukkit.getPluginManager().callEvent(event);
-
-        this.onBlockHit(result);
-
-        if (result.getFace() == null) return;
-
-        if (++this.timesBounced > this.maxBounces) {
-
-            if (this.removeOnBlockHit) {
-                this.remove(ProjectileRemoveReason.HIT_BLOCK);
-            }
-
-        } else {
-            Vector velocity = this.hasGravity ? this.launchVelocity : this.entity.getVelocity();
-
-            switch (result.getFace()) {
-
-                case UP:
-                case DOWN:
-                    velocity.setY(-velocity.getY());
-                    break;
-
-                case NORTH:
-                case SOUTH:
-                    velocity.setZ(-velocity.getZ());
-                    break;
-
-                default:
-                    velocity.setX(-velocity.getX());
-            }
-
-            if (this.recreateOnBounce) {
-                this.entity = this.createEntity(this.entity.getLocation());
-                this.applyEntityParams();
-            }
-
-            this.setVelocity(velocity);
-        }
+    if (reason != null) {
+      remove(reason);
+      return;
     }
 
-    protected void onBlockHit(BlockHitResult result) {}
-
-    public void remove(ProjectileRemoveReason reason) {
-        HandlerList.unregisterAll(this);
-        this.entity.remove();
-        this.cancel();
-        this.onRemove(reason);
+    if (useCustomHitBox) {
+      searchForHit();
     }
 
-    protected void setVelocity(Vector velocity) {
-        if (this.hasGravity) {
-            this.entity.setVelocity(velocity);
-        } else {
-            this.launchVelocity = velocity;
-        }
+    if (!hasGravity) {
+      entity.setVelocity(launchVelocity);
     }
 
-    protected void onRemove(ProjectileRemoveReason reason) {}
+    onTick();
+  }
 
-    @Override
-    public void run() {
-        this.ticksAlive++;
-        ProjectileRemoveReason reason = null;
+  private void searchForHit() {
+    Location loc = EntityUtils.center(entity);
 
-        if (!this.entity.isValid()) {
-            reason = ProjectileRemoveReason.ENTITY_DEATH;
-
-        } else if (SSL.getInstance().getGameManager().getState().getType() != GameStateType.IN_GAME) {
-            reason = ProjectileRemoveReason.DEACTIVATION;
-
-        } else if (this.ticksAlive >= this.lifespan) {
-            reason = ProjectileRemoveReason.LIFESPAN;
-        }
-
-        if (reason != null) {
-            this.remove(reason);
-            return;
-        }
-
-        if (this.useCustomHitBox) {
-            this.searchForHit();
-        }
-
-        if (!this.hasGravity) {
-            this.entity.setVelocity(this.launchVelocity);
-        }
-
-        this.onTick();
+    if (hitsMultiple) {
+      entityFinder.findAll(launcher, loc).forEach(this::hitTarget);
     }
-
-    private void searchForHit() {
-        Location loc = EntityUtils.center(this.entity);
-
-        if (this.hitsMultiple) {
-            this.entityFinder.findAll(this.launcher, loc).forEach(this::hitTarget);
-
-        } else {
-            this.entityFinder.findClosest(this.launcher, loc).ifPresent(this::hitTarget);
-        }
+    else {
+      entityFinder.findClosest(launcher, loc).ifPresent(this::hitTarget);
     }
+  }
 
-    protected void onTick() {}
+  protected void hitTarget(LivingEntity target) {
+    onPreTargetHit(target);
+    attack.getKb().setDirection(entity.getVelocity());
 
-    protected void hitTarget(LivingEntity target) {
-        this.onPreTargetHit(target);
-        this.attack.getKb().setDirection(this.entity.getVelocity());
+    if (SSL.getInstance().getDamageManager().attack(target, attack, attackInfo)) {
+      onTargetHit(target);
+      launcher.playSound(launcher.getLocation(), Sound.SUCCESSFUL_HIT, 2, 1);
 
-        if (SSL.getInstance().getDamageManager().attack(target, this.attack, this.attackInfo)) {
-            this.onTargetHit(target);
-            this.launcher.playSound(this.launcher.getLocation(), Sound.SUCCESSFUL_HIT, 2, 1);
-
-            if (this.removeOnEntityHit) {
-                this.remove(ProjectileRemoveReason.HIT_ENTITY);
-            }
-
-        } else if (this.removeOnFailedHit) {
-            this.remove(ProjectileRemoveReason.HIT_ENTITY);
-        }
+      if (removeOnEntityHit) {
+        remove(ProjectileRemoveReason.HIT_ENTITY);
+      }
     }
+    else if (removeOnFailedHit) {
+      remove(ProjectileRemoveReason.HIT_ENTITY);
+    }
+  }
 
-    protected void onPreTargetHit(LivingEntity target) {}
+  protected void onPreTargetHit(LivingEntity target) {}
 
-    protected void onTargetHit(LivingEntity target) {}
+  protected void onTargetHit(LivingEntity target) {}
+
+  protected void onTick() {}
 }

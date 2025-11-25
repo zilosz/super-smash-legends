@@ -1,28 +1,26 @@
 package com.github.zilosz.ssl.game.state;
 
-import com.github.zilosz.ssl.game.state.implementation.EndState;
-import com.github.zilosz.ssl.game.state.implementation.InGameState;
-import com.github.zilosz.ssl.game.state.implementation.LobbyState;
-import com.github.zilosz.ssl.game.state.implementation.PreGameState;
-import com.github.zilosz.ssl.game.state.implementation.TutorialState;
+import com.github.zilosz.ssl.game.state.impl.EndState;
+import com.github.zilosz.ssl.game.state.impl.InGameState;
+import com.github.zilosz.ssl.game.state.impl.LobbyState;
+import com.github.zilosz.ssl.game.state.impl.PreGameState;
+import com.github.zilosz.ssl.game.state.impl.TutorialState;
+import lombok.RequiredArgsConstructor;
 
 import java.util.function.Supplier;
 
+@RequiredArgsConstructor
 public enum GameStateType implements Supplier<GameState> {
-    LOBBY(LobbyState::new),
-    TUTORIAL(TutorialState::new),
-    PREGAME(PreGameState::new),
-    IN_GAME(InGameState::new),
-    END(EndState::new);
+  LOBBY(LobbyState::new),
+  TUTORIAL(TutorialState::new),
+  PREGAME(PreGameState::new),
+  IN_GAME(InGameState::new),
+  END(EndState::new);
 
-    private final Supplier<GameState> supplier;
+  private final Supplier<GameState> supplier;
 
-    GameStateType(Supplier<GameState> supplier) {
-        this.supplier = supplier;
-    }
-
-    @Override
-    public GameState get() {
-        return this.supplier.get();
-    }
+  @Override
+  public GameState get() {
+    return supplier.get();
+  }
 }

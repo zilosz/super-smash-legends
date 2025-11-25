@@ -39,81 +39,81 @@ import java.io.File;
 
 @Getter
 public class SSL extends JavaPlugin {
-    @Getter private static SSL instance;
+  @Getter private static SSL instance;
 
-    private Resources resources;
-    private PlayerDatabase playerDatabase;
-    private KitManager kitManager;
-    private InventoryManager inventoryManager;
-    private GameManager gameManager;
-    private ArenaManager arenaManager;
-    private TeamManager teamManager;
-    private WorldManager worldManager;
-    private AttackManager damageManager;
-    private NPCRegistry npcRegistry;
+  private Resources resources;
+  private PlayerDatabase playerDatabase;
+  private KitManager kitManager;
+  private InventoryManager inventoryManager;
+  private GameManager gameManager;
+  private ArenaManager arenaManager;
+  private TeamManager teamManager;
+  private WorldManager worldManager;
+  private AttackManager damageManager;
+  private NPCRegistry npcRegistry;
 
-    @Override
-    public void onLoad() {
-        FileUtility.deleteWorld(this.getLogger(), CustomWorldType.LOBBY.getWorldName());
-        FileUtility.deleteWorld(this.getLogger(), CustomWorldType.ARENA.getWorldName());
+  @Override
+  public void onLoad() {
+    FileUtility.deleteWorld(getLogger(), CustomWorldType.LOBBY.getWorldName());
+    FileUtility.deleteWorld(getLogger(), CustomWorldType.ARENA.getWorldName());
+  }
+
+  @Override
+  public void onDisable() {
+    kitManager.destroyPodiums();
+
+    for (Player player : Bukkit.getOnlinePlayers()) {
+      kitManager.wipePlayer(player);
+      playerDatabase.savePlayerData(player);
+      playerDatabase.removePlayerData(player);
     }
+  }
 
-    @Override
-    public void onDisable() {
-        this.kitManager.destroyPodiums();
+  @Override
+  public void onEnable() {
+    instance = this;
 
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            this.kitManager.wipePlayer(player);
-            this.playerDatabase.savePlayerData(player);
-            this.playerDatabase.removePlayerData(player);
-        }
-    }
+    resources = new Resources();
+    damageManager = new AttackManager();
+    teamManager = new TeamManager();
+    arenaManager = new ArenaManager();
+    npcRegistry = CitizensAPI.createNamedNPCRegistry("ssl-registry", new MemoryNPCDataStore());
 
-    @Override
-    public void onEnable() {
-        instance = this;
+    playerDatabase = new PlayerDatabase();
+    playerDatabase.connect();
 
-        this.resources = new Resources();
-        this.damageManager = new AttackManager();
-        this.teamManager = new TeamManager();
-        this.arenaManager = new ArenaManager();
-        this.npcRegistry = CitizensAPI.createNamedNPCRegistry("ssl-registry", new MemoryNPCDataStore());
+    worldManager = new WorldManager();
+    Vector pasteVector = YamlReader.vector(resources.getLobby().getString("PasteVector"));
+    File schematic = FileUtility.loadSchematic(this, "lobby");
+    worldManager.createWorld(CustomWorldType.LOBBY, schematic, pasteVector);
 
-        this.playerDatabase = new PlayerDatabase();
-        this.playerDatabase.connect();
+    PluginManager pluginManager = Bukkit.getPluginManager();
 
-        this.worldManager = new WorldManager();
-        Vector pasteVector = YamlReader.vector(this.resources.getLobby().getString("PasteVector"));
-        File schematic = FileUtility.loadSchematic(this, "lobby");
-        this.worldManager.createWorld(CustomWorldType.LOBBY, schematic, pasteVector);
+    kitManager = new KitManager();
+    kitManager.setupKits();
+    pluginManager.registerEvents(kitManager, this);
 
-        PluginManager pluginManager = Bukkit.getPluginManager();
+    inventoryManager = new InventoryManager(this);
+    inventoryManager.init();
 
-        this.kitManager = new KitManager();
-        this.kitManager.setupKits();
-        pluginManager.registerEvents(this.kitManager, this);
+    gameManager = new GameManager();
+    gameManager.activateState();
 
-        this.inventoryManager = new InventoryManager(this);
-        this.inventoryManager.init();
+    new Assemble(this, new GameScoreboard()).setTicks(5);
 
-        this.gameManager = new GameManager();
-        this.gameManager.activateState();
+    getCommand("kit").setExecutor(new KitCommand());
+    getCommand("reloadconfig").setExecutor(new ReloadConfigCommand());
+    getCommand("start").setExecutor(new StartCommand());
+    getCommand("end").setExecutor(new EndCommand());
+    getCommand("skip").setExecutor(new SkipCommand());
+    getCommand("loc").setExecutor(new LocCommand());
+    getCommand("damage").setExecutor(new DamageCommand());
+    getCommand("spec").setExecutor(new SpecCommand());
+    getCommand("play").setExecutor(new PlayCommand());
+    getCommand("heal").setExecutor(new HealCommand());
 
-        new Assemble(this, new GameScoreboard()).setTicks(5);
-
-        this.getCommand("kit").setExecutor(new KitCommand());
-        this.getCommand("reloadconfig").setExecutor(new ReloadConfigCommand());
-        this.getCommand("start").setExecutor(new StartCommand());
-        this.getCommand("end").setExecutor(new EndCommand());
-        this.getCommand("skip").setExecutor(new SkipCommand());
-        this.getCommand("loc").setExecutor(new LocCommand());
-        this.getCommand("damage").setExecutor(new DamageCommand());
-        this.getCommand("spec").setExecutor(new SpecCommand());
-        this.getCommand("play").setExecutor(new PlayCommand());
-        this.getCommand("heal").setExecutor(new HealCommand());
-
-        DummyCommand dummyCommand = new DummyCommand();
-        this.getCommand("dummy").setExecutor(dummyCommand);
-        pluginManager.registerEvents(dummyCommand, this);
-    }
+    DummyCommand dummyCommand = new DummyCommand();
+    getCommand("dummy").setExecutor(dummyCommand);
+    pluginManager.registerEvents(dummyCommand, this);
+  }
 }

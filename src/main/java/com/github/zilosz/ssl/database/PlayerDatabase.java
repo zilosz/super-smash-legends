@@ -29,93 +29,93 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class PlayerDatabase {
-    private final Map<Player, PlayerData> playerDataMap = new HashMap<>();
-    private MongoCollection<PlayerData> mongoCollection;
+  private final Map<Player, PlayerData> playerDataMap = new HashMap<>();
+  private MongoCollection<PlayerData> mongoCollection;
 
-    public void connect() {
-        if (!this.getConfig().getBoolean("Enabled")) return;
+  public void connect() {
+    if (!getConfig().getBoolean("Enabled")) return;
 
-        ClassModel<InGameStats> inGameStatsModel = ClassModel.builder(InGameStats.class)
-                .enableDiscriminator(true)
-                .build();
+    ClassModel<InGameStats> inGameStatsModel =
+        ClassModel.builder(InGameStats.class).enableDiscriminator(true).build();
 
-        ClassModel<GameResultStats> resultModel = ClassModel.builder(GameResultStats.class)
-                .enableDiscriminator(true)
-                .build();
+    ClassModel<GameResultStats> resultModel =
+        ClassModel.builder(GameResultStats.class).enableDiscriminator(true).build();
 
-        CodecRegistry pojoCodecRegistry = CodecRegistries.fromProviders(PojoCodecProvider.builder()
-                .automatic(true)
-                .conventions(List.of(Conventions.ANNOTATION_CONVENTION))
-                .register(inGameStatsModel, resultModel)
-                .build()
-        );
+    CodecRegistry pojoCodecRegistry = CodecRegistries.fromProviders(PojoCodecProvider
+        .builder()
+        .automatic(true)
+        .conventions(List.of(Conventions.ANNOTATION_CONVENTION))
+        .register(inGameStatsModel, resultModel)
+        .build());
 
-        CodecRegistry defaultRegistry = MongoClientSettings.getDefaultCodecRegistry();
-        CodecRegistry codecRegistry = CodecRegistries.fromRegistries(defaultRegistry, pojoCodecRegistry);
+    CodecRegistry defaultRegistry = MongoClientSettings.getDefaultCodecRegistry();
+    CodecRegistry codecRegistry =
+        CodecRegistries.fromRegistries(defaultRegistry, pojoCodecRegistry);
 
-        MongoClientSettings clientSettings = MongoClientSettings.builder()
-                .applyConnectionString(new ConnectionString(this.getConfig().getString("Uri")))
-                .codecRegistry(codecRegistry)
-                .build();
+    MongoClientSettings clientSettings = MongoClientSettings
+        .builder()
+        .applyConnectionString(new ConnectionString(getConfig().getString("Uri")))
+        .codecRegistry(codecRegistry)
+        .build();
 
-        MongoClient client = MongoClients.create(clientSettings);
-        MongoDatabase database = client.getDatabase(this.getConfig().getString("Database"));
+    MongoClient client = MongoClients.create(clientSettings);
+    MongoDatabase database = client.getDatabase(getConfig().getString("Database"));
 
-        String collectionName = this.getConfig().getString("Collection");
+    String collectionName = getConfig().getString("Collection");
 
-        if (!database.listCollectionNames().into(new HashSet<>()).contains(collectionName)) {
-            database.createCollection(collectionName);
-        }
-
-        this.mongoCollection = database.getCollection(collectionName, PlayerData.class);
-        this.mongoCollection.createIndex(Indexes.text("uuid"));
+    if (!database.listCollectionNames().into(new HashSet<>()).contains(collectionName)) {
+      database.createCollection(collectionName);
     }
 
-    private Section getConfig() {
-        return SSL.getInstance().getResources().getDatabase();
+    mongoCollection = database.getCollection(collectionName, PlayerData.class);
+    mongoCollection.createIndex(Indexes.text("uuid"));
+  }
+
+  private Section getConfig() {
+    return SSL.getInstance().getResources().getDatabase();
+  }
+
+  public void setupPlayerData(Player player) {
+    PlayerData playerData;
+
+    if (mongoCollection == null) {
+      playerData = getBasicPlayerData(player);
+    }
+    else {
+      FindIterable<PlayerData> it = mongoCollection.find(getUniquePlayerDataFilter(player));
+      playerData = Optional.ofNullable(it.first()).orElse(getBasicPlayerData(player));
     }
 
-    public void setupPlayerData(Player player) {
-        PlayerData playerData;
+    playerDataMap.put(player, playerData);
+  }
 
-        if (this.mongoCollection == null) {
-            playerData = this.getBasicPlayerData(player);
+  private PlayerData getBasicPlayerData(Player player) {
+    String uuid = player.getUniqueId().toString();
+    return new PlayerData(uuid, player.getName(), new InGameStats(), new GameResultStats());
+  }
 
-        } else {
-            FindIterable<PlayerData> iterable = this.mongoCollection.find(this.getUniquePlayerDataFilter(player));
-            playerData = Optional.ofNullable(iterable.first()).orElse(this.getBasicPlayerData(player));
-        }
+  private Bson getUniquePlayerDataFilter(Player player) {
+    return Filters.eq("uuid", player.getUniqueId().toString());
+  }
 
-        this.playerDataMap.put(player, playerData);
+  public PlayerData getPlayerData(Player player) {
+    return playerDataMap.get(player);
+  }
+
+  public void savePlayerData(Player player) {
+    if (mongoCollection != null && getConfig().getBoolean("SaveData")) {
+      ReplaceOptions replaceOptions = new ReplaceOptions().upsert(true);
+      PlayerData playerData = playerDataMap.get(player);
+      mongoCollection.replaceOne(getUniquePlayerDataFilter(player), playerData, replaceOptions);
     }
+  }
 
-    private PlayerData getBasicPlayerData(Player player) {
-        String uuid = player.getUniqueId().toString();
-        return new PlayerData(uuid, player.getName(), new InGameStats(), new GameResultStats());
-    }
+  public void removePlayerData(Player player) {
+    playerDataMap.remove(player);
+  }
 
-    private Bson getUniquePlayerDataFilter(Player player) {
-        return Filters.eq("uuid", player.getUniqueId().toString());
-    }
-
-    public PlayerData getPlayerData(Player player) {
-        return this.playerDataMap.get(player);
-    }
-
-    public void savePlayerData(Player player) {
-        if (this.mongoCollection != null && this.getConfig().getBoolean("SaveData")) {
-            ReplaceOptions replaceOptions = new ReplaceOptions().upsert(true);
-            PlayerData playerData = this.playerDataMap.get(player);
-            this.mongoCollection.replaceOne(this.getUniquePlayerDataFilter(player), playerData, replaceOptions);
-        }
-    }
-
-    public void removePlayerData(Player player) {
-        this.playerDataMap.remove(player);
-    }
-
-    public Stream<PlayerData> findAllPlayerData() {
-        if (this.mongoCollection == null) return Stream.empty();
-        return StreamSupport.stream(this.mongoCollection.find().spliterator(), true);
-    }
+  public Stream<PlayerData> findAllPlayerData() {
+    if (mongoCollection == null) return Stream.empty();
+    return StreamSupport.stream(mongoCollection.find().spliterator(), true);
+  }
 }

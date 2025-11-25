@@ -11,38 +11,38 @@ import org.bukkit.event.entity.EntityDeathEvent;
 
 public abstract class LivingProjectile<T extends LivingEntity> extends EmulatedProjectile<T> {
 
-    public LivingProjectile(Section config, AttackInfo attackInfo) {
-        super(config, attackInfo);
-    }
+  public LivingProjectile(Section config, AttackInfo attackInfo) {
+    super(config, attackInfo);
+  }
 
-    @Override
-    public void onLaunch() {
-        SSL.getInstance().getTeamManager().addEntityToTeam(this.entity, this.launcher);
-    }
+  @Override
+  public void onLaunch() {
+    SSL.getInstance().getTeamManager().addEntityToTeam(entity, launcher);
+  }
 
-    @Override
-    public void onRemove(ProjectileRemoveReason reason) {
-        SSL.getInstance().getTeamManager().removeEntityFromTeam(this.entity);
-    }
+  @Override
+  public void onRemove(ProjectileRemoveReason reason) {
+    SSL.getInstance().getTeamManager().removeEntityFromTeam(entity);
+  }
 
-    @EventHandler
-    public void onDamage(DamageEvent event) {
-        if (event.getVictim() == this.entity) {
-            event.setCancelled(true);
-        }
+  @EventHandler
+  public void onDamage(DamageEvent event) {
+    if (event.getVictim() == entity) {
+      event.setCancelled(true);
     }
+  }
 
-    @EventHandler
-    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if (event.getDamager() == this.entity) {
-            event.setCancelled(true);
-        }
+  @EventHandler
+  public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+    if (event.getDamager() == entity) {
+      event.setCancelled(true);
     }
+  }
 
-    @EventHandler
-    public void onEntityDeath(EntityDeathEvent event) {
-        if (event.getEntity() == this.entity) {
-            this.remove(ProjectileRemoveReason.ENTITY_DEATH);
-        }
+  @EventHandler
+  public void onEntityDeath(EntityDeathEvent event) {
+    if (event.getEntity() == entity) {
+      remove(ProjectileRemoveReason.ENTITY_DEATH);
     }
+  }
 }

@@ -12,7 +12,7 @@ Armor: 0.45
 Kb: 0.8
 Regen: 0.22
 Jump:
-  Power: 0.95
+  Power: 1
   Height: 0.9
   Sound:
     Type: IRONGOLEM_THROW

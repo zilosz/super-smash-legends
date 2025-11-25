@@ -13,19 +13,19 @@ import java.text.DecimalFormat;
 
 public class LocCommand implements CommandExecutor {
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        if (!(sender instanceof Player)) return false;
+  @Override
+  public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
+    if (!(sender instanceof Player)) return false;
 
-        Location location = ((Entity) sender).getLocation();
-        String world = location.getWorld().getName();
-        DecimalFormat format = new DecimalFormat("#.#");
-        String x = format.format(MathUtils.roundToHalf(location.getX()));
-        String y = format.format(MathUtils.roundToHalf(location.getY()));
-        String z = format.format(MathUtils.roundToHalf(location.getZ()));
-        String yaw = format.format(MathUtils.roundToHalf(location.getYaw()));
-        Bukkit.broadcastMessage(String.format("%s:%s:%s:%s:%s:0", world, x, y, z, yaw));
+    Location location = ((Entity) sender).getLocation();
+    String world = location.getWorld().getName();
+    DecimalFormat format = new DecimalFormat("#.#");
+    String x = format.format(MathUtils.roundToHalf(location.getX()));
+    String y = format.format(MathUtils.roundToHalf(location.getY()));
+    String z = format.format(MathUtils.roundToHalf(location.getZ()));
+    String yaw = format.format(MathUtils.roundToHalf(location.getYaw()));
+    Bukkit.broadcastMessage(String.format("%s:%s:%s:%s:%s:0", world, x, y, z, yaw));
 
-        return true;
-    }
+    return true;
+  }
 }

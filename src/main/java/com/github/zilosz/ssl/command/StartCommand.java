@@ -8,9 +8,14 @@ import org.bukkit.command.CommandSender;
 
 public class StartCommand implements CommandExecutor {
 
-    @Override
-    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        SSL.getInstance().getGameManager().skipToState(GameStateType.TUTORIAL);
-        return true;
-    }
+  @Override
+  public boolean onCommand(
+      CommandSender commandSender,
+      Command command,
+      String s,
+      String[] strings
+  ) {
+    SSL.getInstance().getGameManager().skipToState(GameStateType.TUTORIAL);
+    return true;
+  }
 }

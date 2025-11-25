@@ -21,54 +21,61 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class PlayerViewerInventory extends CustomInventory<Player> implements AutoUpdatesSoft, AutoUpdatesHard {
+public class PlayerViewerInventory extends CustomInventory<Player>
+    implements AutoUpdatesSoft, AutoUpdatesHard {
 
-    @Override
-    public String getTitle() {
-        return "Player Viewer";
+  @Override
+  public List<Player> getItems() {
+    return SSL
+        .getInstance()
+        .getGameManager()
+        .getAlivePlayers()
+        .stream()
+        .sorted(Comparator.comparing(Player::getName))
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public String getTitle() {
+    return "Player Viewer";
+  }
+
+  @Override
+  public ItemStack getItemStack(Player clicker, Player other) {
+    int lives = SSL.getInstance().getGameManager().getProfile(other).getLives();
+
+    ItemBuilder<SkullMeta> itemBuilder = new ItemBuilder<SkullMeta>(Material.SKULL_ITEM)
+        .setData((byte) 3)
+        .setName(getPlayerName(other))
+        .setCount(Math.max(1, lives));
+
+    Skin skin = SSL.getInstance().getKitManager().getSelectedKit(other).getSkin();
+    itemBuilder.applyMeta(skin::applyToSkull);
+
+    List<String> description = List.of("&3&lHealth: &7{HEALTH}%");
+
+    int health = (int) Math.ceil(100 * other.getHealth() / other.getMaxHealth());
+    Replacers replacers = new Replacers().add("HEALTH", health);
+
+    return itemBuilder.setLore(replacers.replaceLines(description)).get();
+  }
+
+  private String getPlayerName(Player player) {
+    return SSL.getInstance().getTeamManager().getPlayerColor(player) + player.getName();
+  }
+
+  @Override
+  public void onItemClick(
+      InventoryContents contents, Player clicker, Player other, InventoryClickEvent event
+  ) {
+
+    if (other.getGameMode() == GameMode.SPECTATOR) {
+      Chat.TRACKER.send(clicker, getPlayerName(other) + " &7is respawning...");
     }
-
-    @Override
-    public List<Player> getItems() {
-        return SSL.getInstance().getGameManager().getAlivePlayers().stream()
-                .sorted(Comparator.comparing(Player::getName))
-                .collect(Collectors.toList());
+    else {
+      clicker.teleport(other);
+      clicker.playSound(clicker.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
+      Chat.TRACKER.send(clicker, "&7You teleported to " + getPlayerName(other) + "&7.");
     }
-
-    @Override
-    public ItemStack getItemStack(Player clicker, Player other) {
-        int lives = SSL.getInstance().getGameManager().getProfile(other).getLives();
-
-        ItemBuilder<SkullMeta> itemBuilder = new ItemBuilder<SkullMeta>(Material.SKULL_ITEM)
-                .setData((byte) 3)
-                .setName(this.getPlayerName(other))
-                .setCount(Math.max(1, lives));
-
-        Skin skin = SSL.getInstance().getKitManager().getSelectedKit(other).getSkin();
-        itemBuilder.applyMeta(skin::applyToSkull);
-
-        List<String> description = List.of("&3&lHealth: &7{HEALTH}%");
-
-        Replacers replacers = new Replacers()
-                .add("HEALTH", (int) Math.ceil(100 * other.getHealth() / other.getMaxHealth()));
-
-        return itemBuilder.setLore(replacers.replaceLines(description)).get();
-    }
-
-    private String getPlayerName(Player player) {
-        return SSL.getInstance().getTeamManager().getPlayerColor(player) + player.getName();
-    }
-
-    @Override
-    public void onItemClick(InventoryContents contents, Player clicker, Player other, InventoryClickEvent event) {
-
-        if (other.getGameMode() == GameMode.SPECTATOR) {
-            Chat.TRACKER.send(clicker, this.getPlayerName(other) + " &7is respawning...");
-
-        } else {
-            clicker.teleport(other);
-            clicker.playSound(clicker.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
-            Chat.TRACKER.send(clicker, "&7You teleported to " + this.getPlayerName(other) + "&7.");
-        }
-    }
+  }
 }

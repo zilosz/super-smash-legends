@@ -1,0 +1,148 @@
+package com.github.zilosz.ssl.attribute.impl;
+
+import com.github.zilosz.ssl.attack.AttackInfo;
+import com.github.zilosz.ssl.attack.AttackType;
+import com.github.zilosz.ssl.attack.Damage;
+import com.github.zilosz.ssl.attack.KnockBack;
+import com.github.zilosz.ssl.attribute.ChargedRightClickAbility;
+import com.github.zilosz.ssl.projectile.ItemProjectile;
+import com.github.zilosz.ssl.util.block.BlockHitResult;
+import com.github.zilosz.ssl.util.collection.CollectionUtils;
+import com.github.zilosz.ssl.util.effects.ColorType;
+import com.github.zilosz.ssl.util.effects.ParticleMaker;
+import com.github.zilosz.ssl.util.file.YamlReader;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
+import org.bukkit.Location;
+import org.bukkit.Sound;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.util.Vector;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
+
+import java.awt.Color;
+
+public class RocketLauncher extends ChargedRightClickAbility {
+  private float pitch;
+
+  @Override
+  public void onSuccessfulCharge() {
+    Section main = config.getSection("Rocket");
+    Rocket rocket = new Rocket(main, new AttackInfo(AttackType.ROCKET_LAUNCHER, this));
+
+    Damage damage = rocket.getAttack().getDamage();
+    damage.setDamage(YamlReader.incVal(main, "Damage", ticksCharging, getMaxChargeTicks()));
+
+    KnockBack kb = rocket.getAttack().getKb();
+    kb.setKb(YamlReader.incVal(main, "Kb", ticksCharging, getMaxChargeTicks()));
+
+    rocket.setSpeed(YamlReader.incVal(main, "Speed", ticksCharging, getMaxChargeTicks()));
+    rocket.launch();
+
+    player.getWorld().playSound(player.getLocation(), Sound.FIREWORK_LAUNCH, 2, 1);
+  }
+
+  @Override
+  public void onChargeTick() {
+    player.getWorld().playSound(player.getLocation(), Sound.ZOMBIE_METAL, 0.5f, pitch);
+    pitch += 1.5f / getMaxChargeTicks();
+  }
+
+  @Override
+  public void onInitialClick(PlayerInteractEvent event) {
+    pitch = 0.5f;
+  }
+
+  private static class Rocket extends ItemProjectile {
+
+    public Rocket(Section config, AttackInfo attackInfo) {
+      super(config, attackInfo);
+    }
+
+    @Override
+    public void onBlockHit(BlockHitResult result) {
+      Location loc = entity.getLocation();
+      entity.getWorld().playSound(loc, Sound.EXPLODE, 3, 1);
+
+      new ParticleMaker(new ParticleBuilder(ParticleEffect.EXPLOSION_LARGE)).show(loc);
+
+      if (result.getFace() == BlockFace.UP || result.getFace() == BlockFace.DOWN) {
+        Location location = loc.setDirection(entity.getVelocity());
+        float pitch = config.getFloat("Shrapnel.Pitch");
+        location.setPitch(result.getFace() == BlockFace.UP ? -pitch : pitch);
+        launchShrapnel(location.getDirection());
+      }
+    }
+
+    @Override
+    public void onTargetHit(LivingEntity target) {
+      launchShrapnel(entity.getVelocity());
+    }
+
+    @Override
+    public void onTick() {
+      Location location = entity.getLocation();
+      entity.getWorld().playSound(location, Sound.FUSE, 0.5f, 1);
+
+      for (int i = 0; i < 3; i++) {
+        ParticleBuilder particle = new ParticleBuilder(ParticleEffect.SMOKE_LARGE).setSpeed(0);
+        new ParticleMaker(particle).setSpread(0.2).show(location);
+      }
+    }
+
+    private void launchShrapnel(Vector direction) {
+      entity.getWorld().playSound(entity.getLocation(), Sound.FIREWORK_LAUNCH, 3, 1);
+
+      Location location = entity.getLocation().add(0, 0.5, 0).setDirection(direction);
+      float yaw = location.getYaw() - config.getFloat("Shrapnel.YawSpread") / 2;
+
+      for (int i = 0; i < config.getInt("Shrapnel.Count"); i++) {
+        Location launchLocation = location.clone();
+        launchLocation.setYaw(yaw);
+
+        Color color = CollectionUtils.selectRandom(ColorType.values()).getAwtColor();
+        ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(color);
+
+        Section shrapnelConfig = config.getSection("Shrapnel");
+        Shrapnel shrapnel = new Shrapnel(shrapnelConfig, attackInfo, particle);
+
+        double multiplier = config.getDouble("Shrapnel.Multiplier");
+
+        Damage damageSettings = shrapnel.getAttack().getDamage();
+        damageSettings.setDamage(damageSettings.getDamage() * multiplier);
+
+        KnockBack kbSettings = shrapnel.getAttack().getKb();
+        kbSettings.setKb(kbSettings.getKb() * multiplier);
+
+        shrapnel.setOverrideLocation(launchLocation);
+        shrapnel.setSpeed(speed * multiplier);
+
+        shrapnel.launch();
+
+        yaw += config.getFloat("Shrapnel.YawSpread") / config.getInt("Shrapnel.Count");
+      }
+    }
+  }
+
+  private static class Shrapnel extends ItemProjectile {
+    private final ParticleBuilder particle;
+
+    public Shrapnel(Section config, AttackInfo attackInfo, ParticleBuilder particle) {
+      super(config, attackInfo);
+      this.particle = particle;
+    }
+
+    @Override
+    public void onBlockHit(BlockHitResult result) {
+      entity.getWorld().playSound(entity.getLocation(), Sound.EXPLODE, 1, 1);
+    }
+
+    @Override
+    public void onTick() {
+      for (int i = 0; i < 3; i++) {
+        new ParticleMaker(particle).setSpread(0.2).show(entity.getLocation());
+      }
+    }
+  }
+}

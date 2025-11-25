@@ -14,48 +14,48 @@ import org.bukkit.util.Vector;
 
 public abstract class ActualProjectile<T extends Projectile> extends CustomProjectile<T> {
 
-    public ActualProjectile(Section config, AttackInfo attackInfo) {
-        super(config, attackInfo);
-        this.removeOnBlockHit = true;
-        this.recreateOnBounce = true;
-        this.useCustomHitBox = false;
+  public ActualProjectile(Section config, AttackInfo attackInfo) {
+    super(config, attackInfo);
+    removeOnBlockHit = true;
+    recreateOnBounce = true;
+    useCustomHitBox = false;
+  }
+
+  @Override
+  protected T createEntity(Location location) {
+    T projectile = createProjectile(location);
+    projectile.setShooter(launcher);
+    return projectile;
+  }
+
+  protected abstract T createProjectile(Location location);
+
+  @EventHandler
+  public void onTargetHit(EntityDamageByEntityEvent event) {
+    if (event.getDamager() != entity) return;
+    if (!(event.getEntity() instanceof LivingEntity)) return;
+
+    event.setCancelled(true);
+
+    if (event.getEntity() != launcher) {
+      hitTarget((LivingEntity) event.getEntity());
     }
+  }
 
-    @Override
-    protected T createEntity(Location location) {
-        T projectile = this.createProjectile(location);
-        projectile.setShooter(this.launcher);
-        return projectile;
-    }
+  @EventHandler
+  public void onBlockHit(ProjectileHitEvent event) {
+    if (event.getEntity() != entity) return;
 
-    protected abstract T createProjectile(Location location);
+    onGeneralHit();
 
-    @EventHandler
-    public void onTargetHit(EntityDamageByEntityEvent event) {
-        if (event.getDamager() != this.entity) return;
-        if (!(event.getEntity() instanceof LivingEntity)) return;
+    Section collisionConfig = SSL.getInstance().getResources().getConfig().getSection("Collision");
+    int range = collisionConfig.getInt("CheckRange");
+    double step = collisionConfig.getDouble("CheckStep");
+    double faceAccuracy = collisionConfig.getDouble("FaceAccuracy");
 
-        event.setCancelled(true);
+    Vector velocity = entity.getVelocity();
+    hitBlock(BlockUtils.findBlockHitWithRay(entity, velocity, range, step, faceAccuracy));
+  }
 
-        if (event.getEntity() != this.launcher) {
-            this.hitTarget((LivingEntity) event.getEntity());
-        }
-    }
-
-    @EventHandler
-    public void onBlockHit(ProjectileHitEvent event) {
-        if (event.getEntity() != this.entity) return;
-
-        this.onGeneralHit();
-
-        Section collisionConfig = SSL.getInstance().getResources().getConfig().getSection("Collision");
-        int range = collisionConfig.getInt("CheckRange");
-        double step = collisionConfig.getDouble("CheckStep");
-        double faceAccuracy = collisionConfig.getDouble("FaceAccuracy");
-
-        Vector velocity = this.entity.getVelocity();
-        this.hitBlock(BlockUtils.findBlockHitWithRay(this.entity, velocity, range, step, faceAccuracy));
-    }
-
-    protected void onGeneralHit() {}
+  protected void onGeneralHit() {}
 }

@@ -8,10 +8,15 @@ import org.bukkit.command.CommandSender;
 
 public class ReloadConfigCommand implements CommandExecutor {
 
-    @Override
-    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        SSL.getInstance().getResources().reload();
-        Chat.COMMAND.broadcast("&7Configuration has been reloaded.");
-        return true;
-    }
+  @Override
+  public boolean onCommand(
+      CommandSender commandSender,
+      Command command,
+      String s,
+      String[] strings
+  ) {
+    SSL.getInstance().getResources().reload();
+    Chat.COMMAND.broadcast("&7Configuration has been reloaded.");
+    return true;
+  }
 }

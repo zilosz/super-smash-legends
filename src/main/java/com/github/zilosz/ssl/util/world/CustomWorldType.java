@@ -1,21 +1,18 @@
 package com.github.zilosz.ssl.util.world;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
 @Getter
+@RequiredArgsConstructor
 public enum CustomWorldType {
-    LOBBY("lobby"),
-    ARENA("arena");
+  LOBBY("lobby"), ARENA("arena");
 
-    private final String worldName;
+  private final String worldName;
 
-    CustomWorldType(String worldName) {
-        this.worldName = worldName;
-    }
-
-    public World getWorld() {
-        return Bukkit.getWorld(this.worldName);
-    }
+  public World getWorld() {
+    return Bukkit.getWorld(worldName);
+  }
 }

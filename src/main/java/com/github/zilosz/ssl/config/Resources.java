@@ -11,48 +11,48 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Resources {
-    @Getter private final YamlDocument items;
-    @Getter private final YamlDocument lobby;
-    @Getter private final YamlDocument config;
-    @Getter private final YamlDocument arenas;
-    @Getter private final YamlDocument database;
+  @Getter private final YamlDocument items;
+  @Getter private final YamlDocument lobby;
+  @Getter private final YamlDocument config;
+  @Getter private final YamlDocument arenas;
+  @Getter private final YamlDocument database;
 
-    private final Map<KitType, YamlDocument> kits = new HashMap<>();
-    private final Map<AbilityType, YamlDocument> abilities = new HashMap<>();
+  private final Map<KitType, YamlDocument> kits = new HashMap<>();
+  private final Map<AbilityType, YamlDocument> abilities = new HashMap<>();
 
-    public Resources() {
-        this.config = FileUtility.loadYaml(SSL.getInstance(), "config");
-        this.items = FileUtility.loadYaml(SSL.getInstance(), "items");
-        this.lobby = FileUtility.loadYaml(SSL.getInstance(), "lobby");
-        this.arenas = FileUtility.loadYaml(SSL.getInstance(), "arenas");
-        this.database = FileUtility.loadYaml(SSL.getInstance(), "database");
+  public Resources() {
+    config = FileUtility.loadYaml(SSL.getInstance(), "config");
+    items = FileUtility.loadYaml(SSL.getInstance(), "items");
+    lobby = FileUtility.loadYaml(SSL.getInstance(), "lobby");
+    arenas = FileUtility.loadYaml(SSL.getInstance(), "arenas");
+    database = FileUtility.loadYaml(SSL.getInstance(), "database");
 
-        for (KitType kitType : KitType.values()) {
-            String path = FileUtility.buildPath("kits", kitType.getFileName());
-            this.kits.put(kitType, FileUtility.loadYaml(SSL.getInstance(), path));
-        }
-
-        for (AbilityType abilityType : AbilityType.values()) {
-            String path = FileUtility.buildPath("abilities", abilityType.getFileName());
-            this.abilities.put(abilityType, FileUtility.loadYaml(SSL.getInstance(), path));
-        }
+    for (KitType kitType : KitType.values()) {
+      String path = FileUtility.buildPath("kits", kitType.getFileName());
+      kits.put(kitType, FileUtility.loadYaml(SSL.getInstance(), path));
     }
 
-    public void reload() {
-        FileUtility.reloadYaml(this.lobby);
-        FileUtility.reloadYaml(this.config);
-        FileUtility.reloadYaml(this.arenas);
-        FileUtility.reloadYaml(this.items);
-
-        this.kits.values().forEach(FileUtility::reloadYaml);
-        this.abilities.values().forEach(FileUtility::reloadYaml);
+    for (AbilityType abilityType : AbilityType.values()) {
+      String path = FileUtility.buildPath("abilities", abilityType.getFileName());
+      abilities.put(abilityType, FileUtility.loadYaml(SSL.getInstance(), path));
     }
+  }
 
-    public YamlDocument getKitConfig(KitType type) {
-        return this.kits.get(type);
-    }
+  public void reload() {
+    FileUtility.reloadYaml(lobby);
+    FileUtility.reloadYaml(config);
+    FileUtility.reloadYaml(arenas);
+    FileUtility.reloadYaml(items);
 
-    public YamlDocument getAbilityConfig(AbilityType type) {
-        return this.abilities.get(type);
-    }
+    kits.values().forEach(FileUtility::reloadYaml);
+    abilities.values().forEach(FileUtility::reloadYaml);
+  }
+
+  public YamlDocument getKitConfig(KitType type) {
+    return kits.get(type);
+  }
+
+  public YamlDocument getAbilityConfig(AbilityType type) {
+    return abilities.get(type);
+  }
 }

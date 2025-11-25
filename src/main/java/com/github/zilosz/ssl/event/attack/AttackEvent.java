@@ -6,22 +6,34 @@ import com.github.zilosz.ssl.attack.Damage;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.HandlerList;
 
 @Getter
 public class AttackEvent extends AbstractDamageEvent {
-    private final Attack attack;
-    private final AttackInfo attackInfo;
-    @Setter private boolean cancelled = false;
+  private static final HandlerList HANDLERS = new HandlerList();
 
-    public AttackEvent(LivingEntity victim, Attack attack, AttackInfo attackInfo) {
-        super(victim);
-        this.attack = attack;
-        this.attackInfo = attackInfo;
-    }
+  private final Attack attack;
+  private final AttackInfo info;
+  @Setter private boolean cancelled;
 
-    @Override
-    public Damage getDamage() {
-        return this.attack.getDamage();
-    }
+  public AttackEvent(LivingEntity victim, Attack attack, AttackInfo info) {
+    super(victim);
+    this.attack = attack;
+    this.info = info;
+  }
+
+  public static HandlerList getHandlerList() {
+    return HANDLERS;
+  }
+
+  @Override
+  public Damage getDamage() {
+    return attack.getDamage();
+  }
+
+  @Override
+  public HandlerList getHandlers() {
+    return HANDLERS;
+  }
 }
 
