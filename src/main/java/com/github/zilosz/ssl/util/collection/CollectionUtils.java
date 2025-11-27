@@ -15,28 +15,28 @@ import java.util.function.Predicate;
 
 public class CollectionUtils {
 
-  public static <T> List<List<T>> getRankedGroups(Iterable<T> elements, Comparator<T> comparator) {
-    return getRankedGroups(elements, comparator, Integer.MAX_VALUE);
+  public static <T> List<List<T>> rankElements(Iterable<T> elements, Comparator<T> comp) {
+    return rankElements(elements, comp, Integer.MAX_VALUE);
   }
 
-  public static <T> List<List<T>> getRankedGroups(
-      Iterable<T> elements,
-      Comparator<T> comparator,
-      int maxElements
+  public static <T> List<List<T>> rankElements(
+      Iterable<T> elements, Comparator<T> comp, int maxElements
   ) {
     List<List<T>> ranked = new ArrayList<>();
 
-    if (maxElements <= 0) return ranked;
+    if (maxElements <= 0) {
+      return ranked;
+    }
 
     List<T> list = Lists.newArrayList(elements);
-    list.sort(comparator);
+    list.sort(comp);
 
     List<T> currGroup = new ArrayList<>();
     int totalAdded = 0;
 
     for (int i = 0; i < list.size(); i++) {
 
-      if (i > 0 && comparator.compare(list.get(i - 1), list.get(i)) != 0) {
+      if (i > 0 && comp.compare(list.get(i - 1), list.get(i)) != 0) {
         ranked.add(new ArrayList<>(currGroup));
         currGroup.clear();
       }
@@ -52,11 +52,11 @@ public class CollectionUtils {
     return ranked;
   }
 
-  public static <T> List<T> findByHighestInt(Iterable<T> items, Function<T, Integer> key) {
-    return findByHighestDouble(items, key.andThen(Integer::doubleValue));
+  public static <T> List<T> maxElementByInt(Iterable<T> items, Function<T, Integer> key) {
+    return maxElement(items, key.andThen(Integer::doubleValue));
   }
 
-  public static <T> List<T> findByHighestDouble(Iterable<T> items, Function<T, Double> key) {
+  public static <T> List<T> maxElement(Iterable<T> items, Function<T, Double> key) {
     List<T> highestList = new ArrayList<>();
     double highestScore = Integer.MIN_VALUE;
 
@@ -65,7 +65,6 @@ public class CollectionUtils {
 
       if (score == highestScore) {
         highestList.add(item);
-
       }
       else if (score > highestScore) {
         highestList = new ArrayList<>();
@@ -77,57 +76,49 @@ public class CollectionUtils {
     return highestList;
   }
 
-  public static <T> T selectRandom(List<T> items) {
+  public static <T> T randChoice(List<T> items) {
     return items.get((int) MathUtils.randRange(0, items.size()));
   }
 
-  public static <T> T selectRandom(T[] items) {
+  public static <T> T randChoice(T[] items) {
     return items[(int) MathUtils.randRange(0, items.length)];
   }
 
-  public static <K, V> void removeWhileIteratingOverValues(Map<K, V> map, Consumer<V> valueAction) {
-    removeWhileIteratingOverEntry(map, key -> {}, valueAction);
+  public static <K, V> void clearOverValues(Map<K, V> map, Consumer<V> onVal) {
+    clearOverEntries(map, key -> {}, onVal);
   }
 
-  public static <K, V> void removeWhileIteratingOverEntry(
-      Map<K, V> map,
-      Consumer<K> keyAction,
-      Consumer<V> valueAction
+  public static <K, V> void clearOverEntries(
+      Map<K, V> map, Consumer<K> onKey, Consumer<V> onVal
   ) {
-    removeWhileIterating(map.entrySet(), entry -> {
-      keyAction.accept(entry.getKey());
-      valueAction.accept(entry.getValue());
+    clearWhileIterating(map.entrySet(), entry -> {
+      onKey.accept(entry.getKey());
+      onVal.accept(entry.getValue());
     });
   }
 
-  public static <T> void removeWhileIterating(Iterable<T> iterable, Consumer<T> action) {
-    removeWhileIterating(iterable, action, el -> true);
+  public static <T> void clearWhileIterating(Iterable<T> iterable, Consumer<T> onElement) {
+    clearWhileIterating(iterable, onElement, el -> true);
   }
 
-  public static <T> void removeWhileIterating(
-      Iterable<T> iterable,
-      Consumer<T> action,
-      Predicate<T> predicate
+  public static <T> void clearWhileIterating(
+      Iterable<T> elements, Consumer<T> onElement, Predicate<T> pred
   ) {
-    Iterator<T> iterator = iterable.iterator();
+    Iterator<T> iterator = elements.iterator();
 
     while (iterator.hasNext()) {
       T next = iterator.next();
 
-      if (predicate.test(next)) {
-        action.accept(next);
+      if (pred.test(next)) {
+        onElement.accept(next);
         iterator.remove();
       }
     }
   }
 
-  public static <K, V> void removeWhileIteratingOverValues(
-      Map<K, V> map,
-      BiConsumer<K, V> dualAction
+  public static <K, V> void clearOverValues(
+      Map<K, V> map, BiConsumer<K, V> kv
   ) {
-    removeWhileIterating(
-        map.entrySet(),
-        entry -> dualAction.accept(entry.getKey(), entry.getValue())
-    );
+    clearWhileIterating(map.entrySet(), entry -> kv.accept(entry.getKey(), entry.getValue()));
   }
 }

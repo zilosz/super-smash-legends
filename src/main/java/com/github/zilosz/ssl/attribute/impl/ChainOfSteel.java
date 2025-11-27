@@ -94,7 +94,7 @@ public class ChainOfSteel extends RightClickAbility {
     chainTicks = 0;
     chainTask.cancel();
 
-    CollectionUtils.removeWhileIterating(chainBlocks, FloatingEntity::destroy);
+    CollectionUtils.clearWhileIterating(chainBlocks, FloatingEntity::destroy);
 
     if (pullTask != null) {
       pullTask.cancel();

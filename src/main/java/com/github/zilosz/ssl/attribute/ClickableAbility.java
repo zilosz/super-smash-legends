@@ -26,7 +26,9 @@ public abstract class ClickableAbility extends Ability {
     AbilityUseEvent abilityUseEvent = new AbilityUseEvent(this);
     Bukkit.getPluginManager().callEvent(abilityUseEvent);
 
-    if (abilityUseEvent.isCancelled()) return;
+    if (abilityUseEvent.isCancelled()) {
+      return;
+    }
 
     onClick(event);
 

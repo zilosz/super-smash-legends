@@ -75,6 +75,7 @@ public class HotbarItem implements Listener {
       if (name.contains(keyword)) {
         event.setCancelled(true);
         event.getPlayer().updateInventory();
+
         break;
       }
     }

@@ -3,6 +3,7 @@ package com.github.zilosz.ssl.game.state.impl;
 import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.arena.Arena;
+import com.github.zilosz.ssl.arena.ArenaManager;
 import com.github.zilosz.ssl.arena.ArenaVoter;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.Attribute;
@@ -15,6 +16,7 @@ import com.github.zilosz.ssl.game.state.GameState;
 import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.kit.KitManager;
 import com.github.zilosz.ssl.kit.KitSelector;
+import com.github.zilosz.ssl.team.TeamManager;
 import com.github.zilosz.ssl.team.TeamSelector;
 import com.github.zilosz.ssl.util.HotbarItem;
 import com.github.zilosz.ssl.util.Skin;
@@ -85,24 +87,21 @@ public class LobbyState extends GameState {
         .add("CURRENT", getParticipantCount())
         .add("CAP", SSL.getInstance().getResources().getConfig().getInt("Game.MinPlayersToStart"));
 
-    try {
-      replacers.add("KIT",
-          SSL.getInstance().getKitManager().getSelectedKit(player).getDisplayName()
-      );
-    }
-    catch (NullPointerException ignored) {}
+    Optional
+        .ofNullable(SSL.getInstance().getKitManager().getSelectedKit(player))
+        .ifPresent(kit -> replacers.add("KIT", kit.getDisplayName()));
 
     List<String> lines = new ArrayList<>(Arrays.asList(GameScoreboard.getLine(), "&f&lStatus"));
 
     if (isCounting) {
       lines.add(String.format("&7Starting in &e&l%d &7sec", secUntilStart));
-
     }
     else {
       lines.add("&7Waiting for players");
     }
 
-    lines.addAll(Arrays.asList("",
+    lines.addAll(Arrays.asList(
+        "",
         "&f&lPlayers &lNeeded",
         "&5&l{CURRENT} &7/ &f{CAP}",
         "",
@@ -165,7 +164,8 @@ public class LobbyState extends GameState {
           HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(lastGameLocation);
       holograms.add(lastGameHolo);
 
-      replacers.replaceLines(Arrays.asList("&5&lLast Game",
+      replacers.replaceLines(Arrays.asList(
+          "&5&lLast Game",
           "&7----------------",
           "&fResult: {RESULT}",
           "&fKit: {KIT}",
@@ -310,8 +310,8 @@ public class LobbyState extends GameState {
 
   @Override
   public void end() {
-    CollectionUtils.removeWhileIterating(holograms, Hologram::delete);
-    CollectionUtils.removeWhileIterating(hotbarItems, HotbarItem::destroy);
+    CollectionUtils.clearWhileIterating(holograms, Hologram::delete);
+    CollectionUtils.clearWhileIterating(hotbarItems, HotbarItem::destroy);
 
     if (isCounting) {
       stopCountdownTask();
@@ -319,8 +319,10 @@ public class LobbyState extends GameState {
 
     Chat.GAME.broadcast("&7The game is starting...");
 
-    SSL.getInstance().getArenaManager().setupArena();
-    Arena arena = SSL.getInstance().getArenaManager().getArena();
+    ArenaManager arenaManager = SSL.getInstance().getArenaManager();
+    arenaManager.setupArena();
+
+    Arena arena = arenaManager.getArena();
 
     Replacers replacers =
         new Replacers().add("ARENA", arena.getName()).add("AUTHORS", arena.getAuthors());
@@ -332,6 +334,8 @@ public class LobbyState extends GameState {
     GameManager gameManager = SSL.getInstance().getGameManager();
     gameManager.startTicks();
 
+    TeamManager teamManager = SSL.getInstance().getTeamManager();
+
     for (Player player : Bukkit.getOnlinePlayers()) {
       description.forEach(player::sendMessage);
 
@@ -341,11 +345,11 @@ public class LobbyState extends GameState {
       }
       else {
         gameManager.setupProfile(player);
-        SSL.getInstance().getTeamManager().assignPlayer(player);
+        teamManager.assignPlayer(player);
       }
     }
 
-    SSL.getInstance().getTeamManager().removeEmptyTeams();
+    teamManager.removeEmptyTeams();
   }
 
   @Override
@@ -406,10 +410,11 @@ public class LobbyState extends GameState {
 
       if (attribute instanceof Ability) {
         Ability ability = (Ability) attribute;
+        HotbarItem hotbarItem = ability.getHotbarItem();
 
-        if (ability.getHotbarItem().getItemStack().getType() == Material.ARROW) {
+        if (hotbarItem.getItemStack().getType() == Material.ARROW) {
           event.setCancelled(true);
-          ability.getHotbarItem().show();
+          hotbarItem.show();
 
           break;
         }

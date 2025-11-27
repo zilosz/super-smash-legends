@@ -122,7 +122,7 @@ public class VoltTackle extends RightClickAbility {
     moveTask.cancel();
     ticksMoving = -1;
 
-    CollectionUtils.removeWhileIteratingOverEntry(particles, Item::remove, BukkitTask::cancel);
+    CollectionUtils.clearOverEntries(particles, Item::remove, BukkitTask::cancel);
   }
 
   private void playEndSound() {

@@ -11,6 +11,6 @@ public abstract class RightClickAbility extends ClickableAbility {
 
   @Override
   public boolean invalidate(PlayerInteractEvent event) {
-    return super.invalidate(event) || !event.getAction().name().contains("RIGHT");
+    return !event.getAction().name().contains("RIGHT") || super.invalidate(event);
   }
 }

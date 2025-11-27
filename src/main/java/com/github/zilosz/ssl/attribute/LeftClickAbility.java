@@ -6,7 +6,7 @@ public abstract class LeftClickAbility extends ClickableAbility {
 
   @Override
   public boolean invalidate(PlayerInteractEvent event) {
-    return super.invalidate(event) || !event.getAction().name().contains("LEFT");
+    return !event.getAction().name().contains("LEFT") || super.invalidate(event);
   }
 
   @Override

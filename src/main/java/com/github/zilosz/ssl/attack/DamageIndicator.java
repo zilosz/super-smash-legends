@@ -57,15 +57,12 @@ public final class DamageIndicator extends BukkitRunnable {
 
     if (percentHealthLeft < 0.25) {
       color = "&c";
-
     }
     else if (percentHealthLeft < 0.5) {
       color = "&6";
-
     }
     else if (percentHealthLeft < 0.75) {
       color = "&e";
-
     }
     else {
       color = "&a";

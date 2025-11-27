@@ -79,7 +79,7 @@ public class BatWave extends RightClickAbility {
   private void reset() {
     state = State.INACTIVE;
     hasSlinged = false;
-    CollectionUtils.removeWhileIterating(bats,
+    CollectionUtils.clearWhileIterating(bats,
         bat -> bat.remove(ProjectileRemoveReason.DEACTIVATION)
     );
 

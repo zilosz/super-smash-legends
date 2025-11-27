@@ -7,6 +7,7 @@ import com.github.zilosz.ssl.attack.AttackType;
 import com.github.zilosz.ssl.attribute.Ability;
 import com.github.zilosz.ssl.attribute.AbilityType;
 import com.github.zilosz.ssl.attribute.RightClickAbility;
+import com.github.zilosz.ssl.config.Resources;
 import com.github.zilosz.ssl.event.attack.AttackEvent;
 import com.github.zilosz.ssl.util.NmsUtils;
 import com.github.zilosz.ssl.util.effects.ParticleMaker;
@@ -200,34 +201,35 @@ public class ShadowCloneJutsu extends RightClickAbility {
       NmsUtils.broadcastPacket(new PacketPlayOutAnimation(NmsUtils.getPlayer(cloneEntity), 0));
 
       Optional.ofNullable(npc.getNavigator().getEntityTarget()).ifPresent(target -> {
-        LivingEntity livingTarget = (LivingEntity) target.getTarget();
-        double distanceSquared =
-            npc.getStoredLocation().distanceSquared(livingTarget.getLocation());
+        if (!(target instanceof LivingEntity)) return;
 
+        LivingEntity livingTarget = (LivingEntity) target.getTarget();
+        double distanceSq = npc.getStoredLocation().distanceSquared(livingTarget.getLocation());
         double meleeRange = config.getDouble("MeleeRange");
 
-        if (distanceSquared <= meleeRange * meleeRange &&
-            cloneEntity.hasLineOfSight(livingTarget)) {
-          Attack attack = kit.getMelee().createAttack(cloneEntity);
+        if (distanceSq > meleeRange * meleeRange || !cloneEntity.hasLineOfSight(livingTarget)) {
+          return;
+        }
+
+        Attack attack = kit.getMelee().createAttack(cloneEntity);
+
+        if (isPlayerUsingRasengan) {
+          Resources resources = SSL.getInstance().getResources();
+          Section config = resources.getAbilityConfig(AbilityType.RASENGAN);
+          Rasengan.modifyMeleeAttack(attack, config);
+        }
+
+        attack.setName(getDisplayName());
+        AttackInfo attackInfo = new AttackInfo(AttackType.MELEE, this);
+
+        if (SSL.getInstance().getDamageManager().attack(livingTarget, attack, attackInfo)) {
+          player.playSound(player.getLocation(), Sound.WITHER_HURT, 0.5f, 1);
+
+          Location targetLoc = livingTarget.getLocation();
+          livingTarget.getWorld().playSound(targetLoc, Sound.WITHER_HURT, 0.5f, 1);
 
           if (isPlayerUsingRasengan) {
-            Section config =
-                SSL.getInstance().getResources().getAbilityConfig(AbilityType.RASENGAN);
-            Rasengan.modifyMeleeAttack(attack, config);
-          }
-
-          attack.setName(getDisplayName());
-          AttackInfo attackInfo = new AttackInfo(AttackType.MELEE, this);
-
-          if (SSL.getInstance().getDamageManager().attack(livingTarget, attack, attackInfo)) {
-            player.playSound(player.getLocation(), Sound.WITHER_HURT, 0.5f, 1);
-            livingTarget
-                .getWorld()
-                .playSound(livingTarget.getLocation(), Sound.WITHER_HURT, 0.5f, 1);
-
-            if (isPlayerUsingRasengan) {
-              Rasengan.displayAttack(livingTarget);
-            }
+            Rasengan.displayAttack(livingTarget);
           }
         }
       });

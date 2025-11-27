@@ -3,8 +3,10 @@ package com.github.zilosz.ssl.game.state.impl;
 import com.connorlinfoot.titleapi.TitleAPI;
 import com.github.zilosz.ssl.SSL;
 import com.github.zilosz.ssl.arena.Arena;
+import com.github.zilosz.ssl.config.Resources;
 import com.github.zilosz.ssl.game.GameScoreboard;
 import com.github.zilosz.ssl.game.state.GameState;
+import com.github.zilosz.ssl.kit.Kit;
 import com.github.zilosz.ssl.util.message.MessageUtils;
 import com.github.zilosz.ssl.util.message.Replacers;
 import org.bukkit.Bukkit;
@@ -40,7 +42,8 @@ public class PreGameState extends GameState {
   @Override
   public List<String> getScoreboard(Player player) {
 
-    List<String> lines = new ArrayList<>(Arrays.asList(GameScoreboard.getLine(),
+    List<String> lines = new ArrayList<>(Arrays.asList(
+        GameScoreboard.getLine(),
         "&f&lStatus",
         "&7The game is starting",
         "",
@@ -59,9 +62,8 @@ public class PreGameState extends GameState {
       lines.add("");
       lines.add("&f&lKit");
       lines.add("{KIT}");
-      replacers.add("KIT",
-          SSL.getInstance().getKitManager().getSelectedKit(player).getDisplayName()
-      );
+      Kit kit = SSL.getInstance().getKitManager().getSelectedKit(player);
+      replacers.add("KIT", kit.getDisplayName());
     }
 
     lines.add(GameScoreboard.getLine());
@@ -78,9 +80,10 @@ public class PreGameState extends GameState {
       player.setFlying(true);
     }
 
+    Resources resources = SSL.getInstance().getResources();
+
     startCountdown = new BukkitRunnable() {
-      int secondsLeft =
-          SSL.getInstance().getResources().getConfig().getInt("Game.StartWaitSeconds");
+      int secondsLeft = resources.getConfig().getInt("Game.StartWaitSeconds");
       final float pitchStep = 1.5f / secondsLeft;
       float pitch = 0.5f;
 

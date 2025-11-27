@@ -10,8 +10,11 @@ import lombok.RequiredArgsConstructor;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.SkinTrait;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
+import net.minecraft.server.v1_8_R3.EnumDifficulty;
 import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_8_R3.PacketPlayOutRespawn;
+import net.minecraft.server.v1_8_R3.WorldSettings;
+import net.minecraft.server.v1_8_R3.WorldType;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -26,6 +29,7 @@ import java.net.URL;
 import java.util.UUID;
 
 @Getter
+@RequiredArgsConstructor
 public class Skin {
   private static final String PROFILE_API_URL = "https://api.mojang.com/users/profiles/minecraft/";
   private static final String UUID_API_URL =
@@ -34,38 +38,30 @@ public class Skin {
   private final String texture;
   private final String signature;
 
-  public Skin(String texture, String signature) {
-    this.texture = texture;
-    this.signature = signature;
-  }
-
   public static Skin fromPlayer(Player player) {
     GameProfile profile = NmsUtils.getPlayer(player).getProfile();
     Property property = profile.getProperties().get("textures").iterator().next();
     return new Skin(property.getValue(), property.getSignature());
   }
 
-  public static Skin fromMojang(String playerName) {
-
+  public static Skin fetchFromAPI(String playerName) {
     try {
       URL profileUrl = new URL(PROFILE_API_URL + playerName);
       InputStreamReader profileReader = new InputStreamReader(profileUrl.openStream());
       String uuid = new JsonParser().parse(profileReader).getAsJsonObject().get("id").getAsString();
 
       URL uuidUrl = new URL(UUID_API_URL + uuid + "?unsigned=false");
-      JsonObject uuidJson =
-          new JsonParser().parse(new InputStreamReader(uuidUrl.openStream())).getAsJsonObject();
-      JsonObject textureProperty =
-          uuidJson.get("properties").getAsJsonArray().get(0).getAsJsonObject();
+      InputStreamReader uuidReader = new InputStreamReader(uuidUrl.openStream());
+      JsonObject uuidJson = new JsonParser().parse(uuidReader).getAsJsonObject();
+      JsonObject property = uuidJson.get("properties").getAsJsonArray().get(0).getAsJsonObject();
 
-      String texture = textureProperty.get("value").getAsString();
-      String signature = textureProperty.get("signature").getAsString();
+      String texture = property.get("value").getAsString();
+      String signature = property.get("signature").getAsString();
 
       return new Skin(texture, signature);
-
     }
     catch (IOException e) {
-      return fromMojang("Notch");
+      return fetchFromAPI("Notch");
     }
   }
 
@@ -90,7 +86,6 @@ public class Skin {
   }
 
   private void updateProfile(GameProfile gameProfile) {
-
     gameProfile.getProperties().removeAll("textures");
     gameProfile.getProperties().put("textures", new Property("textures", texture, signature));
   }
@@ -103,19 +98,19 @@ public class Skin {
             nmsPlayer
         )
     );
-
     NmsUtils.sendPacket(player,
         new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER,
             nmsPlayer
         )
     );
 
-    Runnable skinRunnable =
-        () -> NmsUtils.sendPacket(player, new PacketPlayOutRespawn(nmsPlayer.dimension,
-            nmsPlayer.getWorld().getDifficulty(),
-            nmsPlayer.getWorld().getWorldData().getType(),
-            nmsPlayer.playerInteractManager.getGameMode()
-        ));
+    EnumDifficulty diff = nmsPlayer.getWorld().getDifficulty();
+    WorldType worldType = nmsPlayer.getWorld().getWorldData().getType();
+    WorldSettings.EnumGamemode gamemode = nmsPlayer.playerInteractManager.getGameMode();
+
+    Runnable skinRunnable = () -> NmsUtils.sendPacket(player,
+        new PacketPlayOutRespawn(nmsPlayer.dimension, diff, worldType, gamemode)
+    );
 
     return new SelfSkinShower(skinRunnable, onTp).runLater(plugin);
   }
@@ -128,7 +123,6 @@ public class Skin {
       Field profileField = meta.getClass().getDeclaredField("profile");
       profileField.setAccessible(true);
       profileField.set(meta, profile);
-
     }
     catch (IllegalAccessException | NoSuchFieldException e) {
       e.printStackTrace();

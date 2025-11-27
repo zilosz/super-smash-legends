@@ -30,7 +30,6 @@ public class Melee extends Attribute {
       if (TeamPreference.ENEMY.validate(team, victim)) {
         AttackInfo attackInfo = new AttackInfo(AttackType.MELEE, this);
         SSL.getInstance().getDamageManager().attack(victim, createAttack(player), attackInfo);
-
       }
     }
   }

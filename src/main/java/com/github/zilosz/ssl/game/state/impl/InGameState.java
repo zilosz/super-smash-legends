@@ -335,11 +335,8 @@ public class InGameState extends GameState {
   public void end() {
     gameTimer.cancel();
 
-    CollectionUtils.removeWhileIterating(skinRestorers, BukkitTask::cancel);
-    CollectionUtils.removeWhileIteratingOverEntry(respawnTasks,
-        this::respawnPlayer,
-        BukkitTask::cancel
-    );
+    CollectionUtils.clearWhileIterating(skinRestorers, BukkitTask::cancel);
+    CollectionUtils.clearOverEntries(respawnTasks, this::respawnPlayer, BukkitTask::cancel);
 
     ProtocolLibrary.getProtocolManager().removePacketListener(meleeSoundCanceller);
 

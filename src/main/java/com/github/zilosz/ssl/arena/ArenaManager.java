@@ -38,8 +38,8 @@ public class ArenaManager {
   }
 
   public void setupArena() {
-    List<Arena> bestArenas = CollectionUtils.findByHighestInt(arenas, Arena::getTotalVotes);
-    arena = CollectionUtils.selectRandom(bestArenas);
+    List<Arena> bestArenas = CollectionUtils.maxElementByInt(arenas, Arena::getTotalVotes);
+    arena = CollectionUtils.randChoice(bestArenas);
     arena.create();
   }
 

@@ -1,6 +1,7 @@
 package com.github.zilosz.ssl.kit;
 
 import com.github.zilosz.ssl.SSL;
+import com.github.zilosz.ssl.config.Resources;
 import com.github.zilosz.ssl.game.GameManager;
 import com.github.zilosz.ssl.game.state.GameState;
 import com.github.zilosz.ssl.game.state.GameStateType;
@@ -16,6 +17,7 @@ import me.filoghost.holographicdisplays.api.hologram.HologramLines;
 import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
 import net.citizensnpcs.api.event.NPCLeftClickEvent;
 import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.api.npc.NPCRegistry;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,18 +39,18 @@ import java.util.Optional;
 public class KitManager implements Listener {
   private final List<Kit> kits = new ArrayList<>();
   private final Map<Player, Kit> selectedKits = new HashMap<>();
-  private final Map<Player, Skin> realSkins = new HashMap<>();
-  private final Map<NPC, KitType> kitsPerNpc = new HashMap<>();
-  private final Map<Player, Map<KitType, Hologram>> kitHolograms = new HashMap<>();
-  private final Map<Player, Skin.SelfSkinShower> selfSkinShowers = new HashMap<>();
+  private final Map<Player, Skin> originalSkins = new HashMap<>();
+  private final Map<NPC, KitType> npcToKitType = new HashMap<>();
+  private final Map<Player, EnumMap<KitType, Hologram>> kitHolograms = new HashMap<>();
+  private final Map<Player, Skin.SelfSkinShower> skinShowers = new HashMap<>();
   private final Collection<Block> podiumBlocks = new ArrayList<>();
 
   public void destroyPodiums() {
-    CollectionUtils.removeWhileIterating(podiumBlocks, block -> block.setType(Material.AIR));
+    CollectionUtils.clearWhileIterating(podiumBlocks, block -> block.setType(Material.AIR));
   }
 
   public Skin getRealSkin(Player player) {
-    return realSkins.get(player);
+    return originalSkins.get(player);
   }
 
   public List<Kit> getKits() {
@@ -56,35 +59,34 @@ public class KitManager implements Listener {
 
   public void setupKits() {
 
-    for (KitType type : KitType.values()) {
-      Kit kit = createKit(type);
+    for (KitType kitType : KitType.values()) {
+      Kit kit = createKit(kitType);
       kits.add(kit);
 
-      NPC npc = SSL
-          .getInstance()
-          .getNpcRegistry()
-          .createNPC(EntityType.PLAYER, kit.getBoldedDisplayName());
-      kitsPerNpc.put(npc, type);
+      NPCRegistry npcRegistry = SSL.getInstance().getNpcRegistry();
+      NPC npc = npcRegistry.createNPC(EntityType.PLAYER, kit.getBoldedDisplayName());
+      npcToKitType.put(npc, kitType);
       kit.getSkin().applyToNpc(npc);
 
-      String locString =
-          SSL.getInstance().getResources().getLobby().getString("KitNpcs." + type.getConfigName());
-      Location location = YamlReader.location(CustomWorldType.LOBBY.getWorldName(), locString);
-      npc.spawn(location);
+      Resources resources = SSL.getInstance().getResources();
+      String locString = resources.getLobby().getString("KitNpcs." + kitType.getConfigName());
+      Location loc = YamlReader.location(CustomWorldType.LOBBY.getWorldName(), locString);
 
-      Block beacon = location.subtract(0, 1, 0).getBlock();
+      npc.spawn(loc);
+
+      Block beacon = loc.subtract(0, 1, 0).getBlock();
       beacon.setType(Material.BEACON);
       podiumBlocks.add(beacon);
 
-      setPodiumSlab(location, 1, 0);
-      setPodiumSlab(location, 0, 1);
-      setPodiumSlab(location, -1, 0);
-      setPodiumSlab(location, 0, -1);
+      setPodiumSlab(loc, 1, 0);
+      setPodiumSlab(loc, 0, 1);
+      setPodiumSlab(loc, -1, 0);
+      setPodiumSlab(loc, 0, -1);
 
-      setPodiumWool(location, 1, 0, kit);
-      setPodiumWool(location, -1, 0, kit);
-      setPodiumWool(location, 0, 1, kit);
-      setPodiumWool(location, 0, -1, kit);
+      setPodiumWool(loc, 1, 0, kit);
+      setPodiumWool(loc, -1, 0, kit);
+      setPodiumWool(loc, 0, 1, kit);
+      setPodiumWool(loc, 0, -1, kit);
     }
 
     kits.sort(Comparator.comparing(Kit::getType));
@@ -100,6 +102,7 @@ public class KitManager implements Listener {
     podiumBlocks.add(block);
   }
 
+  @SuppressWarnings("deprecation")
   private void setPodiumWool(Location beacon, int x, int z, Kit kit) {
     Block block = beacon.clone().add(x, -1, z).getBlock();
     block.setType(Material.WOOL);
@@ -108,9 +111,9 @@ public class KitManager implements Listener {
   }
 
   public void createHolograms(Player player) {
-    kitHolograms.put(player, new HashMap<>());
+    kitHolograms.put(player, new EnumMap<>(KitType.class));
 
-    kitsPerNpc.forEach((npc, kitType) -> {
+    npcToKitType.forEach((npc, kitType) -> {
       Location location = npc.getStoredLocation();
       location.add(0, getConfig().getDouble("HologramHeight"), 0);
       Hologram hologram = HolographicDisplaysAPI.get(SSL.getInstance()).createHologram(location);
@@ -123,7 +126,6 @@ public class KitManager implements Listener {
   }
 
   public void updateHolograms(Player player) {
-
     kitHolograms.get(player).forEach((kitType, hologram) -> {
       updateAccessHologram(player, getKitAccess(player, kitType), kitType);
     });
@@ -138,7 +140,6 @@ public class KitManager implements Listener {
       }
 
       if (other.isOnline()) {
-
         for (Hologram holo : kitHolograms.get(player).values()) {
           holo
               .getVisibilitySettings()
@@ -148,16 +149,14 @@ public class KitManager implements Listener {
     });
   }
 
-  private void updateAccessHologram(Player player, KitAccessType accessType, KitType kitType) {
+  private void updateAccessHologram(Player player, KitAccess accessType, KitType kitType) {
     HologramLines lines = kitHolograms.get(player).get(kitType).getLines();
     lines.clear();
     lines.appendText(accessType.getHologram());
   }
 
-  public KitAccessType getKitAccess(Player player, KitType kitType) {
-    return getSelectedKit(player).getType() == kitType
-           ? KitAccessType.SELECTED
-           : KitAccessType.ACCESSIBLE;
+  public KitAccess getKitAccess(Player player, KitType kitType) {
+    return getSelectedKit(player).getType() == kitType ? KitAccess.SELECTED : KitAccess.ACCESSIBLE;
   }
 
   public Kit getSelectedKit(Player player) {
@@ -191,17 +190,17 @@ public class KitManager implements Listener {
     Runnable noiseRunner = () -> newKit.getHurtNoise().playForPlayer(player);
 
     if (state.updatesKitSkins()) {
-      Optional.ofNullable(selfSkinShowers.remove(player)).ifPresent(Skin.SelfSkinShower::cancel);
-      selfSkinShowers.put(player, newKit.getSkin().apply(SSL.getInstance(), player, noiseRunner));
+      Optional.ofNullable(skinShowers.remove(player)).ifPresent(Skin.SelfSkinShower::cancel);
+      skinShowers.put(player, newKit.getSkin().apply(SSL.getInstance(), player, noiseRunner));
     }
     else {
       noiseRunner.run();
     }
 
-    Optional.ofNullable(selectedKits.put(player, newKit)).ifPresentOrElse(oldKit -> {
-      oldKit.destroy();
-      updateAccessHologram(player, KitAccessType.ACCESSIBLE, oldKit.getType());
-    }, () -> realSkins.put(player, Skin.fromPlayer(player)));
+    Optional.ofNullable(selectedKits.put(player, newKit)).ifPresentOrElse(kit -> {
+      kit.destroy();
+      updateAccessHologram(player, KitAccess.ACCESSIBLE, kit.getType());
+    }, () -> originalSkins.put(player, Skin.fromPlayer(player)));
 
     newKit.equip(player);
 
@@ -209,7 +208,7 @@ public class KitManager implements Listener {
       newKit.activate();
     }
 
-    updateAccessHologram(player, KitAccessType.SELECTED, kitType);
+    updateAccessHologram(player, KitAccess.SELECTED, kitType);
 
     Chat.KIT.send(player,
         String.format("&7You have selected the %s &7kit.", newKit.getDisplayName())
@@ -231,7 +230,8 @@ public class KitManager implements Listener {
 
   @EventHandler
   public void onNpcClick(NPCLeftClickEvent event) {
-    Optional<KitType> kitType = Optional.ofNullable(kitsPerNpc.get(event.getNPC()));
-    kitType.ifPresent(type -> setKit(event.getClicker(), type));
+    Optional
+        .ofNullable(npcToKitType.get(event.getNPC()))
+        .ifPresent(kitType -> setKit(event.getClicker(), kitType));
   }
 }

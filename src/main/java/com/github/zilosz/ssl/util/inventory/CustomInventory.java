@@ -23,7 +23,7 @@ public abstract class CustomInventory<T> implements InventoryProvider {
   private static final int MAX_ROWS = 5;
   private static final int MAX_COLUMNS = 7;
 
-  private final Map<T, InventoryCoordinate> coordinatesByItem = new HashMap<>();
+  private final Map<T, InventoryCoordinate> itemToCoords = new HashMap<>();
 
   public SmartInventory build() {
     return SmartInventory
@@ -65,7 +65,7 @@ public abstract class CustomInventory<T> implements InventoryProvider {
         }
 
         T item = items.get(index);
-        coordinatesByItem.put(item, new InventoryCoordinate(r, c));
+        itemToCoords.put(item, new InventoryCoordinate(r, c));
         setItem(contents, clicker, item);
         index++;
       }
@@ -85,7 +85,7 @@ public abstract class CustomInventory<T> implements InventoryProvider {
       int ticks = ((AutoUpdatesHard) this).getHardResetTicks();
 
       if (state % ticks == 0) {
-        CollectionUtils.removeWhileIteratingOverValues(coordinatesByItem, (item, coordinate) -> {
+        CollectionUtils.clearOverValues(itemToCoords, (item, coordinate) -> {
           ClickableItem empty = ClickableItem.empty(new ItemStack(Material.AIR));
           contents.set(coordinate.getRow(), coordinate.getColumn(), empty);
         });
@@ -97,7 +97,7 @@ public abstract class CustomInventory<T> implements InventoryProvider {
       int ticks = ((AutoUpdatesSoft) this).getSoftUpdateTicks();
 
       if (state % ticks == 0) {
-        coordinatesByItem.keySet().forEach(item -> setItem(contents, player, item));
+        itemToCoords.keySet().forEach(item -> setItem(contents, player, item));
       }
     }
 
@@ -107,14 +107,14 @@ public abstract class CustomInventory<T> implements InventoryProvider {
       if (state % randOption.getTicksPerColorChange() == 0) {
 
         ItemStack stack = new ItemBuilder<>(Material.WOOL)
-            .setData(CollectionUtils.selectRandom(ColorType.values()).getDyeColor().getWoolData())
+            .setData(CollectionUtils.randChoice(ColorType.values()).getDyeColor().getWoolData())
             .setName("&cR&6A&eN&aD&bO&dM")
             .setLore(List.of("&7Pick a random option!"))
             .get();
 
         contents.set(0, getColumnCount() - 1, ClickableItem.of(stack, e -> {
           randOption.getChatType().send(player, randOption.getMessage());
-          onItemClick(contents, player, CollectionUtils.selectRandom(getItems()), e);
+          onItemClick(contents, player, CollectionUtils.randChoice(getItems()), e);
         }));
       }
     }
@@ -122,7 +122,7 @@ public abstract class CustomInventory<T> implements InventoryProvider {
 
   protected void setItem(InventoryContents contents, Player clicker, T item) {
     ItemStack itemStack = getItemStack(clicker, item);
-    InventoryCoordinate coordinate = coordinatesByItem.get(item);
+    InventoryCoordinate coordinate = itemToCoords.get(item);
 
     contents.set(
         coordinate.getRow(),

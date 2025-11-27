@@ -10,7 +10,6 @@ import com.github.zilosz.ssl.util.block.MaterialInfo;
 import com.github.zilosz.ssl.util.effects.ParticleMaker;
 import com.github.zilosz.ssl.util.entity.EntityUtils;
 import com.github.zilosz.ssl.util.entity.finder.EntityFinder;
-import com.github.zilosz.ssl.util.entity.finder.selector.EntitySelector;
 import com.github.zilosz.ssl.util.entity.finder.selector.impl.HitBoxSelector;
 import com.github.zilosz.ssl.util.file.YamlReader;
 import com.github.zilosz.ssl.util.math.MathUtils;
@@ -43,21 +42,21 @@ public class Earthquake extends RightClickAbility {
   public void onClick(PlayerInteractEvent event) {
     player.getWorld().playSound(player.getLocation(), Sound.IRONGOLEM_THROW, 1, 0.5f);
 
-    double horizontal = config.getDouble("HorizontalRange");
-    double vertical = config.getDouble("VerticalRange");
+    double horizRange = config.getDouble("HorizontalRange");
+    double vertRange = config.getDouble("VerticalRange");
 
     quakeTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
       if (!EntityUtils.isPlayerGrounded(player)) return;
 
       Location center = player.getLocation();
 
-      int x = (int) MathUtils.randSpread(center.getBlockX(), horizontal);
-      int z = (int) MathUtils.randSpread(center.getBlockZ(), horizontal);
+      int x = (int) MathUtils.randSpread(center.getBlockX(), horizRange);
+      int z = (int) MathUtils.randSpread(center.getBlockZ(), horizRange);
 
-      Location currLoc = new Location(player.getWorld(), x, center.getBlockY() + vertical, z);
+      Location currLoc = new Location(player.getWorld(), x, center.getBlockY() + vertRange, z);
       int movedDown = 0;
 
-      while (movedDown < vertical * 2 && currLoc.getBlock().getType() == Material.AIR) {
+      while (movedDown < vertRange * 2 && currLoc.getBlock().getType() == Material.AIR) {
         currLoc.subtract(0, 1, 0);
         movedDown++;
       }
@@ -78,7 +77,7 @@ public class Earthquake extends RightClickAbility {
           new ParticleBuilder(ParticleEffect.REDSTONE).setColor(new Color(160, 82, 45));
       new ParticleMaker(smallParticle).ring(location, 90, 0, 0.75, 15);
 
-      EntitySelector selector = new HitBoxSelector(horizontal, vertical, horizontal);
+      HitBoxSelector selector = new HitBoxSelector(horizRange, vertRange, horizRange);
 
       for (LivingEntity target : new EntityFinder(selector).findAll(player)) {
         if (!target.isOnGround()) continue;

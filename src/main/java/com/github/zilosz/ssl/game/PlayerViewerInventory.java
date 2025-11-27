@@ -68,7 +68,6 @@ public class PlayerViewerInventory extends CustomInventory<Player>
   public void onItemClick(
       InventoryContents contents, Player clicker, Player other, InventoryClickEvent event
   ) {
-
     if (other.getGameMode() == GameMode.SPECTATOR) {
       Chat.TRACKER.send(clicker, getPlayerName(other) + " &7is respawning...");
     }

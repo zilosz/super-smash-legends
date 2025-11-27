@@ -12,16 +12,16 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 public class AttackManager {
   private final Map<LivingEntity, DamageIndicator> indicators = new HashMap<>();
   private final Map<LivingEntity, BukkitTask> indicatorRemovers = new HashMap<>();
-  private final Set<LivingEntity> entitiesWithInvisIndic = new HashSet<>();
+  private final Collection<LivingEntity> entitiesWithInvisIndic = new HashSet<>();
 
   private final Map<Player, Double> playerComboDamages = new HashMap<>();
   private final Map<Player, BukkitTask> comboDamageRemovers = new HashMap<>();
@@ -111,12 +111,12 @@ public class AttackManager {
     victim.setNoDamageTicks(0);
     victim.damage(finalDamage);
 
-    if (victim != attribute.getPlayer()) {
-      InGameProfile prof = SSL.getInstance().getGameManager().getProfile(attribute.getPlayer());
+    Player damager = attribute.getPlayer();
+
+    if (victim != damager) {
+      InGameProfile prof = SSL.getInstance().getGameManager().getProfile(damager);
       prof.getStats().addDamageDealt(finalDamage);
     }
-
-    Player damager = attribute.getPlayer();
 
     if (damager != victim) {
       double newCombo = playerComboDamages.getOrDefault(damager, 0.0) + finalDamage;
@@ -141,11 +141,11 @@ public class AttackManager {
         .flatMap(immunities -> Optional.ofNullable(immunities.remove(attackInfo)))
         .ifPresent(BukkitTask::cancel);
 
-    immunities
-        .get(victim)
-        .put(attackInfo, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
-          immunities.get(victim).remove(attackInfo).cancel();
-        }, attack.getImmunityTicks()));
+    BukkitTask immunityRemover = Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
+      immunities.get(victim).remove(attackInfo).cancel();
+    }, attack.getImmunityTicks());
+
+    immunities.get(victim).put(attackInfo, immunityRemover);
 
     return true;
   }
@@ -175,7 +175,7 @@ public class AttackManager {
 
   public void clearImmunities(LivingEntity entity) {
     Optional.ofNullable(immunities.remove(entity)).ifPresent(immunities -> {
-      CollectionUtils.removeWhileIteratingOverValues(immunities, BukkitTask::cancel);
+      CollectionUtils.clearOverValues(immunities, BukkitTask::cancel);
     });
   }
 }

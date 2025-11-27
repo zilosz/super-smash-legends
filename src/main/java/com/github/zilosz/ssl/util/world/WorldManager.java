@@ -40,8 +40,8 @@ public class WorldManager {
       schem = ClipboardFormat.SCHEMATIC.load(schematic);
     }
     catch (IOException e) {
-      String message = "Could not find the following schematic: '%s'";
-      throw new RuntimeException(String.format(message, schematic.getName()));
+      String msg = "Could not find the following schematic: '%s'";
+      throw new RuntimeException(String.format(msg, schematic.getName()));
     }
 
     World world = Bukkit.createWorld(worldCreator);

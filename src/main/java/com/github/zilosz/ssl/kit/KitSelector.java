@@ -22,13 +22,13 @@ import java.util.List;
 public class KitSelector extends CustomInventory<Kit> implements HasRandomOption {
 
   @Override
-  public String getTitle() {
-    return "Kit Selector";
+  public List<Kit> getItems() {
+    return SSL.getInstance().getKitManager().getKits();
   }
 
   @Override
-  public List<Kit> getItems() {
-    return SSL.getInstance().getKitManager().getKits();
+  public String getTitle() {
+    return "Kit Selector";
   }
 
   @Override
@@ -46,7 +46,7 @@ public class KitSelector extends CustomInventory<Kit> implements HasRandomOption
     }
 
     KitManager kitManager = SSL.getInstance().getKitManager();
-    KitAccessType accessType = kitManager.getKitAccess(player, kit.getType());
+    KitAccess accessType = kitManager.getKitAccess(player, kit.getType());
 
     Replacers replacers = new Replacers()
         .add("STATUS", accessType.getLore())
@@ -61,7 +61,8 @@ public class KitSelector extends CustomInventory<Kit> implements HasRandomOption
         .add("DESCRIPTION", kit.getDescription())
         .add("COLOR", kit.getColor().getChatSymbol());
 
-    List<String> lore = new ArrayList<>(Arrays.asList("{STATUS}",
+    List<String> lore = new ArrayList<>(Arrays.asList(
+        "{STATUS}",
         "",
         "&3&lStats",
         "&7Regen: {COLOR}{REGEN}",
@@ -88,7 +89,7 @@ public class KitSelector extends CustomInventory<Kit> implements HasRandomOption
     return new ItemBuilder<SkullMeta>(Material.SKULL_ITEM)
         .setData((byte) 3)
         .applyMeta(meta -> kit.getSkin().applyToSkull(meta))
-        .setEnchanted(accessType == KitAccessType.SELECTED)
+        .setEnchanted(accessType == KitAccess.SELECTED)
         .setName(kit.getBoldedDisplayName())
         .setLore(replacers.replaceLines(lore))
         .get();
@@ -96,16 +97,11 @@ public class KitSelector extends CustomInventory<Kit> implements HasRandomOption
 
   @Override
   public void onItemClick(
-      InventoryContents contents,
-      Player player,
-      Kit kit,
-      InventoryClickEvent event
+      InventoryContents contents, Player player, Kit kit, InventoryClickEvent event
   ) {
     KitManager kitManager = SSL.getInstance().getKitManager();
-    Kit lastKit = kitManager.getSelectedKit(player);
-    Kit newKit = kitManager.setKit(player, kit.getType());
-    setItem(contents, player, lastKit);
-    setItem(contents, player, newKit);
+    setItem(contents, player, kitManager.getSelectedKit(player));
+    setItem(contents, player, kitManager.setKit(player, kit.getType()));
   }
 
   @Override

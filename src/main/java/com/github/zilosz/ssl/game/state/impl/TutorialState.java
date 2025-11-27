@@ -114,17 +114,13 @@ public class TutorialState extends GameState {
     playersInTutorial.addAll(players);
 
     Arena arena = SSL.getInstance().getArenaManager().getArena();
-    List<Location> tutorialLocations = arena.getTutorialLocations();
+    List<Location> tutorialLocs = arena.getTutorialLocations();
 
-    double totalDistance =
-        tutorialLocations.get(0).distance(tutorialLocations.get(tutorialLocations.size() - 1));
-
-    for (int i = 1; i < tutorialLocations.size(); i++) {
-      totalDistance += tutorialLocations.get(i).distance(tutorialLocations.get(i - 1));
+    double totalDistance = tutorialLocs.get(0).distance(tutorialLocs.get(tutorialLocs.size() - 1));
+    for (int i = 1; i < tutorialLocs.size(); i++) {
+      totalDistance += tutorialLocs.get(i).distance(tutorialLocs.get(i - 1));
     }
-
-    totalDistance +=
-        tutorialLocations.get(tutorialLocations.size() - 1).distance(tutorialLocations.get(0));
+    totalDistance += tutorialLocs.get(tutorialLocs.size() - 1).distance(tutorialLocs.get(0));
 
     Section config = SSL.getInstance().getResources().getConfig();
 
@@ -141,12 +137,12 @@ public class TutorialState extends GameState {
       player.setGameMode(GameMode.SPECTATOR);
 
       skinChangers.put(player, kit.getSkin().applyAcrossTeleport(SSL.getInstance(), player, () -> {
-        player.teleport(tutorialLocations.get(0));
+        player.teleport(tutorialLocs.get(0));
         player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 2, 1);
         player.setFlySpeed(0);
 
         tutorialSchedulers.put(player, Bukkit.getScheduler().runTaskLater(SSL.getInstance(), () -> {
-          startTutorialMovement(player, tutorialLocations, velocity, 0, 1);
+          startTutorialMovement(player, tutorialLocs, velocity, 0, 1);
         }, delay));
 
         int ruleDelay = ((int) (double) tutorialDuration / (rules.size() + 1));
@@ -173,13 +169,11 @@ public class TutorialState extends GameState {
 
   @Override
   public void end() {
-    CollectionUtils.removeWhileIteratingOverValues(movers, BukkitTask::cancel);
-    CollectionUtils.removeWhileIteratingOverValues(ruleDisplayers, BukkitTask::cancel);
-    CollectionUtils.removeWhileIteratingOverValues(tutorialSchedulers, BukkitTask::cancel);
-    CollectionUtils.removeWhileIteratingOverValues(moveDelayers, BukkitTask::cancel);
-    CollectionUtils.removeWhileIteratingOverValues(skinChangers,
-        Skin.SelfSkinShower::showWithoutTpAction
-    );
+    CollectionUtils.clearOverValues(movers, BukkitTask::cancel);
+    CollectionUtils.clearOverValues(ruleDisplayers, BukkitTask::cancel);
+    CollectionUtils.clearOverValues(tutorialSchedulers, BukkitTask::cancel);
+    CollectionUtils.clearOverValues(moveDelayers, BukkitTask::cancel);
+    CollectionUtils.clearOverValues(skinChangers, Skin.SelfSkinShower::showWithoutTpAction);
     new HashSet<>(playersInTutorial).forEach(this::stopPlayerAfterCompletion);
 
     if (skipTask != null) {

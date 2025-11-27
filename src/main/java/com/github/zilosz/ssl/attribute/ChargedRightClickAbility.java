@@ -68,7 +68,6 @@ public abstract class ChargedRightClickAbility extends RightClickAbility {
 
     if (ticksCharging < getMinChargeTicks()) {
       onFailedCharge();
-
     }
     else {
       onSuccessfulCharge();

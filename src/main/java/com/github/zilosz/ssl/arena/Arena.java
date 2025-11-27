@@ -55,8 +55,8 @@ public class Arena {
   public void create() {
     Vector pasteVector = YamlReader.vector(config.getString("PasteVector"));
     String path = FileUtility.buildPath("arenas", config.getString("SchematicName"));
-    File schematic = FileUtility.loadSchematic(SSL.getInstance(), path);
-    SSL.getInstance().getWorldManager().createWorld(CustomWorldType.ARENA, schematic, pasteVector);
+    File schem = FileUtility.loadSchematic(SSL.getInstance(), path);
+    SSL.getInstance().getWorldManager().createWorld(CustomWorldType.ARENA, schem, pasteVector);
   }
 
   public Location getWaitLocation() {

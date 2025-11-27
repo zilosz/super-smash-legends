@@ -7,7 +7,7 @@ import com.github.zilosz.ssl.util.file.FileUtility;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import lombok.Getter;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 public class Resources {
@@ -17,8 +17,8 @@ public class Resources {
   @Getter private final YamlDocument arenas;
   @Getter private final YamlDocument database;
 
-  private final Map<KitType, YamlDocument> kits = new HashMap<>();
-  private final Map<AbilityType, YamlDocument> abilities = new HashMap<>();
+  private final Map<KitType, YamlDocument> kits = new EnumMap<>(KitType.class);
+  private final Map<AbilityType, YamlDocument> abilities = new EnumMap<>(AbilityType.class);
 
   public Resources() {
     config = FileUtility.loadYaml(SSL.getInstance(), "config");

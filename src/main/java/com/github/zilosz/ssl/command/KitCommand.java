@@ -48,7 +48,7 @@ public class KitCommand implements CommandExecutor {
 
     if (name.equalsIgnoreCase("random")) {
       Chat.KIT.send(player, "&7Selecting a random kit...");
-      kitManager.setKit(player, CollectionUtils.selectRandom(KitType.values()));
+      kitManager.setKit(player, CollectionUtils.randChoice(KitType.values()));
     }
     else {
 

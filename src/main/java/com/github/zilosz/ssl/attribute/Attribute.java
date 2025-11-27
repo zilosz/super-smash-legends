@@ -13,15 +13,15 @@ public class Attribute implements Listener {
   @Getter protected Kit kit;
   @Getter protected Player player;
   protected int period;
-  private BukkitTask task;
+  private BukkitTask ticker;
 
-  public void initAttribute(Kit kit) {
+  public void assignKit(Kit kit) {
     this.kit = kit;
   }
 
   public void activate() {
     Bukkit.getPluginManager().registerEvents(this, SSL.getInstance());
-    task = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), this::run, 0, period);
+    ticker = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), this::run, 0, period);
   }
 
   public void run() {}
@@ -40,8 +40,8 @@ public class Attribute implements Listener {
   public void deactivate() {
     HandlerList.unregisterAll(this);
 
-    if (task != null) {
-      task.cancel();
+    if (ticker != null) {
+      ticker.cancel();
     }
   }
 }

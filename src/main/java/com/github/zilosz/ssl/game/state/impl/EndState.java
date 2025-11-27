@@ -101,7 +101,7 @@ public class EndState extends GameState {
     Comparator<Team> comp = Comparator.comparingInt(Team::getLifespan).reversed();
 
     List<Team> teams = teamManager.getTeamList();
-    List<List<Team>> rankedTeams = CollectionUtils.getRankedGroups(teams, comp);
+    List<List<Team>> rankedTeams = CollectionUtils.rankElements(teams, comp);
 
     Collection<String> ranking = new ArrayList<>(Arrays.asList("&5--------------------------",
         "&d&lFinal Player Ranking",
@@ -117,10 +117,8 @@ public class EndState extends GameState {
       for (Team team : rankedTeams.get(currRankIndex)) {
 
         for (Player player : team.getPlayers()) {
-          players
-              .append(teamManager.getPlayerColor(player))
-              .append(player.getName())
-              .append("&7, ");
+          String color = teamManager.getPlayerColor(player);
+          players.append(color).append(player.getName()).append("&7, ");
           playerRanks.put(player, currRankIndex + 1);
         }
       }

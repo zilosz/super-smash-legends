@@ -7,6 +7,7 @@ import com.github.zilosz.ssl.attribute.impl.Energy;
 import com.github.zilosz.ssl.attribute.impl.Jump;
 import com.github.zilosz.ssl.attribute.impl.Melee;
 import com.github.zilosz.ssl.attribute.impl.Regeneration;
+import com.github.zilosz.ssl.config.Resources;
 import com.github.zilosz.ssl.util.Noise;
 import com.github.zilosz.ssl.util.Skin;
 import com.github.zilosz.ssl.util.effects.ColorType;
@@ -39,34 +40,32 @@ public class Kit {
     this.config = config;
     this.type = type;
 
-    skin = Skin.fromMojang(getSkinName());
+    skin = Skin.fetchFromAPI(getSkinName());
     jump = addAttribute(new Jump());
     regeneration = addAttribute(new Regeneration());
     melee = addAttribute(new Melee());
     energy = addAttribute(new Energy());
 
-    Optional.ofNullable(config.getSection("Abilities")).ifPresent(abilities -> {
-
+    Optional.ofNullable(config.getSection("Abilities")).ifPresent(section -> {
       IntStream.range(0, 6).forEach(slot -> {
-
-        Optional.ofNullable(abilities.getString(String.valueOf(slot))).ifPresent(abilityName -> {
-          AbilityType abilityType = AbilityType.valueOf(abilityName);
-          YamlDocument abilityConfig =
-              SSL.getInstance().getResources().getAbilityConfig(abilityType);
+        Optional.ofNullable(section.getString(String.valueOf(slot))).ifPresent(name -> {
+          AbilityType abilityType = AbilityType.valueOf(name);
+          Resources resources = SSL.getInstance().getResources();
+          YamlDocument abilityConfig = resources.getAbilityConfig(abilityType);
           addAttribute(abilityType.get()).initAbility(abilityConfig, abilityType, slot);
         });
       });
     });
   }
 
-  public String getSkinName() {
-    return config.getString("Skin");
-  }
-
   private <T extends Attribute> T addAttribute(T attribute) {
     attributes.add(attribute);
-    attribute.initAttribute(this);
+    attribute.assignKit(this);
     return attribute;
+  }
+
+  public String getSkinName() {
+    return config.getString("Skin");
   }
 
   public List<String> getDescription() {

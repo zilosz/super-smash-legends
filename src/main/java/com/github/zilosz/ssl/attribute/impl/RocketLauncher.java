@@ -101,7 +101,7 @@ public class RocketLauncher extends ChargedRightClickAbility {
         Location launchLocation = location.clone();
         launchLocation.setYaw(yaw);
 
-        Color color = CollectionUtils.selectRandom(ColorType.values()).getAwtColor();
+        Color color = CollectionUtils.randChoice(ColorType.values()).getAwtColor();
         ParticleBuilder particle = new ParticleBuilder(ParticleEffect.REDSTONE).setColor(color);
 
         Section shrapnelConfig = config.getSection("Shrapnel");

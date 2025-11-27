@@ -65,7 +65,7 @@ public class SpookyScream extends RightClickAbility {
     ringTask = Bukkit.getScheduler().runTaskTimer(SSL.getInstance(), () -> {
       currLocation.add(step);
 
-      NoteColor note = new NoteColor(CollectionUtils.selectRandom(notes));
+      NoteColor note = new NoteColor(CollectionUtils.randChoice(notes));
       ParticleBuilder particle = new ParticleBuilder(ParticleEffect.NOTE).setParticleData(note);
       new ParticleMaker(particle).ring(currLocation, radius, config.getDouble("DegreeGap"));
 

@@ -174,8 +174,8 @@ public class GaiaToss extends ChargedRightClickBlockAbility {
   }
 
   private void destroyBlocks() {
-    CollectionUtils.removeWhileIterating(blocks, FloatingEntity::destroy);
-    CollectionUtils.removeWhileIterating(positionUpdaters, BukkitTask::cancel);
+    CollectionUtils.clearWhileIterating(blocks, FloatingEntity::destroy);
+    CollectionUtils.clearWhileIterating(positionUpdaters, BukkitTask::cancel);
   }
 
   private static class GaiaTossProjectile extends BlockProjectile {

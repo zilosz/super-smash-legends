@@ -160,7 +160,7 @@ public class Scarecrow extends RightClickAbility {
         Location location = scarecrow.getStoredLocation();
 
         Predicate<LivingEntity> predicate = entity -> !selector.containsEntity(location, entity);
-        CollectionUtils.removeWhileIterating(affectedTargets, this::removeEffect, predicate);
+        CollectionUtils.clearWhileIterating(affectedTargets, this::removeEffect, predicate);
 
         EntityFinder finder = new EntityFinder(selector)
             .avoid((LivingEntity) scarecrow.getEntity())
@@ -226,7 +226,7 @@ public class Scarecrow extends RightClickAbility {
     npcHologram.delete();
     scarecrow.destroy();
 
-    CollectionUtils.removeWhileIterating(affectedTargets, this::removeEffect);
+    CollectionUtils.clearWhileIterating(affectedTargets, this::removeEffect);
   }
 
   private void removeEffect(LivingEntity entity) {
